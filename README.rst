@@ -54,4 +54,5 @@ Documentation
 ~~~~~~~~~~~~~
 To view locally, type ``mkdocs build``, and then open ``site/index.html``.
 (We will host this using ``mkdocs gh-deploy`` when we have a GitHub account with Pages enabled.)
+The link to the webpage is: https://globalfund-pri.github.io/model_code_pipeline/
 
