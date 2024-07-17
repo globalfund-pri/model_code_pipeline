@@ -1,0 +1,49 @@
+# Overall specification of the analysis
+START_YEAR = 2020  # The first year of the model results
+END_YEAR = 2030  # The final year of the model results
+YEARS_FOR_FUNDING = [2023, 2024, 2025]  # These are the years for which the funding data corrrespond
+YEARS_FOR_OBJ_FUNC = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]  # These are the years for which cases/deathhs are minimised
+Z_VALUE = 1.96
+RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE = 0.5
+SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'default'
+
+# Definition of the Scenarios defined the model results
+[[scenario]]
+name='default'
+description="The default scenario"
+
+[[scenario]]
+name="alternative"
+description="The alternative scenario"
+
+# Definitition of the Counterfactuals defined in the model results
+[[counterfactual]]
+name='cf_null'
+description='A counterfactual.'
+
+# Disease specific definitions (here we use 'diseaseX' as the name of the disease for the test dataset)
+[diseaseX]
+PORTFOLIO_COUNTRIES = ['A', 'B', 'C']
+MODELLED_COUNTRIES=['A', 'B']
+INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
+NEW_INNOVATIONS_SCALING_FACTORS = [0.01, 0.02, 0.05, 0.12, 0.27, 0.50, 0.73, 0.88, 0.95, 0.98, 0.99]
+
+# The indicators that are defined for diseaseX
+[[diseaseX.indicator]]
+name="cases"
+description="number of new disease-X infections"
+type="count"
+use_scaling=true
+
+[[diseaseX.indicator]]
+name="deaths"
+description="number of disease-X related deaths"
+type="count"
+use_scaling=true
+
+[[diseaseX.indicator]]
+name="cost"
+description="cost of the program"
+type="count"
+use_scaling=false
+

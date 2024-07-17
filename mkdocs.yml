@@ -1,0 +1,14 @@
+site_name: tgftools Documentation
+theme:
+  name: "material"
+nav:
+  - Home: index.md
+  - Tutorial: tutorial.md
+  - Reference: reference.md
+  - Getting Started: getting_started.md
+  - Investment Case 7: ic7.md
+  - Investment Case 8: ic8.md
+
+plugins:
+  - mkdocstrings
+

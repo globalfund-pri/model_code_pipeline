@@ -1,0 +1,337 @@
+# This is the `parameters.toml` file for the IC7 analysis.
+# All parameters and definitions for that analysis are stored here.
+
+
+# Overall specification of the analysis
+START_YEAR = 2020  # The first year of the model results (and the last year for which data available). This is the year upon which calibrating adjustments are made for the model results.
+END_YEAR = 2030  # The final year of the model results
+YEARS_FOR_FUNDING = [2024, 2025, 2026]  # These are the years for which the funding data corrrespond
+YEARS_FOR_OBJ_FUNC = [2024, 2025, 2026, 2027, 2028, 2029, 2030]  # These are the years for which cases/deathhs are minimised
+RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE = 1.0
+RHO_BETWEEN_DISEASES = 1.0
+Z_VALUE = 1.282
+SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'GP_GP'
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# Definition of the Counterfactuals defined the model results
+[[counterfactual]]
+name="GP_GP"
+description="Follow GP and revert to GP"
+
+[[counterfactual]]
+name="CC_CC"
+description="constant coverage and constant coverage"
+
+[[counterfactual]]
+name="NULL_NULL"
+description="null and null"
+
+# Definition of the Scenarios defined the model results
+[[scenario]]
+name="PF_MC"
+description="follow PF targets and maintain coverage"
+
+[[scenario]]
+name="PF_GP"
+description="follow PF targets and revert to GP"
+
+[[scenario]]
+name="PP_MC"
+description="follow past performance (adjusted PFs) and maintain coverage"
+
+[[scenario]]
+name="PP_GP"
+description="follow past performance (adjusted PFs) and revert to GP"
+
+[[scenario]]
+name="CD_MC"
+description="continued disruption (e.g. COVID_19 disruption) and maintain coverage"
+
+[[scenario]]
+name="CD_GP"
+description="continued disruption (e.g. COVID_19 disruption) and revert to GP"
+
+[[scenario]]
+name="IC_IC"
+description="This is a hybrid scenario and is constructed as follows: 2021 is CD, 2022 is mean of CD and PF and after that is PF_MC"
+
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# HIV specific definitions
+
+[HIV]
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'CUB', 'DJI', 'DOM', 'ECU', 'EGY', 'ERI', 'ETH', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MRT', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'STP', 'SUR', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AGO', 'CIV', 'CMR', 'COD', 'COL', 'ETH', 'GHA', 'IDN', 'IND', 'KEN', 'LSO', 'MLI', 'MOZ', 'MWI', 'NGA', 'PAK', 'PHL', 'SSD', 'TZA', 'UGA', 'UKR', 'ZAF', 'ZMB', 'ZWE']
+FUNDING_FRACTIONS = [0.1,0.2,0.4,0.6,0.75,0.8,0.85,0.9,0.95,1.0]
+GP_START_YEAR = 2010
+PARTNER_DATA_YEARS = [2020]
+PF_DATA_YEARS = [2021,2022,2023]
+TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
+INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
+NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+[[HIV.indicator]]
+name="cases"
+description="number of new HIV infections"
+type="count"
+use_scaling=true
+
+[[HIV.indicator]]
+name="deaths"
+description="number of HIV related deaths"
+type="count"
+use_scaling=true
+
+[[HIV.indicator]]
+name="plhiv"
+description="number of persons living with HIV"
+type="count"
+use_scaling=true
+
+[[HIV.indicator]]
+name="population"
+description="total population from Spectrum"
+type="count"
+use_scaling=true
+
+[[HIV.indicator]]
+name="hivneg"
+description="number of hiv-negative people"
+type="count"
+use_scaling=true
+
+[[HIV.indicator]]
+name="incidence"
+description="number of new infections with HIV that occur with a year"
+type="rate"
+use_scaling=false
+
+[[HIV.indicator]]
+name="mortality"
+description="number of deaths amongst hiv-positive people for a given year"
+type="rate"
+use_scaling=false
+
+[[HIV.indicator]]
+name="art"
+description="number of people on ART"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="artcoverage"
+description="percentage of people on ART among all people living with HIV at the end of the reporting period"
+type="fraction"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cost"
+description="total cost fot this scenario"
+type="count"
+use_scaling=false
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# TB specific definitions
+
+[TB]
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'CPV', 'DJI', 'EGY', 'ETH', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNG', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRK', 'RWA', 'SDN', 'SUR', 'SEN', 'SLE', 'SLV', 'SOM', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AFG','AGO','ARM','AZE','BGD','BLR','BEN','BTN','BOL','BWA','BFA','BDI','CIV','CPV','KHM','CMR','CAF','TCD','COG','PRK','COD','DJI','EGY','SLV','SWZ','ETH','GAB','GMB','GEO','GHA','GIN','GNB','GUY','HTI','HND','IND','IDN','KAZ','KEN','KGZ','LSO','LBR','MDG','MWI','MLI','MRT','MNG','MAR','MOZ','MMR','NAM','NPL','NIC','NER','NGA','PAK','PNG','PER','PHL','MDA','RWA','SEN','SLE','SOM','SUR','ZAF','LKA','SDN','TJK','THA','TLS','TGO','UGA','UKR','TZA','UZB','VNM','ZMB','ZWE']
+FUNDING_FRACTIONS = [0.00,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
+GP_START_YEAR = 2015
+PARTNER_DATA_YEARS = [2019,2020]
+PF_DATA_YEARS = [2021,2022,2023]
+TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
+INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths', 'deathshivneg']
+NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.01798620996209160, 0.04742587317756680, 0.11920292202211800, 0.26894142136999500, 0.50000000000000000, 0.73105857863000500, 0.88079707797788200, 0.95257412682243300, 0.98201379003790800, 1]
+
+[[TB.indicator]]
+name="cases"
+description="number of new tb infections"
+type="count"
+use_scaling=true
+
+[[TB.indicator]]
+name="deaths"
+description="number of tb related deaths"
+type="count"
+use_scaling=true
+
+[[TB.indicator]]
+name="deathshivneg"
+description="number of deaths amongst hiv negative people"
+type="count"
+use_scaling=true
+
+[[TB.indicator]]
+name="deathsnotx"
+description="number of tb related deaths in abscence of treatment"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathsnotxhivneg"
+description="number of deaths in abscence of treatment amongst hiv negative people"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population"
+description="total population"
+type="count"
+use_scaling=true
+
+[[TB.indicator]]
+name="incidence"
+description="number of new tb cases that occur with a year"
+type="rate"
+use_scaling=false
+
+[[TB.indicator]]
+name="mortality"
+description="mortality rate related to tb for a given year"
+type="rate"
+use_scaling=false
+
+[[TB.indicator]]
+name="mdrtx"
+description="number of people with confirmed RR-TB and/or MDR-TB that began second-line treatment"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="mdrtxcoverage"
+description="percentage of people with confirmed RR-TB and/or MDR-TB that began second-line treatment"
+type="fraction"
+use_scaling=false
+
+[[TB.indicator]]
+name="notified"
+description="number of patients with all forms of TB notified (i.e. bacteriologically confirmed + clinically diagnosed) includes only those with new and relapse TB"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="txcoverage"
+description="percentage of patients with all forms of TB bacteriologically confirmed plus clinically diagnosed and successfully treated (cured plus treatment completed) among all TB patients notified during a specified period; includes only those with new and relapse TB"
+type="fraction"
+use_scaling=false
+
+[[TB.indicator]]
+name="tbart"
+description="number of HIV-positive new and relapse TB patients on ART during TB treatment"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="tbartcoverage"
+description="percentage of HIV-positive new and relapse TB patients on ART during TB treatment"
+type="fraction"
+use_scaling=false
+
+[[TB.indicator]]
+name="cost"
+description="total cost fot this scenario"
+type="count"
+use_scaling=false
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# MALARIA specific definitions
+
+[MALARIA]
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SOM', 'SSD', 'SUR', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'VUT', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AFG','AGO','BDI','BEN','BFA','BGD','BOL','BTN','CAF','CIV','CMR','COD','COG','COM','DJI','ERI','ETH','GHA','GIN','GMB','GNB','HND','HTI','IDN','IND','KEN','KHM','LAO','LBR','MDG','MLI','MMR','MOZ','MRT','MWI','NAM','NER','NGA','NIC','NPL','PAK','PHL','PNG','RWA','SDN','SEN','SLB','SLE','SOM','SSD','SUR','TCD','TGO','THA','TZA','UGA','VNM','VUT','ZMB','ZWE']
+FUNDING_FRACTIONS = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
+GP_START_YEAR = 2015
+PARTNER_DATA_YEARS = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020]
+PF_DATA_YEARS = [2021,2022,2023]
+TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
+INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
+NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.01798620996209160, 0.04742587317756680, 0.11920292202211800, 0.26894142136999500, 0.50000000000000000, 0.73105857863000500, 0.88079707797788200, 0.95257412682243300, 0.98201379003790800, 1]
+
+[[MALARIA.indicator]]
+name="cases"
+description="number of malaria cases"
+type="count"
+use_scaling=true
+
+[[MALARIA.indicator]]
+name="deaths"
+description="number of malaria related deaths"
+type="count"
+use_scaling=true
+
+[[MALARIA.indicator]]
+name="par"
+description="population at risk"
+type="count"
+use_scaling=true
+
+[[MALARIA.indicator]]
+name="incidence"
+description="number of new malaria cases that occur with a year"
+type="rate"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="mortality"
+description="mortality rate related to malaria for a given year"
+type="rate"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="irshh"
+description="number of households sprayed with irs"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="llins"
+description="number of llins distributed through mass campaign and continuous distribution"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="llinscoverage"
+description="percentage of llins distributed through mass campaign and continuous distribution"
+type="fraction"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="txcoverage"
+description="percentage of the population treated for malaria in public sector"
+type="fraction"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="tx"
+description="number of people treated for malaria in public sector"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="vectorcontrolcoverage"
+description="check but probably percentage of population covered by vector control"
+type="fraction"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="cost"
+description="total cost fot this scenario"
+type="count"
+use_scaling= false
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
