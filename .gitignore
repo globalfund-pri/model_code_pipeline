@@ -1,0 +1,4 @@
+.idea/
+/tgftools.conf
+/site/
+/.pytest_cache/
