@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Optional
 
 import pandas as pd
-from griffe.dataclasses import Parameters
 
 from tgftools.utils import get_root_path
 
@@ -36,7 +35,7 @@ class FileHandler:
     will be needed for each type of input and these are created by inheriting from this class.
     """
 
-    def __init__(self, path: Optional[Path] = None, parameters: Optional[Parameters] = None):
+    def __init__(self, path: Optional[Path] = None, parameters: Optional['Parameters'] = None):
         self.df: pd.DataFrame
         self.path: Path = path
         self.parameters: Parameters = parameters
