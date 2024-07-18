@@ -496,6 +496,7 @@ class HTMReport(Report):
             'mal_cases',
             'mal_deaths',
             'comb_mort',
+            'comb_inc',
         ]
 
         for sheet in sheets_for_graphs:
@@ -634,8 +635,7 @@ class HTMReport(Report):
         sds = pd.DataFrame({"hiv":hiv_sd, "tb":tb_sd, "malaria":malaria_sd})
 
         # Prepare to generate CIs
-        rho_btw_diseases = 1 # TODO: read in from parameter.toml
-        # rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
+        rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
         years = list(range(2021, 2031))
         combined_temp = (hiv_mortality_ic + tb_mortality_ic + malaria_mortality_ic) / 3
 
@@ -718,17 +718,7 @@ class HTMReport(Report):
         cf = combined_mortality_cf.loc[combined_mortality_cf.index >2019 ].iloc[:,0]
         ic = combined_mortality.loc[combined_mortality.index > 2019].iloc[:,0]
         ic_lb = combined_lb.loc[combined_lb.index > 2020].iloc[:,0]
-        ic_ub = combined_lb.loc[combined_ub.index > 2020].iloc[:,0]
-
-        # return {
-        #     "Combined (normalised to 100 in 2020) mortality timeseries for IC ": combined_mortality,
-        #     "Combined (normalised to 100 in 2020) mortality timeseries for IC LB": combined_lb,
-        #     "Combined (normalised to 100 in 2020) mortality timeseries for IC UB": combined_ub,
-        #     "Combined (normalised to 100 in 2020) mortality timeseries for covid disruption ": combined_mortality_cf,
-        #     "Combined (normalised to 100 in 2020) mortality timeseries for GP ": combined_mortality_gp,
-        #     "Reduction in mortality (normalised to 100 in 2020) from 2020 to 2026 under IC scenario": reduction_ic,
-        #     "Reduction in mortality (normalised to 100 in 2020) from 2020 to 2026 under Covid disruption scenario": reduction_cf,
-        # }
+        ic_ub = combined_ub.loc[combined_ub.index > 2020].iloc[:,0]
 
         return pd.DataFrame(
             index=pd.Index(list(range(2015, 2027)), name='Year'),
@@ -742,235 +732,233 @@ class HTMReport(Report):
             }
         )
 
-    # def get_combined_incidence_rates(self) -> dict[str, Any]:
-    #     """ Generate combined incidence stats """
-    #
-    #     # Step 1. Get data for each disease from partner
-    #     hiv_cases_partner = self.hiv.PARTNER["cases"]
-    #     tb_cases_partner = self.tb.PARTNER["cases"]
-    #     malaria_cases_partner = self.malaria.PARTNER["cases"]
-    #
-    #     hiv_pop_partner = self.hiv.PARTNER["hivneg"]
-    #     tb_pop_partner = self.tb.PARTNER["population"]
-    #     malaria_pop_partner = self.malaria.PARTNER["par"]
-    #
-    #     hiv_incidence_partner = hiv_cases_partner / hiv_pop_partner
-    #     tb_incidence_partner = tb_cases_partner / tb_pop_partner
-    #     malaria_incidence_partner = malaria_cases_partner / malaria_pop_partner
-    #
-    #     # Step 2.1 Get incidence for each disease from IC including LB and UB
-    #     hiv_cases_ic = self.hiv.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     hiv_cases_lb_ic = self.hiv.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_low"]
-    #     hiv_cases_ub_ic = self.hiv.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_high"]
-    #
-    #     tb_cases_ic = self.tb.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     tb_cases_lb_ic = self.tb.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_low"]
-    #     tb_cases_ub_ic = self.tb.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_high"]
-    #
-    #     malaria_cases_ic = self.malaria.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     malaria_cases_lb_ic = self.malaria.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_low"]
-    #     malaria_cases_ub_ic = self.malaria.IC.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_high"]
-    #
-    #     hiv_pop_ic = self.hiv.IC.portfolio_results["hivneg"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     tb_pop_ic = self.tb.IC.portfolio_results["population"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     malaria_pop_ic = self.malaria.IC.portfolio_results["par"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #
-    #     hiv_incidence_ic = hiv_cases_ic / hiv_pop_ic
-    #     tb_incidence_ic = tb_cases_ic / tb_pop_ic
-    #     malaria_incidence_ic = malaria_cases_ic / malaria_pop_ic
-    #
-    #     hiv_incidence_lb_ic = hiv_cases_lb_ic / hiv_pop_ic
-    #     tb_incidence_lb_ic = tb_cases_lb_ic / tb_pop_ic
-    #     malaria_incidence_lb_ic = malaria_cases_lb_ic / malaria_pop_ic
-    #
-    #     hiv_incidence_ub_ic = hiv_cases_ub_ic / hiv_pop_ic
-    #     tb_incidence_ub_ic = tb_cases_ub_ic / tb_pop_ic
-    #     malaria_incidence_ub_ic = malaria_cases_ub_ic / malaria_pop_ic
-    #
-    #     # Step 2.2 Get incidence for each disease from Covid disruption
-    #     hiv_cases_cf = self.hiv.CF_InfAve.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     tb_cases_cf = self.tb.CF_InfAve.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     malaria_cases_cf = self.malaria.CF_InfAve.portfolio_results["cases"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #
-    #     hiv_pop_cf = self.hiv.CF_InfAve.portfolio_results["hivneg"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     tb_pop_cf = self.tb.CF_InfAve.portfolio_results["population"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #     malaria_pop_cf = self.malaria.CF_InfAve.portfolio_results["par"].loc[
-    #         slice(2021, 2030), "model_central"]
-    #
-    #     hiv_incidence_cf = hiv_cases_cf / hiv_pop_cf
-    #     tb_incidence_cf = tb_cases_cf / tb_pop_cf
-    #     malaria_incidence_cf = malaria_cases_cf / malaria_pop_cf
-    #
-    #     # Step 2.3 Get incidence for each disease from GP
-    #     hiv_cases_gp = self.hiv.CF_forgraphs["cases"]
-    #     hiv_pop_gp = self.hiv.CF_forgraphs["hivneg"]
-    #     hiv_incidence_gp = hiv_cases_gp / hiv_pop_gp
-    #     hiv_incidence_gp = pd.DataFrame(hiv_incidence_gp)
-    #     hiv_incidence_gp = hiv_incidence_gp[hiv_incidence_gp.index > 2020]
-    #
-    #     tb_incidence_gp = self.tb.CF_forgraphs["incidence"]
-    #     tb_incidence_gp = pd.DataFrame(tb_incidence_gp)
-    #     tb_incidence_gp = tb_incidence_gp[tb_incidence_gp.index >2020]
-    #
-    #     malaria_incidence_gp = self.malaria.CF_forgraphs["incidence"]
-    #     malaria_incidence_gp = pd.DataFrame(malaria_incidence_gp)
-    #     malaria_incidence_gp = malaria_incidence_gp[malaria_incidence_gp.index > 2020]
-    #
-    #     # Step 3.1 Normalise each disease to 100 in 2020 for partner and IC
-    #     combined_hiv_incidence = pd.concat([hiv_incidence_partner,hiv_incidence_ic])
-    #     combined_hiv_incidence = pd.DataFrame(combined_hiv_incidence)
-    #     combined_hiv_incidence = 100*(combined_hiv_incidence / combined_hiv_incidence.iloc[5,:])
-    #
-    #     combined_tb_incidence = pd.concat([tb_incidence_partner, tb_incidence_ic])
-    #     combined_tb_incidence = pd.DataFrame(combined_tb_incidence)
-    #     combined_tb_incidence = 100 * (combined_tb_incidence / combined_tb_incidence.iloc[5, :])
-    #
-    #     combined_malaria_incidence = pd.concat([malaria_incidence_partner, malaria_incidence_ic])
-    #     combined_malaria_incidence = pd.DataFrame(combined_malaria_incidence)
-    #     combined_malaria_incidence = 100 * (combined_malaria_incidence / combined_malaria_incidence.iloc[5, :])
-    #
-    #     # Step 3.2. Normalise the LB and UB for the IC
-    #     combined_hiv_incidence_lb = pd.concat([hiv_incidence_partner, hiv_incidence_lb_ic])
-    #     combined_hiv_incidence_lb = pd.DataFrame(combined_hiv_incidence_lb)
-    #     combined_hiv_incidence_lb = 100 * (combined_hiv_incidence_lb / combined_hiv_incidence_lb.iloc[5, :])
-    #     combined_hiv_incidence_ub = pd.concat([hiv_incidence_partner, hiv_incidence_ub_ic])
-    #     combined_hiv_incidence_ub = pd.DataFrame(combined_hiv_incidence_ub)
-    #     combined_hiv_incidence_ub = 100 * (combined_hiv_incidence_ub / combined_hiv_incidence_ub.iloc[5, :])
-    #
-    #     combined_tb_incidence_ub = pd.concat([tb_incidence_partner, tb_incidence_lb_ic])
-    #     combined_tb_incidence_lb = pd.DataFrame(combined_tb_incidence_ub)
-    #     combined_tb_incidence_lb = 100 * (combined_tb_incidence_lb / combined_tb_incidence_lb.iloc[5, :])
-    #     combined_tb_incidence_ub = pd.concat([tb_incidence_partner, tb_incidence_ub_ic])
-    #     combined_tb_incidence_ub = pd.DataFrame(combined_tb_incidence_ub)
-    #     combined_tb_incidence_ub = 100 * (combined_tb_incidence_ub / combined_tb_incidence_ub.iloc[5, :])
-    #
-    #     combined_malaria_incidence_lb = pd.concat([malaria_incidence_partner, malaria_incidence_lb_ic])
-    #     combined_malaria_incidence_lb = pd.DataFrame(combined_malaria_incidence_lb)
-    #     combined_malaria_incidence_lb = 100 * (combined_malaria_incidence_lb / combined_malaria_incidence_lb.iloc[5, :])
-    #     combined_malaria_incidence_ub = pd.concat([malaria_incidence_partner, malaria_incidence_ub_ic])
-    #     combined_malaria_incidence_ub = pd.DataFrame(combined_malaria_incidence_ub)
-    #     combined_malaria_incidence_ub = 100 * (combined_malaria_incidence_ub / combined_malaria_incidence_ub.iloc[5, :])
-    #
-    #     # Back calculate SD at
-    #     hiv_sd = (hiv_incidence_ub_ic - hiv_incidence_ic) / 1.96
-    #     tb_sd = (tb_incidence_ub_ic - tb_incidence_ic) / 1.96
-    #     malaria_sd = (malaria_incidence_ub_ic - malaria_incidence_ic) / 1.96
-    #     sds = pd.DataFrame({"hiv": hiv_sd, "tb": tb_sd, "malaria": malaria_sd})
-    #
-    #     # Prepare to generate CIs
-    #     rho_btw_diseases = 1  # TODO: read in from parameter.toml
-    #     # rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
-    #     years = list(range(2021, 2031))
-    #     combined_temp = (hiv_incidence_ic + tb_incidence_ic + malaria_incidence_ic) / 3
-    #
-    #     # Make an empty dataframe
-    #     ic_bounds = pd.DataFrame(index=years, columns=["low", "high"])
-    #
-    #     # Calculate combined sd across diseases
-    #     for y in years:
-    #         # Grab the sd for that year
-    #         _sd = sds.loc[sds.index == y]
-    #         _sd = _sd.iloc[0].to_numpy()
-    #
-    #         # Grab the model central (average across diseases) for that year
-    #         _combined_temp = combined_temp[combined_temp.index == y]
-    #
-    #         sd_for_year = ((
-    #                                matmul(_sd).sum() * rho_btw_diseases
-    #                                + (_sd ** 2).sum() * (1 - rho_btw_diseases)
-    #                        ) ** 0.5) / 3
-    #         model_low = _combined_temp - 1.96 * sd_for_year
-    #         model_high = _combined_temp + 1.96 * sd_for_year
-    #
-    #         ic_bounds['low'][y] = model_low.iloc[0]
-    #         ic_bounds['high'][y] = model_high.iloc[0]
-    #
-    #     # Step 3.2 Normalise the LB and UB
-    #     combined_partner = (hiv_incidence_partner + tb_incidence_partner + malaria_incidence_partner) / 3
-    #     low = ic_bounds['low']
-    #     high = ic_bounds['high']
-    #
-    #     combined_lb = pd.concat([combined_partner, low])
-    #     combined_lb = pd.DataFrame(combined_lb)
-    #     combined_lb = 100 * (combined_lb / combined_lb.iloc[5, :])
-    #
-    #     combined_ub = pd.concat([combined_partner, high])
-    #     combined_ub = pd.DataFrame(combined_ub)
-    #     combined_ub = 100 * (combined_ub / combined_ub.iloc[5, :])
-    #
-    #     # Step 3.2 Normalise each disease to 100 in 2020 for Covid disruption
-    #     combined_hiv_incidence_cf = pd.concat([hiv_incidence_partner, hiv_incidence_cf])
-    #     combined_hiv_incidence_cf = pd.DataFrame(combined_hiv_incidence_cf)
-    #     combined_hiv_incidence_cf = 100 * (combined_hiv_incidence_cf / combined_hiv_incidence_cf.iloc[5, :])
-    #
-    #     combined_tb_incidence_cf = pd.concat([tb_incidence_partner, tb_incidence_cf])
-    #     combined_tb_incidence_cf = pd.DataFrame(combined_tb_incidence_cf)
-    #     combined_tb_incidence_cf = 100 * (combined_tb_incidence_cf / combined_tb_incidence_cf.iloc[5, :])
-    #
-    #     combined_malaria_incidence_cf = pd.concat([malaria_incidence_partner, malaria_incidence_cf])
-    #     combined_malaria_incidence_cf = pd.DataFrame(combined_malaria_incidence_cf)
-    #     combined_malaria_incidence_cf = 100 * (combined_malaria_incidence_cf / combined_malaria_incidence_cf.iloc[5, :])
-    #
-    #     # Step 3.3 Normalise each disease to 100 in 2020 for GP
-    #     combined_hiv_incidence_gp = pd.concat([hiv_incidence_partner, hiv_incidence_gp])
-    #     combined_hiv_incidence_gp = pd.DataFrame(combined_hiv_incidence_gp)
-    #     combined_hiv_incidence_gp = 100 * (combined_hiv_incidence_gp / combined_hiv_incidence_gp.iloc[5, :])
-    #
-    #     combined_tb_incidence_gp = pd.concat([tb_incidence_partner, tb_incidence_gp])
-    #     combined_tb_incidence_gp = combined_tb_incidence_gp.bfill(axis=1).iloc[:, 0]
-    #     combined_tb_incidence_gp = pd.DataFrame(combined_tb_incidence_gp)
-    #     combined_tb_incidence_gp = 100 * (combined_tb_incidence_gp / combined_tb_incidence_gp.iloc[5, :])
-    #
-    #     combined_malaria_incidence_gp = pd.concat([malaria_incidence_partner, malaria_incidence_gp])
-    #     combined_malaria_incidence_gp = combined_malaria_incidence_gp.bfill(axis=1).iloc[:, 0]
-    #     combined_malaria_incidence_gp = pd.DataFrame(combined_malaria_incidence_gp)
-    #     combined_malaria_incidence_gp = 100 * (combined_malaria_incidence_gp / combined_malaria_incidence_gp.iloc[5, :])
-    #
-    #     # Step 4. Combine the three normalised incidence rates by doing simple average
-    #     combined_incidence = (combined_hiv_incidence + combined_tb_incidence + combined_malaria_incidence)/3
-    #     combined_incidence_lb = (combined_hiv_incidence_lb + combined_tb_incidence_lb + combined_malaria_incidence_lb) / 3
-    #     combined_incidence_ub = (combined_hiv_incidence_ub + combined_tb_incidence_ub + combined_malaria_incidence_ub) / 3
-    #     combined_incidence_cf = (combined_hiv_incidence_cf + combined_tb_incidence_cf + combined_malaria_incidence_cf) / 3
-    #     combined_incidence_gp = (combined_hiv_incidence_gp + combined_tb_incidence_gp + combined_malaria_incidence_gp) / 3
-    #
-    #     # Compute the needed reductions
-    #     reduction_ic = combined_incidence.loc[2026, 0] - 100
-    #     reduction_cf = combined_incidence_cf.loc[2026, 0] - 100
-    #
-    #     return {
-    #         "Combined (normalised to 100 in 2020) incidence timeseries for IC ": combined_incidence,
-    #         "Combined (normalised to 100 in 2020) incidence timeseries for IC LB": combined_lb,
-    #         "Combined (normalised to 100 in 2020) incidence timeseries for IC UB": combined_ub,
-    #         "Combined (normalised to 100 in 2020) incidence timeseries for covid disruption ": combined_incidence_cf,
-    #         "Combined (normalised to 100 in 2020) incidence timeseries for GP ": combined_incidence_gp,
-    #         "Reduction in incidence (normalised to 100 in 2020) from 2020 to 2026 under IC scenario": reduction_ic,
-    #         "Reduction in incidence (normalised to 100 in 2020) from 2020 to 2026 under Covid disruption scenario": reduction_cf,
-    #     }
-    #     # return pd.DataFrame(
-        #     index=pd.Index(list(range(2015, 2027)), name='Year'),
-        #     data={
-        #         'Actual': combined_incidence.loc[combined_incidence.index < 2021],
-        #         'GP': combined_incidence_gp.loc[combined_incidence_gp.index > 2020],
-        #         'Counterfactual': combined_incidence_cf.loc[combined_incidence_cf.index > 2019],
-        #         'IC': combined_incidence.loc[combined_incidence.index > 2019],
-        #         'IC_LB': combined_lb.loc[combined_lb.index > 2020],
-        #         'IC_UB': combined_lb.loc[combined_ub.index > 2020],
-        #     }
-        # )
+    def comb_inc(self) -> dict[str, Any]:
+        """ Generate combined incidence stats """
+
+        # Step 1. Get data for each disease from partner
+        hiv_cases_partner = self.hiv.PARTNER["cases"]
+        tb_cases_partner = self.tb.PARTNER["cases"]
+        malaria_cases_partner = self.malaria.PARTNER["cases"]
+
+        hiv_pop_partner = self.hiv.PARTNER["hivneg"]
+        tb_pop_partner = self.tb.PARTNER["population"]
+        malaria_pop_partner = self.malaria.PARTNER["par"]
+
+        hiv_incidence_partner = hiv_cases_partner / hiv_pop_partner
+        tb_incidence_partner = tb_cases_partner / tb_pop_partner
+        malaria_incidence_partner = malaria_cases_partner / malaria_pop_partner
+
+        # Step 2.1 Get incidence for each disease from IC including LB and UB
+        hiv_cases_ic = self.hiv.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_central"]
+        hiv_cases_lb_ic = self.hiv.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_low"]
+        hiv_cases_ub_ic = self.hiv.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_high"]
+
+        tb_cases_ic = self.tb.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_central"]
+        tb_cases_lb_ic = self.tb.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_low"]
+        tb_cases_ub_ic = self.tb.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_high"]
+
+        malaria_cases_ic = self.malaria.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_central"]
+        malaria_cases_lb_ic = self.malaria.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_low"]
+        malaria_cases_ub_ic = self.malaria.IC.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_high"]
+
+        hiv_pop_ic = self.hiv.IC.portfolio_results["hivneg"].loc[
+            slice(2021, 2030), "model_central"]
+        tb_pop_ic = self.tb.IC.portfolio_results["population"].loc[
+            slice(2021, 2030), "model_central"]
+        malaria_pop_ic = self.malaria.IC.portfolio_results["par"].loc[
+            slice(2021, 2030), "model_central"]
+
+        hiv_incidence_ic = hiv_cases_ic / hiv_pop_ic
+        tb_incidence_ic = tb_cases_ic / tb_pop_ic
+        malaria_incidence_ic = malaria_cases_ic / malaria_pop_ic
+
+        hiv_incidence_lb_ic = hiv_cases_lb_ic / hiv_pop_ic
+        tb_incidence_lb_ic = tb_cases_lb_ic / tb_pop_ic
+        malaria_incidence_lb_ic = malaria_cases_lb_ic / malaria_pop_ic
+
+        hiv_incidence_ub_ic = hiv_cases_ub_ic / hiv_pop_ic
+        tb_incidence_ub_ic = tb_cases_ub_ic / tb_pop_ic
+        malaria_incidence_ub_ic = malaria_cases_ub_ic / malaria_pop_ic
+
+        # Step 2.2 Get incidence for each disease from Covid disruption
+        hiv_cases_cf = self.hiv.CF_InfAve.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_central"]
+        tb_cases_cf = self.tb.CF_InfAve.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_central"]
+        malaria_cases_cf = self.malaria.CF_InfAve.portfolio_results["cases"].loc[
+            slice(2021, 2030), "model_central"]
+
+        hiv_pop_cf = self.hiv.CF_InfAve.portfolio_results["hivneg"].loc[
+            slice(2021, 2030), "model_central"]
+        tb_pop_cf = self.tb.CF_InfAve.portfolio_results["population"].loc[
+            slice(2021, 2030), "model_central"]
+        malaria_pop_cf = self.malaria.CF_InfAve.portfolio_results["par"].loc[
+            slice(2021, 2030), "model_central"]
+
+        hiv_incidence_cf = hiv_cases_cf / hiv_pop_cf
+        tb_incidence_cf = tb_cases_cf / tb_pop_cf
+        malaria_incidence_cf = malaria_cases_cf / malaria_pop_cf
+
+        # Step 2.3 Get incidence for each disease from GP
+        hiv_cases_gp = self.hiv.CF_forgraphs["cases"]
+        hiv_pop_gp = self.hiv.CF_forgraphs["hivneg"]
+        hiv_incidence_gp = hiv_cases_gp / hiv_pop_gp
+        hiv_incidence_gp = pd.DataFrame(hiv_incidence_gp)
+        hiv_incidence_gp = hiv_incidence_gp[hiv_incidence_gp.index > 2020]
+
+        tb_incidence_gp = self.tb.CF_forgraphs["incidence"]
+        tb_incidence_gp = pd.DataFrame(tb_incidence_gp)
+        tb_incidence_gp = tb_incidence_gp[tb_incidence_gp.index >2020]
+
+        malaria_incidence_gp = self.malaria.CF_forgraphs["incidence"]
+        malaria_incidence_gp = pd.DataFrame(malaria_incidence_gp)
+        malaria_incidence_gp = malaria_incidence_gp[malaria_incidence_gp.index > 2020]
+
+        # Step 3.1 Normalise each disease to 100 in 2020 for partner and IC
+        combined_hiv_incidence = pd.concat([hiv_incidence_partner,hiv_incidence_ic])
+        combined_hiv_incidence = pd.DataFrame(combined_hiv_incidence)
+        combined_hiv_incidence = 100*(combined_hiv_incidence / combined_hiv_incidence.iloc[5,:])
+
+        combined_tb_incidence = pd.concat([tb_incidence_partner, tb_incidence_ic])
+        combined_tb_incidence = pd.DataFrame(combined_tb_incidence)
+        combined_tb_incidence = 100 * (combined_tb_incidence / combined_tb_incidence.iloc[5, :])
+
+        combined_malaria_incidence = pd.concat([malaria_incidence_partner, malaria_incidence_ic])
+        combined_malaria_incidence = pd.DataFrame(combined_malaria_incidence)
+        combined_malaria_incidence = 100 * (combined_malaria_incidence / combined_malaria_incidence.iloc[5, :])
+
+        # Step 3.2. Normalise the LB and UB for the IC
+        combined_hiv_incidence_lb = pd.concat([hiv_incidence_partner, hiv_incidence_lb_ic])
+        combined_hiv_incidence_lb = pd.DataFrame(combined_hiv_incidence_lb)
+        combined_hiv_incidence_lb = 100 * (combined_hiv_incidence_lb / combined_hiv_incidence_lb.iloc[5, :])
+        combined_hiv_incidence_ub = pd.concat([hiv_incidence_partner, hiv_incidence_ub_ic])
+        combined_hiv_incidence_ub = pd.DataFrame(combined_hiv_incidence_ub)
+        combined_hiv_incidence_ub = 100 * (combined_hiv_incidence_ub / combined_hiv_incidence_ub.iloc[5, :])
+
+        combined_tb_incidence_ub = pd.concat([tb_incidence_partner, tb_incidence_lb_ic])
+        combined_tb_incidence_lb = pd.DataFrame(combined_tb_incidence_ub)
+        combined_tb_incidence_lb = 100 * (combined_tb_incidence_lb / combined_tb_incidence_lb.iloc[5, :])
+        combined_tb_incidence_ub = pd.concat([tb_incidence_partner, tb_incidence_ub_ic])
+        combined_tb_incidence_ub = pd.DataFrame(combined_tb_incidence_ub)
+        combined_tb_incidence_ub = 100 * (combined_tb_incidence_ub / combined_tb_incidence_ub.iloc[5, :])
+
+        combined_malaria_incidence_lb = pd.concat([malaria_incidence_partner, malaria_incidence_lb_ic])
+        combined_malaria_incidence_lb = pd.DataFrame(combined_malaria_incidence_lb)
+        combined_malaria_incidence_lb = 100 * (combined_malaria_incidence_lb / combined_malaria_incidence_lb.iloc[5, :])
+        combined_malaria_incidence_ub = pd.concat([malaria_incidence_partner, malaria_incidence_ub_ic])
+        combined_malaria_incidence_ub = pd.DataFrame(combined_malaria_incidence_ub)
+        combined_malaria_incidence_ub = 100 * (combined_malaria_incidence_ub / combined_malaria_incidence_ub.iloc[5, :])
+
+        # Back calculate SD at
+        hiv_sd = (hiv_incidence_ub_ic - hiv_incidence_ic) / 1.96
+        tb_sd = (tb_incidence_ub_ic - tb_incidence_ic) / 1.96
+        malaria_sd = (malaria_incidence_ub_ic - malaria_incidence_ic) / 1.96
+        sds = pd.DataFrame({"hiv": hiv_sd, "tb": tb_sd, "malaria": malaria_sd})
+
+        # Prepare to generate CIs
+        rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
+        years = list(range(2021, 2031))
+        combined_temp = (hiv_incidence_ic + tb_incidence_ic + malaria_incidence_ic) / 3
+
+        # Make an empty dataframe
+        ic_bounds = pd.DataFrame(index=years, columns=["low", "high"])
+
+        # Calculate combined sd across diseases
+        for y in years:
+            # Grab the sd for that year
+            _sd = sds.loc[sds.index == y]
+            _sd = _sd.iloc[0].to_numpy()
+
+            # Grab the model central (average across diseases) for that year
+            _combined_temp = combined_temp[combined_temp.index == y]
+
+            sd_for_year = ((
+                                   matmul(_sd).sum() * rho_btw_diseases
+                                   + (_sd ** 2).sum() * (1 - rho_btw_diseases)
+                           ) ** 0.5) / 3
+            model_low = _combined_temp - 1.96 * sd_for_year
+            model_high = _combined_temp + 1.96 * sd_for_year
+
+            ic_bounds['low'][y] = model_low.iloc[0]
+            ic_bounds['high'][y] = model_high.iloc[0]
+
+        # Step 3.2 Normalise the LB and UB
+        combined_partner = (hiv_incidence_partner + tb_incidence_partner + malaria_incidence_partner) / 3
+        low = ic_bounds['low']
+        high = ic_bounds['high']
+
+        combined_lb = pd.concat([combined_partner, low])
+        combined_lb = pd.DataFrame(combined_lb)
+        combined_lb = 100 * (combined_lb / combined_lb.iloc[5, :])
+
+        combined_ub = pd.concat([combined_partner, high])
+        combined_ub = pd.DataFrame(combined_ub)
+        combined_ub = 100 * (combined_ub / combined_ub.iloc[5, :])
+
+        # Step 3.2 Normalise each disease to 100 in 2020 for Covid disruption
+        combined_hiv_incidence_cf = pd.concat([hiv_incidence_partner, hiv_incidence_cf])
+        combined_hiv_incidence_cf = pd.DataFrame(combined_hiv_incidence_cf)
+        combined_hiv_incidence_cf = 100 * (combined_hiv_incidence_cf / combined_hiv_incidence_cf.iloc[5, :])
+
+        combined_tb_incidence_cf = pd.concat([tb_incidence_partner, tb_incidence_cf])
+        combined_tb_incidence_cf = pd.DataFrame(combined_tb_incidence_cf)
+        combined_tb_incidence_cf = 100 * (combined_tb_incidence_cf / combined_tb_incidence_cf.iloc[5, :])
+
+        combined_malaria_incidence_cf = pd.concat([malaria_incidence_partner, malaria_incidence_cf])
+        combined_malaria_incidence_cf = pd.DataFrame(combined_malaria_incidence_cf)
+        combined_malaria_incidence_cf = 100 * (combined_malaria_incidence_cf / combined_malaria_incidence_cf.iloc[5, :])
+
+        # Step 3.3 Normalise each disease to 100 in 2020 for GP
+        combined_hiv_incidence_gp = pd.concat([hiv_incidence_partner, hiv_incidence_gp])
+        combined_hiv_incidence_gp = pd.DataFrame(combined_hiv_incidence_gp)
+        combined_hiv_incidence_gp = 100 * (combined_hiv_incidence_gp / combined_hiv_incidence_gp.iloc[5, :])
+
+        combined_tb_incidence_gp = pd.concat([tb_incidence_partner, tb_incidence_gp])
+        combined_tb_incidence_gp = combined_tb_incidence_gp.bfill(axis=1).iloc[:, 0]
+        combined_tb_incidence_gp = pd.DataFrame(combined_tb_incidence_gp)
+        combined_tb_incidence_gp = 100 * (combined_tb_incidence_gp / combined_tb_incidence_gp.iloc[5, :])
+
+        combined_malaria_incidence_gp = pd.concat([malaria_incidence_partner, malaria_incidence_gp])
+        combined_malaria_incidence_gp = combined_malaria_incidence_gp.bfill(axis=1).iloc[:, 0]
+        combined_malaria_incidence_gp = pd.DataFrame(combined_malaria_incidence_gp)
+        combined_malaria_incidence_gp = 100 * (combined_malaria_incidence_gp / combined_malaria_incidence_gp.iloc[5, :])
+
+        # Step 4. Combine the three normalised incidence rates by doing simple average
+        combined_incidence = (combined_hiv_incidence + combined_tb_incidence + combined_malaria_incidence)/3
+        combined_incidence_lb = (combined_hiv_incidence_lb + combined_tb_incidence_lb + combined_malaria_incidence_lb) / 3
+        combined_incidence_ub = (combined_hiv_incidence_ub + combined_tb_incidence_ub + combined_malaria_incidence_ub) / 3
+        combined_incidence_cf = (combined_hiv_incidence_cf + combined_tb_incidence_cf + combined_malaria_incidence_cf) / 3
+        combined_incidence_gp = (combined_hiv_incidence_gp + combined_tb_incidence_gp + combined_malaria_incidence_gp) / 3
+
+        # Compute the needed reductions
+        reduction_ic = combined_incidence.loc[2026, 0] - 100
+        reduction_cf = combined_incidence_cf.loc[2026, 0] - 100
+
+        # Clean up so we can output the graphs
+        actual = combined_incidence.loc[combined_incidence.index <2021].iloc[:,0]
+        gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2020].iloc[:,0]
+        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2019 ].iloc[:,0]
+        ic = combined_incidence.loc[combined_incidence.index > 2019].iloc[:,0]
+        ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2020].iloc[:,0]
+        ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2020].iloc[:,0]
+
+        return pd.DataFrame(
+            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            data={
+                'Actual': actual,
+                'GP': gp,
+                'Counterfactual': cf,
+                'IC': ic,
+                'IC_LB': ic_lb,
+                'IC_UB': ic_ub,
+            }
+        )
