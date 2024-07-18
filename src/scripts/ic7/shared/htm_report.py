@@ -453,6 +453,40 @@ class HTMReport(Report):
             "Total Deaths averted (covid disruption) for hiv 2021 to 2026": total_deaths_averted,
         }
 
+    def comb_mort(self) -> pd.DataFrame:
+        """Generate graphs for the combined mortality. """
+
+        df = self._calculate_combined_mortality_stats()
+
+        return df['Combined mortality df']
+
+    def comb_inc(self) -> pd.DataFrame:
+        """Generate graphs for the combined incidence. """
+
+        df = self._calculate_combined_incidence_stats()
+
+        return df['Combined incidence df']
+
+    def comb_reduc(self) -> pd.DataFrame:
+        """Get reductions in mortality for IC and CF. """
+
+        df_mort = self._calculate_combined_mortality_stats()
+        del df_mort['Combined mortality df']
+        df_mort = pd.DataFrame.from_dict(df_mort, orient='index')
+
+        df_inc = self._calculate_combined_incidence_stats()
+        del df_inc['Combined incidence df']
+        df_inc = pd.DataFrame.from_dict(df_inc, orient='index')
+
+        list = [df_mort, df_inc]
+
+        result = pd.concat(list, axis=0)
+
+        result.columns = ['Value']
+        result.index.name = 'Indicator'
+
+        return result
+
     def _post_processing_on_workbook(self, workbook: Workbook):
         """Create a simple version of the killer graph."""
 
@@ -502,7 +536,7 @@ class HTMReport(Report):
         for sheet in sheets_for_graphs:
             _make_simple_graph(workbook[sheet])
 
-    def comb_mort(self) -> dict[str, Any]:
+    def _calculate_combined_mortality_stats(self) -> dict[str, Any]:
         """ Generate combined mortality stats """
 
         # Step 1. Get data for each disease from partner
@@ -635,7 +669,8 @@ class HTMReport(Report):
         sds = pd.DataFrame({"hiv":hiv_sd, "tb":tb_sd, "malaria":malaria_sd})
 
         # Prepare to generate CIs
-        rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
+        rho_btw_diseases = 1 # TODO: update
+        # rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
         years = list(range(2021, 2031))
         combined_temp = (hiv_mortality_ic + tb_mortality_ic + malaria_mortality_ic) / 3
 
@@ -720,7 +755,7 @@ class HTMReport(Report):
         ic_lb = combined_lb.loc[combined_lb.index > 2020].iloc[:,0]
         ic_ub = combined_ub.loc[combined_ub.index > 2020].iloc[:,0]
 
-        return pd.DataFrame(
+        comb_mort_df = pd.DataFrame(
             index=pd.Index(list(range(2015, 2027)), name='Year'),
             data={
                 'Actual': actual,
@@ -732,7 +767,14 @@ class HTMReport(Report):
             }
         )
 
-    def comb_inc(self) -> dict[str, Any]:
+        return {
+            "Combined mortality df": comb_mort_df,
+            "Reduction in mortality in IC": reduction_ic,
+            "Reduction in mortality in CF": reduction_cf,
+        }
+
+
+    def _calculate_combined_incidence_stats(self) -> dict[str, Any]:
         """ Generate combined incidence stats """
 
         # Step 1. Get data for each disease from partner
@@ -865,7 +907,9 @@ class HTMReport(Report):
         sds = pd.DataFrame({"hiv": hiv_sd, "tb": tb_sd, "malaria": malaria_sd})
 
         # Prepare to generate CIs
-        rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
+        rho_btw_diseases = 1  # TODO: update
+        # rho_btw_diseases = self.parameters.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")
+        # rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
         years = list(range(2021, 2031))
         combined_temp = (hiv_incidence_ic + tb_incidence_ic + malaria_incidence_ic) / 3
 
@@ -951,7 +995,7 @@ class HTMReport(Report):
         ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2020].iloc[:,0]
         ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2020].iloc[:,0]
 
-        return pd.DataFrame(
+        comb_inc_df = pd.DataFrame(
             index=pd.Index(list(range(2015, 2027)), name='Year'),
             data={
                 'Actual': actual,
@@ -962,3 +1006,9 @@ class HTMReport(Report):
                 'IC_UB': ic_ub,
             }
         )
+
+        return {
+            "Combined incidence df": comb_inc_df,
+            "Reduction in incidence in IC": reduction_ic,
+            "Reduction in incidence in CF": reduction_cf,
+        }
