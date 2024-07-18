@@ -58,5 +58,5 @@ if __name__ == "__main__":
         parameters=parameters,
     ).run(
         suppress_error=True,
-        filename=project_root / "outputs" / "ic8" / "tb_report_of_checks.pdf"
+        filename=project_root / "outputs" / "tb_report_of_checks.pdf"
     )

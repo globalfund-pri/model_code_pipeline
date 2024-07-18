@@ -96,8 +96,8 @@ class DatabaseChecks:
             doc=str(self.__doc__).replace("\n", ""),
             filenames={
                 "Model Results": str(self.db.model_results.path),
-                "Partner Data": str(self.db.partner_data.path),
-                "PF Input Data": str(self.db.pf_input_data.path),
+                "Partner Data": "", #
+                "PF Input Data": ""
             },
         )
 
