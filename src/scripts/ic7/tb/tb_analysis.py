@@ -142,7 +142,7 @@ def get_tb_analysis(
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
         handle_out_of_bounds_costs=True,
-        innovation_on=False,
+        innovation_on=True,
     )
 
 
