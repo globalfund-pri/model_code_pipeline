@@ -19,6 +19,8 @@ class SetOfPortfolioProjections(NamedTuple):
     CF_InfectionsAverted_Malaria: pd.DataFrame  # The counterfactual for lives saved for malaria
     PARTNER: pd.DataFrame  # Dataframe containing partner data needed for reporting
     CF_forgraphs: pd.DataFrame  # Dataframe containing GP needed for reporting (N.B., may differ by disease)
+    Info: Dict # Dictionary containing all the information on the ananlysis including files used and technical information
+
 
 class HTMReport(Report):
     """This is the Report class. It accepts AnalysisResults for each disease and produces summary statistics.
@@ -35,6 +37,17 @@ class HTMReport(Report):
         self.hiv = hiv
         self.tb = tb
         self.malaria = malaria
+
+    def info(self) -> pd.DataFrame:
+        """Collate the information relating to the report, including which folders were being used and the details of
+        the analysis (e.g., which approach was used (a or b), which funding envelope, how did we handle unalllocated
+        amounts, did we adjust for innovation, etc). """
+        return pd.DataFrame(
+            data={
+                'HIV': {**self.hiv.Info},
+                'TB': {**self.tb.Info},
+                'Malaria': {**self.malaria.Info}
+            })
 
     def get_key_stats_hiv(self) -> Dict[str, float]:
         """Generate the incidence reduction between 2026 and 2020, per disease"""
