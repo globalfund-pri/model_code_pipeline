@@ -319,4 +319,9 @@ make_graph(pc_reduc_malaria['deaths'], title='Malaria Deaths')
 
 
 # todo pdf saving
+# ---------------------------
 
+
+# todo right-hand side figure
+# ---------------------------
+# require running at wide range of TGF scenario, provided a total amount only. and under approach B
