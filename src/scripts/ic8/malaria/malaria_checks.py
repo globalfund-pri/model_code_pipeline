@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsMalaria(
-        path_to_data_folder / "IC8/modelling_outputs/malaria",
+        path_to_data_folder / "IC8/modelling_outputs/malaria/11Jul2024",
         parameters=parameters,
     )
 
