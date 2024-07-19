@@ -456,30 +456,29 @@ class HTMReport(Report):
     def comb_mort(self) -> pd.DataFrame:
         """Generate graphs for the combined mortality. """
 
-        df = self._calculate_combined_mortality_stats()
-
-        return df['Combined mortality df']
+        return self._calculate_combined_mortality_stats()['Combined mortality df']
 
     def comb_inc(self) -> pd.DataFrame:
         """Generate graphs for the combined incidence. """
 
-    return self._calculate_combined_incidence_stats()['Combined incidence df']
+        return self._calculate_combined_incidence_stats()['Combined incidence df']
 
     def comb_reduc(self) -> pd.DataFrame:
         """Get reductions in mortality for IC and CF. """
 
+        # Keep only the reductions in mortality and incidence and turn into a df
         df_mort = self._calculate_combined_mortality_stats()
-        del df_mort['Combined mortality df']
+        keys = ["Reduction in mortality in IC", "Reduction in mortality in CF"]
+        df_mort = dict((k, df_mort[k]) for k in keys if k in df_mort)
         df_mort = pd.DataFrame.from_dict(df_mort, orient='index')
 
         df_inc = self._calculate_combined_incidence_stats()
-        del df_inc['Combined incidence df']
+        keys = ["Reduction in incidence in IC", "Reduction in incidence in CF"]
+        df_inc = dict((k, df_inc[k]) for k in keys if k in df_inc)
         df_inc = pd.DataFrame.from_dict(df_inc, orient='index')
 
         list = [df_mort, df_inc]
-
         result = pd.concat(list, axis=0)
-
         result.columns = ['Value']
         result.index.name = 'Indicator'
 
