@@ -96,8 +96,8 @@ class DatabaseChecks:
             doc=str(self.__doc__).replace("\n", ""),
             filenames={
                 "Model Results": str(self.db.model_results.path),
-                "Partner Data": "", #
-                "PF Input Data": ""
+                "Partner Data": str(self.db.partner_data.path) if self.db.partner_data is not None else "None",
+                "PF Input Data": str(self.db.pf_input_data.path) if self.db.pf_input_data is not None else "None",
             },
         )
 
