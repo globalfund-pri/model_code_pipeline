@@ -4,6 +4,7 @@ from scripts.ic7.hiv.hiv_analysis import get_hiv_analysis
 from scripts.ic7.malaria.malaria_analysis import get_malaria_analysis
 from scripts.ic7.tb.tb_analysis import get_tb_analysis
 from tgftools.analysis import Analysis
+from tgftools.filehandler import Parameters
 from tgftools.report import Report
 from scripts.ic7.shared.htm_report import HTMReport, SetOfPortfolioProjections
 from tgftools.utils import get_root_path, save_var, load_var, open_file
@@ -105,6 +106,7 @@ def get_report(
         hiv=hiv_projections,
         tb=tb_projections,
         malaria=malaria_projections,
+        parameters=Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     )
 
     return report
