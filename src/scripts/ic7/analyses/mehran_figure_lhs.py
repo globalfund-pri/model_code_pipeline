@@ -305,6 +305,7 @@ def make_graph(df: pd.Series, title: str):
     # todo label xtickabels
     ax.set_title(title)
     ax.legend()
+    fig.savefig(project_root / 'sessions' / f"{title}.png")
     fig.tight_layout()
     fig.show()
 
