@@ -463,9 +463,7 @@ class HTMReport(Report):
     def comb_inc(self) -> pd.DataFrame:
         """Generate graphs for the combined incidence. """
 
-        df = self._calculate_combined_incidence_stats()
-
-        return df['Combined incidence df']
+    return self._calculate_combined_incidence_stats()['Combined incidence df']
 
     def comb_reduc(self) -> pd.DataFrame:
         """Get reductions in mortality for IC and CF. """
