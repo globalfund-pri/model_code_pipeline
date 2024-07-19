@@ -1,10 +1,11 @@
 """Do the analysis for all three diseases and produce the report"""
 
-from scripts.ic7.hiv.hiv_analysis import get_hiv_analysis
-from scripts.ic7.malaria.malaria_analysis import get_malaria_analysis
-from scripts.ic7.tb.tb_analysis import get_tb_analysis
+from scripts.ic7.hiv.hiv_analysis import get_hiv_analysis, get_hiv_database
+from scripts.ic7.malaria.malaria_analysis import get_malaria_analysis, get_malaria_database
+from scripts.ic7.tb.tb_analysis import get_tb_analysis, get_tb_database
 from tgftools.analysis import Analysis
-from tgftools.filehandler import Parameters
+from tgftools.database import Database
+from tgftools.filehandler import NonTgfFunding
 from tgftools.report import Report
 from scripts.ic7.shared.htm_report import HTMReport, SetOfPortfolioProjections
 from tgftools.utils import get_root_path, save_var, load_var, open_file
@@ -28,10 +29,26 @@ The final report containing the key stats and key graphs are saved under the nam
 """
 
 
-def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjections:
+
+def get_set_of_portfolio_projections(
+    db: Database
+) -> SetOfPortfolioProjections:
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
     Counterfactual projections,"""
+
+    # Create Analysis
+    a = Analysis(
+        database=db,
+        scenario_descriptor='IC_IC',
+        tgf_funding=tgf_funding,
+        non_tgf_funding=non_tgf_funding,
+        parameters=parameters,
+        handle_out_of_bounds_costs=True,
+        innovation_on=True,
+    )
+
     approach = 'b'
+
     return SetOfPortfolioProjections(
         IC=analysis.portfolio_projection_approach_b(
             # methods = ['local_start_at_random'],
@@ -62,70 +79,43 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
         }
     )
 
-def get_report(
-        load_data_from_raw_files: bool = False,
-        run_analysis: bool = False,
-        do_checks: bool = False,
-) -> Report:
-    project_root = get_root_path()
 
-    if run_analysis:
 
-        # Run the analyses
-        hiv_projections = get_set_of_portfolio_projections(
-            get_hiv_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
-        save_var(hiv_projections, project_root / "sessions" / "hiv_projections.pkl")
 
-        tb_projections = get_set_of_portfolio_projections(
-            get_tb_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
-        save_var(tb_projections, project_root / "sessions" / "tb_projections.pkl")
+path_to_data_folder = get_root_path()
+project_root = get_root_path()
+parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
 
-        malaria_projections = get_set_of_portfolio_projections(
-            get_malaria_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
-        save_var(malaria_projections, project_root / "sessions" / "malaria_projections.pkl")
-
-    else:
-        # Load the projections
-        hiv_projections = load_var(project_root / "sessions" / "hiv_projections.pkl")
-        tb_projections = load_var(project_root / "sessions" / "tb_projections.pkl")
-        malaria_projections = load_var(project_root / "sessions" / "malaria_projections.pkl")
-
-    report = HTMReport(
-        hiv=hiv_projections,
-        tb=tb_projections,
-        malaria=malaria_projections,
-        parameters=Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+# Fixed GP For HIV:
+fixed_gp = FixedGp(
+        get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
+        parameters=parameters,
     )
 
-    return report
+report = HTMReport(
+    hiv=get_set_of_portfolio_projections(
+        database=Database(
+
+        ),
+        tgf_funding=TgfFunding(
+            path_to_data_folder
+            / "IC7/TimEmulationTool"
+            / "funding"
+            / "hiv"
+            / "tgf"
+            / "hiv_Fubgible_gf_17b_incUnalloc.csv"),
+        non_tgf_funding=NonTgfFunding(
+            path_to_data_folder
+            / "IC7/TimEmulationTool"
+            / "funding"
+            / "hiv"
+            / "non_tgf"
+            / "hiv_nonFubgible_dipiBase.csv"),
+    ),
+)
 
 
-if __name__ == "__main__":
-    # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = False
-    DO_CHECKS = False
-    RUN_ANALYSIS = True
-    outputpath = get_root_path() / 'outputs'
-
-    r = get_report(
-        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-        do_checks=DO_CHECKS,
-        run_analysis=RUN_ANALYSIS,
-    )
-
-    # Generate report
-    filename = get_root_path() / 'outputs' / 'final_report.xlsx'
-    r.report(filename)
-    open_file(filename)
+# Generate report
+filename = project_root / 'outputs' / 'final_report.xlsx'
+report.report(filename)
+open_file(filename)
