@@ -6,6 +6,7 @@ from openpyxl import Workbook
 from openpyxl.chart import Reference, LineChart
 
 from tgftools.analysis import PortfolioProjection
+from tgftools.filehandler import Parameters
 from tgftools.report import Report
 from tgftools.utils import get_root_path, matmul
 
@@ -32,9 +33,10 @@ class HTMReport(Report):
             hiv: SetOfPortfolioProjections,
             tb: SetOfPortfolioProjections,
             malaria: SetOfPortfolioProjections,
+            parameters: Parameters
     ):
         # Save arguments
-        self.parameters = None
+        self.parameters = parameters
         self.hiv = hiv
         self.tb = tb
         self.malaria = malaria
@@ -666,8 +668,8 @@ class HTMReport(Report):
         sds = pd.DataFrame({"hiv":hiv_sd, "tb":tb_sd, "malaria":malaria_sd})
 
         # Prepare to generate CIs
-        rho_btw_diseases = 1 # TODO: update
-        # rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
+        # rho_btw_diseases = 1 # TODO: update
+        rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
         years = list(range(2021, 2031))
         combined_temp = (hiv_mortality_ic + tb_mortality_ic + malaria_mortality_ic) / 3
 
@@ -904,9 +906,7 @@ class HTMReport(Report):
         sds = pd.DataFrame({"hiv": hiv_sd, "tb": tb_sd, "malaria": malaria_sd})
 
         # Prepare to generate CIs
-        rho_btw_diseases = 1  # TODO: update
-        # rho_btw_diseases = self.parameters.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")
-        # rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
+        rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
         years = list(range(2021, 2031))
         combined_temp = (hiv_incidence_ic + tb_incidence_ic + malaria_incidence_ic) / 3
 
