@@ -21,7 +21,7 @@ This class holds the following options:
   envelope, non-tgf scenario or counterfactual, the analysis needs to be re-run in order to be reflected.
 - run approach A or B (comment out IC = analysis.portfolio_projection_approach_b to run approach a or 
   IC = analysis.portfolio_projection_approach_a() to run approach B. 
-
+    
 
 The final report containing the key stats and key graphs are saved under the name set at the bottom of this script.  
 """
@@ -30,15 +30,7 @@ The final report containing the key stats and key graphs are saved under the nam
 def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjections:
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
     Counterfactual projections,"""
-
-    analysis.set_innvation_on()
-    analysis.set_handle_out_of_bounds()
-    analysis.set_tgf_funding(file)
-    analysis.set_non_tgf_funding(file)
-    analsysi.set_scenario_desciptor(file)
-
     approach = 'b'
-
     return SetOfPortfolioProjections(
         IC=analysis.portfolio_projection_approach_b(
             # methods = ['local_start_at_random'],
@@ -69,15 +61,69 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
         }
     )
 
+def get_report(
+        load_data_from_raw_files: bool = False,
+        run_analysis: bool = False,
+        do_checks: bool = False,
+) -> Report:
+    project_root = get_root_path()
 
-report = HTMReport(
-    hiv=get_set_of_portfolio_projections(get_hiv_analysis()),
-    tb=get_set_of_portfolio_projections(get_tb_analysis()),
-    malaria=get_set_of_portfolio_projections(get_malaria_analysis()),
-)
+    if run_analysis:
+
+        # Run the analyses
+        hiv_projections = get_set_of_portfolio_projections(
+            get_hiv_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=do_checks
+            )
+        )
+        save_var(hiv_projections, project_root / "sessions" / "hiv_projections.pkl")
+
+        tb_projections = get_set_of_portfolio_projections(
+            get_tb_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=do_checks
+            )
+        )
+        save_var(tb_projections, project_root / "sessions" / "tb_projections.pkl")
+
+        malaria_projections = get_set_of_portfolio_projections(
+            get_malaria_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=do_checks
+            )
+        )
+        save_var(malaria_projections, project_root / "sessions" / "malaria_projections.pkl")
+
+    else:
+        # Load the projections
+        hiv_projections = load_var(project_root / "sessions" / "hiv_projections.pkl")
+        tb_projections = load_var(project_root / "sessions" / "tb_projections.pkl")
+        malaria_projections = load_var(project_root / "sessions" / "malaria_projections.pkl")
+
+    report = HTMReport(
+        hiv=hiv_projections,
+        tb=tb_projections,
+        malaria=malaria_projections,
+    )
+
+    return report
 
 
-# Generate report
-filename = get_root_path() / 'outputs' / 'final_report.xlsx'
-report.report(filename)
-open_file(filename)
+if __name__ == "__main__":
+    # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
+    LOAD_DATA_FROM_RAW_FILES = False
+    DO_CHECKS = False
+    RUN_ANALYSIS = True
+    outputpath = get_root_path() / 'outputs'
+
+    r = get_report(
+        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
+        do_checks=DO_CHECKS,
+        run_analysis=RUN_ANALYSIS,
+    )
+
+    # Generate report
+    filename = get_root_path() / 'outputs' / 'final_report.xlsx'
+    r.report(filename)
+    open_file(filename)

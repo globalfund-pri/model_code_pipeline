@@ -162,5 +162,5 @@ if __name__ == "__main__":
     # analysis.portfolio_projection_counterfactual('CC_CC')
 
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
-    from scripts.ic7.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
+    from scripts.ic7.analyses.debug_main_results import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)

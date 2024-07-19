@@ -136,9 +136,10 @@ class Analysis:
         # Save arguments
         self.database = database
         self.scenario_descriptor = scenario_descriptor
+        self.parameters = parameters
+
         self.tgf_funding = tgf_funding
         self.non_tgf_funding = non_tgf_funding
-        self.parameters = parameters
         self.handle_out_of_bounds_costs = handle_out_of_bounds_costs
         self.innovation_on = innovation_on
 
