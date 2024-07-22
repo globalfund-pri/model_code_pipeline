@@ -185,7 +185,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "treatments_given_public",
                 "treatment_coverage",
                 "smc_children_protected",
-                "smc_coverage_targeted",
                 "smc_coverage",
                 "vaccine_n",
                 "vaccine_doses_n",
@@ -216,7 +215,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "treatments_given_public",
             "treatment_coverage",
             "smc_children_protected",
-            "smc_coverage_targeted",
             "smc_coverage",
             "vaccine_n",
             "vaccine_doses_n",
@@ -233,7 +231,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "treatments_given_public",
             "treatment_coverage",
             "smc_children_protected",
-            "smc_coverage_targeted",
             "smc_coverage",
             "vaccine_n",
             "vaccine_doses_n",
@@ -300,11 +297,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         csv_df["smc_central"] = csv_df["smc_children_protected"]
         csv_df["smc_high"] = csv_df["smc_children_protected"]
         csv_df = csv_df.drop(columns=["smc_children_protected"])
-
-        csv_df["smccoveragetargeted_low"] = csv_df["smc_coverage_targeted"]
-        csv_df["smccoveragetargeted_central"] = csv_df["smc_coverage_targeted"]
-        csv_df["smccoveragetargeted_high"] = csv_df["smc_coverage_targeted"]
-        csv_df = csv_df.drop(columns=["smc_coverage_targeted"])
 
         csv_df["smccoverage_low"] = csv_df["smc_coverage"]
         csv_df["smccoverage_central"] = csv_df["smc_coverage"]
