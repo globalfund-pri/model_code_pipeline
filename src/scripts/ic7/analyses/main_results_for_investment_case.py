@@ -1,61 +1,46 @@
 """Do the analysis for all three diseases and produce the report"""
 
-from scripts.ic7.hiv.hiv_analysis import get_hiv_analysis, get_hiv_database
-from scripts.ic7.malaria.malaria_analysis import get_malaria_analysis, get_malaria_database
-from scripts.ic7.tb.tb_analysis import get_tb_analysis, get_tb_database
+from scripts.ic7.hiv.hiv_filehandlers import PartnerDataHIV, PFInputDataHIV, ModelResultsHiv, GpHiv
+from scripts.ic7.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria
+from scripts.ic7.tb.tb_filehandlers import PFInputDataTb, PartnerDataTb
 from tgftools.analysis import Analysis
 from tgftools.database import Database
-from tgftools.filehandler import NonTgfFunding
-from tgftools.report import Report
+from tgftools.filehandler import NonTgfFunding, TgfFunding, Parameters, FixedGp
 from scripts.ic7.shared.htm_report import HTMReport, SetOfPortfolioProjections
-from tgftools.utils import get_root_path, save_var, load_var, open_file
-
-""" This file holds information relating to running the analysis of the three disease model output and feed them into 
-the report class. 
-
-This class holds the following options: 
-- to load the raw model data (see LOAD_DATA_FROM_RAW_FILES). These need to be loaded the first time the code is run, but
-  can then be set to False to improve speed. NOTE: if any changes are made to the filehandler relating to the model 
-  data, the data needs to be reloaded in order to be reflected. 
-- to run the checks (see DO_CHECKS)
-- to run the analysis (see RUN_ANALYSIS). These need to be run the first time the code is run, but can then be set to 
-  False to improve speed. NOTE: if any changes are made to the analysis (e.g. running another scenario, funding 
-  envelope, non-tgf scenario or counterfactual, the analysis needs to be re-run in order to be reflected.
-- run approach A or B (comment out IC = analysis.portfolio_projection_approach_b to run approach a or 
-  IC = analysis.portfolio_projection_approach_a() to run approach B. 
-    
-
-The final report containing the key stats and key graphs are saved under the name set at the bottom of this script.  
-"""
+from tgftools.utils import get_root_path, open_file
 
 
 
-def get_set_of_portfolio_projections(
-    db: Database
+def generate_projections(
+    database,
+    tgf_funding,
+    non_tgf_funding,
+    parameters,
 ) -> SetOfPortfolioProjections:
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
-    Counterfactual projections,"""
+    Counterfactual projections. As the projections for all diseases and created by this function, the specification
+    of the projection is the same for all diseases. This is *the* place where all decisions about the construction
+    of the forward projections are declared."""
 
     # Create Analysis
-    a = Analysis(
-        database=db,
-        scenario_descriptor='IC_IC',
+    analysis = Analysis(
+        database=database,
+        scenario_descriptor='IC_IC',       # <---- decision about the scenario being used
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
+        handle_out_of_bounds_costs=True,   # <---- decisions about the construction of the projection
+        innovation_on=True,                # <---- decisions about the construction of the projection
     )
 
-    approach = 'b'
+
+    approach = 'b' # <--- The apporach used to create the 'Investment Case' scenario:
 
     return SetOfPortfolioProjections(
         IC=analysis.portfolio_projection_approach_b(
-            # methods = ['local_start_at_random'],
-            # methods=None,
             methods=['ga_backwards', 'ga_forwards', ],
             optimisation_params={
-                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
+                'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
                 'force_monotonic_decreasing': True,
             },
         ) if approach == 'b' else analysis.portfolio_projection_approach_a(),
@@ -80,42 +65,129 @@ def get_set_of_portfolio_projections(
     )
 
 
+class ModelResultsTb:
+    pass
 
 
-path_to_data_folder = get_root_path()
-project_root = get_root_path()
-parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
+if __name__ == '__main__':
 
-# Fixed GP For HIV:
-fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
-        parameters=parameters,
+    path_to_data_folder = get_root_path()
+    project_root = get_root_path()
+    parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
+
+    report = HTMReport(
+        hiv=generate_projections(
+            database=Database(
+                model_results=ModelResultsHiv(
+                    path_to_data_folder / "IC7/TimEmulationTool/modelling_outputs/hiv",
+                    parameters=parameters),
+                gp=GpHiv(
+                    fixed_gp=FixedGp(
+                        get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
+                        parameters=parameters),
+                    model_results=model_results,
+                    partner_data=partner_data,
+                    parameters=parameters
+                ),
+                pf_input_data=PFInputDataHIV(
+                    path_to_data_folder / "IC7/TimEmulationTool/pf/hiv",
+                    parameters=parameters,
+                ),
+                partner_data=PartnerDataHIV(
+                    path_to_data_folder / "IC7/TimEmulationTool/partner/hiv",
+                    parameters=parameters,
+                ),
+            ),
+            tgf_funding=TgfFunding(
+                path_to_data_folder
+                / "IC7/TimEmulationTool"
+                / "funding"
+                / "hiv"
+                / "tgf"
+                / "hiv_Fubgible_gf_17b_incUnalloc.csv"),
+            non_tgf_funding=NonTgfFunding(
+                path_to_data_folder
+                / "IC7/TimEmulationTool"
+                / "funding"
+                / "hiv"
+                / "non_tgf"
+                / "hiv_nonFubgible_dipiBase.csv"),
+        ),
+        malaria=generate_projections(
+            database=Database(
+                model_results=ModelResultsMalaria(
+                    path_to_data_folder / "IC7/TimEmulationTool/modelling_outputs/malaria/standard",
+                    parameters=parameters
+                ),
+                gp=gp,
+                pf_input_data=PFInputDataMalaria(
+                    path_to_data_folder / "IC7/TimEmulationTool/pf/malaria",
+                    parameters=parameters
+                ),
+                partner_data=PartnerDataMalaria(
+                    path_to_data_folder / "IC7/TimEmulationTool/partner/malaria",
+                    parameters=parameters
+                ),
+            ),
+            tgf_funding=(
+                TgfFunding(
+                    path_to_data_folder
+                    / "IC7/TimEmulationTool"
+                    / "funding"
+                    / "malaria"
+                    / "tgf"
+                    / "malaria_Fubgible_gf_17b_incUnalloc.csv"
+                )
+            ),
+            non_tgf_funding=(
+                NonTgfFunding(
+                    path_to_data_folder
+                    / "IC7/TimEmulationTool"
+                    / "funding"
+                    / "malaria"
+                    / "non_tgf"
+                    / "malaria_nonFubgible_dipiBase.csv"
+                )
+            )
+        ),
+        tb=generate_projections(
+            database=Database(
+                model_results=ModelResultsTb(
+                    path_to_data_folder / "IC7/TimEmulationTool/modelling_outputs/tb",
+                    parameters=parameters),
+                gp=gp,
+                pf_input_data=PFInputDataTb(
+                    path_to_data_folder / "IC7/TimEmulationTool/pf/tb",
+                    parameters=parameters),
+                partner_data= PartnerDataTb(
+                    path_to_data_folder / "IC7/TimEmulationTool/partner/tb",
+                    parameters=parameters),
+            ),
+            tgf_funding=(
+                TgfFunding(
+                    path_to_data_folder
+                    / "IC7/TimEmulationTool"
+                    / "funding"
+                    / "tb"
+                    / "tgf"
+                    / "tb_Fubgible_gf_17b_incUnalloc.csv"
+                )
+            ),
+            non_tgf_funding=(
+                NonTgfFunding(
+                    path_to_data_folder
+                    / "IC7/TimEmulationTool"
+                    / "funding"
+                    / "tb"
+                    / "non_tgf"
+                    / "tb_nonFubgible_dipiBase.csv"
+                )
+            )
+        )
     )
 
-report = HTMReport(
-    hiv=get_set_of_portfolio_projections(
-        database=Database(
 
-        ),
-        tgf_funding=TgfFunding(
-            path_to_data_folder
-            / "IC7/TimEmulationTool"
-            / "funding"
-            / "hiv"
-            / "tgf"
-            / "hiv_Fubgible_gf_17b_incUnalloc.csv"),
-        non_tgf_funding=NonTgfFunding(
-            path_to_data_folder
-            / "IC7/TimEmulationTool"
-            / "funding"
-            / "hiv"
-            / "non_tgf"
-            / "hiv_nonFubgible_dipiBase.csv"),
-    ),
-)
-
-
-# Generate report
-filename = project_root / 'outputs' / 'final_report.xlsx'
-report.report(filename)
-open_file(filename)
+    # Generate report
+    filename = project_root / 'outputs' / 'final_report.xlsx'
+    report.report(filename)
+    open_file(filename)
