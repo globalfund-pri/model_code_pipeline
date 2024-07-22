@@ -144,30 +144,16 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         ]
         concatenated_dfs = pd.concat(list_of_df, axis=0)
 
-        # If funding_fraction is nan (for e.g., NULL_NULL, CC_CC, GP_GP) then make it one
-        # concatenated_dfs.loc[
-        #     concatenated_dfs["funding_fraction"].isna(), "funding_fraction"
-        # ] = 1.0
-
-        # If funding fraction is in the scenario name, extract
-        # TODO:
-
-        # Re-pack the df
-        # concatenated_dfs = concatenated_dfs.set_index(
-        #     ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
-        # )  # repack the index
-
-        # Check all scenarios are in there
-        # scenarios = self.parameters.get_scenarios().index.to_list()
-        # assert all(
-        #     y in concatenated_dfs.index.get_level_values("scenario_descriptor")
-        #     for y in scenarios
-        # )
-
+        # TODO: @richard: when John sends forward looking scenarios uncomment the section below and remove part on "scenario_names
         # Filter out any countries that we do not need
         expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
+        scenario_names = ["HH", "GP", "NULL_2000", "CC_2000", "CC_FIRSTYEARGF", "NULL_FIRSTYEARGF"] # TODO @richard: remove this line
+        # TODO @richard: uncomment the part below
+        # scenario_names = (self.parameters.get_scenarios().index.to_list() +
+        #                   self.parameters.get_counterfactuals().index.to_list()
+        #                   )
         concatenated_dfs = concatenated_dfs.loc[
-            (slice(None), slice(None), expected_countries, slice(None), slice(None))
+            (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
 
         # Make funding numbers into fractions
@@ -192,34 +178,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # Load 'Sheet1' from the Excel workbook
         csv_df = self._load_sheet(file)
-
-        # Compare columns to template
-        template_csv = pd.read_excel("/Users/mc1405/TGF_data/IC8/template/hiv/hiv_ic_modelling_reference 2025_06_18.xlsx", sheet_name="Template")
-        model_column_names = list(csv_df.columns)
-        template_column_names = list(template_csv.columns)
-        filtered_list_in = [string for string in model_column_names if string not in template_column_names]
-        filtered_list_out = [string for string in template_column_names if string not in model_column_names]
-
-        print("Are there any missing or mis-names columns?")
-        print(filtered_list_in)
-        print(filtered_list_out)
-
-        # Compare rows
-        list_scenarios = ["CC_2022", "NULL_2022", "GP"]
-        filtered_csv = csv_df[['iso3', 'scenario', 'year']]
-
-        filtered_template = template_csv[~template_csv['scenario'].str.contains("PF")]
-        filtered_template = filtered_template[~filtered_template['scenario'].isin(list_scenarios)]
-        filtered_template = filtered_template[['iso3', 'scenario', 'year']]
-
-        diff_df = pd.concat([filtered_csv, filtered_template])
-        diff_df = diff_df.reset_index(drop=True)
-        df_gpby = diff_df.groupby(list(diff_df.columns))
-        idx = [x[0] for x in df_gpby.groups.values() if len(x) == 1]
-        a = diff_df.reindex(idx)
-
-        print("Here are the differences in rows")
-        print (a)
 
         # Only keep columns of immediate interest:
         csv_df = csv_df[
@@ -257,11 +215,59 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             ]
         ]
 
+        # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
+        df_gp = csv_df[csv_df.scenario == "GP"]
+        csv_df = csv_df[csv_df.scenario != "GP"]
+
+        # 1. Add copy central into lb and ub columns for needed variables
+        df_gp['New_infections_LB'] = df_gp['New_infections']
+        df_gp['New_infections_UB'] = df_gp['New_infections']
+        df_gp['AIDS_deaths_total_LB'] = df_gp['AIDS_deaths_total']
+        df_gp['AIDS_deaths_total_UB'] = df_gp['AIDS_deaths_total']
+        df_gp['PLHIV_LB'] = df_gp['PLHIV']
+        df_gp['PLHIV_UB'] = df_gp['PLHIV']
+        df_gp['Population_LB'] = df_gp['Population']
+        df_gp['Population_UB'] = df_gp['Population']
+        df_gp['ART_total_LB'] = df_gp['ART_total']
+        df_gp['ART_total_UB'] = df_gp['ART_total']
+
+        # 2. Replace nan with zeros
+        df_gp[[
+            "ART_cov",
+            "PMTCT_num",
+            "PMTCT_num_LB",
+            "PMTCT_num_UB",
+            "PMTCT_need",
+            "PMTCT_need_LB",
+            "PMTCT_need_UB",
+            "PMTCT_cov",
+            "FSW_cov",
+            "MSM_cov",
+            "PWID_cov",
+            "Total_cost",
+        ]] = df_gp[[
+            "ART_cov",
+            "PMTCT_num",
+            "PMTCT_num_LB",
+            "PMTCT_num_UB",
+            "PMTCT_need",
+            "PMTCT_need_LB",
+            "PMTCT_need_UB",
+            "PMTCT_cov",
+            "FSW_cov",
+            "MSM_cov",
+            "PWID_cov",
+            "Total_cost",
+        ]].fillna(0)
+
+        # Then put GP back into df
+        csv_df = pd.concat([csv_df, df_gp], axis=0)
+
         # Do some renaming to make things easier
         csv_df = csv_df.rename(
             columns={
                 "iso3": "country",
-                "scenario": "Scenario",
+                "scenario": "scenario_descriptor",
                 "New_infections": "cases_central",
                 "New_infections_LB": "cases_low",
                 "New_infections_UB": "cases_high",
@@ -285,6 +291,11 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "PMTCT_need_UB": "pmtctneed_high",
             }
         )
+
+        # Clean up funding fraction and PF scenario
+        csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna('') # Puts the funding scenario number in a new column called funding fraction
+        csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('', 1) # Where there is no funding fraction, set it to 1
+        csv_df.loc[csv_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF' # removes "_"
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         csv_df["artcoverage_low"] = csv_df["ART_cov"]
@@ -331,34 +342,14 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["plhiv_central"]
 
         # Pivot to long format
-        melted = csv_df.melt(id_vars=["country", "year", "Scenario"])
+        melted = csv_df.melt(
+            id_vars=["year", "country", "scenario_descriptor", "funding_fraction"]
+        )
 
         # Label the upper and lower bounds as variants and drop the original 'variable' term
         melted["indicator"] = melted["variable"].apply(lambda s: s.split("_")[0])
         melted["variant"] = melted["variable"].apply(lambda s: s.split("_")[1])
         melted = melted.drop(columns=["variable"])
-
-        # Deconstruct the 'Scenario' column to give "scenario" and "funding_fraction" separately.
-        def _deconstruct_scenario(s: str) -> Tuple[str, float]:
-            """For a given string, from the `Scenario` column of the HIV workbook, return a tuple that
-            gives (scenario_descriptor, funding_fraction)."""
-            return # TODO
-
-        # Rename scenarios
-        melted['funding_fraction'] = 1.0 # TO DO turn into float
-        melted = melted.rename(columns={"Scenario": "scenario_descriptor"})
-
-
-        # scenario_deconstructed = pd.DataFrame(
-        #     melted["Scenario"].apply(_deconstruct_scenario).to_list(),
-        #     index=melted.index,
-        #     columns=["scenario_descriptor", "funding_fraction"],
-        # )
-        #
-        # melted = melted.join(scenario_deconstructed).drop(columns=["Scenario"])
-
-        # Only keep the rows with the recognised scenarios
-        # melted = melted.dropna(subset=["scenario_descriptor"])
 
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(

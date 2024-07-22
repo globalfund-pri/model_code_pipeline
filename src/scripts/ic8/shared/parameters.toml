@@ -320,7 +320,7 @@ use_scaling=false
 
 [MALARIA]
 PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SOM', 'SSD', 'SUR', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'VUT', 'ZMB', 'ZWE']
-MODELLED_COUNTRIES = ['AFG','AGO','BDI','BEN','BFA','BGD','BOL','BTN','CAF','CIV','CMR','COD','COG','COM','DJI','ERI','ETH','GHA','GIN','GMB','GNB','HND','HTI','IDN','IND','KEN','KHM','LAO','LBR','MDG','MLI','MMR','MOZ','MRT','MWI','NAM','NER','NGA','NIC','NPL','PAK','PHL','PNG','RWA','SDN','SEN','SLB','SLE','SOM','SSD','SUR','TCD','TGO','THA','TZA','UGA','VNM','VUT','ZMB','ZWE']
+MODELLED_COUNTRIES = ['BFA', "KEN", "NGA"]
 FUNDING_FRACTIONS = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
 GP_START_YEAR = 2015
 PARTNER_DATA_YEARS = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020]
@@ -352,6 +352,18 @@ type="count"
 use_scaling=true
 
 [[MALARIA.indicator]]
+name="partargetedsmc"
+description="population at risk for smc in targeted areas"
+type="count"
+use_scaling=true
+
+[[MALARIA.indicator]]
+name="parvx"
+description="population at risk for vaccination"
+type="count"
+use_scaling=true
+
+[[MALARIA.indicator]]
 name="incidence"
 description="number of new malaria cases that occur with a year"
 type="rate"
@@ -364,8 +376,8 @@ type="rate"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="irshh"
-description="number of households sprayed with irs"
+name="irspp"
+description="number of people protected by irs"
 type="count"
 use_scaling=false
 
@@ -376,9 +388,15 @@ type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="llinscoverage"
-description="percentage of llins distributed through mass campaign and continuous distribution"
-type="fraction"
+name="txpublic"
+description="number of people treated in the public sector"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="txprivate"
+description="number of people treated in the private sector"
+type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
@@ -388,20 +406,56 @@ type="fraction"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="tx"
-description="number of people treated for malaria in public sector"
+name="txcoverage"
+description="Treatment coverage "
+type="fraction"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="smc"
+description="Number of children protected by smc"
 type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="vectorcontrolcoverage"
-description="check but probably percentage of population covered by vector control"
+name="smccoveragetarget"
+description="Proportion of children in targeted areas protected by smc"
+type="fraction"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="smccoverage"
+description="Proportion of children (overall) protected by smc"
+type="fraction"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="vaccine"
+description="Number of people vaccinated"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="vaccinecoverage"
+description="Proportion of people protected by vaccination"
 type="fraction"
 use_scaling=false
 
 [[MALARIA.indicator]]
 name="cost"
-description="total cost fot this scenario"
+description="total cost for this scenario"
+type="count"
+use_scaling= false
+
+[[MALARIA.indicator]]
+name="costtxprivate"
+description="total cost of treatment in private sector"
+type="count"
+use_scaling= false
+
+[[MALARIA.indicator]]
+name="costvx"
+description="total cost of vaccine program"
 type="count"
 use_scaling= false
 

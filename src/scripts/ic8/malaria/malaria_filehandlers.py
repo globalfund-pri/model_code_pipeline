@@ -133,119 +133,31 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         ]
         concatenated_dfs = pd.concat(list_of_df, axis=0)
 
-        # Rename scenarios
-        concatenated_dfs = concatenated_dfs.rename(
-            axis=0,
-            level="scenario_descriptor",
-            mapper={
-                "Follow_GP_REVERT_TO_GP": "GP_GP",
-                "Follow_ContinuedDisruption_CONSTCOV": "CC_CC",
-                "NEVERCHANGE_NEVERCHANGE": "NULL_NULL",
-                "Follow_Targets_MAINTAIN_COV": "PF_MC",
-                "Follow_Targets_REVERT_TO_GP": "PF_GP",
-                "Follow_PastPeformance_MAINTAIN_COV": "PP_MC",
-                "Follow_PastPeformance_REVERT_TO_GP": "PP_GP",
-                "Follow_ContinuedDisruption_MAINTAIN_COV": "CD_MC",
-                "Follow_ContinuedDisruption_REVERT_TO_GP": "CD_GP",
-            },
-        )
+        # TODO: @richard: when Pete sends NULL_FIRSTYEARGF AND PF scenarios adapt/uncomment the section below and remove part on "scenario_names
+        # Filter out any countries that we do not need
+        expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
+        scenario_names = (self.parameters.get_counterfactuals().index.to_list()) # TODO @richard: if we have all remove this line
+        scenario_names.remove("GP") # TODO @richard: if we have all remove this line, else if we just get NULL FIRST year, remove that from this line
+        scenario_names.remove("NULL_FIRSTYEARGF") # TODO @richard: if we have all remove this line, else if we just get NULL FIRST year, remove that from this line
+        # TODO @richard: uncomment the part below
+        # scenario_names = (self.parameters.get_scenarios().index.to_list() +
+        #                   self.parameters.get_counterfactuals().index.to_list())
+        concatenated_dfs = concatenated_dfs.loc[
+            (scenario_names, slice(None), expected_countries, slice(None), slice(None))
+        ]
 
-        # Some of the replenishment scenario contain characters and not just numeric. Make those NA for filtering
+        # Make funding numbers into fractions
         concatenated_dfs = concatenated_dfs.reset_index()
-        concatenated_dfs["funding_fraction"] = pd.to_numeric(
-            concatenated_dfs["funding_fraction"], errors="coerce"
-        )
-
-        # If scenario is GP_GP make funding fraction 2 temporarily for filtering below
-        concatenated_dfs.loc[
-            (concatenated_dfs["scenario_descriptor"] == "GP_GP") & (
-                concatenated_dfs["funding_fraction"].isna()), "funding_fraction"
-        ] = 2.0
-
-        # Need to remove all the GP_GP scenarios with funding fractions and keep only the one with funding fraction "NA"
-        concatenated_dfs = concatenated_dfs.drop(concatenated_dfs[
-                                                     (concatenated_dfs["scenario_descriptor"] == "GP_GP") & (
-                                                                 concatenated_dfs["funding_fraction"] < 2)].index)
-
-        # If scenario is GP_GP or NULL_NULL or CC_CC make funding fraction 2
-        concatenated_dfs.loc[
-            (concatenated_dfs["scenario_descriptor"] == "GP_GP") | (
-                        concatenated_dfs["scenario_descriptor"] == "CC_CC") | (
-                        concatenated_dfs["scenario_descriptor"] == "NULL_NULL"), "funding_fraction"
-        ] = 1.0
-
-        # Now filter our funding_fractions that are NA (this includes PP, PF, CD followed by GP which contain a
-        # replenishment reverting to GP
-        concatenated_dfs.loc[
-            (concatenated_dfs["scenario_descriptor"] == "GP_GP") | (
-                        concatenated_dfs["scenario_descriptor"] == "CC_CC") | (
-                        concatenated_dfs["scenario_descriptor"] == "NULL_NULL"), "funding_fraction"
-        ] = 1.0
+        concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
+            'funding_fraction'].transform('max')
+        concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
+        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 2})
+        concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
 
         # Re-pack the df
         concatenated_dfs = concatenated_dfs.set_index(
             ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
         )
-
-        # Make a new scenario for the IC. This is CD until
-        # First filter out CD scenario (it does not matter what the post-replenishment scenario is as the first years
-        # should be the same)
-
-        # First filter out CD scenario
-        cd_dfs = concatenated_dfs.loc[
-            ("CD_MC", slice(None), slice(None), slice(None), slice(None))
-        ]
-        cd_dfs = cd_dfs.reset_index()
-        cd_dfs["scenario_descriptor"] = "IC_IC"
-        cd_dfs = cd_dfs.set_index(
-            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
-        )  # repack the index
-
-        # Then filter out PF scenario
-        pf_dfs = concatenated_dfs.loc[
-            ("PF_MC", slice(None), slice(None), slice(None), slice(None))  # todo: make sure it was PF_GP and not PF_MC
-        ]
-        pf_dfs = pf_dfs.reset_index()
-        pf_dfs["scenario_descriptor"] = "IC_IC"
-        pf_dfs = pf_dfs.set_index(
-            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
-        )  # repack the index
-
-        # Make a df which is an average for CD and PF for the year 2022
-        mix_df = pd.concat(([cd_dfs, pf_dfs]), axis=1).groupby(axis=1, level=0).mean()
-
-        # Make a new IC_IC scenario which is CD up to 2021, average of CD and PF in 2022 and then PF
-        cd_dfs = cd_dfs.drop(
-            cd_dfs.index[
-                cd_dfs.index.get_level_values('year') > 2021]
-        )
-
-        mix_df = mix_df.drop(
-            mix_df.index[
-                mix_df.index.get_level_values('year') != 2022]
-        )
-
-        pf_dfs = pf_dfs.drop(
-            pf_dfs.index[
-                pf_dfs.index.get_level_values('year') < 2023]
-        )
-
-        ic_df = pd.concat(([cd_dfs, mix_df, pf_dfs]))
-
-        # Sort the ic_df
-        ic_df.sort_index(level="country")
-
-        # Add ic_ic scenario to model output
-        concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
-
-        # Filter out scenarios and countries that we do not need
-        expected_countries = self.parameters.get(self.disease_name).get('MODELLED_COUNTRIES')
-        scenario_names = (self.parameters.get_scenarios().index.to_list() +
-                          self.parameters.get_counterfactuals().index.to_list())
-        concatenated_dfs = concatenated_dfs.loc[
-            (scenario_names, slice(None), expected_countries, slice(None), slice(None))
-        ]
-
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
@@ -256,62 +168,25 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Load csv
         csv_df = self._load_sheet(file)
 
-        # Compare columns to template
-        template_csv = pd.read_excel(
-            "/Users/mc1405/TGF_data/IC8/template/malaria/mal_ic_modelling_reference 2024_05_21.xlsx", sheet_name="Template")
-        model_column_names = list(csv_df.columns)
-        template_column_names = list(template_csv.columns)
-        filtered_list_in = [string for string in model_column_names if string not in template_column_names]
-        filtered_list_out = [string for string in template_column_names if string not in model_column_names]
-
-        print("Are there any missing or mis-names columns?")
-        print(filtered_list_in)
-        print(filtered_list_out)
-
-        # Compare rows
-        list_scenarios = ["CC_2022", "NULL_2022", "GP"]
-        filtered_csv = csv_df[['iso3', 'scenario', 'year']]
-
-        filtered_template = template_csv[~template_csv['scenario'].str.contains("PF")]
-        filtered_template = filtered_template[~filtered_template['scenario'].isin(list_scenarios)]
-        filtered_template = filtered_template[['iso3', 'scenario', 'year']]
-
-        diff_df = pd.concat([filtered_csv, filtered_template])
-        diff_df = diff_df.reset_index(drop=True)
-        df_gpby = diff_df.groupby(list(diff_df.columns))
-        idx = [x[0] for x in df_gpby.groups.values() if len(x) == 1]
-        a = diff_df.reindex(idx)
-
-        print("Here are the differences in rows")
-        print(a)
-
         # Only keep columns of immediate interest:
         csv_df = csv_df[
             [
                 "iso3",
                 "year",
                 "scenario",
-                "cases",
-                "cases_lb",
-                "cases_ub",
-                "deaths",
-                "deaths_lb",
-                "deaths_ub",
-                "itn_use_n",
+                "cases_smooth",
+                "cases_smooth_lb",
+                "cases_smooth_ub",
+                "deaths_smooth",
+                "deaths_smooth_lb",
+                "deaths_smooth_ub",
                 "net_n",
-                "itn_access",
-                "itn_use",
-                "irs_hh",
                 "irs_people_protected",
-                'irs_coverage',
                 "treatments_given_public",
                 "treatment_coverage",
-                "tx_cov",
                 "smc_children_protected",
                 "smc_coverage_targeted",
                 "smc_coverage",
-                "smc_doses",
-                "vector_control_coverage",
                 "vaccine_n",
                 "vaccine_doses_n",
                 "vaccine_coverage",
@@ -324,33 +199,25 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             ]
         ]
 
-        # Do some re-naming to make things easier
-        csv_df = csv_df.rename(
-            columns={
-                "ISO": "iso3",
-                "scenario_descriptor": "scenario",
-                "cases_central": "cases",
-                "cases_lower": "cases_lb",
-                "cases_upper": "cases_ub",
-                "deaths_central": "deaths",
-                "deaths_lower": "deaths_lb",
-                "deaths_upper": "deaths_ub",
+        # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
+        df_gp = csv_df[csv_df.scenario == "GP"]
+        csv_df = csv_df[csv_df.scenario != "GP"]
 
-                "itn_use_n",
+        # 1. Add copy central into lb and ub columns for needed variables
+        df_gp['cases_smooth_lb'] = df_gp['cases_smooth']
+        df_gp['cases_smooth_ub'] = df_gp['cases_smooth']
+        df_gp['deaths_smooth_lb'] = df_gp['deaths_smooth']
+        df_gp['deaths_smooth_ub'] = df_gp['deaths_smooth']
 
-            "itn_access",
-            "itn_use",
-            "irs_hh",
+        # 2. Replace nan with zeros
+        df_gp[[
+            "net_n",
             "irs_people_protected",
-            'irs_coverage',
             "treatments_given_public",
             "treatment_coverage",
-            "tx_cov",
             "smc_children_protected",
             "smc_coverage_targeted",
             "smc_coverage",
-            "smc_doses",
-            "vector_control_coverage",
             "vaccine_n",
             "vaccine_doses_n",
             "vaccine_coverage",
@@ -360,70 +227,143 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "total_cost",
             "cost_private",
             "cost_vaccine",
+        ]] = df_gp[[
+            "net_n",
+            "irs_people_protected",
+            "treatments_given_public",
+            "treatment_coverage",
+            "smc_children_protected",
+            "smc_coverage_targeted",
+            "smc_coverage",
+            "vaccine_n",
+            "vaccine_doses_n",
+            "vaccine_coverage",
+            "par",
+            "par_targeted_smc",
+            "par_vx",
+            "total_cost",
+            "cost_private",
+            "cost_vaccine",
+        ]].fillna(0)
 
-                "replenishment": "funding_fraction",
-                "total_cost": "cost",
+        # Then put GP back into df
+        csv_df = pd.concat([csv_df, df_gp], axis=0)
+
+        # Do some re-naming to make things easier
+        csv_df = csv_df.rename(
+            columns={
+                "iso3": "country",
+                "scenario": "scenario_descriptor",
+                "cases_smooth": "cases_central",
+                "cases_smooth_lb": "cases_low",
+                "cases_smooth_ub": "cases_high",
+                "deaths_smooth": "deaths_central",
+                "deaths_smooth_lb": "deaths_low",
+                "deaths_smooth_ub": "deaths_high",
             }
         )
 
+        # Clean up funding fraction and PF scenario
+        csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+            '')  # Puts the funding scenario number in a new column called funding fraction
+        csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('',
+                                                                        1)  # Where there is no funding fraction, set it to 1
+        csv_df.loc[csv_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
-        xlsx_df["par_lower"] = xlsx_df["par"]
-        xlsx_df["par_central"] = xlsx_df["par"]
-        xlsx_df["par_upper"] = xlsx_df["par"]
-        xlsx_df = xlsx_df.drop(columns=["par"])
+        csv_df["par_low"] = csv_df["par"]
+        csv_df["par_central"] = csv_df["par"]
+        csv_df["par_high"] = csv_df["par"]
+        csv_df = csv_df.drop(columns=["par"])
 
-        xlsx_df["llins_lower"] = xlsx_df["net_n"]
-        xlsx_df["llins_central"] = xlsx_df["net_n"]
-        xlsx_df["llins_upper"] = xlsx_df["net_n"]
-        xlsx_df = xlsx_df.drop(columns=["net_n"])
+        csv_df["llins_low"] = csv_df["net_n"]
+        csv_df["llins_central"] = csv_df["net_n"]
+        csv_df["llins_high"] = csv_df["net_n"]
+        csv_df = csv_df.drop(columns=["net_n"])
 
-        xlsx_df["llinscoverage_lower"] = xlsx_df["net_coverage"]
-        xlsx_df["llinscoverage_central"] = xlsx_df["net_coverage"]
-        xlsx_df["llinscoverage_upper"] = xlsx_df["net_coverage"]
-        xlsx_df = xlsx_df.drop(columns=["net_coverage"])
+        csv_df["irsppl_low"] = csv_df["irs_people_protected"]
+        csv_df["irsppl_central"] = csv_df["irs_people_protected"]
+        csv_df["irsppl_high"] = csv_df["irs_people_protected"]
+        csv_df = csv_df.drop(columns=["irs_people_protected"])
 
-        xlsx_df["txcoverage_lower"] = xlsx_df["treatment_coverage"]
-        xlsx_df["txcoverage_central"] = xlsx_df["treatment_coverage"]
-        xlsx_df["txcoverage_upper"] = xlsx_df["treatment_coverage"]
-        xlsx_df = xlsx_df.drop(columns=["treatment_coverage"])
+        csv_df["txpublic_low"] = csv_df["treatments_given_public"]
+        csv_df["txpublic_central"] = csv_df["treatments_given_public"]
+        csv_df["txpublic_high"] = csv_df["treatments_given_public"]
+        csv_df = csv_df.drop(columns=["treatments_given_public"])
 
-        xlsx_df["vectorcontrolcoverage_lower"] = xlsx_df["vector_control_coverage"]
-        xlsx_df["vectorcontrolcoverage_central"] = xlsx_df["vector_control_coverage"]
-        xlsx_df["vectorcontrolcoverage_upper"] = xlsx_df["vector_control_coverage"]
-        xlsx_df = xlsx_df.drop(columns=["vector_control_coverage"])
+        csv_df["txcoverage_low"] = csv_df["treatment_coverage"]
+        csv_df["txcoverage_central"] = csv_df["treatment_coverage"]
+        csv_df["txcoverage_high"] = csv_df["treatment_coverage"]
+        csv_df = csv_df.drop(columns=["treatment_coverage"])
 
-        xlsx_df["irshh_lower"] = xlsx_df["irs_hh"]
-        xlsx_df["irshh_central"] = xlsx_df["irs_hh"]
-        xlsx_df["irshh_upper"] = xlsx_df["irs_hh"]
-        xlsx_df = xlsx_df.drop(columns=["irs_hh"])
+        csv_df["smc_low"] = csv_df["smc_children_protected"]
+        csv_df["smc_central"] = csv_df["smc_children_protected"]
+        csv_df["smc_high"] = csv_df["smc_children_protected"]
+        csv_df = csv_df.drop(columns=["smc_children_protected"])
 
-        xlsx_df["cost_lower"] = xlsx_df["cost"]
-        xlsx_df["cost_central"] = xlsx_df["cost"]
-        xlsx_df["cost_upper"] = xlsx_df["cost"]
-        xlsx_df = xlsx_df.drop(columns=["cost"])
+        csv_df["smccoveragetargeted_low"] = csv_df["smc_coverage_targeted"]
+        csv_df["smccoveragetargeted_central"] = csv_df["smc_coverage_targeted"]
+        csv_df["smccoveragetargeted_high"] = csv_df["smc_coverage_targeted"]
+        csv_df = csv_df.drop(columns=["smc_coverage_targeted"])
+
+        csv_df["smccoverage_low"] = csv_df["smc_coverage"]
+        csv_df["smccoverage_central"] = csv_df["smc_coverage"]
+        csv_df["smccoverage_high"] = csv_df["smc_coverage"]
+        csv_df = csv_df.drop(columns=["smc_coverage"])
+
+        csv_df["vaccine_low"] = csv_df["vaccine_n"]
+        csv_df["vaccine_central"] = csv_df["vaccine_n"]
+        csv_df["vaccine_high"] = csv_df["vaccine_n"]
+        csv_df = csv_df.drop(columns=["vaccine_n"])
+
+        csv_df["vaccinedoses_low"] = csv_df["vaccine_doses_n"]
+        csv_df["vaccinedoses_central"] = csv_df["vaccine_doses_n"]
+        csv_df["vaccinedoses_high"] = csv_df["vaccine_doses_n"]
+        csv_df = csv_df.drop(columns=["vaccine_doses_n"])
+
+        csv_df["vaccinecoverage_low"] = csv_df["vaccine_coverage"]
+        csv_df["vaccinecoverage_central"] = csv_df["vaccine_coverage"]
+        csv_df["vaccinecoverage_high"] = csv_df["vaccine_coverage"]
+        csv_df = csv_df.drop(columns=["vaccine_coverage"])
+
+        csv_df["partargetedsmc_low"] = csv_df["par_targeted_smc"]
+        csv_df["partargetedsmc_central"] = csv_df["par_targeted_smc"]
+        csv_df["partargetedsmc_high"] = csv_df["par_targeted_smc"]
+        csv_df = csv_df.drop(columns=["par_targeted_smc"])
+
+        csv_df["parvx_low"] = csv_df["par_vx"]
+        csv_df["parvx_central"] = csv_df["par_vx"]
+        csv_df["parvx_high"] = csv_df["par_vx"]
+        csv_df = csv_df.drop(columns=["par_vx"])
+
+        csv_df["cost_low"] = csv_df["total_cost"]
+        csv_df["cost_central"] = csv_df["total_cost"]
+        csv_df["cost_high"] = csv_df["total_cost"]
+        csv_df = csv_df.drop(columns=["total_cost"])
+
+        csv_df["costtxprivate_low"] = csv_df["cost_private"]
+        csv_df["costtxprivate_central"] = csv_df["cost_private"]
+        csv_df["costtxprivate_high"] = csv_df["cost_private"]
+        csv_df = csv_df.drop(columns=["cost_private"])
+
+        csv_df["costvx_low"] = csv_df["cost_vaccine"]
+        csv_df["costvx_central"] = csv_df["cost_vaccine"]
+        csv_df["costvx_high"] = csv_df["cost_vaccine"]
+        csv_df = csv_df.drop(columns=["cost_vaccine"])
 
         # Generate incidence and mortality
-        xlsx_df["incidence_lower"] = xlsx_df["cases_lower"] / xlsx_df["par_lower"]
-        xlsx_df["incidence_central"] = xlsx_df["cases_central"] / xlsx_df["par_central"]
-        xlsx_df["incidence_upper"] = xlsx_df["cases_upper"] / xlsx_df["par_upper"]
+        csv_df["incidence_low"] = csv_df["cases_low"] / csv_df["par_low"]
+        csv_df["incidence_central"] = csv_df["cases_central"] / csv_df["par_central"]
+        csv_df["incidence_high"] = csv_df["cases_high"] / csv_df["par_high"]
 
-        xlsx_df["mortality_lower"] = xlsx_df["deaths_lower"] / xlsx_df["par_lower"]
-        xlsx_df["mortality_central"] = (
-            xlsx_df["deaths_central"] / xlsx_df["par_central"]
+        csv_df["mortality_low"] = csv_df["deaths_low"] / csv_df["par_low"]
+        csv_df["mortality_central"] = (
+            csv_df["deaths_central"] / csv_df["par_central"]
         )
-        xlsx_df["mortality_upper"] = xlsx_df["deaths_upper"] / xlsx_df["par_upper"]
-
-        # Generate number of people on treatment
-        xlsx_df["tx_lower"] = xlsx_df["txcoverage_lower"] * xlsx_df["cases_lower"]
-        xlsx_df["tx_central"] = xlsx_df["txcoverage_central"] * xlsx_df["cases_central"]
-        xlsx_df["tx_upper"] = xlsx_df["txcoverage_upper"] * xlsx_df["cases_upper"]
-
-        # Merge scenario names and remove original scenario columns
-        xlsx_df["scenario_descriptor"] = xlsx_df["pre"] + "_" + xlsx_df["post"]
-        xlsx_df = xlsx_df.drop(columns=["pre", "post"])
+        csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["par_high"]
 
         # Pivot to long format
-        melted = xlsx_df.melt(
+        melted = csv_df.melt(
             id_vars=["year", "country", "scenario_descriptor", "funding_fraction"]
         )
 
@@ -447,9 +387,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             ]
         ).unstack("variant")
         unpivoted.columns = unpivoted.columns.droplevel(0)
-
-        # Rename to match defintion
-        unpivoted = unpivoted.rename(columns={"lower": "low", "upper": "high"})
 
         print(f"done")
         return unpivoted

@@ -137,14 +137,10 @@ class ModelResultsTb(TBMixin, ModelResults):
 
         concatenated_dfs = pd.concat(list_of_df, axis=0)
 
-        # Remove NAN's (drop every row where this is an NaN)
-        concatenated_dfs = concatenated_dfs.dropna()
-
         # Filter out countries and scenarios we do not need
         expected_countries = self.parameters.get(self.disease_name).get('MODELLED_COUNTRIES')
         scenario_names = (self.parameters.get_scenarios().index.to_list() +
-                          self.parameters.get_counterfactuals().index.to_list() +
-                          self.parameters.get_historiccounterfactuals().index.to_list())
+                          self.parameters.get_counterfactuals().index.to_list())
         concatenated_dfs = concatenated_dfs.loc[
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
@@ -174,34 +170,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         # TODO: remove later
         if file.name == "tb_ic_reference_BGD.xlsx":
             xlsx_df['iso3'] = 'BGD'
-
-        # Compare columns to template
-        template_csv = pd.read_excel(
-            "/Users/mc1405/TGF_data/IC8/template/tb/tb_ic_modelling_reference 2024_06_21.xlsx", sheet_name="Template")
-        model_column_names = list(xlsx_df.columns)
-        template_column_names = list(template_csv.columns)
-        filtered_list_in = [string for string in model_column_names if string not in template_column_names]
-        filtered_list_out = [string for string in template_column_names if string not in model_column_names]
-
-        print("Are there any missing or mis-names columns?")
-        print(filtered_list_in)
-        print(filtered_list_out)
-
-        # Compare rows
-        filtered_csv = xlsx_df[['iso3', 'Scenario', 'year']]
-        filtered_template = template_csv[template_csv['iso3'].str.contains("IND")]
-        filtered_template = filtered_template[['iso3', 'scenario', 'year']]
-        filtered_template = filtered_template.rename(
-            columns={'scenario': 'Scenario'})
-
-        diff_df = pd.concat([filtered_csv, filtered_template])
-        diff_df = diff_df.reset_index(drop=True)
-        df_gpby = diff_df.groupby(list(diff_df.columns))
-        idx = [x[0] for x in df_gpby.groups.values() if len(x) == 1]
-        a = diff_df.reindex(idx)
-
-        print("Here are the differences in rows")
-        print(a)
 
         # Only keep columns of immediate interest:
         xlsx_df = xlsx_df[
@@ -250,6 +218,76 @@ class ModelResultsTb(TBMixin, ModelResults):
             ]
         ]
 
+        # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
+        df_gp = xlsx_df[xlsx_df.Scenario == "GP"]
+        xlsx_df = xlsx_df[xlsx_df.Scenario != "GP"]
+
+        # 1. Add copy central into lb and ub columns for needed variables
+        df_gp['NewCases_LB'] = df_gp['NewCases']
+        df_gp['NewCases_UB'] = df_gp['NewCases']
+        df_gp['TBDeaths_LB'] = df_gp['TBDeaths']
+        df_gp['TBDeaths_UB'] = df_gp['TBDeaths']
+        df_gp['TBDeaths_HIVneg_LB'] = df_gp['TBDeaths_HIVneg']
+        df_gp['TBDeaths_HIVneg_UB'] = df_gp['TBDeaths_HIVneg']
+
+        # 2. Replace nan with zeros
+        df_gp[[
+             "Notified_n",
+                "Notified_n_LB",
+                "Notified_n_UB",
+                "Notified_p",
+                "Notified_p_LB",
+                "Notified_p_UB",
+                "TxSR",
+                "mdr_notified_n",
+                "mdr_notified_n_LB",
+                "mdr_notified_n_UB",
+                "mdr_notified_p",
+                "mdr_notified_p_LB",
+                "mdr_notified_p_UB",
+                "TxSR_MDR",
+                "mdr_estnew_n",
+                "mdr_estretx_n",
+                "mdr_Tx",
+                "mdr_Tx_LB",
+                "mdr_Tx_UB",
+                "tb_art_n",
+                "tb_art_n_LB",
+                "tb_art_n_UB",
+                "tb_art_p",
+                "hiv_pos",
+                "Costs",
+        ]] = df_gp[[
+             "Notified_n",
+                "Notified_n_LB",
+                "Notified_n_UB",
+                "Notified_p",
+                "Notified_p_LB",
+                "Notified_p_UB",
+                "TxSR",
+                "mdr_notified_n",
+                "mdr_notified_n_LB",
+                "mdr_notified_n_UB",
+                "mdr_notified_p",
+                "mdr_notified_p_LB",
+                "mdr_notified_p_UB",
+                "TxSR_MDR",
+                "mdr_estnew_n",
+                "mdr_estretx_n",
+                "mdr_Tx",
+                "mdr_Tx_LB",
+                "mdr_Tx_UB",
+                "tb_art_n",
+                "tb_art_n_LB",
+                "tb_art_n_UB",
+                "tb_art_p",
+                "hiv_pos",
+                "Costs",
+        ]].fillna(0)
+
+        # Then put GP back into df
+        xlsx_df = pd.concat([xlsx_df, df_gp], axis=0)
+
         # Do some re-naming to make things easier
         xlsx_df = xlsx_df.rename(
             columns={
@@ -294,9 +332,11 @@ class ModelResultsTb(TBMixin, ModelResults):
         )
 
         # Clean up funding fraction and PF scenario
-        xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna('')
-        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('', 1)
-        xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'
+        xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+            '')  # Puts the funding scenario number in a new column called funding fraction
+        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
+                                                                        1)  # Where there is no funding fraction, set it to 1
+        xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         xlsx_df["population_low"] = xlsx_df["Population"]
@@ -376,7 +416,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         unpivoted.columns = unpivoted.columns.droplevel(0)
 
         print(f"done")
-
         return unpivoted
 
     @staticmethod
