@@ -187,7 +187,7 @@ use_scaling=false
 
 [TB]
 PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'CPV', 'DJI', 'EGY', 'ETH', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNG', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRK', 'RWA', 'SDN', 'SUR', 'SEN', 'SLE', 'SLV', 'SOM', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
-MODELLED_COUNTRIES = ['BGD','IND']
+MODELLED_COUNTRIES = ['IND']
 FUNDING_FRACTIONS = [0.11,0.22,0.33,0.44,0.56,0.67,0.78,0.89,1,]
 GP_START_YEAR = 2015
 PARTNER_DATA_YEARS = [2020,2021,2022]

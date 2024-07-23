@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Tuple
 
 import pandas as pd
-import regex
+#import regex
 
 from tgftools.filehandler import (
     # FixedGp,
