@@ -487,8 +487,7 @@ class PFInputDataTb(TBMixin, PFInputData):
 
         # Check all scenarios are in there
         scenarios = (self.parameters.get_scenarios().index.to_list() +
-                     self.parameters.get_counterfactuals().index.to_list() +
-                     self.parameters.get_historiccounterfactuals().index.to_list())
+                     self.parameters.get_counterfactuals().index.to_list())
         scenarios = [e for e in scenarios if e not in ("NULL_2000", "NULL_FIRSTYEARGF", "CC_2000", "CC_FIRSTYEARGF", "GP", "HH")]
 
         assert all(

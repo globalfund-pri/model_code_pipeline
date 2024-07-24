@@ -599,7 +599,8 @@ class CommonChecks_allscenarios:
         self.EXPECTED_COUNTRIES = params.get(self.disease_name).get('MODELLED_COUNTRIES')
         self.EXPECTED_CF_SCENARIOS = params.get_counterfactuals().index.to_list()
         self.EXPECTED_FUNDING_SCENARIOS = params.get_scenarios().index.to_list()
-        self.EXPECTED_CF_HISTORICSCENARIOS = params.get_historiccounterfactuals().index.to_list()
+        self.EXPECTED_NULL_SCENARIOS = params.get_nullcounterfactuals().index.to_list()
+        self.EXPECTED_CC_SCENARIOS = params.get_cccounterfactuals().index.to_list()
         self.EXPECTED_HISTORIC_FIRST_YEAR = params.get("HISTORIC_FIRST_YEAR")
         self.EXPECTED_START_YEAR = params.get("START_YEAR")
         self.EXPECTED_LAST_YEAR_PF= params.get("LAST_YEAR_PF")
@@ -654,9 +655,9 @@ class CommonChecks_allscenarios:
         # We expect an entry in the model results for each permutation of the following:
         expected_idx = pd.MultiIndex.from_product(
             [
-                self.EXPECTED_CF_HISTORICSCENARIOS, # TODO: self.EXPECTED + ALL + SCENARIO
+                (self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS),
                 expected_funding,
-                self.EXPECTED_COUNTRIES, # TODO: self.EXPECTED_COUNTRIES,
+                self.EXPECTED_COUNTRIES,
                 range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR),
                 self.EXPECTED_EPI_INDICATORS,
             ],
@@ -665,7 +666,6 @@ class CommonChecks_allscenarios:
 
         # Check what is missing from the model results
         missing_idx = expected_idx.difference(df.index)
-
 
         if len(missing_idx) > 0:
             return CheckResult(passes=False, message=self._summarise(missing_idx))
@@ -680,12 +680,12 @@ class CommonChecks_allscenarios:
         # Check CFs for HIV deaths, cases and TB cases trends look comparable to last exercise
         # compare each scenario and make sure order makes sense
 
-        country_list = self.EXPECTED_COUNTRIES
+        if self.disease_name == 'HIV': # TODO @richard update once we have more hiv scenarios update
+            scenarios = self.EXPECTED_CF_SCENARIOS
+            scenarios.remove("NULL_2022")
+            scenarios.remove("CC_2022")
 
-        if self.disease_name == 'HIV': # TODO update
-            scenarios = ['HH', 'CC_2000', 'NULL_2000', 'CC_FIRSTYEARGF', 'NULL_FIRSTYEARGF']
-
-        if self.disease_name == 'TB': # TODO update
+        if self.disease_name == 'TB':
             scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
 
         if self.disease_name == 'MALARIA': # TODO: @richard update once we have more malaria scenarios update
@@ -694,7 +694,7 @@ class CommonChecks_allscenarios:
             scenarios.remove("GP")
 
         figs = []
-        for country in country_list: # Todo: set to self.EXPECTED_COUNTRIES
+        for country in self.EXPECTED_COUNTRIES:
             for indicator in ("cases", "deaths"):
                 df = db.model_results.df.loc[
                     (
@@ -724,11 +724,13 @@ class CommonChecks_allscenarios:
         """This produces graphs of cases/new infections, incidence, deaths and mortality over years aggregated across
         all countries. The graphs plot all scenarios against each other, with one graph per funding fraction. """
 
-        if self.disease_name == 'HIV':  # TODO update
-            scenarios = ['HH', 'CC_2000', 'NULL_2000', 'CC_FIRSTYEARGF', 'NULL_FIRSTYEARGF']
-        if self.disease_name == 'TB':  # TODO update
+        if self.disease_name == 'HIV':  # TODO @richard update once we have more hiv scenarios update
+            scenarios = self.EXPECTED_CF_SCENARIOS
+
+        if self.disease_name == 'TB':
             scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
-        if self.disease_name == 'MALARIA':  # TODO update
+
+        if self.disease_name == 'MALARIA':  # TODO: @richard update once we have more malaria scenarios update
             scenarios = self.EXPECTED_CF_SCENARIOS
 
         figs = []
@@ -737,7 +739,7 @@ class CommonChecks_allscenarios:
                 df = (
                     db.model_results.df.loc[
                         (
-                            scenario,
+                            scenario, # ToDO update self CF + funding scenarios
                             slice(None),
                             slice(None),
                             slice(None),
@@ -766,33 +768,32 @@ class CommonChecks_allscenarios:
     def nullscenario_has_zeros_service(self, db: Database):
         """Checks that the NULL scenarios have zero service coverage from the first corresponding year"""
 
-        # Set key information for this check
-        indicators = self.INDICATORS_FOR_NULL_CHECK
-        country_list = db.model_results.countries
-
+        # TODO: remove hardcoding. @richard update here on the scenarios only as needed for hiv and malaria
         if self.disease_name == 'HIV':
-            scenario_list = ['NULL_2000', 'NULL_FIRSTYEARGF']  # TODO: update
+            scenario_list = self.EXPECTED_NULL_SCENARIOS
+            scenario_list.remove("NULL_2022")
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_hiv.csv",
             )  # TODO: this is ugly can we move it?
 
         if self.disease_name == 'TB':
-            scenario_list = ['NULL_2000', 'NULL_FIRSTYEARGF', 'NULL_2022']  # TODO: update
+            scenario_list = self.EXPECTED_NULL_SCENARIOS
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_tb.csv",
             )  # TODO: this is ugly can we move it?
 
         if self.disease_name == 'MALARIA':
-            scenario_list = ['NULL_2000', 'NULL_2022']  # TODO: update and add 'NULL_FIRSTYEARGF',
+            scenario_list = self.EXPECTED_NULL_SCENARIOS
+            scenario_list.remove("NULL_FIRSTYEARGF")
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_malaria.csv",
             )  # TODO: this is ugly can we move it?
 
         messages = []  # Capture messages where a problem is detected
 
-        for indicator in indicators:
-            for country in country_list:  # TODO: later use db.model_results.countries
-                for scenario in scenario_list:
+        for indicator in self.INDICATORS_FOR_NULL_CHECK:
+            for country in db.model_results.countries:
+                for scenario in scenario_list: # TODO: later use self.EXPECTED_NULL_SCENARIOS
                     # Get the right year for each scenario
                     if scenario == "NULL_2000":
                         year = self.EXPECTED_HISTORIC_FIRST_YEAR
@@ -834,31 +835,31 @@ class CommonChecks_allscenarios:
 
         # Get key information for this check
         messages = []  # Capture messages where a problem is detected
-        indicators = self.INDICATORS_FOR_CC_CHECK
-        country_list = db.model_results.countries
 
-        if self.disease_name == 'HIV':  # TODO: update
-            scenario_list = ['CC_2000', 'CC_FIRSTYEARGF']
+        # TODO: remove hardcoding. @richard update here on the scenarios only as needed for hiv and malaria
+        if self.disease_name == 'HIV':
+            scenario_list = self.EXPECTED_CC_SCENARIOS
+            scenario_list.remove("CC_2022")
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_hiv.csv",
             )  # TODO: this is ugly can we move it?
 
-        if self.disease_name == 'TB':  # TODO: update
-            scenario_list = ['CC_2000', 'CC_FIRSTYEARGF', 'CC_2022']
+        if self.disease_name == 'TB':
+            scenario_list = self.EXPECTED_CC_SCENARIOS
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_tb.csv",
             )  # TODO: this is ugly can we move it?
 
-        if self.disease_name == 'MALARIA':  # TODO: update
-            scenario_list = ['CC_2000', 'CC_FIRSTYEARGF', 'CC_2022']
+        if self.disease_name == 'MALARIA':
+            scenario_list = self.EXPECTED_CC_SCENARIOS
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_malaria.csv",
             )  # TODO: this is ugly can we move it?
 
         # Look at each country/indicator in turn for the year 2000
-        for indicator in indicators:
-            for country in country_list:  # TODO: change to db.model_results.countries
-                for scenario in scenario_list:
+        for indicator in self.INDICATORS_FOR_CC_CHECK:
+            for country in db.model_results.countries:
+                for scenario in scenario_list: # TODO: change to self.EXPECTED_CC_SCENARIOS
                     # Get the right year for each scenario
                     if scenario == "CC_2000":  # todo: can we soft code this?
                         year = self.EXPECTED_HISTORIC_FIRST_YEAR
@@ -876,7 +877,6 @@ class CommonChecks_allscenarios:
                     # If the numbers are less than 0.5% make them zero to surpress error
                     country_result_for_this_indicator.loc[country_result_for_this_indicator.central <0.005] = 0
 
-
                     # We want the values within each column to be close to one another
                     if not all_rows_similar(country_result_for_this_indicator):
                         messages.append((country, scenario, indicator))
@@ -893,9 +893,11 @@ class CommonChecks_allscenarios:
 
     def all_scenarios_have_same_beginning(self, db: Database):
         """Checks that each scenario has the same value for epi indicators for the corresponding year that
-        they branch off from the historic trajectory. For CF starting in 2000, we only check the year 2000, for
+        they branch off from the historic trajectory. For CFs starting in 2000, we check in the year 2000, for
         scenarios starting in the first year of GF results, we compare up to that year, for scenarios starting in 2022
-        we check once against the historic in 2022 and then all PF scenarios up to 2026. """
+        we check once against the historic in 2022 and then all PF scenarios up to 2026.
+        NOTE: the NULL_2000 may differ from CC_2000 and HH because for some diseases and countries there already was
+        service provision and these were switched off at the start of 2000. """
 
         def all_rows_similar(df: pd.DataFrame) -> bool:
             """Returns True if all the values within each column are similar."""
@@ -937,8 +939,7 @@ class CommonChecks_allscenarios:
         if self.disease_name == "HIV": # TODO: @richard remove once John adds CC/NULL starting in 2022
             scenario_type = [list_scenarios_2000, list_scenarios_GF, list_scenarios_2022]
 
-
-            # Look at each country/indicator in turn for the year 2000
+        # Look at each country/indicator in turn for the year 2000
         for indicator in indicators:
             for country in db.model_results.countries:
                 for scenario in scenario_type:
