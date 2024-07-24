@@ -26,55 +26,55 @@ e.g. HIV-negative population estimates, filters out variables that are not neede
 the database format. 
 
 The database format is: 
-1) scenario_descriptor: contains a XX_XX shorthand for scenario names. 
+1) scenario_descriptor: contains a shorthand for scenario names. The parameters.toml file maps the short-hand to definition
 2) funding fraction: contains the funding fraction as expressed by the numbers starting at "01". They do not refer to 
    % of GP funding need but as increments of increasing services/availability of services. 
 3) country: holds iso3 code for a country
 4) year: contains year information
-5) indicator: contains the variable names (short-hand)
+5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition
 6) low, central and high: contains the value for the lower bound, central and upper bound of a given variable. Where 
    LB and UB are not available these should be set to be the same as the "central" value.  
 
  This following files are read in in this script: 
  1) The HIV model results shared by John
  2) The PF input data. These were prepared by TGF and shared with modellers as input data to the model
- 3) The UNAIDS partner data as prepared by the TGF. These contain the following variables: year, iso3, deaths 
- (number of AIDS-related deaths for given year), PLHIV (number of PLHIV for a given year), cases (number of new HIV 
- infections for a given year), life_years (total population for a given year). The partner data should contain data
- for each of these variable for each country eligible for GF funding for 2000 to latest year. 
+ 3) The UNAIDS partner data as prepared by the TGF. These contain the following variables: year, iso3, new infections, 
+    deaths, population estimates (by HIV status) (for a given year). The partner data should contain data for each of 
+    these variable for each country eligible for GF funding for 2000 to latest year. 
 
  The above files are saved in the file structure described below. 
  CAUTION: failing to follow the file structure may throw up errors. 
  File structure: 
- 1) Main project folder: "IC8/"
+ 1) Main project folder: "IC8"
  2) model results should be located in "/modelling_outputs"
  3) PF input daa should be saved under "/pf"
  4) UNAIDS partner data should be saved under "/partner"
  
- The following additional information needs to be set and prepared in order to run the code: 
- 1) List of modelled countries: In the parameter file  provide the full list of iso3 codes
+  The following additional information needs to be set and prepared in order to run the code: 
+ 1) List of modelled countries: In the parameters.toml file  provide the full list of iso3 codes
     of modelled countries for this disease that should be analysed. The list is used:
      a) in the checks, for example, to ensure that we have results for each country, for each year, for each variable 
      defined in this set of lists
      b) for filtering when generating the output (i.e. if we have to remove model results for Russia from the analysis, 
      we can remove Russia from this list and model results for this country will be filtered out)
- 2) List of GF eligible countries: In file parameters.toml provide the full list of 
+ 2) List of GF eligible countries: In the parameters.toml file provide the full list of 
     iso3 codes of GF eligible countries for this disease that should be accounted for in this analysis. Adding or 
     removing iso3 codes from this list will automatically be reflected in the rest of the code (i.e. if Russia is not 
     eligible for GF funding, removing Russia from this list, means that the model results will not be extrapolated to 
     Russia when extrapolating to non-modelled counties). The list is used:
-    a) to generate GP by using the population estimates for all eligible countries
-    b) to filter out the partner data to only countries listed here
+    a) to filter out the partner data to only countries listed here
     b) to extrapolate to non-modelled countries
- 3) List of indicators: The file parameter file provides a full list of variables needed for HIV, 
+ 3) List of indicators: The parameters.toml file provides a full list of variables needed for TB, 
     including epidemiological variables and service-related variables. The list should include the short-hand variable
     name, full variable definition, and the data type (e.g. count (integer), fraction (proportion), rate. 
     The list is used:
      a) to map the variable names to their full definitions
      b) in the checks to ensure, for example, that we have results for each country, for each year, for each variable 
      defined in this set of lists
-     c) which ones should be scaled to non-modelled countries (CAUTION: this will need to updated in 8th Replenishment)
-     d) which indicators should be scaled for innovation
+     c) that the variables are in the right format, e.g. that coverage indicators are expressed as fractions between 
+     0-1 and that coverage is not above 1.  
+     d) which ones should be scaled to non-modelled countries
+     e) which indicators should be scaled for innovation
  4) List of scenarios: The parameter file provides the mapping of the scenario descriptions to their short-hand. 
     This list is used to:
     a) to map the variable (short-hand) name to the full definition
@@ -82,39 +82,30 @@ The database format is:
     defined in this set of lists 
     c) for filtering when generating the output (i.e., select the final investment case and necessary counterfactual 
     scenario)
- 5) Parameters defining the GP: In file "shared/fixed_gps/hiv_gp.csv" provide for each year the fixes reduction in 
-    cases/incidence and deaths/mortality. 
-    CAUTION: For each disease he indicator will vary (reduction for number of deaths OR mortality rate) but the column 
-     headers should not be changed as this will result in errors. The correct indicators are set in the class GpHiv(Gp). 
-     These parameter are used to generate the time-series for new infections, incidence, deaths and mortality rate for
-     each year. NOTE: the parameters for HIV are wrong and unchecked and these will not be used in 8th Replenishment. 
- 6) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
-    last year of model (models may run up to 2050, but we need results up to 2030 only), years of the replenishment, 
-    years that should be used in the objector funding for the optimizer (first year of replenishment to 2030), the 
-    first year of the GP for HIV and the funding fractions fo reach disease. These parameters are used e.g., to generate 
-    the GP time series and in the checks.  
-    
+ 5) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
+    last year of model (e.g. model output may be provided up to 2050, but we only need projections up to 2030), years of 
+    the replenishment, years that should be used in the objector funding for the optimizer, etc.  
+
 Running the script for the first time and options to improve speed: 
 At the end of the script is a line of code stating "LOAD_DATA_FROM_RAW_FILES". The first time you run this code, this 
 needs to be set to True to load the model output and save it locally. In subsequent runs, this can be set to False to 
 speed up the runs. 
 CAUTION: If any changes are made to the way the model output is handled (i.e. add or remove a ISO3 code in the 
 parameter file, the above switch needs to be turned to True and model results re-loaded to reflect these changes! 
-    
+
 CAUTION: 
-Adding or removing items from these list will automatically be reflected in the rest of the code.
-Scenarios without funding fractions (GP_GP, NULL_NULL, CC_CC) should be given a funding fraction of 100% in order to be 
-included in key checks. 
- 
-ADDITIONAL INFORMATION:
-For HIV, there is an extra script (rename_hiv_scenario_descriptor.py) which deconstructs the HIV scenario names. This 
-code will not be needed in the IC for the 8th Replenishment as the recipe will outline how information on scenarios 
-should be structured in the model output. 
- 
+Adding or removing items from the aforementioned lists list will automatically be reflected in the rest of the code. If 
+the code is running from local copies of the model data and analysis by e.g. setting LOAD_DATA_FROM_RAW_FILES to false
+these may not be reflected. 
+
+CAUTION: 
+Scenarios without funding fractions (e.g GP, NULL, CC) should be given a funding fraction of 100% in this filehandler 
+script in order to pass the database check and later will be used to run key checks.  
+
 GOOD CODE PRACTICE:
 Variable names: should be use small letter and be short but easy to understand
 Hard-coding: to be avoided at all costs and if at all limited to these disease files and report class. 
- """
+"""
 
 
 class HIVMixin:
