@@ -1,5 +1,5 @@
 from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin
-from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios
+from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria
 from tgftools.checks import DatabaseChecks
 from tgftools.database import Database
