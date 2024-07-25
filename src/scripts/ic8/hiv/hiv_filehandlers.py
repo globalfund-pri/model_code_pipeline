@@ -202,6 +202,30 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "FSW_cov",
                 "MSM_cov",
                 "PWID_cov",
+                "PrEP",
+                "PrEP_LB",
+                "PrEP_UB",
+                "FSW_PrEP",
+                "FSW_PrEP_LB",
+                "FSW_PrEP_UB",
+                "MSM_PrEP",
+                "MSM_PrEP_LB",
+                "MSM_PrEP_UB",
+                "PWID_PrEP",
+                "PWID_PrEP_LB",
+                "PWID_PrEP_UB",
+                "OST",
+                "OST_LB",
+                "OST_UB",
+                "KOS",
+                "KOS_LB",
+                "KOS_UB",
+                "VS",
+                "VS_LB",
+                "VS_UB",
+                "VMMC_n",
+                "VMMC_n_LB",
+                "VMMC_n_UB",
                 "Total_cost",
             ]
         ]
@@ -225,17 +249,41 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # 2. Replace nan with zeros
         df_gp[[
             "ART_cov",
-            "PMTCT_num",
-            "PMTCT_num_LB",
-            "PMTCT_num_UB",
-            "PMTCT_need",
-            "PMTCT_need_LB",
-            "PMTCT_need_UB",
-            "PMTCT_cov",
-            "FSW_cov",
-            "MSM_cov",
-            "PWID_cov",
-            "Total_cost",
+                "PMTCT_num",
+                "PMTCT_num_LB",
+                "PMTCT_num_UB",
+                "PMTCT_need",
+                "PMTCT_need_LB",
+                "PMTCT_need_UB",
+                "PMTCT_cov",
+                "FSW_cov",
+                "MSM_cov",
+                "PWID_cov",
+                "PrEP",
+                "PrEP_LB",
+                "PrEP_UB",
+                "FSW_PrEP",
+                "FSW_PrEP_LB",
+                "FSW_PrEP_UB",
+                "MSM_PrEP",
+                "MSM_PrEP_LB",
+                "MSM_PrEP_UB",
+                "PWID_PrEP",
+                "PWID_PrEP_LB",
+                "PWID_PrEP_UB",
+                "OST",
+                "OST_LB",
+                "OST_UB",
+                "KOS",
+                "KOS_LB",
+                "KOS_UB",
+                "VS",
+                "VS_LB",
+                "VS_UB",
+                "VMMC_n",
+                "VMMC_n_LB",
+                "VMMC_n_UB",
+                "Total_cost",
         ]] = df_gp[[
             "ART_cov",
             "PMTCT_num",
@@ -248,6 +296,30 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             "FSW_cov",
             "MSM_cov",
             "PWID_cov",
+            "PrEP",
+            "PrEP_LB",
+            "PrEP_UB",
+            "FSW_PrEP",
+            "FSW_PrEP_LB",
+            "FSW_PrEP_UB",
+            "MSM_PrEP",
+            "MSM_PrEP_LB",
+            "MSM_PrEP_UB",
+            "PWID_PrEP",
+            "PWID_PrEP_LB",
+            "PWID_PrEP_UB",
+            "OST",
+            "OST_LB",
+            "OST_UB",
+            "KOS",
+            "KOS_LB",
+            "KOS_UB",
+            "VS",
+            "VS_LB",
+            "VS_UB",
+            "VMMC_n",
+            "VMMC_n_LB",
+            "VMMC_n_UB",
             "Total_cost",
         ]].fillna(0)
 
@@ -274,12 +346,36 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "ART_total": "art_central",
                 "ART_total_LB": "art_low",
                 "ART_total_UB": "art_high",
-                "PMTCT_num": "pmtctnum_central",
-                "PMTCT_num_LB": "pmtctnum_low",
-                "PMTCT_num_UB": "pmtctnum_high",
+                "PMTCT_num": "pmtct_central",
+                "PMTCT_num_LB": "pmtct_low",
+                "PMTCT_num_UB": "pmtct_high",
                 "PMTCT_need": "pmtctneed_central",
                 "PMTCT_need_LB": "pmtctneed_low",
                 "PMTCT_need_UB": "pmtctneed_high",
+                "PrEP": "prep_central",
+                "PrEP_LB": "prep_low",
+                "PrEP_UB": "prep_high",
+                "FSW_PrEP": "fswprep_central",
+                "FSW_PrEP_LB": "fswprep_low",
+                "FSW_PrEP_UB": "fswprep_high",
+                "MSM_PrEP": "msmprep_central",
+                "MSM_PrEP_LB": "msmprep_low",
+                "MSM_PrEP_UB": "msmprep_high",
+                "PWID_PrEP": "pwidprep_central",
+                "PWID_PrEP_LB": "pwidprep_low",
+                "PWID_PrEP_UB": "pwidprep_high",
+                "OST": "ost_central",
+                "OST_LB": "ost_low",
+                "OST_UB": "ost_high",
+                "KOS": "status_central",
+                "KOS_LB": "status_low",
+                "KOS_UB": "status_high",
+                "VS": "vls_central",
+                "VS_LB": "vls_low",
+                "VS_UB": "vls_high",
+                "VMMC_n": "vmmc_central",
+                "VMMC_n_LB": "vmmc_low",
+                "VMMC_n_UB": "vmmc_high",
             }
         )
 
@@ -380,7 +476,7 @@ class PFInputDataHIV(HIVMixin, PFInputData):
         indicator)."""
 
         # Read in each file and concatenate the results
-        all_xlsx_file_at_the_path = get_files_with_extension(path, "xls")
+        all_xlsx_file_at_the_path = get_files_with_extension(path, "xlsx")
         list_of_df = [
             self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
         ]
@@ -394,57 +490,16 @@ class PFInputDataHIV(HIVMixin, PFInputData):
         )
         concatenated_dfs = pd.DataFrame({"central": concatenated_dfs})
 
-        # Only keep indicators of immediate interest:
-        # WARNING: For Strategic target setting ensure that these names match the names in indicator list
-        hiv_indicators = self.parameters.get_indicators_for(self.disease_name).index.to_list()
+        # Only keep indicators and countries of immediate interest:
+        indicators = self.parameters.get_indicators_for(self.disease_name).index.to_list()
+        countries = self.parameters.get_modelled_countries_for(self.disease_name)
         f = concatenated_dfs.reset_index()
-        f = f.loc[f["indicator"].isin(hiv_indicators)]
-        f["scenario_descriptor"] = f["scenario_descriptor"] + "_GP"
-
-        # Drop any countries that are not listed with relevant `*_iso_model.csv`
-        hiv_modelled_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-        f = f.loc[f["country"].isin(hiv_modelled_countries)]
+        f = f.loc[f["indicator"].isin(indicators)]
+        f = f.loc[f["country"].isin(countries)]
 
         # Re-concatenate
         concatenated_dfs = f.set_index(
             ["scenario_descriptor", "country", "year", "indicator"]
-        )
-
-        # Make a new version for the other scenarios
-        f["scenario_descriptor"] = f["scenario_descriptor"].str.replace("_GP", "_MC")
-        concatenated_dfs2 = f.set_index(
-            ["scenario_descriptor", "country", "year", "indicator"]
-        )
-
-        # Make the final df with one set for each scenario
-        all_dfs = [concatenated_dfs, concatenated_dfs2]
-        concatenated_dfs = pd.concat(all_dfs, axis=0)
-
-        # Add IC scenario by slicing for any of the CD scenarios as the data for the period to be compared will match
-        ic_ic = concatenated_dfs.loc[
-            ("CD_MC", slice(None), slice(None), slice(None))
-        ]
-        ic_ic = ic_ic.reset_index()
-        ic_ic["scenario_descriptor"] = "IC_IC"
-        ic_ic = ic_ic.set_index(
-            ["scenario_descriptor", "country", "year", "indicator"]
-        )
-        all_dfs = [concatenated_dfs, ic_ic]
-        concatenated_dfs = pd.concat(all_dfs, axis=0)
-
-        # Check all scenarios are in there
-        scenarios = self.parameters.get_scenarios().index.to_list()
-        scenarios = [e for e in scenarios if e not in ("NULL_NULL", "GP_GP", "CC_CC")]
-
-        # Filter out any countries that we do not need
-        expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-        concatenated_dfs = concatenated_dfs.loc[
-            (slice(None), expected_countries, slice(None), slice(None))
-        ]
-
-        assert all(
-            y in concatenated_dfs.index.get_level_values("scenario_descriptor")
-            for y in scenarios
         )
 
         return concatenated_dfs
@@ -458,56 +513,28 @@ class PFInputDataHIV(HIVMixin, PFInputData):
         xlsx_df = self._load_sheet(file)
 
         # Do some renaming to make things easier
-        # WARNING: For Strategic target setting ensure that these names match the names in indicator list
         xlsx_df = xlsx_df.rename(
             columns={
                 "iso3": "country",
-                "y": "year",
             }
         )
 
         # Pivot to long format
+        xlsx_df = xlsx_df.drop('data_type', axis=1)
         melted = xlsx_df.melt(id_vars=["country", "year"])
-
-        # Deconstruct the 'Scenario' column to give "variable" and "scenario description" separately.
-        def _deconstruct_scenario(s: str) -> Tuple[str, str]:
-            """For a given string, from the `Scenario` column of the HIV workbook, return a tuple that gives
-            (scenario_descriptor, variable name). This routine extracts the scenario that is labelled in the form:
-             "<Variable> <Scenario_Descriptor>"."""
-
-            split_char = ""
-            k = 2
-            temp = re.split(r"(_n_|_p_)", s)
-            res = split_char.join(temp[:k]), split_char.join(temp[k:])
-
-            if res[1] not in (
-                    "covid_target",
-                    "prf_adj_target",
-                    "target",
-            ):
-                return res[0], str("nan")
-            else:
-                return res[0], res[1]
-
-        scenario_deconstructed = pd.DataFrame(
-            melted["variable"].apply(_deconstruct_scenario).to_list(),
-            index=melted.index,
-            columns=["indicator", "scenario_descriptor"],
-        )
-
-        melted = melted.join(scenario_deconstructed).drop(columns=["variable"])
+        melted = melted.rename(columns={'variable': 'indicator'})
 
         # Do some cleaning to variable names and formatting
-        melted["indicator"] = melted["indicator"].astype(str).str.replace("_n_", "")
-        melted.loc[melted["indicator"].str.contains("_p_"), "value"] = (
+        melted['indicator'] = melted['indicator'].str.replace('_n$', '', regex=True)
+        melted.loc[melted["indicator"].str.endswith("_p"), "value"] = (
                 melted["value"] / 100
         )
-        melted["indicator"] = (
-            melted["indicator"].astype(str).str.replace("_p_", "coverage")
-        )
-        melted["scenario_descriptor"] = melted["scenario_descriptor"].replace(
-            {"covid_target": "CD", "prf_adj_target": "PP", "target": "PF"}
-        )
+        melted['indicator'] = melted['indicator'].str.replace('_p$', 'coverage', regex=True)
+        melted['indicator'] = melted['indicator'].str.replace('_reached', '', regex=True)
+        melted['indicator'] = melted['indicator'].str.replace('sw', 'fsw', regex=True)
+        melted['indicator'] = melted['indicator'].str.replace('_', '', regex=True)
+
+        melted["scenario_descriptor"] = "PF"
 
         # Set the index and unpivot
         unpivoted = melted.set_index(

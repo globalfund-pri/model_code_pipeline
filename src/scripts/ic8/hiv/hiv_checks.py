@@ -29,10 +29,10 @@ if __name__ == "__main__":
     )
 
     # Load the files
-    # pf_input_data = PFInputDataHIV(
-    #     path_to_data_folder / "IC8/pf/hiv",
-    #     parameters=parameters,
-    # )
+    pf_input_data = PFInputDataHIV(
+        path_to_data_folder / "IC8/pf/hiv",
+        parameters=parameters,
+    )
 
     # partner_data = PartnerDataHIV(
     #     path_to_data_folder / "IC8/partner/hiv",

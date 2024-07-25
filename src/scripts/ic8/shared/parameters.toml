@@ -88,8 +88,8 @@ PARTNER_DATA_YEARS = [2022]
 PF_DATA_YEARS = [2024,2025,2026]
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.0
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
-INDICATORS_FOR_NULL_CHECK = ['art', 'artcoverage', 'pmtctnum', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage']
-INDICATORS_FOR_CC_CHECK = ['artcoverage', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage']
+INDICATORS_FOR_NULL_CHECK = ['art', 'artcoverage', 'pmtct', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage', 'prep', 'fswprep', 'msmprep', 'pwidprep', 'ost', 'vmmc']
+INDICATORS_FOR_CC_CHECK = ['artcoverage', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage', 'status', 'vls']
 NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 [[HIV.indicator]]
@@ -147,7 +147,7 @@ type="fraction"
 use_scaling=false
 
 [[HIV.indicator]]
-name="pmtctnum"
+name="pmtct"
 description="number of people accessing PMTCT services among all people living with HIV at the end of the reporting period"
 type="count"
 use_scaling=false
@@ -165,9 +165,21 @@ type="fraction"
 use_scaling=false
 
 [[HIV.indicator]]
+name="prep"
+description="number of people on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="fswcoverage"
 description="percentage of FSW accessing prevention services at the end of the reporting period"
 type="fraction"
+use_scaling=false
+
+[[HIV.indicator]]
+name="fswprep"
+description="number of FSW on PrEP at the end of the reporting period"
+type="count"
 use_scaling=false
 
 [[HIV.indicator]]
@@ -177,8 +189,44 @@ type="fraction"
 use_scaling=false
 
 [[HIV.indicator]]
+name="msmprep"
+description="number of MSM on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="pwidcoverage"
 description="percentage of people accessing prevention services at the end of the reporting period"
+type="fraction"
+use_scaling=false
+
+[[HIV.indicator]]
+name="pwidprep"
+description="number of PWID on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="ost"
+description="number of PWID on OST at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="vmmc"
+description="number of vmmc conducted at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="status"
+description="proportion of the population who know their hiv status at the end of the reporting period"
+type="fraction"
+use_scaling=false
+
+[[HIV.indicator]]
+name="vls"
+description="proportion of PLHIV who are virologically surpressed at the end of the reporting period"
 type="fraction"
 use_scaling=false
 
