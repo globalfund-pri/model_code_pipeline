@@ -1,6 +1,6 @@
 from pathlib import Path
 from pprint import pprint
-from typing import Optional
+from typing import Optional, Dict
 
 import openpyxl.worksheet.worksheet
 import pandas as pd
@@ -39,8 +39,9 @@ class Report:
             ]
         )
 
-    def report(self, filename: Optional[Path] = None):
-        """Run all member functions, print the results to screen, and (if filename provided assemble them into Excel."""
+    def report(self, filename: Optional[Path] = None) -> Dict:
+        """Run all member functions, print the results to screen, returns the results in the form of dictionary and
+        (if filename provided) assemble them into an Excel file and draw graphs."""
 
         all_results_for_stats_pages = dict()  # Storage for all the results
         all_results_for_individual_worksheets = dict()
@@ -81,6 +82,11 @@ class Report:
 
             # Save
             wb.save(filename)
+
+        return {
+            'all_results_for_stats_pages': all_results_for_stats_pages,
+            'all_results_for_individual_worksheets': all_results_for_individual_worksheets,
+        }
 
     def _post_processing_on_workbook(self, workbook: Workbook):
         """Do anything necessary to post-process the workbook: for instance, create graphs on certain worksheets."""
