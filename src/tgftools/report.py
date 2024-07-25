@@ -59,6 +59,12 @@ class Report:
             else:
                 raise ValueError(f"Return from {ch_name} function is not of recognised type ({type(ch_name)}).")
 
+        # Compile the results for the 'stats' summary
+        results_for_main = list()
+        for func_name, func_results in all_results_for_stats_pages.items():
+            for stat_name, stat_result in func_results.items():
+                results_for_main.append([func_name, stat_name, stat_result])
+
         if filename is not None:
             # Write to Excel
             wb = Workbook()
@@ -66,11 +72,10 @@ class Report:
             # Write to 'stats' worksheet:
             work_sheet_stats = wb.active
             work_sheet_stats.title = 'stats'
-            for func_name, func_results in all_results_for_stats_pages.items():
-                for stat_name, stat_result in func_results.items():
-                    work_sheet_stats.append([func_name, stat_name, stat_result])
+            for line in results_for_main:
+                work_sheet_stats.append(line)
 
-            # Write to 'individual' worksheet, based on the template
+            # Write results to 'individual' worksheet
             for func_name, func_results in all_results_for_individual_worksheets.items():
                 work_sheet = wb.create_sheet()
                 work_sheet.title = func_name[0:10]  # truncate to first ten characters, as requirement of Excel
