@@ -1,4 +1,4 @@
-from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin
+from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin, PFInputDataMalaria
 from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria
 from tgftools.checks import DatabaseChecks
@@ -28,10 +28,10 @@ if __name__ == "__main__":
     )
 
     # Load the files
-    # pf_input_data = PFInputDataMalaria(
-    #     path_to_data_folder / "IC8/pf/malaria",
-    #     parameters=parameters,
-    # )
+    pf_input_data = PFInputDataMalaria(
+        path_to_data_folder / "IC8/pf/malaria",
+        parameters=parameters,
+    )
 
     # partner_data = PartnerDataHIV(
     #     path_to_data_folder / "IC8/partner/hiv",

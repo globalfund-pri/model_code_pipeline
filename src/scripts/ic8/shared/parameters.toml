@@ -386,7 +386,7 @@ HISTORIC_FIRST_YEAR = 2000
 HISTORIC_END_YEAR = 2022
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
-INDICATORS_FOR_NULL_CHECK = ['irsppl', 'llins', 'txpublic', 'smc', 'vaccine', 'txcoverage', 'smccoverage', 'vaccinecoverage']
+INDICATORS_FOR_NULL_CHECK = ['irsppl', 'irshh', 'llins', 'txpublic', 'smc', 'vaccine', 'txcoverage', 'smccoverage', 'vaccinecoverage']
 INDICATORS_FOR_CC_CHECK = ['txcoverage', 'smccoverage', 'vaccinecoverage']
 NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.01798620996209160, 0.04742587317756680, 0.11920292202211800, 0.26894142136999500, 0.50000000000000000, 0.73105857863000500, 0.88079707797788200, 0.95257412682243300, 0.98201379003790800, 1]
 
@@ -435,6 +435,12 @@ use_scaling=false
 [[MALARIA.indicator]]
 name="irsppl"
 description="number of people protected by irs"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="irshh"
+description="number of households protected by irs"
 type="count"
 use_scaling=false
 

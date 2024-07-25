@@ -179,6 +179,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "deaths_smooth_ub",
                 "net_n",
                 "irs_people_protected",
+                "irs_hh",
                 "treatments_given_public",
                 "treatment_coverage",
                 "smc_children_protected",
@@ -209,6 +210,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df_gp[[
             "net_n",
             "irs_people_protected",
+            'irs_hh',
             "treatments_given_public",
             "treatment_coverage",
             "smc_children_protected",
@@ -225,6 +227,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         ]] = df_gp[[
             "net_n",
             "irs_people_protected",
+            'irs_hh',
             "treatments_given_public",
             "treatment_coverage",
             "smc_children_protected",
@@ -279,6 +282,11 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         csv_df["irsppl_central"] = csv_df["irs_people_protected"]
         csv_df["irsppl_high"] = csv_df["irs_people_protected"]
         csv_df = csv_df.drop(columns=["irs_people_protected"])
+
+        csv_df["irshh_low"] = csv_df["irs_hh"]
+        csv_df["irshh_central"] = csv_df["irs_hh"]
+        csv_df["irshh_high"] = csv_df["irs_hh"]
+        csv_df = csv_df.drop(columns=["irs_hh"])
 
         csv_df["txpublic_low"] = csv_df["treatments_given_public"]
         csv_df["txpublic_central"] = csv_df["treatments_given_public"]
@@ -391,172 +399,92 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
 
 # Load the pf input data file(s)
-# class PFInputDataMalaria(MALARIAMixin, PFInputData):
-#     """This is the File Handler for the malaria input data containing pf targets."""
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#     def _build_df(self, path: Path) -> pd.DataFrame:
-#         """Reads in the data and returns a pd.DataFrame with multi-index (scenario_descriptor, country, year,
-#         indicator)."""
-#
-#         # Read in each file and concatenate the results
-#         all_xlsx_file_at_the_path = get_files_with_extension(path, "xls")
-#         list_of_df = [
-#             self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
-#         ]
-#         concatenated_dfs = pd.concat(list_of_df, axis=0)
-#
-#         # Organise multi-index to be '(scenario country, year, indicator)' and column ['central']
-#         concatenated_dfs = (
-#             concatenated_dfs.reset_index()
-#             .set_index(["scenario_descriptor", "country", "year"])
-#             .stack()
-#         )
-#         concatenated_dfs = pd.DataFrame({"central": concatenated_dfs})
-#
-#         # Only keep indicators of immediate interest:
-#         # WARNING: For Strategic target setting ensure that these names match the names in indicator list
-#         malaria_indicators = self.parameters.get_indicators_for(self.disease_name).index.to_list()
-#         f = concatenated_dfs.reset_index()
-#         f = f.loc[f["indicator"].isin(malaria_indicators)]
-#         f["scenario_descriptor"] = f["scenario_descriptor"] + "_GP"
-#
-#         # Drop any countries that are not listed with relevant `*_iso_model.csv`
-#         malaria_modelled_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-#         f = f.loc[f["country"].isin(malaria_modelled_countries)]
-#
-#         # Re-concatenate
-#         concatenated_dfs = f.set_index(
-#             ["scenario_descriptor", "country", "year", "indicator"]
-#         )
-#
-#         # Make a new version for the other scenarios
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace("_GP", "_MC")
-#         concatenated_dfs2 = f.set_index(
-#             ["scenario_descriptor", "country", "year", "indicator"]
-#         )
-#
-#         # Make the final df with one set for each scenario
-#         all_dfs = [concatenated_dfs, concatenated_dfs2]
-#         concatenated_dfs = pd.concat(all_dfs, axis=0)
-#
-#         # Add IC scenario by slicing for any of the CD scenarios as the data for the period to be compared will match
-#         ic_ic = concatenated_dfs.loc[
-#             ("CD_MC", slice(None), slice(None), slice(None))
-#         ]
-#         ic_ic = ic_ic.reset_index()
-#         ic_ic["scenario_descriptor"] = "IC_IC"
-#         ic_ic = ic_ic.set_index(
-#             ["scenario_descriptor", "country", "year", "indicator"]
-#         )
-#         all_dfs = [concatenated_dfs, ic_ic]
-#         concatenated_dfs = pd.concat(all_dfs, axis=0)
-#
-#         # Check all scenarios are in there
-#         scenarios = self.parameters.get_scenarios().index.to_list()
-#         scenarios = [e for e in scenarios if e not in ("NULL_NULL", "GP_GP", "CC_CC")]
-#
-#         # Filter out countries that we do not need
-#         expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-#         concatenated_dfs = concatenated_dfs.drop(
-#             concatenated_dfs.index[
-#                 ~concatenated_dfs.index.get_level_values('country').isin(expected_countries)]
-#         )
-#
-#         assert all(
-#             y in concatenated_dfs.index.get_level_values("scenario_descriptor")
-#             for y in scenarios
-#         )
-#
-#         return concatenated_dfs
-#
-#     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
-#         """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
-#         and has the required multi-index and column specifications."""
-#         print(f"Reading: {file}  .....", end="")
-#
-#         # Load 'Sheet1' from the Excel workbook
-#         xlsx_df = self._load_sheet(file)
-#
-#         # Do some renaming to make things easier
-#         # WARNING: For Strategic target setting ensure that these names match the names in indicator list
-#         xlsx_df = xlsx_df.rename(
-#             columns={
-#                 "iso3": "country",
-#                 "y": "year",
-#             }
-#         )
-#
-#         # Pivot to long format
-#         melted = xlsx_df.melt(id_vars=["country", "year"])
-#
-#         # Deconstruct the 'Scenario' column to give "variable" and "scenario description" separately.
-#         def _deconstruct_scenario(s: str) -> Tuple[str, str]:
-#             """For a given string, from the `Scenario` column of the malaria workbook, return a tuple that gives
-#             (scenario_descriptor, variable name). This routine extracts the scenario that is labelled in the form:
-#              "<Variable> <Scenario_Descriptor>"."""
-#
-#             split_char = ""
-#             k = 2
-#             temp = re.split(r"(_n_|_p_)", s)
-#             res = split_char.join(temp[:k]), split_char.join(temp[k:])
-#
-#             if res[1] not in (
-#                 "covid_target",
-#                 "prf_adj_target",
-#                 "target",
-#             ):
-#                 return res[0], str("nan")
-#             else:
-#                 return res[0], res[1]
-#
-#         scenario_deconstructed = pd.DataFrame(
-#             melted["variable"].apply(_deconstruct_scenario).to_list(),
-#             index=melted.index,
-#             columns=["indicator", "scenario_descriptor"],
-#         )
-#
-#         melted = melted.join(scenario_deconstructed).drop(columns=["variable"])
-#
-#         # Do some cleaning to variable names and formatting
-#         melted["indicator"] = melted["indicator"].astype(str).str.replace("_n_", "")
-#         melted.loc[melted["indicator"].str.contains("_p_"), "value"] = (
-#             melted["value"] / 100
-#         )
-#         melted["indicator"] = (
-#             melted["indicator"].astype(str).str.replace("_p_", "coverage")
-#         )
-#         melted["scenario_descriptor"] = melted["scenario_descriptor"].replace(
-#             {"covid_target": "CD", "prf_adj_target": "PP", "target": "PF"}
-#         )
-#
-#         # Set the index and unpivot
-#         unpivoted = melted.set_index(
-#             ["country", "year", "scenario_descriptor", "indicator"]
-#         ).unstack("indicator")
-#         unpivoted.columns = unpivoted.columns.droplevel(0)
-#
-#         # Do some renaming to make things easier
-#         # WARNING: For Strategic target setting ensure that these names match the names in indicator list
-#         unpivoted = unpivoted.rename(
-#             columns={
-#                 "irs": "irshh",
-#                 "malaria_txcoverage": "txcoverage",
-#             }
-#         )
-#
-#         print(f"done")
-#         return unpivoted
-#
-#     @staticmethod
-#     def _load_sheet(file: Path):
-#         """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
-#         with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
-#         """
-#         return pd.read_excel(file)
-#
+class PFInputDataMalaria(MALARIAMixin, PFInputData):
+    """This is the File Handler for the malaria input data containing pf targets."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _build_df(self, path: Path) -> pd.DataFrame:
+        """Reads in the data and returns a pd.DataFrame with multi-index (scenario_descriptor, country, year,
+        indicator)."""
+
+        # Read in each file and concatenate the results
+        all_xlsx_file_at_the_path = get_files_with_extension(path, "xlsx")
+        list_of_df = [
+            self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
+        ]
+        concatenated_dfs = pd.concat(list_of_df, axis=0)
+
+        # Organise multi-index to be '(scenario country, year, indicator)' and column ['central']
+        concatenated_dfs = (
+            concatenated_dfs.reset_index()
+            .set_index(["scenario_descriptor", "country", "year"])
+            .stack()
+        )
+        concatenated_dfs = pd.DataFrame({"central": concatenated_dfs})
+
+        # Only keep indicators of immediate interest:
+        indicators = self.parameters.get_indicators_for(self.disease_name).index.to_list()
+        countries = self.parameters.get_modelled_countries_for(self.disease_name)
+        f = concatenated_dfs.reset_index()
+        f = f.loc[f["indicator"].isin(indicators)]
+        f = f.loc[f["country"].isin(countries)]
+
+        # Re-concatenate
+        concatenated_dfs = f.set_index(
+            ["scenario_descriptor", "country", "year", "indicator"]
+        )
+
+        return concatenated_dfs
+
+    def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
+        """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
+        and has the required multi-index and column specifications."""
+        print(f"Reading: {file}  .....", end="")
+
+        # Load 'Sheet1' from the Excel workbook
+        xlsx_df = self._load_sheet(file)
+
+        # Do some renaming to make things easier
+        # WARNING: For Strategic target setting ensure that these names match the names in indicator list
+        xlsx_df = xlsx_df.rename(
+            columns={
+                "iso3": "country",
+                'smc_child_n': 'smc',
+                'pop_irs_n': 'irsppl_n',
+                'irs_n': 'irshh_n',
+            }
+        )
+
+        # Pivot to long format
+        xlsx_df = xlsx_df.drop('data_type', axis=1)
+        melted = xlsx_df.melt(id_vars=["country", "year"])
+        melted = melted.rename(columns={'variable': 'indicator'})
+
+        # Do some cleaning to variable names and formatting
+        melted['indicator'] = melted['indicator'].str.replace('_n$', '', regex=True)
+        melted.loc[melted["indicator"].str.contains("_p"), "value"] = (
+            melted["value"] / 100
+        )
+
+        melted["scenario_descriptor"] = "PF"
+
+        # Set the index and unpivot
+        unpivoted = melted.set_index(
+            ["country", "year", "scenario_descriptor", "indicator"]
+        ).unstack("indicator")
+        unpivoted.columns = unpivoted.columns.droplevel(0)
+        print(f"done")
+        return unpivoted
+
+    @staticmethod
+    def _load_sheet(file: Path):
+        """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
+        with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
+        """
+        return pd.read_excel(file)
+
 
 # class PartnerDataMalaria(MALARIAMixin, PartnerData):
 #     """This is the File Handler for the malaria partner data."""
