@@ -1,4 +1,4 @@
-name: Python Package using Conda
+name: Build Conda Environment and Run Framework Tests
 
 on: [pull_request]
 
