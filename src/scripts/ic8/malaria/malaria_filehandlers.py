@@ -184,6 +184,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "treatment_coverage",
                 "smc_children_protected",
                 "smc_coverage",
+                # "vector_control_n", # TODO: @richard to uncomment
                 "vaccine_n",
                 "vaccine_doses_n",
                 "vaccine_coverage",
@@ -215,6 +216,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "treatment_coverage",
             "smc_children_protected",
             "smc_coverage",
+            # "vector_control_n", # TODO: @richard to uncomment
             "vaccine_n",
             "vaccine_doses_n",
             "vaccine_coverage",
@@ -232,6 +234,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "treatment_coverage",
             "smc_children_protected",
             "smc_coverage",
+            # "vector_control_n", # TODO: @richard to uncomment
             "vaccine_n",
             "vaccine_doses_n",
             "vaccine_coverage",
@@ -307,6 +310,12 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         csv_df["smccoverage_central"] = csv_df["smc_coverage"]
         csv_df["smccoverage_high"] = csv_df["smc_coverage"]
         csv_df = csv_df.drop(columns=["smc_coverage"])
+
+        # TODO: @richard to uncomment
+        # csv_df["vectorcontrol_low"] = csv_df["vector_control_n"]
+        # csv_df["vectorcontrol_central"] = csv_df["vector_control_n"]
+        # csv_df["vectorcontrol_high"] = csv_df["vector_control_n"]
+        # csv_df = csv_df.drop(columns=["vector_control_n"])
 
         csv_df["vaccine_low"] = csv_df["vaccine_n"]
         csv_df["vaccine_central"] = csv_df["vaccine_n"]
