@@ -312,7 +312,7 @@ class TestReport(Report):
         self.diseaseX = diseaseX
 
     def get_stats_and_return_as_dict(self) -> Dict[str, float]:
-        return {'stat1': self.diseaseX['stat1'], 'stat1': self.diseaseX['stat2']}
+        return {'stat1': self.diseaseX['stat1'], 'stat2': self.diseaseX['stat2']}
 
     def get_stats_and_return_as_dataframe(self) -> pd.DataFrame:
         return pd.DataFrame({
