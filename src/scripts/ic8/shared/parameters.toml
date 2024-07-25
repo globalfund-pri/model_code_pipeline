@@ -4,6 +4,7 @@
 
 # Overall specification of the analysis
 HISTORIC_FIRST_YEAR = 2000 # First year of historic scenarios
+PARTNER_START_YEAR = 2018 # First year for which we want to compare model output to partner data
 START_YEAR = 2023  # The first year of the model results (and the last year for which data available). This is the year upon which calibrating adjustments are made for the model results.
 END_YEAR = 2030  # The final year of the model results
 LAST_YEAR_PF = 2026
@@ -21,48 +22,57 @@ Z_VALUE = 1.282
 [[counterfactual]]
 name="GP"
 description="Follow GP milestones"
-is_historic=false
+is_null=false
+is_cc=false
 
 [[counterfactual]]
 name="HH"
 description="Historical (modelled) time series"
-is_historic=true
+is_null=false
+is_cc=false
 
 [[counterfactual]]
 name="CC_2000"
 description="constant coverage starting in 2000"
-is_historic=true
+is_null=false
+is_cc=true
 
 [[counterfactual]]
 name="NULL_2000"
 description="null starting in 2000"
-is_historic=true
+is_null=true
+is_cc=false
 
 [[counterfactual]]
 name="CC_FIRSTYEARGF"
 description="constant coverage starting in first year of GF results"
-is_historic=true
+is_null=false
+is_cc=true
 
 [[counterfactual]]
 name="NULL_FIRSTYEARGF"
 description="null starting in first year of GF results"
-is_historic=true
+is_null=true
+is_cc=false
 
 [[counterfactual]]
 name="CC_2022"
 description="constant coverage starting from baseline"
-is_historic=false
+is_null=false
+is_cc=true
 
 [[counterfactual]]
 name="NULL_2022"
 description="null starting from baseline"
-is_historic=false
+is_null=true
+is_cc=false
 
 # Definition of the Scenarios defined the model results
 [[scenario]]
 name="PF"
 description="follow PF targets and maintain coverage"
-is_historic=false
+is_null=false
+is_cc=false
 
 # --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------
@@ -79,8 +89,8 @@ PARTNER_DATA_YEARS = [2022]
 PF_DATA_YEARS = [2024,2025,2026]
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.0
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
-INDICATORS_FOR_NULL_CHECK = ['art', 'artcoverage', 'pmtctnum', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage']
-INDICATORS_FOR_CC_CHECK = ['artcoverage', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage']
+INDICATORS_FOR_NULL_CHECK = ['art', 'artcoverage', 'pmtct', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage', 'prep', 'fswprep', 'msmprep', 'pwidprep', 'ost', 'vmmc']
+INDICATORS_FOR_CC_CHECK = ['artcoverage', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage', 'status', 'vls']
 NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 [[HIV.indicator]]
@@ -138,7 +148,7 @@ type="fraction"
 use_scaling=false
 
 [[HIV.indicator]]
-name="pmtctnum"
+name="pmtct"
 description="number of people accessing PMTCT services among all people living with HIV at the end of the reporting period"
 type="count"
 use_scaling=false
@@ -156,9 +166,21 @@ type="fraction"
 use_scaling=false
 
 [[HIV.indicator]]
+name="prep"
+description="number of people on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="fswcoverage"
 description="percentage of FSW accessing prevention services at the end of the reporting period"
 type="fraction"
+use_scaling=false
+
+[[HIV.indicator]]
+name="fswprep"
+description="number of FSW on PrEP at the end of the reporting period"
+type="count"
 use_scaling=false
 
 [[HIV.indicator]]
@@ -168,8 +190,44 @@ type="fraction"
 use_scaling=false
 
 [[HIV.indicator]]
+name="msmprep"
+description="number of MSM on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="pwidcoverage"
 description="percentage of people accessing prevention services at the end of the reporting period"
+type="fraction"
+use_scaling=false
+
+[[HIV.indicator]]
+name="pwidprep"
+description="number of PWID on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="ost"
+description="number of PWID on OST at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="vmmc"
+description="number of vmmc conducted at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="status"
+description="proportion of the population who know their hiv status at the end of the reporting period"
+type="fraction"
+use_scaling=false
+
+[[HIV.indicator]]
+name="vls"
+description="proportion of PLHIV who are virologically surpressed at the end of the reporting period"
 type="fraction"
 use_scaling=false
 
@@ -320,7 +378,7 @@ use_scaling=false
 
 [MALARIA]
 PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SOM', 'SSD', 'SUR', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'VUT', 'ZMB', 'ZWE']
-MODELLED_COUNTRIES = ['AFG','AGO','BDI','BEN','BFA','BGD','BOL','BTN','CAF','CIV','CMR','COD','COG','COM','DJI','ERI','ETH','GHA','GIN','GMB','GNB','HND','HTI','IDN','IND','KEN','KHM','LAO','LBR','MDG','MLI','MMR','MOZ','MRT','MWI','NAM','NER','NGA','NIC','NPL','PAK','PHL','PNG','RWA','SDN','SEN','SLB','SLE','SOM','SSD','SUR','TCD','TGO','THA','TZA','UGA','VNM','VUT','ZMB','ZWE']
+MODELLED_COUNTRIES = ['BFA', "KEN", "NGA"]
 FUNDING_FRACTIONS = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
 GP_START_YEAR = 2015
 PARTNER_DATA_YEARS = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020]
@@ -329,8 +387,8 @@ HISTORIC_FIRST_YEAR = 2000
 HISTORIC_END_YEAR = 2022
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
-INDICATORS_FOR_NULL_CHECK = ['art', 'artcoverage', 'pmtctnum', 'pmtctcoverage']
-INDICATORS_FOR_CC_CHECK = ['artcoverage', 'pmtctcoverage']
+INDICATORS_FOR_NULL_CHECK = ['irsppl', 'irshh', 'llins', 'txpublic', 'smc', 'vaccine', 'txcoverage', 'smccoverage', 'vaccinecoverage']
+INDICATORS_FOR_CC_CHECK = ['txcoverage', 'smccoverage', 'vaccinecoverage']
 NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.01798620996209160, 0.04742587317756680, 0.11920292202211800, 0.26894142136999500, 0.50000000000000000, 0.73105857863000500, 0.88079707797788200, 0.95257412682243300, 0.98201379003790800, 1]
 
 [[MALARIA.indicator]]
@@ -352,6 +410,18 @@ type="count"
 use_scaling=true
 
 [[MALARIA.indicator]]
+name="partargetedsmc"
+description="population at risk for smc in targeted areas"
+type="count"
+use_scaling=true
+
+[[MALARIA.indicator]]
+name="parvx"
+description="population at risk for vaccination"
+type="count"
+use_scaling=true
+
+[[MALARIA.indicator]]
 name="incidence"
 description="number of new malaria cases that occur with a year"
 type="rate"
@@ -364,8 +434,14 @@ type="rate"
 use_scaling=false
 
 [[MALARIA.indicator]]
+name="irsppl"
+description="number of people protected by irs"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
 name="irshh"
-description="number of households sprayed with irs"
+description="number of households protected by irs"
 type="count"
 use_scaling=false
 
@@ -376,9 +452,15 @@ type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="llinscoverage"
-description="percentage of llins distributed through mass campaign and continuous distribution"
-type="fraction"
+name="txpublic"
+description="number of people treated in the public sector"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="txprivate"
+description="number of people treated in the private sector"
+type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
@@ -388,20 +470,44 @@ type="fraction"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="tx"
-description="number of people treated for malaria in public sector"
+name="smc"
+description="Number of children protected by smc"
 type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="vectorcontrolcoverage"
-description="check but probably percentage of population covered by vector control"
+name="smccoverage"
+description="Proportion of children (overall) protected by smc"
+type="fraction"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="vaccine"
+description="Number of people vaccinated"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="vaccinecoverage"
+description="Proportion of people protected by vaccination"
 type="fraction"
 use_scaling=false
 
 [[MALARIA.indicator]]
 name="cost"
-description="total cost fot this scenario"
+description="total cost for this scenario"
+type="count"
+use_scaling= false
+
+[[MALARIA.indicator]]
+name="costtxprivate"
+description="total cost of treatment in private sector"
+type="count"
+use_scaling= false
+
+[[MALARIA.indicator]]
+name="costvx"
+description="total cost of vaccine program"
 type="count"
 use_scaling= false
 

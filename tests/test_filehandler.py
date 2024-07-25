@@ -178,9 +178,13 @@ def test_parameters():
     assert isinstance(counterfactuals, pd.Series)
     assert ['cf_null'] == counterfactuals.index.to_list()
 
-    # Get a table of the Counterfactual flagged as being "historic"
-    historic_counterfactuals = parameters.get_historiccounterfactuals()
-    assert isinstance(historic_counterfactuals, pd.Series)  # (blank if not counterfactuals defined)
+    # Get a table of the Counterfactual flagged as being "null"
+    null_counterfactuals = parameters.get_nullcounterfactuals()
+    assert isinstance(null_counterfactuals, pd.Series)  # (blank if not counterfactuals defined)
+
+    # Get a table of the Counterfactual flagged as being "constant coverage"
+    cc_counterfactuals = parameters.get_cccounterfactuals()
+    assert isinstance(cc_counterfactuals, pd.Series)  # (blank if not counterfactuals defined)
 
     # Get a list of the countries in the portfolio for diseaseX
     portfolio_countries = parameters.get_portfolio_countries_for('diseaseX')
