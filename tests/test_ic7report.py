@@ -48,7 +48,7 @@ def test_ic7report(tmpdir):
 
     # Check for close agreement of the "main" results
     pd.testing.assert_series_equal(
-        make_sorted_series(run_results["main"]),
+        make_sorted_series(run_results["stats"]),
         make_sorted_series(target_results),
         rtol=0.0001,   # Relative tolerance for comparison
     )

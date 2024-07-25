@@ -87,11 +87,9 @@ class Report:
             # Returning in the same format as the Excel file:
             # * key='main': a pd.DataFrame contains all the scalar stats from individual functions
             # * all other keys/sheets: pd.DataFrames from all the functions that returned pd.DataFrames
-            'main': (
-                pd.DataFrame(all_results_for_stats_pages)
-                .unstack()
-                .reset_index()
-                .rename(columns={'level_0': 'Function', 'level_1': 'Key', 0: 'Value'})
+            'stats': (
+                pd.DataFrame(results_for_main)
+                .rename(columns={0: 'Function', 1: 'Key', 2: 'Value'})
             ),
             **all_results_for_individual_worksheets,
         }
