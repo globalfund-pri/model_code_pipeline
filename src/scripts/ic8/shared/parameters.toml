@@ -4,6 +4,7 @@
 
 # Overall specification of the analysis
 HISTORIC_FIRST_YEAR = 2000 # First year of historic scenarios
+PARTNER_START_YEAR = 2018 # First year for which we want to compare model output to partner data
 START_YEAR = 2023  # The first year of the model results (and the last year for which data available). This is the year upon which calibrating adjustments are made for the model results.
 END_YEAR = 2030  # The final year of the model results
 LAST_YEAR_PF = 2026

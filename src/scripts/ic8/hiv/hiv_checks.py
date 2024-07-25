@@ -1,4 +1,4 @@
-from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV
+from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV, PartnerDataHIV
 from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv
 from tgftools.checks import DatabaseChecks
@@ -30,14 +30,14 @@ if __name__ == "__main__":
 
     # Load the files
     pf_input_data = PFInputDataHIV(
-        path_to_data_folder / "IC8/pf/hiv",
+        path_to_data_folder / "IC8/pf/hiv/2024_03_28",
         parameters=parameters,
     )
 
-    # partner_data = PartnerDataHIV(
-    #     path_to_data_folder / "IC8/partner/hiv",
-    #     parameters=parameters,
-    # )
+    partner_data = PartnerDataHIV(
+        path_to_data_folder / "IC8/partner/hiv/2024_07_10",
+        parameters=parameters,
+    )
 
     # fixed_gp = FixedGp(
     #     get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
@@ -48,8 +48,8 @@ if __name__ == "__main__":
     db = Database(
         model_results=model_results,
         # gp=gp,
-        # pf_input_data=pf_input_data,
-        # partner_data=partner_data,
+        pf_input_data=pf_input_data,
+        partner_data=partner_data,
     )
 
     # Run the checks
