@@ -84,8 +84,16 @@ class Report:
             wb.save(filename)
 
         return {
-            'all_results_for_stats_pages': all_results_for_stats_pages,
-            'all_results_for_individual_worksheets': all_results_for_individual_worksheets,
+            # Returning in the same format as the Excel file:
+            # * key='main': a pd.DataFrame contains all the scalar stats from individual functions
+            # * all other keys/sheets: pd.DataFrames from all the functions that returned pd.DataFrames
+            'main': (
+                pd.DataFrame(all_results_for_stats_pages)
+                .unstack()
+                .reset_index()
+                .rename(columns={'level_0': 'Function', 'level_1': 'Key', 0: 'Value'})
+            ),
+            **all_results_for_individual_worksheets,
         }
 
     def _post_processing_on_workbook(self, workbook: Workbook):
