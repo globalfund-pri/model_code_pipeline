@@ -755,7 +755,7 @@ class HTMReport(Report):
         ic_ub = combined_ub.loc[combined_ub.index > 2020].iloc[:,0]
 
         comb_mort_df = pd.DataFrame(
-            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            index=pd.Index(list(range(2015, 2031)), name='Year'),
             data={
                 'Actual': actual,
                 'GP': gp,
@@ -993,7 +993,7 @@ class HTMReport(Report):
         ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2020].iloc[:,0]
 
         comb_inc_df = pd.DataFrame(
-            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            index=pd.Index(list(range(2015, 2031)), name='Year'),
             data={
                 'Actual': actual,
                 'GP': gp,
