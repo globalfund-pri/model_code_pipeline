@@ -16,7 +16,7 @@ def run_ic7_report(tmpdir: pathlib.Path) -> Dict:
 
     r = get_report(
         load_data_from_raw_files=True,
-        do_checks=False,
+        do_checks=True,
         run_analysis=True,
     )
 
