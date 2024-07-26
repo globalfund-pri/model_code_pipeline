@@ -32,8 +32,7 @@ def test_ic7report(tmpdir):
     """
     This test runs the report for IC7 (including loading the model results from scratch and running the optimisation
      analysis) and checks that the results are the same as that obtained previously and which have been agreed to be
-     the desired output from this code pipeline. In so doing, it also causes all the checks to be run, and the report
-     to be written to the Excel file - but these ancillary outputs are not scrutinized in this test.
+     the desired output from this code pipeline.
     """
 
     def make_sorted_series(df: pd.DataFrame) -> pd.Series:
