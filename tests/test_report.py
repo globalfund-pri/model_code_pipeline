@@ -54,5 +54,5 @@ def test_report(tmp_path):
     """Create test report, passing it a dict to substitute for the results that would be used to make the form."""
     report = TestReport(diseaseX={'stat1': 10, 'stat2': 20})
     tmp_file = tmp_path / "test_report.xlsx"
-    report.report(tmp_file)
+    _ = report.report(tmp_file)
     # open_file(tmp_file)
