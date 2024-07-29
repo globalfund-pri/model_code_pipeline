@@ -647,7 +647,7 @@ class CommonChecks_allscenarios:
 
         # Get key information for this check
         messages = []  # Capture messages where a problem is detected
-        expected_funding = [1]
+        expected_funding = [1.0]
 
         # Get shortcut to dataframe of model results
         df = db.model_results.df
