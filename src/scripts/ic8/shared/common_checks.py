@@ -271,16 +271,13 @@ class CommonChecks_forwardchecks:
                     df = df[df.index.notnull()]
                     df = df.sort_index(ascending=True)
 
-                    if (not ((df.diff() / df.max()).dropna() < 0.20).all()) and (
-                            df.max() > 100
-                    ):
-                        fig, ax = plt.subplots()
-                        df.plot(ax=ax)
-                        ax.set_ylabel(indicator)
-                        ax.set_title(f"{scenario=}, {country=}")
-                        fig.tight_layout()
-                        plt.close(fig)
-                        figs.append(f"{scenario=}, {country=}, {indicator=}")
+                    fig, ax = plt.subplots()
+                    df.plot(ax=ax)
+                    ax.set_ylabel(indicator)
+                    ax.set_title(f"{scenario=}, {country=}")
+                    fig.tight_layout()
+                    plt.close(fig)
+                    figs.append(f"{scenario=}, {country=}, {indicator=}")
 
         return CheckResult(passes=True, message=figs)
 
@@ -299,16 +296,17 @@ class CommonChecks_forwardchecks:
                     db.model_results.df.loc[
                         (
                             correct_order,
-                            1.0,
+                            slice(None),
                             country,
                             range(self.EXPECTED_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
                             indicator,
                         ),
                         "central",
                     ]
-                    .groupby(axis=0, level="scenario_descriptor")
-                    .sum()
                 )
+                df = df.reset_index()
+                df = df.loc[(df.funding_fraction == 1.0) | (df.funding_fraction.isnull())]
+                df = df.groupby(by="scenario_descriptor")['central'].sum()
                 df = df.loc[correct_order]
 
                 if not df.is_monotonic_increasing:
@@ -331,7 +329,7 @@ class CommonChecks_forwardchecks:
             for indicator in ("cases", "deaths"):
                 indicator_names = [indicator, "cost"]
 
-                # Filter the df
+                # Filter the df for the country, the indicator and the years
                 df = db.model_results.df.loc[
                     (
                         self.EXPECTED_FUNDING_SCENARIOS,
@@ -347,7 +345,7 @@ class CommonChecks_forwardchecks:
                 df_gp = db.model_results.df.loc[
                     (
                         "GP",
-                        1.0,
+                        slice(None),
                         country,
                         years,
                         indicator_names,
@@ -387,10 +385,13 @@ class CommonChecks_forwardchecks:
                     ax.legend()
                     i += 1
 
-                # Add the GP point
-                co_ords_gp = (df_gp["cost"].values[0], df_gp[indicator].values[0])
-                ax.plot(*co_ords_gp, marker='*', color='red', zorder=3)
-                ax.annotate('GP', xy=co_ords_gp, textcoords='offset points', xytext=(0, 10), ha='center')
+                # Try to add the GP point (todo cost for GP is not being captured in the case of malaria)
+                try:
+                    co_ords_gp = (df_gp["cost"].values[0], df_gp[indicator].values[0])
+                    ax.plot(*co_ords_gp, marker='*', color='red', zorder=3)
+                    ax.annotate('GP', xy=co_ords_gp, textcoords='offset points', xytext=(0, 10), ha='center')
+                except:
+                    ...
 
                 # Tidy up axis labels and layout
                 ax.set_ylabel(indicator)
@@ -399,6 +400,7 @@ class CommonChecks_forwardchecks:
                 fig.tight_layout()
                 plt.close(fig)
                 figs.append(fig)
+
         return CheckResult(passes=True, message=figs)
     #
     # def partner_data(self, db: Database):
@@ -699,7 +701,7 @@ class CommonChecks_allscenarios:
                 df = db.model_results.df.loc[
                     (
                         scenarios, # TODO: self.Expected + all + scenarios
-                        1.0,
+                        slice(None),
                         country,
                         range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
                         indicator,
@@ -707,6 +709,7 @@ class CommonChecks_allscenarios:
                     "central",
                 ]
                 df = df.reset_index()
+                df = df.loc[(df.funding_fraction == 1.0) | (df.funding_fraction.isnull())]
                 col_list = ["year", "scenario_descriptor", "central"]
                 df = df[col_list]
                 df.set_index("year", inplace=True)
@@ -943,7 +946,6 @@ class CommonChecks_allscenarios:
         for indicator in indicators:
             for country in db.model_results.countries:
                 for scenario in scenario_type:
-                    print(scenario)
 
                     # Get the right year for each scenario
                     if scenario == list_scenarios_2000:
