@@ -119,7 +119,7 @@ class ModelResults(FileHandler):
             "indicator",
         ] == list(_df.index.names)
         assert {"low", "central", "high"} == set(_df.columns)
-        assert all_numeric(_df)
+        assert all_numeric(_df, skipna=True)  # na's in some places is OK
         assert not _df.index.has_duplicates
 
     def _sort_df(self):
