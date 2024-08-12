@@ -1,13 +1,17 @@
 from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin, PFInputDataMalaria, PartnerDataMalaria
-from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks, CommonChecks_forwardchecks
+from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria
 from tgftools.checks import DatabaseChecks
 from tgftools.database import Database
 from tgftools.filehandler import Parameters, GFYear
-from tgftools.utils import get_data_path, get_root_path
+from tgftools.utils import get_data_path, get_root_path, save_var, load_var
 
 
-class DatabaseChecksMalaria(MALARIAMixin, CommonChecks_basicnumericalchecks, DatabaseChecks, CommonChecks_allscenarios, CommonChecks_forwardchecks):
+class DatabaseChecksMalaria(MALARIAMixin,
+                            CommonChecks_basicnumericalchecks,
+                            CommonChecks_allscenarios,
+                            CommonChecks_forwardchecks,
+                            DatabaseChecks):
     """This is the class for DatabaseChecks to do with the Malaria data."""
 
     def __init__(self, *args, **kwargs):
