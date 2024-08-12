@@ -7,7 +7,7 @@ from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path
 
 
-class DatabaseChecksMalaria(MALARIAMixin, CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, DatabaseChecks):
+class DatabaseChecksMalaria(MALARIAMixin, CommonChecks_basicnumericalchecks, DatabaseChecks):
     """This is the class for DatabaseChecks to do with the Malaria data."""
 
     def __init__(self, *args, **kwargs):
