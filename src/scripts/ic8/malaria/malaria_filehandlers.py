@@ -121,14 +121,13 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
     def _build_df(self, path: Path) -> pd.DataFrame:
         """Reads in the data and return a pd.DataFrame with multi-index (scenario, funding_fraction, country, year,
-        indicator) and columns containing model output (low, central, high)."""
+        indicator) and columns containing model output (low, central, high).
+        This uses only the first-found .xlsx file in the path provided.
+        """
 
         # Read in each file and concatenate the results
-        all_csv_file_at_the_path = get_files_with_extension(path, "csv")
-        list_of_df = [
-            self._turn_workbook_into_df(file) for file in all_csv_file_at_the_path
-        ]
-        concatenated_dfs = pd.concat(list_of_df, axis=0)
+        first_xlsx_file_at_the_path = get_files_with_extension(path, "xlsx")[0]
+        concatenated_dfs = self._turn_workbook_into_df(first_xlsx_file_at_the_path)
 
         # TODO: @richard: when Pete sends NULL_FIRSTYEARGF AND PF scenarios adapt/uncomment the section below and remove part on "scenario_names
         # Filter out any countries that we do not need
@@ -163,14 +162,20 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         print(f"Reading: {file}  .....", end="")
 
         # Load csv
-        csv_df = self._load_sheet(file)
+        df = self._load_sheet(file)
 
         # Only keep columns of immediate interest:
-        csv_df = csv_df[
-            [
+        cols_needed = [
                 "iso3",
                 "year",
                 "scenario",
+                "budget_proportion",    # this is the 'funding_fraction'
+                "cases",                # }
+                "cases_lb",             # }
+                "cases_ub",             # }
+                "deaths",               # }
+                "deaths_lb",            # }
+                "deaths_ub",            # } these are needed are the GP scenarios do not have the "_smooth" versions
                 "cases_smooth",
                 "cases_smooth_lb",
                 "cases_smooth_ub",
@@ -194,21 +199,24 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "total_cost",
                 "cost_private",
                 "cost_vaccine",
-            ]
         ]
+        df = df[cols_needed]
+
+        # For GP scenario, we only have cases, deaths (not smoothed), but for other scenarios we update the values
+        # for cases and deaths with the smoothed versions. We then drop the smoothed versions of the columns
+        df.loc[df.scenario != "GP", 'cases'] = df.loc[df.scenario != "GP", 'cases_smooth']
+        df.loc[df.scenario != "GP", 'cases_ub'] = df.loc[df.scenario != "GP", 'cases_smooth_ub']
+        df.loc[df.scenario != "GP", 'cases_lb'] = df.loc[df.scenario != "GP", 'cases_smooth_lb']
+        df.loc[df.scenario != "GP", 'deaths'] = df.loc[df.scenario != "GP", 'deaths_smooth']
+        df.loc[df.scenario != "GP", 'deaths_ub'] = df.loc[df.scenario != "GP", 'deaths_smooth_ub']
+        df.loc[df.scenario != "GP", 'deaths_lb'] = df.loc[df.scenario != "GP", 'deaths_smooth_lb']
+        df = df.drop(
+            columns=['cases_smooth', 'cases_smooth_lb', 'cases_smooth_ub',
+                     'deaths_smooth', 'deaths_smooth_lb', 'deaths_smooth_ub']
+        )
 
         # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
-        df_gp = csv_df[csv_df.scenario == "GP"]
-        csv_df = csv_df[csv_df.scenario != "GP"]
-
-        # 1. Add copy central into lb and ub columns for needed variables
-        df_gp['cases_smooth_lb'] = df_gp['cases_smooth']
-        df_gp['cases_smooth_ub'] = df_gp['cases_smooth']
-        df_gp['deaths_smooth_lb'] = df_gp['deaths_smooth']
-        df_gp['deaths_smooth_ub'] = df_gp['deaths_smooth']
-
-        # 2. Replace nan with zeros
-        df_gp[[
+        cols_to_zero_out_in_gp = [
             "net_n",
             "irs_people_protected",
             'irs_hh',
@@ -226,90 +234,64 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "total_cost",
             "cost_private",
             "cost_vaccine",
-        ]] = df_gp[[
-            "net_n",
-            "irs_people_protected",
-            'irs_hh',
-            "treatments_given_public",
-            "treatment_coverage",
-            "smc_children_protected",
-            "smc_coverage",
-            # "vector_control_n", # TODO: @richard to uncomment
-            "vaccine_n",
-            "vaccine_doses_n",
-            "vaccine_coverage",
-            "par",
-            "par_targeted_smc",
-            "par_vx",
-            "total_cost",
-            "cost_private",
-            "cost_vaccine",
-        ]].fillna(0)
-
-        # Then put GP back into df
-        csv_df = pd.concat([csv_df, df_gp], axis=0)
+        ]
+        df.loc[df.scenario == "GP", cols_to_zero_out_in_gp].fillna(0.0, inplace=True)
 
         # Do some re-naming to make things easier
-        csv_df = csv_df.rename(
+        df = df.rename(
             columns={
                 "iso3": "country",
                 "scenario": "scenario_descriptor",
-                "cases_smooth": "cases_central",
-                "cases_smooth_lb": "cases_low",
-                "cases_smooth_ub": "cases_high",
-                "deaths_smooth": "deaths_central",
-                "deaths_smooth_lb": "deaths_low",
-                "deaths_smooth_ub": "deaths_high",
+                'budget_proportion': 'funding_fraction',
+                "cases": "cases_central",
+                "cases_lb": "cases_low",
+                "cases_ub": "cases_high",
+                "deaths": "deaths_central",
+                "deaths_lb": "deaths_low",
+                "deaths_ub": "deaths_high",
             }
         )
 
-        # Clean up funding fraction and PF scenario
-        csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
-            '')  # Puts the funding scenario number in a new column called funding fraction
-        csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('',
-                                                                        1)  # Where there is no funding fraction, set it to 1
-        csv_df.loc[csv_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
-
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
-        csv_df["par_low"] = csv_df["par"]
-        csv_df["par_central"] = csv_df["par"]
-        csv_df["par_high"] = csv_df["par"]
-        csv_df = csv_df.drop(columns=["par"])
+        df["par_low"] = df["par"]
+        df["par_central"] = df["par"]
+        df["par_high"] = df["par"]
+        df = df.drop(columns=["par"])
 
-        csv_df["llins_low"] = csv_df["net_n"]
-        csv_df["llins_central"] = csv_df["net_n"]
-        csv_df["llins_high"] = csv_df["net_n"]
-        csv_df = csv_df.drop(columns=["net_n"])
+        df["llins_low"] = df["net_n"]
+        df["llins_central"] = df["net_n"]
+        df["llins_high"] = df["net_n"]
+        df = df.drop(columns=["net_n"])
 
-        csv_df["irsppl_low"] = csv_df["irs_people_protected"]
-        csv_df["irsppl_central"] = csv_df["irs_people_protected"]
-        csv_df["irsppl_high"] = csv_df["irs_people_protected"]
-        csv_df = csv_df.drop(columns=["irs_people_protected"])
+        df["irsppl_low"] = df["irs_people_protected"]
+        df["irsppl_central"] = df["irs_people_protected"]
+        df["irsppl_high"] = df["irs_people_protected"]
+        df = df.drop(columns=["irs_people_protected"])
 
-        csv_df["irshh_low"] = csv_df["irs_hh"]
-        csv_df["irshh_central"] = csv_df["irs_hh"]
-        csv_df["irshh_high"] = csv_df["irs_hh"]
-        csv_df = csv_df.drop(columns=["irs_hh"])
+        df["irshh_low"] = df["irs_hh"]
+        df["irshh_central"] = df["irs_hh"]
+        df["irshh_high"] = df["irs_hh"]
+        df = df.drop(columns=["irs_hh"])
 
-        csv_df["txpublic_low"] = csv_df["treatments_given_public"]
-        csv_df["txpublic_central"] = csv_df["treatments_given_public"]
-        csv_df["txpublic_high"] = csv_df["treatments_given_public"]
-        csv_df = csv_df.drop(columns=["treatments_given_public"])
+        df["txpublic_low"] = df["treatments_given_public"]
+        df["txpublic_central"] = df["treatments_given_public"]
+        df["txpublic_high"] = df["treatments_given_public"]
+        df = df.drop(columns=["treatments_given_public"])
 
-        csv_df["txcoverage_low"] = csv_df["treatment_coverage"]
-        csv_df["txcoverage_central"] = csv_df["treatment_coverage"]
-        csv_df["txcoverage_high"] = csv_df["treatment_coverage"]
-        csv_df = csv_df.drop(columns=["treatment_coverage"])
+        df["txcoverage_low"] = df["treatment_coverage"]
+        df["txcoverage_central"] = df["treatment_coverage"]
+        df["txcoverage_high"] = df["treatment_coverage"]
+        df = df.drop(columns=["treatment_coverage"])
 
-        csv_df["smc_low"] = csv_df["smc_children_protected"]
-        csv_df["smc_central"] = csv_df["smc_children_protected"]
-        csv_df["smc_high"] = csv_df["smc_children_protected"]
-        csv_df = csv_df.drop(columns=["smc_children_protected"])
+        df["smc_low"] = df["smc_children_protected"]
+        df["smc_central"] = df["smc_children_protected"]
+        df["smc_high"] = df["smc_children_protected"]
+        df = df.drop(columns=["smc_children_protected"])
 
-        csv_df["smccoverage_low"] = csv_df["smc_coverage"]
-        csv_df["smccoverage_central"] = csv_df["smc_coverage"]
-        csv_df["smccoverage_high"] = csv_df["smc_coverage"]
-        csv_df = csv_df.drop(columns=["smc_coverage"])
+        df["smccoverage_low"] = df["smc_coverage"]
+        df["smccoverage_central"] = df["smc_coverage"]
+        df["smccoverage_high"] = df["smc_coverage"]
+        df = df.drop(columns=["smc_coverage"])
 
         # TODO: @richard to uncomment
         # csv_df["vectorcontrol_low"] = csv_df["vector_control_n"]
@@ -317,69 +299,70 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # csv_df["vectorcontrol_high"] = csv_df["vector_control_n"]
         # csv_df = csv_df.drop(columns=["vector_control_n"])
 
-        csv_df["vaccine_low"] = csv_df["vaccine_n"]
-        csv_df["vaccine_central"] = csv_df["vaccine_n"]
-        csv_df["vaccine_high"] = csv_df["vaccine_n"]
-        csv_df = csv_df.drop(columns=["vaccine_n"])
+        df["vaccine_low"] = df["vaccine_n"]
+        df["vaccine_central"] = df["vaccine_n"]
+        df["vaccine_high"] = df["vaccine_n"]
+        df = df.drop(columns=["vaccine_n"])
 
-        csv_df["vaccinedoses_low"] = csv_df["vaccine_doses_n"]
-        csv_df["vaccinedoses_central"] = csv_df["vaccine_doses_n"]
-        csv_df["vaccinedoses_high"] = csv_df["vaccine_doses_n"]
-        csv_df = csv_df.drop(columns=["vaccine_doses_n"])
+        df["vaccinedoses_low"] = df["vaccine_doses_n"]
+        df["vaccinedoses_central"] = df["vaccine_doses_n"]
+        df["vaccinedoses_high"] = df["vaccine_doses_n"]
+        df = df.drop(columns=["vaccine_doses_n"])
 
-        csv_df["vaccinecoverage_low"] = csv_df["vaccine_coverage"]
-        csv_df["vaccinecoverage_central"] = csv_df["vaccine_coverage"]
-        csv_df["vaccinecoverage_high"] = csv_df["vaccine_coverage"]
-        csv_df = csv_df.drop(columns=["vaccine_coverage"])
+        df["vaccinecoverage_low"] = df["vaccine_coverage"]
+        df["vaccinecoverage_central"] = df["vaccine_coverage"]
+        df["vaccinecoverage_high"] = df["vaccine_coverage"]
+        df = df.drop(columns=["vaccine_coverage"])
 
-        csv_df["partargetedsmc_low"] = csv_df["par_targeted_smc"]
-        csv_df["partargetedsmc_central"] = csv_df["par_targeted_smc"]
-        csv_df["partargetedsmc_high"] = csv_df["par_targeted_smc"]
-        csv_df = csv_df.drop(columns=["par_targeted_smc"])
+        df["partargetedsmc_low"] = df["par_targeted_smc"]
+        df["partargetedsmc_central"] = df["par_targeted_smc"]
+        df["partargetedsmc_high"] = df["par_targeted_smc"]
+        df = df.drop(columns=["par_targeted_smc"])
 
-        csv_df["parvx_low"] = csv_df["par_vx"]
-        csv_df["parvx_central"] = csv_df["par_vx"]
-        csv_df["parvx_high"] = csv_df["par_vx"]
-        csv_df = csv_df.drop(columns=["par_vx"])
+        df["parvx_low"] = df["par_vx"]
+        df["parvx_central"] = df["par_vx"]
+        df["parvx_high"] = df["par_vx"]
+        df = df.drop(columns=["par_vx"])
 
-        csv_df["cost_low"] = csv_df["total_cost"]
-        csv_df["cost_central"] = csv_df["total_cost"]
-        csv_df["cost_high"] = csv_df["total_cost"]
-        csv_df = csv_df.drop(columns=["total_cost"])
+        df["cost_low"] = df["total_cost"]
+        df["cost_central"] = df["total_cost"]
+        df["cost_high"] = df["total_cost"]
+        df = df.drop(columns=["total_cost"])
 
-        csv_df["costtxprivate_low"] = csv_df["cost_private"]
-        csv_df["costtxprivate_central"] = csv_df["cost_private"]
-        csv_df["costtxprivate_high"] = csv_df["cost_private"]
-        csv_df = csv_df.drop(columns=["cost_private"])
+        df["costtxprivate_low"] = df["cost_private"]
+        df["costtxprivate_central"] = df["cost_private"]
+        df["costtxprivate_high"] = df["cost_private"]
+        df = df.drop(columns=["cost_private"])
 
-        csv_df["costvx_low"] = csv_df["cost_vaccine"]
-        csv_df["costvx_central"] = csv_df["cost_vaccine"]
-        csv_df["costvx_high"] = csv_df["cost_vaccine"]
-        csv_df = csv_df.drop(columns=["cost_vaccine"])
+        df["costvx_low"] = df["cost_vaccine"]
+        df["costvx_central"] = df["cost_vaccine"]
+        df["costvx_high"] = df["cost_vaccine"]
+        df = df.drop(columns=["cost_vaccine"])
 
         # Generate incidence and mortality
-        csv_df["incidence_low"] = csv_df["cases_low"] / csv_df["par_low"]
-        csv_df["incidence_central"] = csv_df["cases_central"] / csv_df["par_central"]
-        csv_df["incidence_high"] = csv_df["cases_high"] / csv_df["par_high"]
+        df["incidence_low"] = df["cases_low"] / df["par_low"]
+        df["incidence_central"] = df["cases_central"] / df["par_central"]
+        df["incidence_high"] = df["cases_high"] / df["par_high"]
 
-        csv_df["mortality_low"] = csv_df["deaths_low"] / csv_df["par_low"]
-        csv_df["mortality_central"] = (
-            csv_df["deaths_central"] / csv_df["par_central"]
-        )
-        csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["par_high"]
+        df["mortality_low"] = df["deaths_low"] / df["par_low"]
+        df["mortality_central"] = df["deaths_central"] / df["par_central"]
+
+        df["mortality_high"] = df["deaths_high"] / df["par_high"]
 
         # Pivot to long format
-        melted = csv_df.melt(
+        melted = df.melt(
             id_vars=["year", "country", "scenario_descriptor", "funding_fraction"]
         )
 
         # Label the upper and lower bounds as variants and drop the original 'variable' term
-        melted["indicator"] = melted["variable"].apply(lambda s: s.split("_")[0])
-        melted["variant"] = melted["variable"].apply(lambda s: s.split("_")[1])
-        melted = melted.drop(columns=["variable"])
+        def get_var_name_and_variant(s: str) -> Tuple[str, str]:
+            split_at_last_underscore = s.rpartition("_")
+            return split_at_last_underscore[0], split_at_last_underscore[-1]
 
-        # Remove any rows with Nas
-        melted = melted.dropna()
+        indicator_and_variant = pd.DataFrame(melted["variable"].apply(get_var_name_and_variant).to_list())
+        melted["indicator"] = indicator_and_variant[0]
+        melted["variant"] = indicator_and_variant[1]
+        melted = melted.drop(columns=["variable"])
 
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(
@@ -391,7 +374,8 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "indicator",
                 "variant",
             ]
-        ).unstack("variant")
+        )
+        unpivoted = unpivoted.unstack("variant")
         unpivoted.columns = unpivoted.columns.droplevel(0)
 
         print(f"done")
@@ -399,12 +383,9 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
     @staticmethod
     def _load_sheet(file: Path):
-        """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
-        with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
-        """
-        with warnings.catch_warnings(record=True):
-            warnings.simplefilter("always")
-        return pd.read_csv(file, encoding="ISO-8859-1")
+        """Load the sheet named 'Output'"""
+        return pd.read_excel(file, sheet_name='Output')
+
 
 
 # Load the pf input data file(s)
