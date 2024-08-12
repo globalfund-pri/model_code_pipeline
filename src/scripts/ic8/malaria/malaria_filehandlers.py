@@ -248,6 +248,9 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             }
         )
 
+        # relabel the all the PF_**_CC scenarios as 'PF' only: this is the name of the scenario defined in parameters.toml
+        df.loc[df['scenario_descriptor'].str.startswith('PF_'), 'scenario_descriptor'] = 'PF'
+
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         df["par_low"] = df["par"]
         df["par_central"] = df["par"]
