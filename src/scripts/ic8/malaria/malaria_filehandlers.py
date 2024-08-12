@@ -132,12 +132,8 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # TODO: @richard: when Pete sends NULL_FIRSTYEARGF AND PF scenarios adapt/uncomment the section below and remove part on "scenario_names
         # Filter out any countries that we do not need
         expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-        scenario_names = (self.parameters.get_counterfactuals().index.to_list()) # TODO @richard: if we have all remove this line
-        scenario_names.remove("GP") # TODO @richard: if we have all remove this line, else if we just get NULL FIRST year, remove that from this line
-        scenario_names.remove("NULL_FIRSTYEARGF") # TODO @richard: if we have all remove this line, else if we just get NULL FIRST year, remove that from this line
-        # TODO @richard: uncomment the part below
-        # scenario_names = (self.parameters.get_scenarios().index.to_list() +
-        #                   self.parameters.get_counterfactuals().index.to_list())
+        scenario_names = (self.parameters.get_scenarios().index.to_list() +
+                          self.parameters.get_counterfactuals().index.to_list())
         concatenated_dfs = concatenated_dfs.loc[
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
