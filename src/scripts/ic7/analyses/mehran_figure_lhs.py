@@ -3,8 +3,9 @@ This script produces the analysis that shows the Impact that can achieved for ea
 Approach A and Approach B.
 MEHRAN'S LEFT HAND FIGURE
 """
+from collections import defaultdict
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Dict
 
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -60,14 +61,15 @@ for v in scenarios.values():
     for file in v.values():
         assert file.exists(), f"{file} does not exist"
 
-# "Thin-out" the scenarios to make the initial run go faster and to not use any unneccessary scenarios
-# Drop all 'incUnalloc' amounts
+# "Thin-out" the scenarios to make the initial run go faster and to not use any unnecessary scenarios
+# - Drop all 'incUnalloc' amounts
 scenarios_to_run = {
     k: v for k, v in scenarios.items()
     if not k.endswith('_incUnalloc')
 }
 
-thinning_factor = 3  # 1 implies no thining
+# - Don't run every scenario
+thinning_factor = 3  # 1 implies no thinning
 scenarios_to_run = {
     k: v for i, (k, v) in enumerate(scenarios_to_run.items()) if i % thinning_factor == 0
 }
@@ -91,7 +93,9 @@ def get_projections(
         tgf_funding_scenario: str = '',
         innovation_on: bool = False,
         gp: bool = False
-):
+) -> Dict:
+    """Returns Dict of portfolio results, keyed by disease. As this must work for GP and model results, we only return
+    the portfolio results (GP is not defined at the country level here)."""
 
     # Create Analysis objects for this funding scenario
     analysis_hiv = Analysis(
@@ -123,38 +127,42 @@ def get_projections(
     )
 
     if not gp:
-        # Produce a report for this funding scenario under Approach A
         if approach == 'a':
-            return HTMReport(
-                hiv=analysis_hiv.portfolio_projection_approach_a(),
-                tb=analysis_tb.portfolio_projection_approach_a(),
-                malaria=analysis_malaria.portfolio_projection_approach_a(),
+            return dict(
+                hiv=analysis_hiv.portfolio_projection_approach_a().portfolio_results,
+                tb=analysis_tb.portfolio_projection_approach_a().portfolio_results,
+                malaria=analysis_malaria.portfolio_projection_approach_a().portfolio_results,
             )
         elif approach == 'b':
-            # Produce a report for this funding scenario under Approach B (greedy-algorithm-backwards)
             optimisation_params = {
                 'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
                 'force_monotonic_decreasing': True
             }
-            return HTMReport(
-                hiv=analysis_hiv.portfolio_projection_approach_b(
-                    methods=['ga_backwards'], optimisation_params=optimisation_params),
-                tb=analysis_tb.portfolio_projection_approach_b(
-                    methods=['ga_backwards'], optimisation_params=optimisation_params),
-                malaria=analysis_malaria.portfolio_projection_approach_a(),
-                # todo: Couldn't get Approach B to work, as some countries that should be modelled were not in the results (e.g. COM), so using ApproachA as placeholder
-                # malaria=analysis_malaria.portfolio_projection_approach_b(
-                #   methods=['ga_backwards'], optimisation_params=optimisation_params),
+            return dict(
+                hiv=analysis_hiv.portfolio_projection_approach_b(methods=['ga_backwards'], optimisation_params=optimisation_params).portfolio_results,
+                tb=analysis_tb.portfolio_projection_approach_b(methods=['ga_backwards'], optimisation_params=optimisation_params).portfolio_results,
+                malaria=analysis_malaria.portfolio_projection_approach_a().portfolio_results,
+                # todo: Couldn't get Approach B to work, as some countries that should be modelled were not in the
+                #  results (e.g. COM), so using ApproachA as placeholder
             )
     else:
+        # Return the GP
+        def convert_format(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+            """Convert the GP into the same format as `PortfolioProjection.portfolio_results` (i.e. dict and dfs, keyed
+            by indicator), with columns for model_central/low/high."""
+            return {
+                c: pd.DataFrame({col_name: df[c] for col_name in ('model_central', 'model_low', 'model_high')})
+                for c in df.columns
+            }
+
         return dict(
-            hiv=analysis_hiv.get_gp(),
-            tb=analysis_tb.get_gp(),
-            malaria=analysis_malaria.get_gp(),
+            hiv=convert_format(analysis_hiv.get_gp()),
+            tb=convert_format(analysis_tb.get_gp()),
+            malaria=convert_format(analysis_malaria.get_gp()),
         )
 
 
-# For each scenario, do the analysis under Approach A and Approach B and compile the results
+#%% For each scenario, do the analysis under Approach A and Approach B and compile the results
 if DO_RUN:
     Results = dict()
     for scenario_label in scenarios_to_run:
@@ -163,70 +171,77 @@ if DO_RUN:
     # Now produce the variations on this that are required.
     Results['$11Bn: With Innovation'] = get_projections(approach='a', innovation_on=True, tgf_funding_scenario='Fubgible_gf_11b')
 
-    Results['$11Bn: Approach B'] = get_projections(approach='b', innovation_on=True, tgf_funding_scenario='Fubgible_gf_11b')
+    Results['$11Bn: Incl. Unalloc'] = get_projections(approach='a', innovation_on=False, tgf_funding_scenario='Fubgible_gf_11b_incUnalloc')
 
-    Results['$11Bn: Inc. Unalloc'] = get_projections(approach='a', innovation_on=True, tgf_funding_scenario='Fubgible_gf_11b_incUnalloc')
+    Results['$11Bn: Approach B'] = get_projections(approach='b', innovation_on=False, tgf_funding_scenario='Fubgible_gf_11b')
+
+    Results['$11Bn: Approach B & Incl. Unalloc'] = get_projections(approach='b', innovation_on=False, tgf_funding_scenario='Fubgible_gf_11b_incUnalloc')
+
+    Results['$11Bn: Approach B & With Innovation'] = get_projections(approach='b', innovation_on=True, tgf_funding_scenario='Fubgible_gf_11b')
+
+    Results['$11Bn: Approach B & Incl. Unalloc & With Innovation'] = get_projections(approach='b', innovation_on=True, tgf_funding_scenario='Fubgible_gf_11b_incUnalloc')
+
+    Results['GP'] = get_projections(gp=True, approach='a', innovation_on=False, tgf_funding_scenario='Fubgible_gf_11b')
 
     save_var(Results, get_root_path() / "sessions" / "Results.pkl")
 else:
     Results = load_var(get_root_path() / "sessions" / "Results.pkl")
 
-def get_cases_and_deaths(r) -> dict(dict()):
-    """returns the cases and deaths for this projection, in the form: {<disease>: {'cases': X, 'deaths': Y}}"""
 
-    TARGET_YEARS = slice(2024, 2030)
+#%% Construct statistics
 
-    return {
-        'hiv': {
-            'cases': r.hiv.portfolio_results['cases'].loc[TARGET_YEARS]['model_central'].sum(),
-            'deaths': r.hiv.portfolio_results['deaths'].loc[TARGET_YEARS]['model_central'].sum(),
-        },
-        'tb': {
-            'cases': r.tb.portfolio_results['cases'].loc[TARGET_YEARS]['model_central'].sum(),
-            'deaths': r.tb.portfolio_results['deaths'].loc[TARGET_YEARS]['model_central'].sum(),
-        },
-        'malaria': {
-            'cases': r.malaria.portfolio_results['cases'].loc[TARGET_YEARS]['model_central'].sum(),
-            'deaths': r.malaria.portfolio_results['deaths'].loc[TARGET_YEARS]['model_central'].sum(),
-        }
-    }
+def get_percent_reduction_from_2024_to_2030(r, indicator: str) -> pd.DataFrame:
+    """Find the percentage reduction in the indicator from 2024 to 2030.
+    :param: `indicator` might be 'cases' or 'deaths' or another indicator."""
+    s = defaultdict(dict)
+    for disease in ('hiv', 'tb', 'malaria'):
+        for scenario in r:
+            s[disease][scenario] = 100 * (
+                    1.0 - r[scenario][disease][indicator].at[2030, 'model_central'] / r[scenario][disease][indicator].at[2024, 'model_central']
+            )
+    return pd.DataFrame(s)
 
-stats = pd.DataFrame({
-    k: get_cases_and_deaths(v)
-    for k, v in Results.items()
-})
+def get_sum_of_indicator_during_2024_to_2030_as_percent_of_gp(r, indicator: str) -> pd.DataFrame:
+    """Find the value of the indicator, summed in the period 2024-2030, relative to the value in GP.
+    :param: `indicator` might be 'cases' or 'deaths' or another indicator."""
+    s = defaultdict(dict)
+    for disease in ('hiv', 'tb', 'malaria'):
+        gp_total = r['GP'][disease][indicator].loc[slice(2024, 2030)]['model_central'].sum()
+        for scenario in r:
+            scenario_total = r[scenario][disease][indicator].loc[slice(2024, 2030)]['model_central'].sum()
+            s[disease][scenario] = 100 * (scenario_total / gp_total)
+    return pd.DataFrame(s)
 
-# Get results
-# for GP:
-gp_proj = get_projections(gp=True, approach='a', innovation_on=False, tgf_funding_scenario='Fubgible_gf_11b')
-TARGET_YEARS = slice(2024, 2030)
-gp_stats = {
-        'hiv': {
-            'cases': gp_proj['hiv']['cases'].loc[TARGET_YEARS].sum(),
-            'deaths': gp_proj['hiv']['deaths'].loc[TARGET_YEARS].sum(),
-        },
-        'tb': {
-            'cases': gp_proj['tb']['cases'].loc[TARGET_YEARS].sum(),
-            'deaths': gp_proj['tb']['deaths'].loc[TARGET_YEARS].sum(),
-        },
-        'malaria': {
-            'cases': gp_proj['malaria']['cases'].loc[TARGET_YEARS].sum(),
-            'deaths': gp_proj['malaria']['deaths'].loc[TARGET_YEARS].sum(),
-        }
-    }
-
-# % of GP reduction in cases and deaths, for each disease
-pc_reduc_hiv = 100 * (1 / stats.loc['hiv'].apply(pd.Series).div(pd.Series(gp_stats['hiv'])))
-pc_reduc_tb = 100 * (1. / stats.loc['tb'].apply(pd.Series).div(pd.Series(gp_stats['tb'])))
-pc_reduc_malaria = 100 * (1. / stats.loc['malaria'].apply(pd.Series).div(pd.Series(gp_stats['malaria'])))
-
-# % of GP reduction in cases and deaths (averaged), acrosss all diseases (averaged)
-pc_reduc_all = (
-        pc_reduc_hiv.mean(axis=1) + pc_reduc_tb.mean(axis=1) + pc_reduc_malaria.mean(axis=1)
-)/3
+def get_percent_reduction_in_indicator_from_2030_vs_2024_relative_to_gp(r, indicator: str) -> pd.DataFrame:
+    """Find the percentage of the reduction that is achieved in each result, relative to GP.
+    e.g., if GP reduces cases by 80% from 2024 to 2030, and the scenario reduces cases by 40%: the result is 50%
+    :param: `indicator` might be 'cases' or 'deaths' or another indicator.
+    """
+    s = defaultdict(dict)
+    for disease in ('hiv', 'tb', 'malaria'):
+        gp_reduction = 1.0 - (r['GP'][disease][indicator].at[2030, 'model_central'] / r['GP'][disease][indicator].at[2024,'model_central'])
+        for scenario in r:
+            scenario_reduction = 1.0 - (r[scenario][disease][indicator].at[2030, 'model_central'] / r[scenario][disease][indicator].at[2024, 'model_central'])
+            s[disease][scenario] = 100 * scenario_reduction / gp_reduction
+    return pd.DataFrame(s)
 
 
-#%% Make nice figures
+stats = {
+    'cases percent reduction 2024 to 2040': get_percent_reduction_from_2024_to_2030(Results, indicator='cases'),
+    'deaths percent reduction 2024 to 2040': get_percent_reduction_from_2024_to_2030(Results, indicator='deaths'),
+    'cases_relative_to_gp': get_sum_of_indicator_during_2024_to_2030_as_percent_of_gp(Results, indicator='cases'),
+    'deaths_relative_to_gp': get_sum_of_indicator_during_2024_to_2030_as_percent_of_gp(Results, indicator='deaths'),
+    'cases_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2024_relative_to_gp(Results, indicator='cases'),
+    'deaths_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2024_relative_to_gp(Results, indicator='deaths'),
+}
+
+# Add the combination one: across cases and deaths and all disease
+stats['cases_and_deaths_reduction_vs_gp'] = (stats['cases_reduction_vs_gp'] + stats['deaths_reduction_vs_gp']) / 2
+stats['cases_and_deaths_reduction_vs_gp']['all'] = stats['cases_and_deaths_reduction_vs_gp'].mean(axis=1)
+
+
+
+#%% Functions for making nice figures
 
 mapper_to_pretty_names = {
     n: f"${n.removeprefix('Fubgible_gf_').replace('b', 'Bn').replace('_incUnalloc', '+')}"
@@ -242,18 +257,6 @@ tot_tgf_funding = pd.Series({
     for scenario_name, files in scenarios.items()
 }).sort_index()
 tot_tgf_funding.name = 'TGF Funding'
-
-tgf_funding_by_disease = pd.DataFrame({
-    mapper_to_pretty_names[scenario_name]: {
-        disease: get_total_funding(filename)
-        for disease, filename in files.items()
-    }
-    for scenario_name, files in scenarios.items()
-}).T.sort_index()
-tgf_funding_by_disease['total'] = tgf_funding_by_disease.sum(axis=1)
-
-
-
 
 def make_graph(df: pd.Series, title: str):
     # plot the black dots: approach A across all budget levels
@@ -292,35 +295,67 @@ def make_graph(df: pd.Series, title: str):
     )
     ax.plot(
         black_dots.at['$11Bn', 'x_pos'],
-        df['$11Bn: Inc. Unalloc'],
+        df['$11Bn: Incl. Unalloc'],
         color='orange',
         marker='.',
         markersize=10,
         linestyle='none',
         label='Including Unallocated Amounts'
     )
-    ax.set_ylabel('% of GP reduction achieved')
+    ax.plot(
+        black_dots.at['$11Bn', 'x_pos'],
+        df['$11Bn: Approach B & Incl. Unalloc'],
+        color='purple',
+        marker='.',
+        markersize=10,
+        linestyle='none',
+        label='Approach B, Including Unallocated Amounts'
+    )
+    ax.plot(
+        black_dots.at['$11Bn', 'x_pos'],
+        df['$11Bn: Approach B & With Innovation'],
+        color='yellow',
+        marker='.',
+        markersize=10,
+        linestyle='none',
+        label='Approach B, With Innovation'
+    )
+    ax.plot(
+        black_dots.at['$11Bn', 'x_pos'],
+        df['$11Bn: Approach B & Incl. Unalloc & With Innovation'],
+        color='magenta',
+        marker='.',
+        markersize=10,
+        linestyle='none',
+        label='Approach B,  Including Unallocated Amounts & With Innovation'
+    )
+    ax.set_ylabel('%')
     ax.set_xlabel('TGF Replenishment Scenario')
-    ax.set_ylim(0, 100)
-    # todo label xtickabels
+    ax.set_xticks(black_dots.x_pos)
+    ax.set_xticklabels(black_dots.index)
     ax.set_title(title)
     ax.legend()
-    fig.savefig(project_root / 'sessions' / f"{title}.png")
+    fig.savefig(project_root / 'outputs' / f"{title}.png")
     fig.tight_layout()
     fig.show()
+    plt.close(fig)
 
 
-make_graph(pc_reduc_all, title='All Diseases, Across Cases and Deaths')
-make_graph(pc_reduc_hiv['cases'], title='HIV Cases')
-make_graph(pc_reduc_hiv['deaths'], title='HIV Deaths')
-make_graph(pc_reduc_tb['cases'], title='TB Cases')
-make_graph(pc_reduc_tb['deaths'], title='TB Deaths')
-make_graph(pc_reduc_malaria['cases'], title='Malaria Cases')
-make_graph(pc_reduc_malaria['deaths'], title='Malaria Deaths')
+#%% Make graphs:
+make_graph(
+    stats['cases_and_deaths_reduction_vs_gp']['all'],
+    title='Percent of GP Reduction in Cases and Deaths: All Diseases',
+)
+
+for stat in stats:
+    for disease in ('hiv', 'tb', 'malaria'):
+        make_graph(
+            stats[stat][disease],
+            title=f'{stat}: {disease}',
+        )
 
 
-# todo pdf saving
-# ---------------------------
+
 
 
 # todo right-hand side figure
