@@ -1,0 +1,70 @@
+Function,Key,Value
+get_combined_stats,Total number of deaths from 3 diseases in 2020 ,2586654.313859
+get_combined_stats,Total number of deaths from 3 diseases in 2026 ,1035277.8010297132
+get_combined_stats,Deaths averted (covid disruption) for HIV 2021 to 2026,13219311.856831733
+get_combined_stats,Deaths averted (covid disruption) for TB 2021 to 2026,9333370.14037902
+get_combined_stats,Deaths averted (covid disruption) for malaria 2021 to 2026,1394791.796235322
+get_combined_stats,Total Deaths averted (covid disruption) for hiv 2021 to 2026,23947473.793446075
+get_infections_averted,Infections averted relating to HIV from 2024 to 2026,1953462.6801326615
+get_infections_averted,Infections averted relating to TB from 2024 to 2026,17994684.470131032
+get_infections_averted,Infections averted relating to malaria from 2024 to 2026,437205265.42830175
+get_key_stats_hiv,Number of new hiv infections in the year 2020,1095958.0
+get_key_stats_hiv,Number of new hiv infections  in the year 2026,347932.64810008125
+get_key_stats_hiv,Reduction in new hiv infections  between the year 2026 compared to 2020,-68.2531038506876
+get_key_stats_hiv,Hiv incidence in the year 2020,0.0002629493525287447
+get_key_stats_hiv,Hiv incidence in the year 2026,7.523447952612853e-05
+get_key_stats_hiv,Reduction in hiv incidence between the year 2026 compared to 2020,-71.38822408094572
+get_key_stats_hiv,Number of hiv deaths in the year 2020,578937.0
+get_key_stats_hiv,Number of  hiv deaths  in the year 2026,239319.79106236412
+get_key_stats_hiv,Reduction in of hiv deaths  between the year 2026 compared to 2020,-58.662204857805925
+get_key_stats_hiv,Hiv mortality rate in the year 2020,0.00013581359239887261
+get_key_stats_hiv,Hiv mortality rate in the year 2026,5.069092569933822e-05
+get_key_stats_hiv,Reduction in hiv mortality rate between the year 2026 compared to 2020,-62.67610273464867
+get_key_stats_hiv,ART coverage in the year 2020,63.21955360278396
+get_key_stats_hiv,ART coverage in the year 2026,77.7949826572617
+get_key_stats_hiv,Number of people on ART in the year 2026,24403039.56659992
+get_key_stats_malaria,Number of malaria cases in the year 2020,238906383.00000003
+get_key_stats_malaria,Number of malaria cases in the year 2026,80383377.99057649
+get_key_stats_malaria,Reduction in malaria cases between the year 2026 compared to 2020 ,-66.35360806137336
+get_key_stats_malaria,Malaria incidence in the year 2020,0.07715888910158997
+get_key_stats_malaria,Malaria incidence in the year 2026,0.023595107055178147
+get_key_stats_malaria,Reduction in malaria incidence between the year 2026 compared to 2020,-69.42010527897564
+get_key_stats_malaria,Number of malaria deaths in the year 2020,623443.0
+get_key_stats_malaria,Number of malaria deaths  in the year 2026,226748.6643580033
+get_key_stats_malaria,Reduction in malaria deaths between the year 2026 compared to 2020,-63.629607781625054
+get_key_stats_malaria,Malaria mortality rate in the year 2020,0.00020135154487757053
+get_key_stats_malaria,Malaria mortality rate in the year 2026,6.655802659565956e-05
+get_key_stats_malaria,Reduction in malaria mortality rate between the year 2026 compared to 2020,-66.944367555695
+get_key_stats_malaria,Number of bed nets distributed between 2024 and 2026,1720930335.8667278
+get_key_stats_malaria,Number of bed nets distributed between 2021 and 2026,3440784159.2625794
+get_key_stats_malaria,Number of people treated in the public sector between 2020 and 2026,558457739.0783281
+get_key_stats_tb,Number of TB cases in the year 2020,8474725.25852
+get_key_stats_tb,Number of TB cases in the year 2026,6138322.359001372
+get_key_stats_tb,Reduction in TB cases  between the year 2026 compared to 2020 ,-27.56906953614505
+get_key_stats_tb,TB incidence in the year 2020 ,0.0021201300593932577
+get_key_stats_tb,TB incidence in the year 2026 ,0.0013853707535626265
+get_key_stats_tb,Reduction in TB incidence between the year 2026 compared to 2020 ,-34.65633169886313
+get_key_stats_tb,Number of TB deaths in the year 2020 ,1384274.3138589999
+get_key_stats_tb,Number of TB deaths in the year 2026 ,569209.3456093458
+get_key_stats_tb,Reduction in TB deaths between the year 2026 compared to 2020,-58.88030718257446
+get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2020 ,1183883.239682
+get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2026 ,474911.3687514559
+get_key_stats_tb,Reduction in TB deaths amongst hiv-negative individuals between the year 2026 compared to 2020,-59.885286586283556
+get_key_stats_tb,TB mortality rate in the year 2020 ,0.00034630521860374436
+get_key_stats_tb,TB mortality rate in the year 2026 ,0.00012846604233896877
+get_key_stats_tb,Reduction in TB mortality rate between the year 2026 compared to 2020 ,-62.903809865491944
+get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2020 ,0.0002961731934304637
+get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2026 ,0.00010718373560780207
+get_key_stats_tb,Reduction in TB mortality rate amongst hiv-negative individuals between the year 2026 compared to 2020 ,-63.810453482864936
+get_key_stats_tb,Number of TB notifications between 2024 and 2026 ,17032761.356315065
+get_key_stats_tb,Number of TB notifications between 2021 and 2026 ,37731003.21631506
+get_key_stats_tb,Number of MDR cases who received treatment between 2024 and 2026 ,653039.5957123791
+get_key_stats_tb,Number of MDR cases who received treatment between 2021 and 2026 ,1463094.0257123793
+get_key_stats_tb,TB treatment coverage in 2020 ,68.15075349131298
+get_key_stats_tb,TB treatment coverage in 2026 ,94.92561217698766
+get_lives_saved,Number of lives saved relating to hiv from 2021 to 2026,13219311.856831733
+get_lives_saved,Number of lives saved relating to hiv from 2024 to 2026,8467581.604248613
+get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2021 to 2026,16340838.727893975
+get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2024 to 2026,7205539.368262575
+get_lives_saved,Number of lives saved relating to malaria from 2021 to 2026,8372777.294055042
+get_lives_saved,Number of lives saved relating to malaria 2024 to 2026,4349512.143307148

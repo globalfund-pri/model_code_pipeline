@@ -22,54 +22,55 @@ relevant files, cleans up the data in these files (harmonizing naming convention
 variables that are not needed), puts them in the format defined for the database format. 
 
 The database format is: 
-1) scenario_descriptor: contains a XX_XX shorthand for scenario names
+1) scenario_descriptor: contains a shorthand for scenario names
 2) funding fraction: contains the funding fraction as expressed by the % of GP funding need. These need to be given as
    a proportion (0-1) NOT as a percentage (0-100)
 3) country: holds iso3 code for a country
 4) year: contains year information
-5) indicator: contains the variable names (short-hand)
+5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition
 6) low, central and high: contains the value for the lower bound, central and upper bound of a given variable. Where 
    LB and UB are not available these should be set to be the same as the "central" value.  
 
  This following files are read in in this script: 
  1) The malaria model results shared by Pete
  2) The PF input data. These were prepared by TGF and shared with modellers as input data to the model
- 3) The WHO partner data as prepared by the TGF. These contain variables including e.g., year, iso3, deaths 
- population, cases (number of new malaria cases infections for a given year). The partner data should contain data
- for each of these variable for each country eligible for GF funding for 2000 to latest year. 
+ 3) The WHO partner data as prepared by the TGF. These contain variables including e.g., year, iso3, cases, deaths, and
+    population at risk (for a given year). The partner data should contain data for each of these variable for each 
+    country eligible for GF funding for 2000 to latest year. 
 
  The above files are saved in the file structure described below. 
  CAUTION: failing to follow the file structure may throw up errors. 
  File structure: 
- 1) Main project folder: "IC7/TimEmulationTool"
+ 1) Main project folder: "IC8"
  2) model results should be located in "/modelling_outputs"
  3) PF input daa should be saved under "/pf"
  4) WHO partner data should be saved under "/partner"
 
- The following additional information needs to be set and prepared in order to run the code: 
- 1) List of modelled countries: In the parameter file  provide the full list of iso3 codes
+  The following additional information needs to be set and prepared in order to run the code: 
+ 1) List of modelled countries: In the parameters.toml file  provide the full list of iso3 codes
     of modelled countries for this disease that should be analysed. The list is used:
      a) in the checks, for example, to ensure that we have results for each country, for each year, for each variable 
      defined in this set of lists
      b) for filtering when generating the output (i.e. if we have to remove model results for Russia from the analysis, 
      we can remove Russia from this list and model results for this country will be filtered out)
- 2) List of GF eligible countries: In file parameters.toml provide the full list 
-    of iso3 codes of GF eligible countries for this disease that should be accounted for in this analysis. Adding or 
+ 2) List of GF eligible countries: In the parameters.toml file provide the full list of 
+    iso3 codes of GF eligible countries for this disease that should be accounted for in this analysis. Adding or 
     removing iso3 codes from this list will automatically be reflected in the rest of the code (i.e. if Russia is not 
     eligible for GF funding, removing Russia from this list, means that the model results will not be extrapolated to 
     Russia when extrapolating to non-modelled counties). The list is used:
-    a) to generate GP by using the population estimates for all eligible countries
-    b) to filter out the partner data to only countries listed here
+    a) to filter out the partner data to only countries listed here
     b) to extrapolate to non-modelled countries
- 3) List of indicators: The file parameter file provides a full list of variables needed for malaria, 
+ 3) List of indicators: The parameters.toml file provides a full list of variables needed for TB, 
     including epidemiological variables and service-related variables. The list should include the short-hand variable
     name, full variable definition, and the data type (e.g. count (integer), fraction (proportion), rate. 
     The list is used:
      a) to map the variable names to their full definitions
      b) in the checks to ensure, for example, that we have results for each country, for each year, for each variable 
      defined in this set of lists
-     c) which ones should be scaled to non-modelled countries (CAUTION: this will need to updated in 8th Replenishment)
-     d) which indicators should be scaled for innovation
+     c) that the variables are in the right format, e.g. that coverage indicators are expressed as fractions between 
+     0-1 and that coverage is not above 1.  
+     d) which ones should be scaled to non-modelled countries
+     e) which indicators should be scaled for innovation
  4) List of scenarios: The parameter file provides the mapping of the scenario descriptions to their short-hand. 
     This list is used to:
     a) to map the variable (short-hand) name to the full definition
@@ -77,17 +78,9 @@ The database format is:
     defined in this set of lists 
     c) for filtering when generating the output (i.e., select the final investment case and necessary counterfactual 
     scenario)
- 5) Parameters defining the GP: In file "shared/fixed_gps/malaria_gp.csv" provide for each year the fixes reduction in 
-    cases/incidence and deaths/mortality. 
-    CAUTION: For each disease he indicator will vary (reduction for number of deaths OR mortality rate) but the column 
-     headers should not be changed as this will result in errors. The correct indicators are set in the class 
-     GpMalaria(Gp). These parameter are used to generate the time-series for new infections, incidence, deaths and 
-     mortality rate for each year. 
- 6) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
-    last year of model (models may run up to 2050, but we need results up to 2030 only), years of the replenishment, 
-    years that should be used in the objector funding for the optimizer (first year of replenishment to 2030), the 
-    first year of the GP for malaria and the funding fractions fo reach disease. These parameters are used e.g., to 
-    generate the GP time series and in the checks.  
+ 5) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
+    last year of model (e.g. model output may be provided up to 2050, but we only need projections up to 2030), years of 
+    the replenishment, years that should be used in the objector funding for the optimizer, etc.  
 
 Running the script for the first time and options to improve speed: 
 At the end of the script is a line of code stating "LOAD_DATA_FROM_RAW_FILES". The first time you run this code, this 
@@ -97,14 +90,18 @@ CAUTION: If any changes are made to the way the model output is handled (i.e. ad
 parameter file, the above switch needs to be turned to True and model results re-loaded to reflect these changes! 
 
 CAUTION: 
-Adding or removing items from these list will automatically be reflected in the rest of the code.
-Scenarios without funding fractions (GP_GP, NULL_NULL, CC_CC) should be given a funding fraction of 100% in order to be 
-included in key checks. 
+Adding or removing items from the aforementioned lists list will automatically be reflected in the rest of the code. If 
+the code is running from local copies of the model data and analysis by e.g. setting LOAD_DATA_FROM_RAW_FILES to false
+these may not be reflected. 
+
+CAUTION: 
+Scenarios without funding fractions (e.g GP, NULL, CC) should be given a funding fraction of 100% in this filehandler 
+script in order to pass the database check and later will be used to run key checks.  
 
 GOOD CODE PRACTICE:
 Variable names: should be use small letter and be short but easy to understand
 Hard-coding: to be avoided at all costs and if at all limited to these disease files and report class. 
- """
+"""
 
 
 class MALARIAMixin:
@@ -133,119 +130,31 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         ]
         concatenated_dfs = pd.concat(list_of_df, axis=0)
 
-        # Rename scenarios
-        concatenated_dfs = concatenated_dfs.rename(
-            axis=0,
-            level="scenario_descriptor",
-            mapper={
-                "Follow_GP_REVERT_TO_GP": "GP_GP",
-                "Follow_ContinuedDisruption_CONSTCOV": "CC_CC",
-                "NEVERCHANGE_NEVERCHANGE": "NULL_NULL",
-                "Follow_Targets_MAINTAIN_COV": "PF_MC",
-                "Follow_Targets_REVERT_TO_GP": "PF_GP",
-                "Follow_PastPeformance_MAINTAIN_COV": "PP_MC",
-                "Follow_PastPeformance_REVERT_TO_GP": "PP_GP",
-                "Follow_ContinuedDisruption_MAINTAIN_COV": "CD_MC",
-                "Follow_ContinuedDisruption_REVERT_TO_GP": "CD_GP",
-            },
-        )
+        # TODO: @richard: when Pete sends NULL_FIRSTYEARGF AND PF scenarios adapt/uncomment the section below and remove part on "scenario_names
+        # Filter out any countries that we do not need
+        expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
+        scenario_names = (self.parameters.get_counterfactuals().index.to_list()) # TODO @richard: if we have all remove this line
+        scenario_names.remove("GP") # TODO @richard: if we have all remove this line, else if we just get NULL FIRST year, remove that from this line
+        scenario_names.remove("NULL_FIRSTYEARGF") # TODO @richard: if we have all remove this line, else if we just get NULL FIRST year, remove that from this line
+        # TODO @richard: uncomment the part below
+        # scenario_names = (self.parameters.get_scenarios().index.to_list() +
+        #                   self.parameters.get_counterfactuals().index.to_list())
+        concatenated_dfs = concatenated_dfs.loc[
+            (scenario_names, slice(None), expected_countries, slice(None), slice(None))
+        ]
 
-        # Some of the replenishment scenario contain characters and not just numeric. Make those NA for filtering
+        # Make funding numbers into fractions
         concatenated_dfs = concatenated_dfs.reset_index()
-        concatenated_dfs["funding_fraction"] = pd.to_numeric(
-            concatenated_dfs["funding_fraction"], errors="coerce"
-        )
-
-        # If scenario is GP_GP make funding fraction 2 temporarily for filtering below
-        concatenated_dfs.loc[
-            (concatenated_dfs["scenario_descriptor"] == "GP_GP") & (
-                concatenated_dfs["funding_fraction"].isna()), "funding_fraction"
-        ] = 2.0
-
-        # Need to remove all the GP_GP scenarios with funding fractions and keep only the one with funding fraction "NA"
-        concatenated_dfs = concatenated_dfs.drop(concatenated_dfs[
-                                                     (concatenated_dfs["scenario_descriptor"] == "GP_GP") & (
-                                                                 concatenated_dfs["funding_fraction"] < 2)].index)
-
-        # If scenario is GP_GP or NULL_NULL or CC_CC make funding fraction 2
-        concatenated_dfs.loc[
-            (concatenated_dfs["scenario_descriptor"] == "GP_GP") | (
-                        concatenated_dfs["scenario_descriptor"] == "CC_CC") | (
-                        concatenated_dfs["scenario_descriptor"] == "NULL_NULL"), "funding_fraction"
-        ] = 1.0
-
-        # Now filter our funding_fractions that are NA (this includes PP, PF, CD followed by GP which contain a
-        # replenishment reverting to GP
-        concatenated_dfs.loc[
-            (concatenated_dfs["scenario_descriptor"] == "GP_GP") | (
-                        concatenated_dfs["scenario_descriptor"] == "CC_CC") | (
-                        concatenated_dfs["scenario_descriptor"] == "NULL_NULL"), "funding_fraction"
-        ] = 1.0
+        concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
+            'funding_fraction'].transform('max')
+        concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
+        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 2})
+        concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
 
         # Re-pack the df
         concatenated_dfs = concatenated_dfs.set_index(
             ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
         )
-
-        # Make a new scenario for the IC. This is CD until
-        # First filter out CD scenario (it does not matter what the post-replenishment scenario is as the first years
-        # should be the same)
-
-        # First filter out CD scenario
-        cd_dfs = concatenated_dfs.loc[
-            ("CD_MC", slice(None), slice(None), slice(None), slice(None))
-        ]
-        cd_dfs = cd_dfs.reset_index()
-        cd_dfs["scenario_descriptor"] = "IC_IC"
-        cd_dfs = cd_dfs.set_index(
-            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
-        )  # repack the index
-
-        # Then filter out PF scenario
-        pf_dfs = concatenated_dfs.loc[
-            ("PF_MC", slice(None), slice(None), slice(None), slice(None))  # todo: make sure it was PF_GP and not PF_MC
-        ]
-        pf_dfs = pf_dfs.reset_index()
-        pf_dfs["scenario_descriptor"] = "IC_IC"
-        pf_dfs = pf_dfs.set_index(
-            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
-        )  # repack the index
-
-        # Make a df which is an average for CD and PF for the year 2022
-        mix_df = pd.concat(([cd_dfs, pf_dfs]), axis=1).groupby(axis=1, level=0).mean()
-
-        # Make a new IC_IC scenario which is CD up to 2021, average of CD and PF in 2022 and then PF
-        cd_dfs = cd_dfs.drop(
-            cd_dfs.index[
-                cd_dfs.index.get_level_values('year') > 2021]
-        )
-
-        mix_df = mix_df.drop(
-            mix_df.index[
-                mix_df.index.get_level_values('year') != 2022]
-        )
-
-        pf_dfs = pf_dfs.drop(
-            pf_dfs.index[
-                pf_dfs.index.get_level_values('year') < 2023]
-        )
-
-        ic_df = pd.concat(([cd_dfs, mix_df, pf_dfs]))
-
-        # Sort the ic_df
-        ic_df.sort_index(level="country")
-
-        # Add ic_ic scenario to model output
-        concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
-
-        # Filter out scenarios and countries that we do not need
-        expected_countries = self.parameters.get(self.disease_name).get('MODELLED_COUNTRIES')
-        scenario_names = (self.parameters.get_scenarios().index.to_list() +
-                          self.parameters.get_counterfactuals().index.to_list())
-        concatenated_dfs = concatenated_dfs.loc[
-            (scenario_names, slice(None), expected_countries, slice(None), slice(None))
-        ]
-
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
@@ -256,62 +165,26 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Load csv
         csv_df = self._load_sheet(file)
 
-        # Compare columns to template
-        template_csv = pd.read_excel(
-            "/Users/mc1405/TGF_data/IC8/template/malaria/mal_ic_modelling_reference 2024_05_21.xlsx", sheet_name="Template")
-        model_column_names = list(csv_df.columns)
-        template_column_names = list(template_csv.columns)
-        filtered_list_in = [string for string in model_column_names if string not in template_column_names]
-        filtered_list_out = [string for string in template_column_names if string not in model_column_names]
-
-        print("Are there any missing or mis-names columns?")
-        print(filtered_list_in)
-        print(filtered_list_out)
-
-        # Compare rows
-        list_scenarios = ["CC_2022", "NULL_2022", "GP"]
-        filtered_csv = csv_df[['iso3', 'scenario', 'year']]
-
-        filtered_template = template_csv[~template_csv['scenario'].str.contains("PF")]
-        filtered_template = filtered_template[~filtered_template['scenario'].isin(list_scenarios)]
-        filtered_template = filtered_template[['iso3', 'scenario', 'year']]
-
-        diff_df = pd.concat([filtered_csv, filtered_template])
-        diff_df = diff_df.reset_index(drop=True)
-        df_gpby = diff_df.groupby(list(diff_df.columns))
-        idx = [x[0] for x in df_gpby.groups.values() if len(x) == 1]
-        a = diff_df.reindex(idx)
-
-        print("Here are the differences in rows")
-        print(a)
-
         # Only keep columns of immediate interest:
         csv_df = csv_df[
             [
                 "iso3",
                 "year",
                 "scenario",
-                "cases",
-                "cases_lb",
-                "cases_ub",
-                "deaths",
-                "deaths_lb",
-                "deaths_ub",
-                "itn_use_n",
+                "cases_smooth",
+                "cases_smooth_lb",
+                "cases_smooth_ub",
+                "deaths_smooth",
+                "deaths_smooth_lb",
+                "deaths_smooth_ub",
                 "net_n",
-                "itn_access",
-                "itn_use",
-                "irs_hh",
                 "irs_people_protected",
-                'irs_coverage',
+                "irs_hh",
                 "treatments_given_public",
                 "treatment_coverage",
-                "tx_cov",
                 "smc_children_protected",
-                "smc_coverage_targeted",
                 "smc_coverage",
-                "smc_doses",
-                "vector_control_coverage",
+                # "vector_control_n", # TODO: @richard to uncomment
                 "vaccine_n",
                 "vaccine_doses_n",
                 "vaccine_coverage",
@@ -324,33 +197,26 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             ]
         ]
 
-        # Do some re-naming to make things easier
-        csv_df = csv_df.rename(
-            columns={
-                "ISO": "iso3",
-                "scenario_descriptor": "scenario",
-                "cases_central": "cases",
-                "cases_lower": "cases_lb",
-                "cases_upper": "cases_ub",
-                "deaths_central": "deaths",
-                "deaths_lower": "deaths_lb",
-                "deaths_upper": "deaths_ub",
+        # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
+        df_gp = csv_df[csv_df.scenario == "GP"]
+        csv_df = csv_df[csv_df.scenario != "GP"]
 
-                "itn_use_n",
+        # 1. Add copy central into lb and ub columns for needed variables
+        df_gp['cases_smooth_lb'] = df_gp['cases_smooth']
+        df_gp['cases_smooth_ub'] = df_gp['cases_smooth']
+        df_gp['deaths_smooth_lb'] = df_gp['deaths_smooth']
+        df_gp['deaths_smooth_ub'] = df_gp['deaths_smooth']
 
-            "itn_access",
-            "itn_use",
-            "irs_hh",
+        # 2. Replace nan with zeros
+        df_gp[[
+            "net_n",
             "irs_people_protected",
-            'irs_coverage',
+            'irs_hh',
             "treatments_given_public",
             "treatment_coverage",
-            "tx_cov",
             "smc_children_protected",
-            "smc_coverage_targeted",
             "smc_coverage",
-            "smc_doses",
-            "vector_control_coverage",
+            # "vector_control_n", # TODO: @richard to uncomment
             "vaccine_n",
             "vaccine_doses_n",
             "vaccine_coverage",
@@ -360,70 +226,150 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "total_cost",
             "cost_private",
             "cost_vaccine",
+        ]] = df_gp[[
+            "net_n",
+            "irs_people_protected",
+            'irs_hh',
+            "treatments_given_public",
+            "treatment_coverage",
+            "smc_children_protected",
+            "smc_coverage",
+            # "vector_control_n", # TODO: @richard to uncomment
+            "vaccine_n",
+            "vaccine_doses_n",
+            "vaccine_coverage",
+            "par",
+            "par_targeted_smc",
+            "par_vx",
+            "total_cost",
+            "cost_private",
+            "cost_vaccine",
+        ]].fillna(0)
 
-                "replenishment": "funding_fraction",
-                "total_cost": "cost",
+        # Then put GP back into df
+        csv_df = pd.concat([csv_df, df_gp], axis=0)
+
+        # Do some re-naming to make things easier
+        csv_df = csv_df.rename(
+            columns={
+                "iso3": "country",
+                "scenario": "scenario_descriptor",
+                "cases_smooth": "cases_central",
+                "cases_smooth_lb": "cases_low",
+                "cases_smooth_ub": "cases_high",
+                "deaths_smooth": "deaths_central",
+                "deaths_smooth_lb": "deaths_low",
+                "deaths_smooth_ub": "deaths_high",
             }
         )
 
+        # Clean up funding fraction and PF scenario
+        csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+            '')  # Puts the funding scenario number in a new column called funding fraction
+        csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('',
+                                                                        1)  # Where there is no funding fraction, set it to 1
+        csv_df.loc[csv_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
-        xlsx_df["par_lower"] = xlsx_df["par"]
-        xlsx_df["par_central"] = xlsx_df["par"]
-        xlsx_df["par_upper"] = xlsx_df["par"]
-        xlsx_df = xlsx_df.drop(columns=["par"])
+        csv_df["par_low"] = csv_df["par"]
+        csv_df["par_central"] = csv_df["par"]
+        csv_df["par_high"] = csv_df["par"]
+        csv_df = csv_df.drop(columns=["par"])
 
-        xlsx_df["llins_lower"] = xlsx_df["net_n"]
-        xlsx_df["llins_central"] = xlsx_df["net_n"]
-        xlsx_df["llins_upper"] = xlsx_df["net_n"]
-        xlsx_df = xlsx_df.drop(columns=["net_n"])
+        csv_df["llins_low"] = csv_df["net_n"]
+        csv_df["llins_central"] = csv_df["net_n"]
+        csv_df["llins_high"] = csv_df["net_n"]
+        csv_df = csv_df.drop(columns=["net_n"])
 
-        xlsx_df["llinscoverage_lower"] = xlsx_df["net_coverage"]
-        xlsx_df["llinscoverage_central"] = xlsx_df["net_coverage"]
-        xlsx_df["llinscoverage_upper"] = xlsx_df["net_coverage"]
-        xlsx_df = xlsx_df.drop(columns=["net_coverage"])
+        csv_df["irsppl_low"] = csv_df["irs_people_protected"]
+        csv_df["irsppl_central"] = csv_df["irs_people_protected"]
+        csv_df["irsppl_high"] = csv_df["irs_people_protected"]
+        csv_df = csv_df.drop(columns=["irs_people_protected"])
 
-        xlsx_df["txcoverage_lower"] = xlsx_df["treatment_coverage"]
-        xlsx_df["txcoverage_central"] = xlsx_df["treatment_coverage"]
-        xlsx_df["txcoverage_upper"] = xlsx_df["treatment_coverage"]
-        xlsx_df = xlsx_df.drop(columns=["treatment_coverage"])
+        csv_df["irshh_low"] = csv_df["irs_hh"]
+        csv_df["irshh_central"] = csv_df["irs_hh"]
+        csv_df["irshh_high"] = csv_df["irs_hh"]
+        csv_df = csv_df.drop(columns=["irs_hh"])
 
-        xlsx_df["vectorcontrolcoverage_lower"] = xlsx_df["vector_control_coverage"]
-        xlsx_df["vectorcontrolcoverage_central"] = xlsx_df["vector_control_coverage"]
-        xlsx_df["vectorcontrolcoverage_upper"] = xlsx_df["vector_control_coverage"]
-        xlsx_df = xlsx_df.drop(columns=["vector_control_coverage"])
+        csv_df["txpublic_low"] = csv_df["treatments_given_public"]
+        csv_df["txpublic_central"] = csv_df["treatments_given_public"]
+        csv_df["txpublic_high"] = csv_df["treatments_given_public"]
+        csv_df = csv_df.drop(columns=["treatments_given_public"])
 
-        xlsx_df["irshh_lower"] = xlsx_df["irs_hh"]
-        xlsx_df["irshh_central"] = xlsx_df["irs_hh"]
-        xlsx_df["irshh_upper"] = xlsx_df["irs_hh"]
-        xlsx_df = xlsx_df.drop(columns=["irs_hh"])
+        csv_df["txcoverage_low"] = csv_df["treatment_coverage"]
+        csv_df["txcoverage_central"] = csv_df["treatment_coverage"]
+        csv_df["txcoverage_high"] = csv_df["treatment_coverage"]
+        csv_df = csv_df.drop(columns=["treatment_coverage"])
 
-        xlsx_df["cost_lower"] = xlsx_df["cost"]
-        xlsx_df["cost_central"] = xlsx_df["cost"]
-        xlsx_df["cost_upper"] = xlsx_df["cost"]
-        xlsx_df = xlsx_df.drop(columns=["cost"])
+        csv_df["smc_low"] = csv_df["smc_children_protected"]
+        csv_df["smc_central"] = csv_df["smc_children_protected"]
+        csv_df["smc_high"] = csv_df["smc_children_protected"]
+        csv_df = csv_df.drop(columns=["smc_children_protected"])
+
+        csv_df["smccoverage_low"] = csv_df["smc_coverage"]
+        csv_df["smccoverage_central"] = csv_df["smc_coverage"]
+        csv_df["smccoverage_high"] = csv_df["smc_coverage"]
+        csv_df = csv_df.drop(columns=["smc_coverage"])
+
+        # TODO: @richard to uncomment
+        # csv_df["vectorcontrol_low"] = csv_df["vector_control_n"]
+        # csv_df["vectorcontrol_central"] = csv_df["vector_control_n"]
+        # csv_df["vectorcontrol_high"] = csv_df["vector_control_n"]
+        # csv_df = csv_df.drop(columns=["vector_control_n"])
+
+        csv_df["vaccine_low"] = csv_df["vaccine_n"]
+        csv_df["vaccine_central"] = csv_df["vaccine_n"]
+        csv_df["vaccine_high"] = csv_df["vaccine_n"]
+        csv_df = csv_df.drop(columns=["vaccine_n"])
+
+        csv_df["vaccinedoses_low"] = csv_df["vaccine_doses_n"]
+        csv_df["vaccinedoses_central"] = csv_df["vaccine_doses_n"]
+        csv_df["vaccinedoses_high"] = csv_df["vaccine_doses_n"]
+        csv_df = csv_df.drop(columns=["vaccine_doses_n"])
+
+        csv_df["vaccinecoverage_low"] = csv_df["vaccine_coverage"]
+        csv_df["vaccinecoverage_central"] = csv_df["vaccine_coverage"]
+        csv_df["vaccinecoverage_high"] = csv_df["vaccine_coverage"]
+        csv_df = csv_df.drop(columns=["vaccine_coverage"])
+
+        csv_df["partargetedsmc_low"] = csv_df["par_targeted_smc"]
+        csv_df["partargetedsmc_central"] = csv_df["par_targeted_smc"]
+        csv_df["partargetedsmc_high"] = csv_df["par_targeted_smc"]
+        csv_df = csv_df.drop(columns=["par_targeted_smc"])
+
+        csv_df["parvx_low"] = csv_df["par_vx"]
+        csv_df["parvx_central"] = csv_df["par_vx"]
+        csv_df["parvx_high"] = csv_df["par_vx"]
+        csv_df = csv_df.drop(columns=["par_vx"])
+
+        csv_df["cost_low"] = csv_df["total_cost"]
+        csv_df["cost_central"] = csv_df["total_cost"]
+        csv_df["cost_high"] = csv_df["total_cost"]
+        csv_df = csv_df.drop(columns=["total_cost"])
+
+        csv_df["costtxprivate_low"] = csv_df["cost_private"]
+        csv_df["costtxprivate_central"] = csv_df["cost_private"]
+        csv_df["costtxprivate_high"] = csv_df["cost_private"]
+        csv_df = csv_df.drop(columns=["cost_private"])
+
+        csv_df["costvx_low"] = csv_df["cost_vaccine"]
+        csv_df["costvx_central"] = csv_df["cost_vaccine"]
+        csv_df["costvx_high"] = csv_df["cost_vaccine"]
+        csv_df = csv_df.drop(columns=["cost_vaccine"])
 
         # Generate incidence and mortality
-        xlsx_df["incidence_lower"] = xlsx_df["cases_lower"] / xlsx_df["par_lower"]
-        xlsx_df["incidence_central"] = xlsx_df["cases_central"] / xlsx_df["par_central"]
-        xlsx_df["incidence_upper"] = xlsx_df["cases_upper"] / xlsx_df["par_upper"]
+        csv_df["incidence_low"] = csv_df["cases_low"] / csv_df["par_low"]
+        csv_df["incidence_central"] = csv_df["cases_central"] / csv_df["par_central"]
+        csv_df["incidence_high"] = csv_df["cases_high"] / csv_df["par_high"]
 
-        xlsx_df["mortality_lower"] = xlsx_df["deaths_lower"] / xlsx_df["par_lower"]
-        xlsx_df["mortality_central"] = (
-            xlsx_df["deaths_central"] / xlsx_df["par_central"]
+        csv_df["mortality_low"] = csv_df["deaths_low"] / csv_df["par_low"]
+        csv_df["mortality_central"] = (
+            csv_df["deaths_central"] / csv_df["par_central"]
         )
-        xlsx_df["mortality_upper"] = xlsx_df["deaths_upper"] / xlsx_df["par_upper"]
-
-        # Generate number of people on treatment
-        xlsx_df["tx_lower"] = xlsx_df["txcoverage_lower"] * xlsx_df["cases_lower"]
-        xlsx_df["tx_central"] = xlsx_df["txcoverage_central"] * xlsx_df["cases_central"]
-        xlsx_df["tx_upper"] = xlsx_df["txcoverage_upper"] * xlsx_df["cases_upper"]
-
-        # Merge scenario names and remove original scenario columns
-        xlsx_df["scenario_descriptor"] = xlsx_df["pre"] + "_" + xlsx_df["post"]
-        xlsx_df = xlsx_df.drop(columns=["pre", "post"])
+        csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["par_high"]
 
         # Pivot to long format
-        melted = xlsx_df.melt(
+        melted = csv_df.melt(
             id_vars=["year", "country", "scenario_descriptor", "funding_fraction"]
         )
 
@@ -448,9 +394,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         ).unstack("variant")
         unpivoted.columns = unpivoted.columns.droplevel(0)
 
-        # Rename to match defintion
-        unpivoted = unpivoted.rename(columns={"lower": "low", "upper": "high"})
-
         print(f"done")
         return unpivoted
 
@@ -465,303 +408,186 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
 
 # Load the pf input data file(s)
-# class PFInputDataMalaria(MALARIAMixin, PFInputData):
-#     """This is the File Handler for the malaria input data containing pf targets."""
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#     def _build_df(self, path: Path) -> pd.DataFrame:
-#         """Reads in the data and returns a pd.DataFrame with multi-index (scenario_descriptor, country, year,
-#         indicator)."""
-#
-#         # Read in each file and concatenate the results
-#         all_xlsx_file_at_the_path = get_files_with_extension(path, "xls")
-#         list_of_df = [
-#             self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
-#         ]
-#         concatenated_dfs = pd.concat(list_of_df, axis=0)
-#
-#         # Organise multi-index to be '(scenario country, year, indicator)' and column ['central']
-#         concatenated_dfs = (
-#             concatenated_dfs.reset_index()
-#             .set_index(["scenario_descriptor", "country", "year"])
-#             .stack()
-#         )
-#         concatenated_dfs = pd.DataFrame({"central": concatenated_dfs})
-#
-#         # Only keep indicators of immediate interest:
-#         # WARNING: For Strategic target setting ensure that these names match the names in indicator list
-#         malaria_indicators = self.parameters.get_indicators_for(self.disease_name).index.to_list()
-#         f = concatenated_dfs.reset_index()
-#         f = f.loc[f["indicator"].isin(malaria_indicators)]
-#         f["scenario_descriptor"] = f["scenario_descriptor"] + "_GP"
-#
-#         # Drop any countries that are not listed with relevant `*_iso_model.csv`
-#         malaria_modelled_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-#         f = f.loc[f["country"].isin(malaria_modelled_countries)]
-#
-#         # Re-concatenate
-#         concatenated_dfs = f.set_index(
-#             ["scenario_descriptor", "country", "year", "indicator"]
-#         )
-#
-#         # Make a new version for the other scenarios
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace("_GP", "_MC")
-#         concatenated_dfs2 = f.set_index(
-#             ["scenario_descriptor", "country", "year", "indicator"]
-#         )
-#
-#         # Make the final df with one set for each scenario
-#         all_dfs = [concatenated_dfs, concatenated_dfs2]
-#         concatenated_dfs = pd.concat(all_dfs, axis=0)
-#
-#         # Add IC scenario by slicing for any of the CD scenarios as the data for the period to be compared will match
-#         ic_ic = concatenated_dfs.loc[
-#             ("CD_MC", slice(None), slice(None), slice(None))
-#         ]
-#         ic_ic = ic_ic.reset_index()
-#         ic_ic["scenario_descriptor"] = "IC_IC"
-#         ic_ic = ic_ic.set_index(
-#             ["scenario_descriptor", "country", "year", "indicator"]
-#         )
-#         all_dfs = [concatenated_dfs, ic_ic]
-#         concatenated_dfs = pd.concat(all_dfs, axis=0)
-#
-#         # Check all scenarios are in there
-#         scenarios = self.parameters.get_scenarios().index.to_list()
-#         scenarios = [e for e in scenarios if e not in ("NULL_NULL", "GP_GP", "CC_CC")]
-#
-#         # Filter out countries that we do not need
-#         expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-#         concatenated_dfs = concatenated_dfs.drop(
-#             concatenated_dfs.index[
-#                 ~concatenated_dfs.index.get_level_values('country').isin(expected_countries)]
-#         )
-#
-#         assert all(
-#             y in concatenated_dfs.index.get_level_values("scenario_descriptor")
-#             for y in scenarios
-#         )
-#
-#         return concatenated_dfs
-#
-#     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
-#         """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
-#         and has the required multi-index and column specifications."""
-#         print(f"Reading: {file}  .....", end="")
-#
-#         # Load 'Sheet1' from the Excel workbook
-#         xlsx_df = self._load_sheet(file)
-#
-#         # Do some renaming to make things easier
-#         # WARNING: For Strategic target setting ensure that these names match the names in indicator list
-#         xlsx_df = xlsx_df.rename(
-#             columns={
-#                 "iso3": "country",
-#                 "y": "year",
-#             }
-#         )
-#
-#         # Pivot to long format
-#         melted = xlsx_df.melt(id_vars=["country", "year"])
-#
-#         # Deconstruct the 'Scenario' column to give "variable" and "scenario description" separately.
-#         def _deconstruct_scenario(s: str) -> Tuple[str, str]:
-#             """For a given string, from the `Scenario` column of the malaria workbook, return a tuple that gives
-#             (scenario_descriptor, variable name). This routine extracts the scenario that is labelled in the form:
-#              "<Variable> <Scenario_Descriptor>"."""
-#
-#             split_char = ""
-#             k = 2
-#             temp = re.split(r"(_n_|_p_)", s)
-#             res = split_char.join(temp[:k]), split_char.join(temp[k:])
-#
-#             if res[1] not in (
-#                 "covid_target",
-#                 "prf_adj_target",
-#                 "target",
-#             ):
-#                 return res[0], str("nan")
-#             else:
-#                 return res[0], res[1]
-#
-#         scenario_deconstructed = pd.DataFrame(
-#             melted["variable"].apply(_deconstruct_scenario).to_list(),
-#             index=melted.index,
-#             columns=["indicator", "scenario_descriptor"],
-#         )
-#
-#         melted = melted.join(scenario_deconstructed).drop(columns=["variable"])
-#
-#         # Do some cleaning to variable names and formatting
-#         melted["indicator"] = melted["indicator"].astype(str).str.replace("_n_", "")
-#         melted.loc[melted["indicator"].str.contains("_p_"), "value"] = (
-#             melted["value"] / 100
-#         )
-#         melted["indicator"] = (
-#             melted["indicator"].astype(str).str.replace("_p_", "coverage")
-#         )
-#         melted["scenario_descriptor"] = melted["scenario_descriptor"].replace(
-#             {"covid_target": "CD", "prf_adj_target": "PP", "target": "PF"}
-#         )
-#
-#         # Set the index and unpivot
-#         unpivoted = melted.set_index(
-#             ["country", "year", "scenario_descriptor", "indicator"]
-#         ).unstack("indicator")
-#         unpivoted.columns = unpivoted.columns.droplevel(0)
-#
-#         # Do some renaming to make things easier
-#         # WARNING: For Strategic target setting ensure that these names match the names in indicator list
-#         unpivoted = unpivoted.rename(
-#             columns={
-#                 "irs": "irshh",
-#                 "malaria_txcoverage": "txcoverage",
-#             }
-#         )
-#
-#         print(f"done")
-#         return unpivoted
-#
-#     @staticmethod
-#     def _load_sheet(file: Path):
-#         """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
-#         with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
-#         """
-#         return pd.read_excel(file)
-#
+class PFInputDataMalaria(MALARIAMixin, PFInputData):
+    """This is the File Handler for the malaria input data containing pf targets."""
 
-# class PartnerDataMalaria(MALARIAMixin, PartnerData):
-#     """This is the File Handler for the malaria partner data."""
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#     def _build_df(self, path: Path) -> pd.DataFrame:
-#         """Reads in the data and returns a pd.DataFrame with multi-index (country, year, indicator)."""
-#
-#         # Read in each file and concatenate the results
-#         all_xlsx_file_at_the_path = get_files_with_extension(path, "csv")
-#         list_of_df = [
-#             self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
-#         ]
-#         concatenated_dfs = pd.concat(list_of_df, axis=0)
-#
-#         # Construct multi-index as (country, year, indicator) & drop rows with na's in the year
-#         concatenated_dfs = concatenated_dfs.reset_index()
-#         concatenated_dfs = concatenated_dfs.dropna(subset=["year"])
-#         concatenated_dfs["year"] = concatenated_dfs["year"].astype(int)
-#         concatenated_dfs = concatenated_dfs.set_index(["country", "year"])
-#         concatenated_dfs.columns.name = "indicator"
-#         concatenated_dfs = pd.DataFrame({"central": concatenated_dfs.stack()})
-#
-#         # Drop any countries that are not listed with relevant `*_iso.csv`
-#         malaria_countries = self.parameters.get_portfolio_countries_for(self.disease_name)
-#         f = concatenated_dfs.reset_index()
-#         f = f.loc[f["country"].isin(malaria_countries)]
-#
-#         # Add scenario name
-#         f["scenario_descriptor"] = "CD_GP"
-#         concatenated_dfs = f.set_index(
-#             ["scenario_descriptor", "country", "year", "indicator"]
-#         )
-#
-#         # Make a new version for the other scenario
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "CD_GP", "CD_MC"
-#         )
-#         dfs2 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "CD_MC", "PP_GP"
-#         )
-#         dfs3 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "PP_GP", "PP_MC"
-#         )
-#         dfs4 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "PP_MC", "PF_GP"
-#         )
-#         dfs5 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "PF_GP", "PF_MC"
-#         )
-#         dfs6 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "PF_MC", "IC_IC"
-#         )
-#         dfs7 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         # Make the final df with one set for each scenario
-#         all_dfs = [concatenated_dfs, dfs2, dfs3, dfs4, dfs5, dfs6, dfs7]
-#         concatenated_dfs = pd.concat(all_dfs, axis=0)
-#
-#         # Check all scenarios are in there
-#         scenarios = self.parameters.get_scenarios().index.to_list()
-#         scenarios = [e for e in scenarios if e not in ("NULL_NULL", "GP_GP", "CC_CC")]
-#
-#         assert all(
-#             y in concatenated_dfs.index.get_level_values("scenario_descriptor")
-#             for y in scenarios
-#         )
-#
-#         return concatenated_dfs
-#
-#     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
-#         """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
-#         and has the required multi-index and column specifications."""
-#         print(f"Reading: {file}  .....", end="")
-#
-#         # Load 'Sheet1' from the Excel workbook
-#         xlsx_df = self._load_sheet(file)
-#
-#         # Only keep columns of immediate interest:
-#         xlsx_df = xlsx_df[["iso3", "year", "death_who", "infection_who", "par_who"]]
-#
-#         # Remove postfix substring from column headers
-#         xlsx_df.columns = xlsx_df.columns.str.replace("_who", "")
-#
-#         # Do some renaming to make things easier
-#         xlsx_df = xlsx_df.rename(
-#             columns={
-#                 "iso3": "country",
-#                 "infection": "cases",
-#                 "death": "deaths",
-#             }
-#         )
-#
-#         # Generate incidence and mortality
-#         xlsx_df["incidence"] = xlsx_df["cases"] / xlsx_df["par"]
-#         xlsx_df["mortality"] = xlsx_df["deaths"] / xlsx_df["par"]
-#
-#         # Pivot to long format
-#         melted = xlsx_df.melt(id_vars=["country", "year"])
-#
-#         # Remove any rows with Nas
-#         melted = melted.drop(melted.index[melted["country"] == "CIV"])
-#         melted.loc[pd.isnull(melted.country), "country"] = "CIV"
-#
-#         # Set the index and unpivot
-#         unpivoted = melted.set_index(["country", "year", "variable"]).unstack(
-#             "variable"
-#         )
-#         unpivoted.columns = unpivoted.columns.droplevel(0)
-#         print(f"done")
-#         return unpivoted
-#
-#     @staticmethod
-#     def _load_sheet(file: Path):
-#         """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
-#         with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
-#         """
-#         return pd.read_csv(file, encoding="ISO-8859-1")
-#
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _build_df(self, path: Path) -> pd.DataFrame:
+        """Reads in the data and returns a pd.DataFrame with multi-index (scenario_descriptor, country, year,
+        indicator)."""
+
+        # Read in each file and concatenate the results
+        all_xlsx_file_at_the_path = get_files_with_extension(path, "xlsx")
+        list_of_df = [
+            self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
+        ]
+        concatenated_dfs = pd.concat(list_of_df, axis=0)
+        concatenated_dfs['scenario_descriptor'] = "PF"
+
+        # Organise multi-index to be '(scenario country, year, indicator)' and column ['central']
+        concatenated_dfs = (
+            concatenated_dfs.reset_index()
+            .set_index(["scenario_descriptor", "country", "year"])
+            .stack()
+        )
+        concatenated_dfs = pd.DataFrame({"central": concatenated_dfs})
+
+        # Only keep indicators of immediate interest:
+        indicators = self.parameters.get_indicators_for(self.disease_name).index.to_list()
+        countries = self.parameters.get_modelled_countries_for(self.disease_name)
+        f = concatenated_dfs.reset_index()
+        f = f.loc[f["indicator"].isin(indicators)]
+        f = f.loc[f["country"].isin(countries)]
+
+        # Re-concatenate
+        concatenated_dfs = f.set_index(
+            ["scenario_descriptor", "country", "year", "indicator"]
+        )
+
+        return concatenated_dfs
+
+    def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
+        """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
+        and has the required multi-index and column specifications."""
+        print(f"Reading: {file}  .....", end="")
+
+        # Load workbook
+        xlsx_df = self._load_sheet(file)
+
+        # Do some renaming to make things easier
+        xlsx_df = xlsx_df.rename(
+            columns={
+                "iso3": "country",
+                'smc_child_n': 'smc',
+                'pop_irs_n': 'irsppl_n',
+                'irs_n': 'irshh_n',
+            }
+        )
+
+        # Pivot to long format
+        xlsx_df = xlsx_df.drop('data_type', axis=1)
+        melted = xlsx_df.melt(id_vars=["country", "year"])
+        melted = melted.rename(columns={'variable': 'indicator'})
+
+        # Do some cleaning to variable names and formatting
+        melted['indicator'] = melted['indicator'].str.replace('_n$', '', regex=True)
+        melted.loc[melted["indicator"].str.contains("_p"), "value"] = (
+            melted["value"] / 100
+        )
+
+        # Set the index and unpivot
+        unpivoted = melted.set_index(
+            ["country", "year", "indicator"]
+        ).unstack("indicator")
+        unpivoted.columns = unpivoted.columns.droplevel(0)
+
+        print(f"done")
+        return unpivoted
+
+    @staticmethod
+    def _load_sheet(file: Path):
+        """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
+        with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
+        """
+        return pd.read_excel(file)
+
+
+class PartnerDataMalaria(MALARIAMixin, PartnerData):
+    """This is the File Handler for the malaria partner data."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _build_df(self, path: Path) -> pd.DataFrame:
+        """Reads in the data and returns a pd.DataFrame with multi-index (country, year, indicator)."""
+
+        # Read in each file and concatenate the results
+        all_xlsx_file_at_the_path = get_files_with_extension(path, "csv")
+        list_of_df = [
+            self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
+        ]
+        concatenated_dfs = pd.concat(list_of_df, axis=0)
+        concatenated_dfs['scenario_descriptor'] = "PF"
+
+        # Organise multi-index to be '(scenario country, year, indicator)' and column ['central']
+        concatenated_dfs = (
+            concatenated_dfs.reset_index()
+            .set_index(["scenario_descriptor", "country", "year"])
+            .stack()
+        )
+        concatenated_dfs = pd.DataFrame({"central": concatenated_dfs})
+
+        # Only keep indicators and years of immediate interest:
+        countries = self.parameters.get_portfolio_countries_for(self.disease_name)
+        start_year = self.parameters.get("PARTNER_START_YEAR")
+        f = concatenated_dfs.reset_index()
+        f = f.loc[f["country"].isin(countries)]
+        f = f.loc[f["year"] >= start_year]
+
+        # Re-concatenate
+        concatenated_dfs = f.set_index(
+            ["scenario_descriptor", "country", "year", "indicator"]
+        )
+
+        return concatenated_dfs
+
+    def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
+        """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
+        and has the required multi-index and column specifications."""
+        print(f"Reading: {file}  .....", end="")
+
+        # Load workbook
+        csv_df = self._load_sheet(file)
+
+        # Only keep columns of immediate interest:
+        csv_df = csv_df[
+            [
+                "ISO3",
+                "Year",
+                "malaria_cases_n_pip",
+                "malaria_deaths_n_pip",
+                "malaria_par_n_pip"
+            ]
+        ]
+
+        # Do some renaming to make things easier
+        csv_df = csv_df.rename(
+            columns={
+                "ISO3": "country",
+                "Year": 'year',
+                "malaria_cases_n_pip": "cases",
+                "malaria_deaths_n_pip": "deaths",
+                "malaria_par_n_pip": "par",
+
+            }
+        )
+
+        # Generate incidence and mortality
+        csv_df["incidence"] = csv_df["cases"] / csv_df["par"]
+        csv_df["mortality"] = csv_df["deaths"] / csv_df["par"]
+
+        # Pivot to long format
+        melted = csv_df.melt(id_vars=["country", "year"])
+        melted = melted.rename(columns={'variable': 'indicator'})
+
+        # Set the index and unpivot
+        unpivoted = melted.set_index(["country", "year", "indicator"]).unstack(
+            "indicator"
+        )
+        unpivoted.columns = unpivoted.columns.droplevel(0)
+
+        print(f"done")
+        return unpivoted
+
+    @staticmethod
+    def _load_sheet(file: Path):
+        """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
+        with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
+        """
+        return pd.read_csv(file, encoding="ISO-8859-1")
+
 
 # Define the checks
 

@@ -1,4 +1,4 @@
-from scripts.ic8.tb.tb_filehandlers import TBMixin, PFInputDataTb
+from scripts.ic8.tb.tb_filehandlers import TBMixin, PFInputDataTb, PartnerDataTb
 from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.tb.tb_filehandlers import ModelResultsTb
 from tgftools.checks import DatabaseChecks
@@ -24,20 +24,20 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsTb(
-        path_to_data_folder / "IC8/modelling_outputs/tb",
+        path_to_data_folder / "IC8/modelling_outputs/tb/2024_07_11",
         parameters=parameters,
     )
 
     # Load the files
     pf_input_data = PFInputDataTb(
-        path_to_data_folder / "IC8/pf/tb",
+        path_to_data_folder / "IC8/pf/tb/2024_03_28",
         parameters=parameters,
     )
 
-    # partner_data = PartnerDataHIV(
-    #     path_to_data_folder / "IC8/partner/hiv",
-    #     parameters=parameters,
-    # )
+    partner_data = PartnerDataTb(
+        path_to_data_folder / "IC8/partner/tb/2024_07_10",
+        parameters=parameters,
+    )
 
     # fixed_gp = FixedGp(
     #     get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
@@ -58,5 +58,5 @@ if __name__ == "__main__":
         parameters=parameters,
     ).run(
         suppress_error=True,
-        filename=project_root / "outputs" / "ic8" / "tb_report_of_checks.pdf"
+        filename=project_root / "outputs" / "tb_report_of_checks.pdf"
     )

@@ -551,8 +551,18 @@ class Analysis:
                 _gp_df = gp.df.reset_index()
                 _gp = _gp_df.loc[(_gp_df.indicator == indicator), ['year', 'central']].set_index('year')['central']
                 _gp = _gp[_gp.index >= expected_first_year]  # Ensure all dfs have same length
-                step_one = (actual_without_innovation[indicator] / full_funding).mul(_gp, axis=0)
-                step_two = actual_without_innovation[indicator] - (actual_without_innovation[indicator] - step_one).mul(sigmoid_scaling, axis=0)
+                step_one = (df / full_funding).mul(_gp, axis=0)
+                step_two = df - (df - step_one).mul(sigmoid_scaling, axis=0)
+
+                # Over-write the lower and upper bounds so they are the same distance as the modelled distance before applying the sigmoidal adjustment
+                # If not, the lower bounds and upper bounds can behave strangely
+
+                # First capture the distance from central to LB and Ub from unadjusted
+                distance_low  = df['model_central'] - df['model_low']
+                distance_upper = df['model_high'] - df['model_central']
+
+                step_two['model_low'] = step_two['model_central'] - distance_low
+                step_two['model_high'] = step_two['model_central'] + distance_upper
 
                 # Add adjusted time series to the dataframe
                 adj_country_results[indicator] = step_two

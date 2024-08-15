@@ -11,9 +11,8 @@ from tgftools.filehandler import (
     # Gp,
     ModelResults,
     # Parameters,
-    # PartnerData,
     PFInputData,
-    # RegionInformation,
+    PartnerData,
 )
 from tgftools.utils import (
     get_data_path,
@@ -25,54 +24,55 @@ relevant files, cleans up the data in these files (harmonizing naming convention
 variables that are not needed), puts them in the format defined for the database format. 
 
 The database format is: 
-1) scenario_descriptor: contains a XX_XX shorthand for scenario names
+1) scenario_descriptor: contains a shorthand for scenario names. The parameters.toml file maps the short-hand to definition
 2) funding fraction: contains the funding fraction as expressed by the % of GP funding need. These need to be given as
    a proportion (0-1) NOT as a percentage (0-100)
 3) country: holds iso3 code for a country
 4) year: contains year information
-5) indicator: contains the variable names (short-hand)
+5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition
 6) low, central and high: contains the value for the lower bound, central and upper bound of a given variable. Where 
    LB and UB are not available these should be set to be the same as the "central" value.  
 
  This following files are read in in this script: 
  1) The TB model results shared by Carel
  2) The PF input data. These were prepared by TGF and shared with modellers as input data to the model
- 3) The WHO partner data as prepared by the TGF. These contain variables including e.g., year, iso3, deaths 
- population, cases (number of new TB cases infections for a given year). The partner data should contain data
- for each of these variable for each country eligible for GF funding for 2000 to latest year. 
+ 3) The WHO partner data as prepared by the TGF. These contain variables including e.g., year, iso3, cases, deaths (by
+    hiv status) and population estimates (for a given year). The partner data should contain data for each of these 
+    variable for each country eligible for GF funding for 2000 to latest year. 
 
  The above files are saved in the file structure described below. 
  CAUTION: failing to follow the file structure may throw up errors. 
  File structure: 
- 1) Main project folder: "IC7/TimEmulationTool"
+ 1) Main project folder: "IC8"
  2) model results should be located in "/modelling_outputs"
  3) PF input daa should be saved under "/pf"
  4) WHO partner data should be saved under "/partner"
 
  The following additional information needs to be set and prepared in order to run the code: 
- 1) List of modelled countries: In the parameter file  provide the full list of iso3 codes
+ 1) List of modelled countries: In the parameters.toml file  provide the full list of iso3 codes
     of modelled countries for this disease that should be analysed. The list is used:
      a) in the checks, for example, to ensure that we have results for each country, for each year, for each variable 
      defined in this set of lists
      b) for filtering when generating the output (i.e. if we have to remove model results for Russia from the analysis, 
      we can remove Russia from this list and model results for this country will be filtered out)
- 2) List of GF eligible countries: In file parameters.toml provide the full list of 
+ 2) List of GF eligible countries: In the parameters.toml file provide the full list of 
     iso3 codes of GF eligible countries for this disease that should be accounted for in this analysis. Adding or 
     removing iso3 codes from this list will automatically be reflected in the rest of the code (i.e. if Russia is not 
     eligible for GF funding, removing Russia from this list, means that the model results will not be extrapolated to 
     Russia when extrapolating to non-modelled counties). The list is used:
-    a) to generate GP by using the population estimates for all eligible countries
-    b) to filter out the partner data to only countries listed here
+    a) to filter out the partner data to only countries listed here
     b) to extrapolate to non-modelled countries
- 3) List of indicators: The file parameter file provides a full list of variables needed for TB, 
+ 3) List of indicators: The parameters.toml file provides a full list of variables needed for TB, 
     including epidemiological variables and service-related variables. The list should include the short-hand variable
     name, full variable definition, and the data type (e.g. count (integer), fraction (proportion), rate. 
     The list is used:
      a) to map the variable names to their full definitions
      b) in the checks to ensure, for example, that we have results for each country, for each year, for each variable 
      defined in this set of lists
-     c) which ones should be scaled to non-modelled countries (CAUTION: this will need to updated in 8th Replenishment)
-     d) which indicators should be scaled for innovation
+     c) that the variables are in the right format, e.g. that coverage indicators are expressed as fractions between 
+     0-1 and that coverage is not above 1.  
+     d) which ones should be scaled to non-modelled countries
+     e) which indicators should be scaled for innovation
  4) List of scenarios: The parameter file provides the mapping of the scenario descriptions to their short-hand. 
     This list is used to:
     a) to map the variable (short-hand) name to the full definition
@@ -80,17 +80,9 @@ The database format is:
     defined in this set of lists 
     c) for filtering when generating the output (i.e., select the final investment case and necessary counterfactual 
     scenario)
- 5) Parameters defining the GP: In file "shared/fixed_gps/tb_gp.csv" provide for each year the fixes reduction in 
-    cases/incidence and deaths/mortality. 
-    CAUTION: For each disease he indicator will vary (reduction for number of deaths OR mortality rate) but the column 
-     headers should not be changed as this will result in errors. The correct indicators are set in the class GpTB(Gp). 
-     These parameter are used to generate the time-series for new infections, incidence, deaths and mortality rate for
-     each year. 
- 6) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
-    last year of model (models may run up to 2050, but we need results up to 2030 only), years of the replenishment, 
-    years that should be used in the objector funding for the optimizer (first year of replenishment to 2030), the 
-    first year of the GP for TB and the funding fractions fo reach disease. These parameters are used e.g., to generate 
-    the GP time series and in the checks.  
+ 5) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
+    last year of model (e.g. model output may be provided up to 2050, but we only need projections up to 2030), years of 
+    the replenishment, years that should be used in the objector funding for the optimizer, etc.  
 
 Running the script for the first time and options to improve speed: 
 At the end of the script is a line of code stating "LOAD_DATA_FROM_RAW_FILES". The first time you run this code, this 
@@ -100,14 +92,18 @@ CAUTION: If any changes are made to the way the model output is handled (i.e. ad
 parameter file, the above switch needs to be turned to True and model results re-loaded to reflect these changes! 
 
 CAUTION: 
-Adding or removing items from these list will automatically be reflected in the rest of the code.
-Scenarios without funding fractions (GP_GP, NULL_NULL, CC_CC) should be given a funding fraction of 100% in order to be 
-included in key checks. 
+Adding or removing items from the aforementioned lists list will automatically be reflected in the rest of the code. If 
+the code is running from local copies of the model data and analysis by e.g. setting LOAD_DATA_FROM_RAW_FILES to false
+these may not be reflected. 
+
+CAUTION: 
+Scenarios without funding fractions (e.g GP, NULL, CC) should be given a funding fraction of 100% in this filehandler 
+script in order to pass the database check and later will be used to run key checks.  
 
 GOOD CODE PRACTICE:
 Variable names: should be use small letter and be short but easy to understand
 Hard-coding: to be avoided at all costs and if at all limited to these disease files and report class. 
- """
+"""
 
 
 class TBMixin:
@@ -137,14 +133,10 @@ class ModelResultsTb(TBMixin, ModelResults):
 
         concatenated_dfs = pd.concat(list_of_df, axis=0)
 
-        # Remove NAN's (drop every row where this is an NaN)
-        concatenated_dfs = concatenated_dfs.dropna()
-
         # Filter out countries and scenarios we do not need
         expected_countries = self.parameters.get(self.disease_name).get('MODELLED_COUNTRIES')
         scenario_names = (self.parameters.get_scenarios().index.to_list() +
-                          self.parameters.get_counterfactuals().index.to_list() +
-                          self.parameters.get_historiccounterfactuals().index.to_list())
+                          self.parameters.get_counterfactuals().index.to_list())
         concatenated_dfs = concatenated_dfs.loc[
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
@@ -174,34 +166,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         # TODO: remove later
         if file.name == "tb_ic_reference_BGD.xlsx":
             xlsx_df['iso3'] = 'BGD'
-
-        # Compare columns to template
-        template_csv = pd.read_excel(
-            "/Users/mc1405/TGF_data/IC8/template/tb/tb_ic_modelling_reference 2024_06_21.xlsx", sheet_name="Template")
-        model_column_names = list(xlsx_df.columns)
-        template_column_names = list(template_csv.columns)
-        filtered_list_in = [string for string in model_column_names if string not in template_column_names]
-        filtered_list_out = [string for string in template_column_names if string not in model_column_names]
-
-        print("Are there any missing or mis-names columns?")
-        print(filtered_list_in)
-        print(filtered_list_out)
-
-        # Compare rows
-        filtered_csv = xlsx_df[['iso3', 'Scenario', 'year']]
-        filtered_template = template_csv[template_csv['iso3'].str.contains("IND")]
-        filtered_template = filtered_template[['iso3', 'scenario', 'year']]
-        filtered_template = filtered_template.rename(
-            columns={'scenario': 'Scenario'})
-
-        diff_df = pd.concat([filtered_csv, filtered_template])
-        diff_df = diff_df.reset_index(drop=True)
-        df_gpby = diff_df.groupby(list(diff_df.columns))
-        idx = [x[0] for x in df_gpby.groups.values() if len(x) == 1]
-        a = diff_df.reindex(idx)
-
-        print("Here are the differences in rows")
-        print(a)
 
         # Only keep columns of immediate interest:
         xlsx_df = xlsx_df[
@@ -250,6 +214,76 @@ class ModelResultsTb(TBMixin, ModelResults):
             ]
         ]
 
+        # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
+        df_gp = xlsx_df[xlsx_df.Scenario == "GP"]
+        xlsx_df = xlsx_df[xlsx_df.Scenario != "GP"]
+
+        # 1. Add copy central into lb and ub columns for needed variables
+        df_gp['NewCases_LB'] = df_gp['NewCases']
+        df_gp['NewCases_UB'] = df_gp['NewCases']
+        df_gp['TBDeaths_LB'] = df_gp['TBDeaths']
+        df_gp['TBDeaths_UB'] = df_gp['TBDeaths']
+        df_gp['TBDeaths_HIVneg_LB'] = df_gp['TBDeaths_HIVneg']
+        df_gp['TBDeaths_HIVneg_UB'] = df_gp['TBDeaths_HIVneg']
+
+        # 2. Replace nan with zeros
+        df_gp[[
+             "Notified_n",
+                "Notified_n_LB",
+                "Notified_n_UB",
+                "Notified_p",
+                "Notified_p_LB",
+                "Notified_p_UB",
+                "TxSR",
+                "mdr_notified_n",
+                "mdr_notified_n_LB",
+                "mdr_notified_n_UB",
+                "mdr_notified_p",
+                "mdr_notified_p_LB",
+                "mdr_notified_p_UB",
+                "TxSR_MDR",
+                "mdr_estnew_n",
+                "mdr_estretx_n",
+                "mdr_Tx",
+                "mdr_Tx_LB",
+                "mdr_Tx_UB",
+                "tb_art_n",
+                "tb_art_n_LB",
+                "tb_art_n_UB",
+                "tb_art_p",
+                "hiv_pos",
+                "Costs",
+        ]] = df_gp[[
+             "Notified_n",
+                "Notified_n_LB",
+                "Notified_n_UB",
+                "Notified_p",
+                "Notified_p_LB",
+                "Notified_p_UB",
+                "TxSR",
+                "mdr_notified_n",
+                "mdr_notified_n_LB",
+                "mdr_notified_n_UB",
+                "mdr_notified_p",
+                "mdr_notified_p_LB",
+                "mdr_notified_p_UB",
+                "TxSR_MDR",
+                "mdr_estnew_n",
+                "mdr_estretx_n",
+                "mdr_Tx",
+                "mdr_Tx_LB",
+                "mdr_Tx_UB",
+                "tb_art_n",
+                "tb_art_n_LB",
+                "tb_art_n_UB",
+                "tb_art_p",
+                "hiv_pos",
+                "Costs",
+        ]].fillna(0)
+
+        # Then put GP back into df
+        xlsx_df = pd.concat([xlsx_df, df_gp], axis=0)
+
         # Do some re-naming to make things easier
         xlsx_df = xlsx_df.rename(
             columns={
@@ -294,9 +328,11 @@ class ModelResultsTb(TBMixin, ModelResults):
         )
 
         # Clean up funding fraction and PF scenario
-        xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna('')
-        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('', 1)
-        xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'
+        xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+            '')  # Puts the funding scenario number in a new column called funding fraction
+        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
+                                                                        1)  # Where there is no funding fraction, set it to 1
+        xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         xlsx_df["population_low"] = xlsx_df["Population"]
@@ -376,7 +412,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         unpivoted.columns = unpivoted.columns.droplevel(0)
 
         print(f"done")
-
         return unpivoted
 
     @staticmethod
@@ -416,45 +451,15 @@ class PFInputDataTb(TBMixin, PFInputData):
         concatenated_dfs = pd.DataFrame({"central": concatenated_dfs})
 
         # Only keep indicators of immediate interest:
-        # WARNING: For Strategic target setting ensure that these names match the names in indicator list
-        tb_indicators = self.parameters.get_indicators_for(self.disease_name).index.to_list()
+        indicators = self.parameters.get_indicators_for(self.disease_name).index.to_list()
+        countries = self.parameters.get_modelled_countries_for(self.disease_name)
         f = concatenated_dfs.reset_index()
-        f = f.loc[f["indicator"].isin(tb_indicators)]
-
-        # Drop any countries that are not listed with relevant `*_iso_model.csv`
-        tb_modelled_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-        tb_modelled_countries = ['IND', 'BGD'] # TODO: update later
-        f = f.loc[f["country"].isin(tb_modelled_countries)]
+        f = f.loc[f["indicator"].isin(indicators)]
+        f = f.loc[f["country"].isin(countries)]
 
         # Re-concatenate
         concatenated_dfs = f.set_index(
             ["scenario_descriptor", "country", "year", "indicator"]
-        )
-
-        # Make a new version for the other scenarios
-        f["scenario_descriptor"] = f["scenario_descriptor"].str.replace("PF", "CC_2022")
-        concatenated_dfs2 = f.set_index(
-            ["scenario_descriptor", "country", "year", "indicator"]
-        )
-
-        f["scenario_descriptor"] = f["scenario_descriptor"].str.replace("CC_2022", "NULL_2022")
-        concatenated_dfs3 = f.set_index(
-            ["scenario_descriptor", "country", "year", "indicator"]
-        )
-
-        # Make the final df with one set for each scenario
-        all_dfs = [concatenated_dfs, concatenated_dfs2, concatenated_dfs3]
-        concatenated_dfs = pd.concat(all_dfs, axis=0)
-
-        # Check all scenarios are in there
-        scenarios = (self.parameters.get_scenarios().index.to_list() +
-                     self.parameters.get_counterfactuals().index.to_list() +
-                     self.parameters.get_historiccounterfactuals().index.to_list())
-        scenarios = [e for e in scenarios if e not in ("NULL_2000", "NULL_FIRSTYEARGF", "CC_2000", "CC_FIRSTYEARGF", "GP", "HH")]
-
-        assert all(
-            y in concatenated_dfs.index.get_level_values("scenario_descriptor")
-            for y in scenarios
         )
 
         return concatenated_dfs
@@ -464,14 +469,13 @@ class PFInputDataTb(TBMixin, PFInputData):
         and has the required multi-index and column specifications."""
         print(f"Reading: {file}  .....", end="")
 
-        # Load 'Sheet1' from the Excel workbook
+        # Load workbook
         xlsx_df = self._load_sheet(file)
 
         # Do some renaming to make things easier
         xlsx_df = xlsx_df.rename(
             columns={
                 "iso3": "country",
-                "y": "year",
             }
         )
 
@@ -482,7 +486,6 @@ class PFInputDataTb(TBMixin, PFInputData):
 
         # Do some cleaning to variable names and formatting
         melted['indicator'] = melted['indicator'].str.replace('_n$', '', regex=True)
-
         melted.loc[melted["indicator"].str.endswith("_p"), "value"] = (
                 melted["value"] / 100
         )
@@ -518,134 +521,103 @@ class PFInputDataTb(TBMixin, PFInputData):
 
 
 # # Load the partner data file(s)
-# class PartnerDataTb(TBMixin, PartnerData):
-#     """This is the File Handler for the HIV partner data."""
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#     def _build_df(self, path: Path) -> pd.DataFrame:
-#         """Reads in the data and returns a pd.DataFrame with multi-index (country, year, indicator)."""
-#
-#         # Read in each file and concatenate the results
-#         all_xlsx_file_at_the_path = get_files_with_extension(path, "csv")
-#         list_of_df = [
-#             self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
-#         ]
-#         concatenated_dfs = pd.concat(list_of_df, axis=0)
-#
-#         # Construct multi-index as (country, year, indicator) & drop rows with na's in the year
-#         concatenated_dfs = concatenated_dfs.reset_index()
-#         concatenated_dfs = concatenated_dfs.dropna(subset=["year"])
-#         concatenated_dfs["year"] = concatenated_dfs["year"].astype(int)
-#         concatenated_dfs = concatenated_dfs.set_index(["country", "year"])
-#         concatenated_dfs.columns.name = "indicator"
-#         concatenated_dfs = pd.DataFrame({"central": concatenated_dfs.stack()})
-#
-#         # Drop any countries that are not listed with relevant `*_iso.csv`
-#         tb_countries = RegionInformation().tb_countries
-#         f = concatenated_dfs.reset_index()
-#         f = f.loc[f["country"].isin(tb_countries)]
-#
-#         # Add scenario name
-#         f["scenario_descriptor"] = "CD_GP"
-#         concatenated_dfs = f.set_index(
-#             ["scenario_descriptor", "country", "year", "indicator"]
-#         )
-#
-#         # Make a new version for the other scenario
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "CD_GP", "CD_MC"
-#         )
-#         dfs2 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "CD_MC", "PP_GP"
-#         )
-#         dfs3 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "PP_GP", "PP_MC"
-#         )
-#         dfs4 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "PP_MC", "PF_GP"
-#         )
-#         dfs5 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "PF_GP", "PF_MC"
-#         )
-#         dfs6 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         f["scenario_descriptor"] = f["scenario_descriptor"].str.replace(
-#             "PF_MC", "IC_IC"
-#         )
-#         dfs7 = f.set_index(["scenario_descriptor", "country", "year", "indicator"])
-#
-#         # Make the final df with one set for each scenario
-#         all_dfs = [concatenated_dfs, dfs2, dfs3, dfs4, dfs5, dfs6, dfs7]
-#         concatenated_dfs = pd.concat(all_dfs, axis=0)
-#
-#         # Check all scenarios are in there
-#         scenarios = self.parameters.get_scenarios().index.to_list()
-#         scenarios = [e for e in scenarios if e not in ("NULL_NULL", "GP_GP", "CC_CC")]
-#
-#         assert all(
-#             y in concatenated_dfs.index.get_level_values("scenario_descriptor")
-#             for y in scenarios
-#         )
-#
-#         return concatenated_dfs
-#
-#     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
-#         """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
-#         and has the required multi-index and column specifications."""
-#         print(f"Reading: {file}  .....", end="")
-#
-#         # Load 'Sheet1' from the Excel workbook
-#         xlsx_df = self._load_sheet(file)
-#
-#         # Remove postfix substring from column headers
-#         xlsx_df.columns = xlsx_df.columns.str.replace("_who", "")
-#
-#         # Do some renaming to make things easier
-#         xlsx_df = xlsx_df.rename(
-#             columns={
-#                 "iso3": "country",
-#                 "death": "deaths",
-#                 "death_hivneg": "deathshivneg",
-#                 "infection": "cases",
-#             }
-#         )
-#
-#         # Generate incidence and mortality
-#         xlsx_df["incidence"] = xlsx_df["cases"] / xlsx_df["population"]
-#         xlsx_df["mortality"] = xlsx_df["deaths"] / xlsx_df["population"]
-#
-#         # Pivot to long format
-#         melted = xlsx_df.melt(id_vars=["country", "year"])
-#
-#         # Set the index and unpivot
-#         unpivoted = melted.set_index(["country", "year", "variable"]).unstack(
-#             "variable"
-#         )
-#         unpivoted.columns = unpivoted.columns.droplevel(0)
-#         print(f"done")
-#         return unpivoted
-#
-#     @staticmethod
-#     def _load_sheet(file: Path):
-#         """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
-#         with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
-#         """
-#         return pd.read_csv(file, encoding="ISO-8859-1")
-#
-#
-# # Define the checks
-#
-#
+class PartnerDataTb(TBMixin, PartnerData):
+    """This is the File Handler for the HIV partner data."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _build_df(self, path: Path) -> pd.DataFrame:
+        """Reads in the data and returns a pd.DataFrame with multi-index (country, year, indicator)."""
+
+        # Read in each file and concatenate the results
+        all_xlsx_file_at_the_path = get_files_with_extension(path, "csv")
+        list_of_df = [
+            self._turn_workbook_into_df(file) for file in all_xlsx_file_at_the_path
+        ]
+        concatenated_dfs = pd.concat(list_of_df, axis=0)
+        concatenated_dfs['scenario_descriptor'] = "PF"
+
+        # Organise multi-index to be '(scenario country, year, indicator)' and column ['central']
+        concatenated_dfs = (
+            concatenated_dfs.reset_index()
+            .set_index(["scenario_descriptor", "country", "year"])
+            .stack()
+        )
+        concatenated_dfs = pd.DataFrame({"central": concatenated_dfs})
+
+        # Only keep indicators and years of immediate interest:
+        countries = self.parameters.get_portfolio_countries_for(self.disease_name)
+        start_year = self.parameters.get("PARTNER_START_YEAR")
+        f = concatenated_dfs.reset_index()
+        f = f.loc[f["country"].isin(countries)]
+        f = f.loc[f["year"] >= start_year]
+
+        # Re-concatenate
+        concatenated_dfs = f.set_index(
+            ["scenario_descriptor", "country", "year", "indicator"]
+        )
+
+        return concatenated_dfs
+
+    def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
+        """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
+        and has the required multi-index and column specifications."""
+        print(f"Reading: {file}  .....", end="")
+
+        # Load 'Sheet1' from the Excel workbook
+        csv_df = self._load_sheet(file)
+
+        # Only keep columns of immediate interest.
+        csv_df = csv_df[
+            [
+                "Year",
+                "ISO3",
+                "tb_cases_n_pip",
+                "tb_deaths_n_pip",
+                "tb_deathsnohiv_n_pip",
+                "tb_pop_n_pip",
+            ]
+        ]
+
+        # Do some renaming to make things easier
+        csv_df = csv_df.rename(
+            columns={
+                "ISO3": "country",
+                "Year": 'year',
+                "tb_deaths_n_pip": "deaths",
+                "tb_deathsnohiv_n_pip": "deathshivneg",
+                "tb_cases_n_pip": "cases",
+                "tb_pop_n_pip": "population",
+            }
+        )
+
+        # Generate incidence and mortality
+        csv_df["incidence"] = csv_df["cases"] / csv_df["population"]
+        csv_df["mortality"] = csv_df["deaths"] / csv_df["population"]
+
+        # Pivot to long format
+        melted = csv_df.melt(id_vars=["country", "year"])
+        melted = melted.rename(columns={'variable': 'indicator'})
+
+        # Set the index and unpivot
+        unpivoted = melted.set_index(["country", "year", "indicator"]).unstack(
+            "indicator"
+        )
+        unpivoted.columns = unpivoted.columns.droplevel(0)
+
+        print(f"done")
+        return unpivoted
+
+    @staticmethod
+    def _load_sheet(file: Path):
+        """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
+        with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
+        """
+        return pd.read_csv(file, encoding="ISO-8859-1")
+
+
+
 # class GpTb(TBMixin, Gp):
 #     """Hold the GP for TB. It has to construct it from a file (fixed_gp) that shows the trend over time and
 #     the partner data and some model results."""

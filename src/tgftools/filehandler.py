@@ -337,13 +337,24 @@ class Parameters:
         """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario)."""
         return pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')['description']
 
-    def get_historiccounterfactuals(self) -> pd.Series:
+    def get_nullcounterfactuals(self) -> pd.Series:
         """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario).
-        If there is no flag for historical counterfactual, return empty pd.DataFrame(provided for backward compatibility).
+        If there is no flag for null counterfactual, return empty pd.DataFrame(provided for backward compatibility).
         """
         try:
             df = pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')
-            return df.loc[df['is_historic'], 'description']
+            return df.loc[df['is_null'], 'description']
+        except:
+            return pd.Series()
+
+    def get_cccounterfactuals(self) -> pd.Series:
+        """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario).
+        If there is no flag for constant coverage  counterfactual, return empty pd.DataFrame(provided for backward
+        compatibility).
+        """
+        try:
+            df = pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')
+            return df.loc[df['is_cc'], 'description']
         except:
             return pd.Series()
 

@@ -1,5 +1,5 @@
-from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV
-from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios
+from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV, PartnerDataHIV
+from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv
 from tgftools.checks import DatabaseChecks
 from tgftools.database import Database
@@ -24,20 +24,20 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsHiv(
-        path_to_data_folder / "IC8/modelling_outputs/hiv",
+        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_07_28",
         parameters=parameters,
     )
 
     # Load the files
-    # pf_input_data = PFInputDataHIV(
-    #     path_to_data_folder / "IC8/pf/hiv",
-    #     parameters=parameters,
-    # )
+    pf_input_data = PFInputDataHIV(
+        path_to_data_folder / "IC8/pf/hiv/2024_03_28",
+        parameters=parameters,
+    )
 
-    # partner_data = PartnerDataHIV(
-    #     path_to_data_folder / "IC8/partner/hiv",
-    #     parameters=parameters,
-    # )
+    partner_data = PartnerDataHIV(
+        path_to_data_folder / "IC8/partner/hiv/2024_07_10",
+        parameters=parameters,
+    )
 
     # fixed_gp = FixedGp(
     #     get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
@@ -48,8 +48,8 @@ if __name__ == "__main__":
     db = Database(
         model_results=model_results,
         # gp=gp,
-        # pf_input_data=pf_input_data,
-        # partner_data=partner_data,
+        pf_input_data=pf_input_data,
+        partner_data=partner_data,
     )
 
     # Run the checks
@@ -58,5 +58,5 @@ if __name__ == "__main__":
         parameters=parameters,
     ).run(
         suppress_error=True,
-        filename=project_root / "outputs" / "ic8" / "hiv_report_of_checks.pdf"
+        filename=project_root / "outputs" / "hiv_report_of_checks.pdf"
     )

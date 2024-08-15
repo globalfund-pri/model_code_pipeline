@@ -1,5 +1,5 @@
-from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin
-from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios
+from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin, PFInputDataMalaria, PartnerDataMalaria
+from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria
 from tgftools.checks import DatabaseChecks
 from tgftools.database import Database
@@ -23,20 +23,20 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsMalaria(
-        path_to_data_folder / "IC8/modelling_outputs/malaria",
+        path_to_data_folder / "IC8/modelling_outputs/malaria/2024_07_11",
         parameters=parameters,
     )
 
     # Load the files
-    # pf_input_data = PFInputDataMalaria(
-    #     path_to_data_folder / "IC8/pf/malaria",
-    #     parameters=parameters,
-    # )
+    pf_input_data = PFInputDataMalaria(
+        path_to_data_folder / "IC8/pf/malaria/2024_03_28",
+        parameters=parameters,
+    )
 
-    # partner_data = PartnerDataHIV(
-    #     path_to_data_folder / "IC8/partner/hiv",
-    #     parameters=parameters,
-    # )
+    partner_data = PartnerDataMalaria(
+        path_to_data_folder / "IC8/partner/malaria/2024_07_10",
+        parameters=parameters,
+    )
 
     # fixed_gp = FixedGp(
     #     get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
@@ -47,8 +47,8 @@ if __name__ == "__main__":
     db = Database(
         model_results=model_results,
         # gp=gp,
-        # pf_input_data=pf_input_data,
-        # partner_data=partner_data,
+        pf_input_data=pf_input_data,
+        partner_data=partner_data,
     )
 
     # Run the checks
@@ -57,5 +57,5 @@ if __name__ == "__main__":
         parameters=parameters,
     ).run(
         suppress_error=True,
-        filename=project_root / "outputs" / "ic8" / "malaria_report_of_checks.pdf"
+        filename=project_root / "outputs" / "malaria_report_of_checks.pdf"
     )
