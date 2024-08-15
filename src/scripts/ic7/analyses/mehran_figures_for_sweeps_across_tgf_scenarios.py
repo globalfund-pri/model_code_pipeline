@@ -1,8 +1,9 @@
 """
 This script produces the analysis that shows the Impact that can achieved for each Global Fund budget scenario, under
-Approach A and Approach B.
-MEHRAN'S LEFT HAND FIGURE
+Approach A and Approach B. This generates the graphs referred to as Mehran's figure left and right-hand versions.
+See PR #15
 """
+
 from collections import defaultdict
 from pathlib import Path
 from typing import Literal, Dict
@@ -432,10 +433,10 @@ def get_approach_b_projection(tgf_funding_scenario: TgfFunding, disease: str) ->
 
 if DO_RUN:
     # Run all these scenarios under Approach B for each disease
-    Results = defaultdict(dict)
+    Results_RHS = defaultdict(dict)
     for disease in ('hiv', 'tb', 'malaria'):
         for fraction_of_gp_total_funding, tgf_funding_scenario in new_tgf_scenarios[disease].items():
-            Results[disease][fraction_of_gp_total_funding] = get_approach_b_projection(tgf_funding_scenario=tgf_funding_scenario, disease=disease)
+            Results_RHS[disease][fraction_of_gp_total_funding] = get_approach_b_projection(tgf_funding_scenario=tgf_funding_scenario, disease=disease)
 
     save_var(Results_RHS, get_root_path() / "sessions" / "Results_RHS.pkl")
 else:
@@ -468,3 +469,12 @@ for disease in ('hiv', 'tb', 'malaria'):
     fig.show()
     fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_{disease}'.png")
     plt.close(fig)
+
+
+# todo CLEAN-UP
+# todo - separate files to allow independent specification and to allow parallelised running
+# todo - refactoring / cleaning-up naming, adding comments etc.
+# todo - examine issue about indicator going negative (report)
+# todo - investigate issue about the sigmoid adjustment thing making things worse for malaria, cases in the 11bn scenario - raise issue
+
+
