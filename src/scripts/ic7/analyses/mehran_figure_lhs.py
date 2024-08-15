@@ -11,19 +11,15 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 from scripts.ic7.hiv.hiv_analysis import get_hiv_database
-
 from scripts.ic7.malaria.malaria_analysis import get_malaria_database
 from scripts.ic7.tb.tb_analysis import get_tb_database
-
 from tgftools.analysis import Analysis
-
 from tgftools.filehandler import (
 
     NonTgfFunding,
     Parameters,
     TgfFunding,
 )
-from scripts.ic7.shared.htm_report import HTMReport
 from tgftools.utils import (
     get_data_path,
     get_root_path,
@@ -33,7 +29,7 @@ from tgftools.utils import (
 #%%
 DO_RUN = False
 
-#%% Run batch of analyses for all the funding scenarios
+#%% Find scenarios defined for GF Funding
 
 project_root = get_root_path()
 path_to_data_folder = get_data_path()
@@ -48,23 +44,18 @@ files_pattern = sorted([
 ])
 
 # Find the GF funding amounts for HIV, TB, Malaria
-scenarios = {
+gf_scenarios = {
     name: {
-        disease: funding_path / disease / 'tgf' / f'{disease}_{name}.csv'
+        disease: TgfFunding(funding_path / disease / 'tgf' / f'{disease}_{name}.csv')
         for disease in ['hiv', 'tb', 'malaria']
     }
     for name in files_pattern
 }
 
-# Check that all files are present
-for v in scenarios.values():
-    for file in v.values():
-        assert file.exists(), f"{file} does not exist"
-
 # "Thin-out" the scenarios to make the initial run go faster and to not use any unnecessary scenarios
 # - Drop all 'incUnalloc' amounts
 scenarios_to_run = {
-    k: v for k, v in scenarios.items()
+    k: v for k, v in gf_scenarios.items()
     if not k.endswith('_incUnalloc')
 }
 
@@ -73,7 +64,6 @@ thinning_factor = 3  # 1 implies no thinning
 scenarios_to_run = {
     k: v for i, (k, v) in enumerate(scenarios_to_run.items()) if i % thinning_factor == 0
 }
-
 
 # Load the databases for HIV, Tb and Malaria
 # Declare the parameters, indicators and scenarios
@@ -87,6 +77,7 @@ malaria_db = get_malaria_database(load_data_from_raw_files=False)
 NON_TGF_FUNDING = '_nonFubgible_dipiBase.csv'
 SCENARIO_DESCRIPTOR = 'IC_IC'
 
+#%% Function for running batch of analyses for all the funding scenarios for the LHS figure
 
 def get_projections(
         approach: Literal['a', 'b'] = 'a',
@@ -101,7 +92,7 @@ def get_projections(
     analysis_hiv = Analysis(
         database=hiv_db,
         scenario_descriptor=SCENARIO_DESCRIPTOR,
-        tgf_funding=TgfFunding(scenarios[tgf_funding_scenario]['hiv']),
+        tgf_funding=gf_scenarios[tgf_funding_scenario]['hiv'],
         non_tgf_funding=NonTgfFunding(funding_path / 'hiv' / 'non_tgf' / f'hiv{NON_TGF_FUNDING}'),
         parameters=parameters,
         handle_out_of_bounds_costs=True,
@@ -110,7 +101,7 @@ def get_projections(
     analysis_tb = Analysis(
         database=tb_db,
         scenario_descriptor=SCENARIO_DESCRIPTOR,
-        tgf_funding=TgfFunding(scenarios[tgf_funding_scenario]['tb']),
+        tgf_funding=gf_scenarios[tgf_funding_scenario]['tb'],
         non_tgf_funding=NonTgfFunding(funding_path / 'tb' / 'non_tgf' / f'tb{NON_TGF_FUNDING}'),
         parameters=parameters,
         handle_out_of_bounds_costs=True,
@@ -119,7 +110,7 @@ def get_projections(
     analysis_malaria = Analysis(
         database=tb_db,
         scenario_descriptor=SCENARIO_DESCRIPTOR,
-        tgf_funding=TgfFunding(scenarios[tgf_funding_scenario]['malaria']),
+        tgf_funding=gf_scenarios[tgf_funding_scenario]['malaria'],
         non_tgf_funding=NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / f'malaria{NON_TGF_FUNDING}'),
         parameters=parameters,
         handle_out_of_bounds_costs=True,
@@ -245,7 +236,7 @@ stats['cases_and_deaths_reduction_vs_gp']['all'] = stats['cases_and_deaths_reduc
 
 mapper_to_pretty_names = {
     n: f"${n.removeprefix('Fubgible_gf_').replace('b', 'Bn').replace('_incUnalloc', '+')}"
-    for n in sorted(list(scenarios.keys()))
+    for n in sorted(list(gf_scenarios.keys()))
 }
 
 # Get the sum of the funding (across countries and diseases) for each of the scenarios
@@ -254,7 +245,7 @@ def get_total_funding(p: Path) -> float:
 
 tot_tgf_funding = pd.Series({
     mapper_to_pretty_names[scenario_name]: sum(list(map(get_total_funding, files.values())))
-    for scenario_name, files in scenarios.items()
+    for scenario_name, files in gf_scenarios.items()
 }).sort_index()
 tot_tgf_funding.name = 'TGF Funding'
 
@@ -341,7 +332,7 @@ def make_graph(df: pd.Series, title: str):
     plt.close(fig)
 
 
-#%% Make graphs:
+#%% Make graphs for LHS-type figures
 make_graph(
     stats['cases_and_deaths_reduction_vs_gp']['all'],
     title='Percent of GP Reduction in Cases and Deaths: All Diseases',
@@ -357,7 +348,37 @@ for stat in stats:
 
 
 
+#%% Define additional scenarios for the RHS figue
 
-# todo right-hand side figure
-# ---------------------------
-# require running at wide range of TGF scenario, provided a total amount only. and under approach B
+# We need to define some additional scenarios to run for the TGF Ask from $0 up to enough that the full GP can be funded.
+
+def make_tgf_funding_scenario(total: int, based_on: TgfFunding) -> TgfFunding:
+    """Make a TGF funding object that resembles the one provided in `based_on`, but which is edited so that the
+    total funding amount totals `total` and is distributed evenly across the countries."""
+    assert isinstance(total, int)
+    df = based_on.df.copy()
+    df.loc[:, 'value'] = total / len(df)
+    df['value'] = df['value'].astype(int)
+    df.loc[df.index[0], 'value'] += total - df['value'].sum()  # add under-count (due to rounding) to the first country
+    assert df['value'].sum() == total
+    return TgfFunding.from_df(df)
+
+
+# For each disease, work out what amount of TGF funding will lead to full-funding
+
+
+# Create a range of scenarios that, for each disease, span TGF Funding from $0 to the amount required to give full funding
+
+
+# Run all these scenarios under Approach B for each disease
+
+
+# Run the actual TGF defined scenarios Unnder Approach B as well
+
+
+# Produce plot showing all together
+
+
+
+
+#%% Make the plots for the RHS variant, whereby we combine all the diseases
