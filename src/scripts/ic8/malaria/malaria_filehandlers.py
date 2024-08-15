@@ -130,7 +130,8 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         list_of_df = [
             self._turn_workbook_into_df(file) for file in all_csv_file_at_the_path
         ]
-        concatenated_dfs = self._turn_workbook_into_df(all_csv_file_at_the_path)
+
+        concatenated_dfs = pd.concat(list_of_df, axis=0)
 
         # TODO: @richard: when Pete sends NULL_FIRSTYEARGF AND PF scenarios adapt/uncomment the section below and remove part on "scenario_names
         # Filter out any countries that we do not need
