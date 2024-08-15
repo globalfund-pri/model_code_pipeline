@@ -441,15 +441,16 @@ if DO_RUN:
     save_var(Results_RHS, get_root_path() / "sessions" / "Results_RHS.pkl")
 else:
     Results_RHS = load_var(get_root_path() / "sessions" / "Results_RHS.pkl")
+
 #%% Produce summary graphic
 
-# - HIV
 for disease in ('hiv', 'tb', 'malaria'):
     to_plot = dict()
     for ff, r in Results_RHS[disease].items():
         reduction_in_cases = 100 * (1.0 - (r['cases'].at[2030, 'model_central'] / r['cases'].at[2024, 'model_central']))
         reduction_in_deaths = 100 * (1.0 - (r['deaths'].at[2030, 'model_central'] / r['deaths'].at[2024, 'model_central']))
         average_reduction_in_cases_and_deaths = (reduction_in_cases + reduction_in_deaths) / 2
+
         name_of_scenario = (100. * float(ff), False) if not ff.startswith('*') else (100. * float(ff.split('*')[1]), True)
         to_plot[name_of_scenario] = average_reduction_in_cases_and_deaths
     to_plot = pd.Series(to_plot).sort_index()
@@ -474,7 +475,8 @@ for disease in ('hiv', 'tb', 'malaria'):
 # todo CLEAN-UP
 # todo - separate files to allow independent specification and to allow parallelised running
 # todo - refactoring / cleaning-up naming, adding comments etc.
-# todo - examine issue about indicator going negative (report)
+# todo - examine issue about indicator going negative: confirm finding and check using right years
+# todo - update the metric in the RHS graph to use that metric
 # todo - investigate issue about the sigmoid adjustment thing making things worse for malaria, cases in the 11bn scenario - raise issue
 
 
