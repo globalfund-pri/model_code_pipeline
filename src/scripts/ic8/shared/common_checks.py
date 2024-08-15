@@ -296,7 +296,7 @@ class CommonChecks_forwardchecks:
                     db.model_results.df.loc[
                         (
                             correct_order,
-                            slice(None),
+                            1.0,
                             country,
                             range(self.EXPECTED_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
                             indicator,
@@ -345,7 +345,7 @@ class CommonChecks_forwardchecks:
                 df_gp = db.model_results.df.loc[
                     (
                         "GP",
-                        slice(None),
+                        1.0,
                         country,
                         years,
                         indicator_names,
@@ -402,7 +402,7 @@ class CommonChecks_forwardchecks:
                 figs.append(fig)
 
         return CheckResult(passes=True, message=figs)
-    #
+    # #
     # def partner_data(self, db: Database):
     #     """All epidemiological output (e.g. number of infections/cases and number of deaths) and all program coverage
     #     indicators (e.g. number of people on ART) in all scenarios are equal to WHO/UNAIDS latest published data for
@@ -486,107 +486,107 @@ class CommonChecks_forwardchecks:
     #             )
     #         )
 
-    def pf_data(self, db: Database):
-        """Model output for the period 20XX to end-20XX match the input data containing performance framework targets.
-        """
-
-        # Get shortcut to dataframe of model results
-        df_model = db.model_results.df
-        df_pf = db.pf_input_data.df
-
-        # For this check limits pf data to one scenario and rename that as "pf data" and add funding fraction column
-        df_pf = df_pf.loc[
-            (self.EXPECTED_FUNDING_SCENARIOS, slice(None), self.PF_DATA_YEARS, slice(None))
-        ]
-
-        # For this check limit pf data and modelled data to modelled countries, right years.
-        df_pf = df_pf.drop(
-            df_pf.index[
-                ~df_pf.index.get_level_values('country').isin(self.EXPECTED_COUNTRIES)]
-        )
-
-        df_pf = df_pf.reset_index()
-        df_pf['data_source'] = 'pf'
-        df_pf['funding_fraction'] = 1.0
-        df_pf = df_pf.set_index(
-            ["scenario_descriptor", "data_source", "funding_fraction", "country", "year", "indicator"]
-        )
-
-        df_model = df_model.loc[
-            (self.EXPECTED_FUNDING_SCENARIOS, slice(None), slice(None), self.PF_DATA_YEARS, slice(None))
-        ]
-        df_model = df_model.reset_index()
-        df_model['data_source'] = 'model'
-        df_model = df_model.set_index(
-            ["scenario_descriptor", "data_source", "funding_fraction", "country", "year", "indicator"]
-        )
-
-        def all_rows_similar(df: pd.DataFrame) -> bool:
-            """Returns True if all the values within each column are similar."""
-            return all([
-                np.all(np.isclose(df[col].values, df[col].values[0], rtol=self.TOLERANCE))
-                for col in country_result_for_this_indicator.columns
-            ])
-
-        messages = []  # Capture messages where a problem is detected
-
-        # Look at each country/indicator in turn
-        for indicator in db.pf_input_data.indicators:
-            for country in db.model_results.countries:
-                for scenario in self.EXPECTED_FUNDING_SCENARIOS:
-                    for year in self.PF_DATA_YEARS:
-
-                        # Get all the results for this country and indicator, up to (and including) the year 20XX
-                        result_for_model = df_model.loc[
-                            (scenario, slice(None), slice(None), country, year, indicator),
-                            'central'
-                        ].unstack(['year'])
-
-                        # Filter scenario and year
-                        result_for_pf = df_pf.loc[
-                            (scenario, slice(None), slice(None), slice(None), year, slice(None)),
-                            'central'
-                        ].unstack(['year'])
-
-                        # For this check limit pf data to selected country
-
-                        result_for_pf = result_for_pf.drop(
-                            result_for_pf.index[
-                                result_for_pf.index.get_level_values('country') != country]
-                        )
-
-                        # Next limit to the right indicator
-                        result_for_pf = result_for_pf.drop(
-                            result_for_pf.index[
-                                result_for_pf.index.get_level_values('indicator') != indicator]
-                        )
-
-                        # Now merge the results for model and partner data into one df
-                        if len(result_for_pf > 0):
-                            frame =[result_for_model, result_for_pf]
-                            country_result_for_this_indicator = pd.concat(frame)
-
-                            # We want the values within each column to be close to one another
-                            if not all_rows_similar(country_result_for_this_indicator):
-                                country_result_for_this_indicator = country_result_for_this_indicator.reset_index()
-                                messages.append({
-                                    'country': country,
-                                    'indicator': indicator,
-                                    'year': year,
-                                    'scenario_descriptor': scenario,
-                                    'funding_fractions': str(sorted(
-                                        country_result_for_this_indicator.loc[
-                                            country_result_for_this_indicator['data_source'] == 'model',
-                                            'funding_fraction'].values
-                                    ))
-                                })
-
-        # There should be no message. But, if they are, return CheckResult with the message.
-        if len(messages) > 0:
-            return CheckResult(
-                passes=False,
-                message=pd.DataFrame.from_dict(messages)
-            )
+    # def pf_data(self, db: Database):
+    #     """Model output for the period 20XX to end-20XX match the input data containing performance framework targets.
+    #     """
+    #
+    #     # Get shortcut to dataframe of model results
+    #     df_model = db.model_results.df
+    #     df_pf = db.pf_input_data.df
+    #
+    #     # For this check limits pf data to one scenario and rename that as "pf data" and add funding fraction column
+    #     df_pf = df_pf.loc[
+    #         (self.EXPECTED_FUNDING_SCENARIOS, slice(None), self.PF_DATA_YEARS, slice(None))
+    #     ]
+    #
+    #     # For this check limit pf data and modelled data to modelled countries, right years.
+    #     df_pf = df_pf.drop(
+    #         df_pf.index[
+    #             ~df_pf.index.get_level_values('country').isin(self.EXPECTED_COUNTRIES)]
+    #     )
+    #
+    #     df_pf = df_pf.reset_index()
+    #     df_pf['data_source'] = 'pf'
+    #     df_pf['funding_fraction'] = 1.0
+    #     df_pf = df_pf.set_index(
+    #         ["scenario_descriptor", "data_source", "funding_fraction", "country", "year", "indicator"]
+    #     )
+    #
+    #     df_model = df_model.loc[
+    #         (self.EXPECTED_FUNDING_SCENARIOS, slice(None), slice(None), self.PF_DATA_YEARS, slice(None))
+    #     ]
+    #     df_model = df_model.reset_index()
+    #     df_model['data_source'] = 'model'
+    #     df_model = df_model.set_index(
+    #         ["scenario_descriptor", "data_source", "funding_fraction", "country", "year", "indicator"]
+    #     )
+    #
+    #     def all_rows_similar(df: pd.DataFrame) -> bool:
+    #         """Returns True if all the values within each column are similar."""
+    #         return all([
+    #             np.all(np.isclose(df[col].values, df[col].values[0], rtol=self.TOLERANCE))
+    #             for col in country_result_for_this_indicator.columns
+    #         ])
+    #
+    #     messages = []  # Capture messages where a problem is detected
+    #
+    #     # Look at each country/indicator in turn
+    #     for indicator in db.pf_input_data.indicators:
+    #         for country in db.model_results.countries:
+    #             for scenario in self.EXPECTED_FUNDING_SCENARIOS:
+    #                 for year in self.PF_DATA_YEARS:
+    #
+    #                     # Get all the results for this country and indicator, up to (and including) the year 20XX
+    #                     result_for_model = df_model.loc[
+    #                         (scenario, slice(None), slice(None), country, year, indicator),
+    #                         'central'
+    #                     ].unstack(['year'])
+    #
+    #                     # Filter scenario and year
+    #                     result_for_pf = df_pf.loc[
+    #                         (scenario, slice(None), slice(None), slice(None), year, slice(None)),
+    #                         'central'
+    #                     ].unstack(['year'])
+    #
+    #                     # For this check limit pf data to selected country
+    #
+    #                     result_for_pf = result_for_pf.drop(
+    #                         result_for_pf.index[
+    #                             result_for_pf.index.get_level_values('country') != country]
+    #                     )
+    #
+    #                     # Next limit to the right indicator
+    #                     result_for_pf = result_for_pf.drop(
+    #                         result_for_pf.index[
+    #                             result_for_pf.index.get_level_values('indicator') != indicator]
+    #                     )
+    #
+    #                     # Now merge the results for model and partner data into one df
+    #                     if len(result_for_pf > 0):
+    #                         frame =[result_for_model, result_for_pf]
+    #                         country_result_for_this_indicator = pd.concat(frame)
+    #
+    #                         # We want the values within each column to be close to one another
+    #                         if not all_rows_similar(country_result_for_this_indicator):
+    #                             country_result_for_this_indicator = country_result_for_this_indicator.reset_index()
+    #                             messages.append({
+    #                                 'country': country,
+    #                                 'indicator': indicator,
+    #                                 'year': year,
+    #                                 'scenario_descriptor': scenario,
+    #                                 'funding_fractions': str(sorted(
+    #                                     country_result_for_this_indicator.loc[
+    #                                         country_result_for_this_indicator['data_source'] == 'model',
+    #                                         'funding_fraction'].values
+    #                                 ))
+    #                             })
+    #
+    #     # There should be no message. But, if they are, return CheckResult with the message.
+    #     if len(messages) > 0:
+    #         return CheckResult(
+    #             passes=False,
+    #             message=pd.DataFrame.from_dict(messages)
+    #         )
 
 
 class CommonChecks_allscenarios:
@@ -643,12 +643,11 @@ class CommonChecks_allscenarios:
 
     @critical
     def scenario_for_each_country(self, db: Database):
-        """Checks that each of the modelled countries have each of the necessary scenarios for each year (based on the
-        variables cases/new infections, deaths and population) for all scenarios (CFs and actual) including
-        disease-specific expected number of excluding funding fractions. """
+        """Checks that each of the modelled countries have each of the necessary historical scenarios for each year
+        (based on the variables cases/new infections, deaths and population) for all scenarios (CFs and actual)
+        including disease-specific expected number of excluding funding fractions. """
 
         # Get key information for this check
-        messages = []  # Capture messages where a problem is detected
         expected_funding = [1.0]
 
         # Get shortcut to dataframe of model results
@@ -690,10 +689,8 @@ class CommonChecks_allscenarios:
         if self.disease_name == 'TB':
             scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
 
-        if self.disease_name == 'MALARIA': # TODO: @richard update once we have more malaria scenarios update
+        if self.disease_name == 'MALARIA':
             scenarios = self.EXPECTED_CF_SCENARIOS
-            scenarios.remove("NULL_FIRSTYEARGF")
-            scenarios.remove("GP")
 
         figs = []
         for country in self.EXPECTED_COUNTRIES:
@@ -701,7 +698,7 @@ class CommonChecks_allscenarios:
                 df = db.model_results.df.loc[
                     (
                         scenarios, # TODO: self.Expected + all + scenarios
-                        slice(None),
+                        1.0,
                         country,
                         range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
                         indicator,

@@ -203,7 +203,10 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         )
 
         # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
-        cols_to_zero_out_in_gp = [
+        df_gp = df[df.scenario == "GP"]
+        df = df[df.scenario != "GP"]
+
+        df_gp[[
             "net_n",
             "irs_people_protected",
             'irs_hh',
@@ -221,8 +224,28 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "total_cost",
             "cost_private",
             "cost_vaccine",
-        ]
-        df.loc[df.scenario == "GP", cols_to_zero_out_in_gp].fillna(0.0, inplace=True)
+        ]] = df_gp[[
+            "net_n",
+            "irs_people_protected",
+            'irs_hh',
+            "treatments_given_public",
+            "treatment_coverage",
+            "smc_children_protected",
+            "smc_coverage",
+            "vector_control_n",
+            "vaccine_n",
+            "vaccine_doses_n",
+            "vaccine_coverage",
+            "par",
+            "par_targeted_smc",
+            "par_vx",
+            "total_cost",
+            "cost_private",
+            "cost_vaccine",
+            ]].fillna(0)
+
+        # Then put GP back into df
+        df = pd.concat([df, df_gp], axis=0)
 
         # Do some re-naming to make things easier
         df = df.rename(
@@ -241,6 +264,11 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
         # relabel the all the PF_**_CC scenarios as 'PF' only: this is the name of the scenario defined in parameters.toml
         df.loc[df['scenario_descriptor'].str.startswith('PF_'), 'scenario_descriptor'] = 'PF'
+
+        # Give all CFs scenarios a funding fraction of 1
+        # NOTE: if we give them NANs the checks do not work
+        # TODO: see if we can rewrite the check "correct_number_of_scenarios"
+        df['funding_fraction'] = df['funding_fraction'].fillna(1)  # Where there is no funding fraction, set it to 1
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         df["par_low"] = df["par"]
