@@ -125,9 +125,12 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         This uses only the first-found .xlsx file in the path provided.
         """
 
-        # Read in each file and concatenate the results
-        first_xlsx_file_at_the_path = get_files_with_extension(path, "xlsx")[0]
-        concatenated_dfs = self._turn_workbook_into_df(first_xlsx_file_at_the_path)
+        # This gives us the flexibility to read in all files in this folder and concatenate them.
+        all_csv_file_at_the_path = get_files_with_extension(path, "xlsx")
+        list_of_df = [
+            self._turn_workbook_into_df(file) for file in all_csv_file_at_the_path
+        ]
+        concatenated_dfs = self._turn_workbook_into_df(all_csv_file_at_the_path)
 
         # TODO: @richard: when Pete sends NULL_FIRSTYEARGF AND PF scenarios adapt/uncomment the section below and remove part on "scenario_names
         # Filter out any countries that we do not need
