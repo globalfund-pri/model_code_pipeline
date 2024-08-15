@@ -7,6 +7,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Literal, Dict
 
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
@@ -240,8 +241,8 @@ mapper_to_pretty_names = {
 }
 
 # Get the sum of the funding (across countries and diseases) for each of the scenarios
-def get_total_funding(p: Path) -> float:
-    return pd.read_csv(p)['cost'].sum()
+def get_total_funding(t: TgfFunding) -> float:
+    return t.df['value'].sum()
 
 tot_tgf_funding = pd.Series({
     mapper_to_pretty_names[scenario_name]: sum(list(map(get_total_funding, files.values())))
@@ -348,7 +349,7 @@ for stat in stats:
 
 
 
-#%% Define additional scenarios for the RHS figue
+#%% RHS figue
 
 # We need to define some additional scenarios to run for the TGF Ask from $0 up to enough that the full GP can be funded.
 
@@ -365,20 +366,105 @@ def make_tgf_funding_scenario(total: int, based_on: TgfFunding) -> TgfFunding:
 
 
 # For each disease, work out what amount of TGF funding will lead to full-funding
+slice_yrs_for_funding = slice(parameters.get('YEARS_FOR_FUNDING')[0], parameters.get('YEARS_FOR_FUNDING')[-1])
+gp = {
+    'hiv': hiv_db.model_results.df.loc[('GP_GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby('country').sum(),
+    'tb': tb_db.model_results.df.loc[('GP_GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby('country').sum(),
+    'malaria': malaria_db.model_results.df.loc[('GP_GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby('country').sum(),
+}
+non_tgf_funding_amt = {
+    'hiv': NonTgfFunding(funding_path / 'hiv' / 'non_tgf' / f'hiv{NON_TGF_FUNDING}').df['value'],
+    'tb': NonTgfFunding(funding_path / 'tb' / 'non_tgf' / f'tb{NON_TGF_FUNDING}').df['value'],
+    'malaria': NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / f'malaria{NON_TGF_FUNDING}').df['value'] ,
+}
+unfunded_amount = {
+    'hiv':  (gp['hiv'] - non_tgf_funding_amt['hiv']).clip(lower=0).sum(),
+    'tb':  (gp['tb'] - non_tgf_funding_amt['tb']).clip(lower=0).sum(),
+    'malaria': (gp['malaria'] - non_tgf_funding_amt['malaria']).clip(lower=0).sum(),
+}
 
 
 # Create a range of scenarios that, for each disease, span TGF Funding from $0 to the amount required to give full funding
+num_new_scenarios = 5  # increase this for more points
+new_tgf_scenarios = {
+    disease: {
+        str((x + non_tgf_funding_amt[disease].sum()) / gp[disease].sum()): make_tgf_funding_scenario(int(x), gf_scenarios['Fubgible_gf_11b'][disease])
+        for x in np.linspace(100e6, unfunded_amount[disease], num_new_scenarios)
+    }
+    for disease in ('hiv', 'tb', 'malaria')
+}
+# add in the defined tgf scenarios (provided in the actual files) and denote with a '*'
+for disease in ('hiv', 'tb', 'malaria'):
+    new_tgf_scenarios[disease].update(
+        {
+            '*' + str((scenarios_to_run[b][disease].df['value'].sum() + non_tgf_funding_amt[disease].sum()) / gp[disease].sum()): scenarios_to_run[b][disease]
+            for b in scenarios_to_run.keys()
+        }
+    )
 
 
-# Run all these scenarios under Approach B for each disease
+def get_approach_b_projection(tgf_funding_scenario: TgfFunding, disease: str) -> Dict[str, pd.DataFrame]:
+    if disease == 'hiv':
+        db = hiv_db
+    elif disease == 'tb':
+        db = tb_db
+    elif disease == 'malaria':
+        db = malaria_db
+    else:
+        raise ValueError
 
+    analysis = Analysis(
+        database=db,
+        scenario_descriptor=SCENARIO_DESCRIPTOR,
+        tgf_funding=tgf_funding_scenario,
+        non_tgf_funding=NonTgfFunding(funding_path / disease / 'non_tgf' / f'{disease}{NON_TGF_FUNDING}'),
+        parameters=parameters,
+        handle_out_of_bounds_costs=True,
+        innovation_on=True,
+    )
+    return analysis.portfolio_projection_approach_b(
+        methods=['ga_backwards'],
+        optimisation_params={
+            'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
+            'force_monotonic_decreasing': True
+        }
+    ).portfolio_results
 
-# Run the actual TGF defined scenarios Unnder Approach B as well
+if DO_RUN:
+    # Run all these scenarios under Approach B for each disease
+    Results = defaultdict(dict)
+    for disease in ('hiv', 'tb', 'malaria'):
+        for fraction_of_gp_total_funding, tgf_funding_scenario in new_tgf_scenarios[disease].items():
+            Results[disease][fraction_of_gp_total_funding] = get_approach_b_projection(tgf_funding_scenario=tgf_funding_scenario, disease=disease)
 
+    save_var(Results_RHS, get_root_path() / "sessions" / "Results_RHS.pkl")
+else:
+    Results_RHS = load_var(get_root_path() / "sessions" / "Results_RHS.pkl")
+#%% Produce summary graphic
 
-# Produce plot showing all together
+# - HIV
+for disease in ('hiv', 'tb', 'malaria'):
+    to_plot = dict()
+    for ff, r in Results_RHS[disease].items():
+        reduction_in_cases = 100 * (1.0 - (r['cases'].at[2030, 'model_central'] / r['cases'].at[2024, 'model_central']))
+        reduction_in_deaths = 100 * (1.0 - (r['deaths'].at[2030, 'model_central'] / r['deaths'].at[2024, 'model_central']))
+        average_reduction_in_cases_and_deaths = (reduction_in_cases + reduction_in_deaths) / 2
+        name_of_scenario = (100. * float(ff), False) if not ff.startswith('*') else (100. * float(ff.split('*')[1]), True)
+        to_plot[name_of_scenario] = average_reduction_in_cases_and_deaths
+    to_plot = pd.Series(to_plot).sort_index()
 
-
-
-
-#%% Make the plots for the RHS variant, whereby we combine all the diseases
+    fig, ax = plt.subplots()
+    all_points = to_plot.droplevel(axis=0, level=1)
+    real_points = to_plot.loc[(slice(None), True)]
+    ax.plot(all_points.index, all_points.values, label=None, marker='o', markersize=5, color='blue', linestyle='-')
+    ax.plot(real_points.index, real_points.values, label='Defined TGF Replenishment Scenarios', marker='o', markersize=10, color='orange', linestyle='')
+    ax.set_xlabel('Fraction of GP Funding Covered From All Sources (%)')
+    ax.set_ylabel('Reduction in incidence and deaths (average) 2030 vs 2014')
+    ax.set_title(disease)
+    ax.set_xlim(30, 105)
+    ax.set_ylim(0, 100)
+    ax.legend()
+    fig.tight_layout()
+    fig.show()
+    fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_{disease}'.png")
+    plt.close(fig)
