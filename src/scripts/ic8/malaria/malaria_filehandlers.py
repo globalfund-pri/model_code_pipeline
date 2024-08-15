@@ -133,7 +133,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
         concatenated_dfs = pd.concat(list_of_df, axis=0)
 
-        # TODO: @richard: when Pete sends NULL_FIRSTYEARGF AND PF scenarios adapt/uncomment the section below and remove part on "scenario_names
         # Filter out any countries that we do not need
         expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
         scenario_names = (self.parameters.get_scenarios().index.to_list() +
