@@ -142,18 +142,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
 
-        # Make funding numbers into fractions
-        concatenated_dfs = concatenated_dfs.reset_index()
-        concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
-            'funding_fraction'].transform('max')
-        concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
-        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 2})
-        concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
-
-        # Re-pack the df
-        concatenated_dfs = concatenated_dfs.set_index(
-            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
-        )
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
@@ -189,7 +177,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "treatment_coverage",
                 "smc_children_protected",
                 "smc_coverage",
-                # "vector_control_n", # TODO: @richard to uncomment
+                "vector_control_n",
                 "vaccine_n",
                 "vaccine_doses_n",
                 "vaccine_coverage",
@@ -224,7 +212,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "treatment_coverage",
             "smc_children_protected",
             "smc_coverage",
-            # "vector_control_n", # TODO: @richard to uncomment
+            "vector_control_n",
             "vaccine_n",
             "vaccine_doses_n",
             "vaccine_coverage",
@@ -296,11 +284,10 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df["smccoverage_high"] = df["smc_coverage"]
         df = df.drop(columns=["smc_coverage"])
 
-        # TODO: @richard to uncomment
-        # csv_df["vectorcontrol_low"] = csv_df["vector_control_n"]
-        # csv_df["vectorcontrol_central"] = csv_df["vector_control_n"]
-        # csv_df["vectorcontrol_high"] = csv_df["vector_control_n"]
-        # csv_df = csv_df.drop(columns=["vector_control_n"])
+        df["vectorcontrol_low"] = df["vector_control_n"]
+        df["vectorcontrol_central"] = df["vector_control_n"]
+        df["vectorcontrol_high"] = df["vector_control_n"]
+        df = df.drop(columns=["vector_control_n"])
 
         df["vaccine_low"] = df["vaccine_n"]
         df["vaccine_central"] = df["vaccine_n"]
@@ -388,7 +375,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
     def _load_sheet(file: Path):
         """Load the sheet named 'Output'"""
         return pd.read_excel(file, sheet_name='Output')
-
 
 
 # Load the pf input data file(s)
