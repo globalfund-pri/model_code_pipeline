@@ -687,7 +687,9 @@ class CommonChecks_allscenarios:
             scenarios.remove("CC_2022")
 
         if self.disease_name == 'TB':
-            scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
+            # scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS # TODO: add back in later
+            scenarios = self.EXPECTED_CF_SCENARIOS
+            scenarios.remove("GP")
 
         if self.disease_name == 'MALARIA':
             scenarios = self.EXPECTED_CF_SCENARIOS
@@ -727,8 +729,8 @@ class CommonChecks_allscenarios:
         if self.disease_name == 'HIV':  # TODO @richard update once we have more hiv scenarios update
             scenarios = self.EXPECTED_CF_SCENARIOS
 
-        if self.disease_name == 'TB':
-            scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
+        if self.disease_name == 'TB': # TODO @richard update once we have more hiv scenarios update
+            scenarios = self.EXPECTED_CF_SCENARIOS
 
         if self.disease_name == 'MALARIA':  # TODO: @richard update once we have more malaria scenarios update
             scenarios = self.EXPECTED_CF_SCENARIOS
@@ -928,11 +930,11 @@ class CommonChecks_allscenarios:
         list_scenarios_2000 = ["HH", "CC_2000", "NULL_2000"]  # TODO: put in param toml
         list_scenarios_GF = ["HH", "CC_FIRSTYEARGF", "NULL_FIRSTYEARGF"] # TODO: put in param toml
         list_scenarios_baseline = ["HH", "CC_2022", "NULL_2022", "PF"]
-        list_scenarios_2022 = ["PF"]
+        list_scenarios_2022 = ["HH", "PF"]
 
-        if self.disease_name == "MALARIA":  # TODO: @richard remove once Pete adds NULL_FIRSTYEARGF to output
-            list_scenarios_GF = ["HH", "CC_FIRSTYEARGF"]
+        if self.disease_name == "TB":  # TODO: @richard remove once Carel shares PFs again
             list_scenarios_baseline = ["HH", "CC_2022", "NULL_2022"]
+            list_scenarios_2022 = ["HH"]
 
         scenario_type = [list_scenarios_2000, list_scenarios_GF, list_scenarios_baseline, list_scenarios_2022] # TODO: put in param toml
 

@@ -135,8 +135,10 @@ class ModelResultsTb(TBMixin, ModelResults):
 
         # Filter out countries and scenarios we do not need
         expected_countries = self.parameters.get(self.disease_name).get('MODELLED_COUNTRIES')
-        scenario_names = (self.parameters.get_scenarios().index.to_list() +
-                          self.parameters.get_counterfactuals().index.to_list())
+        # scenario_names = (self.parameters.get_scenarios().index.to_list() +
+        #                   self.parameters.get_counterfactuals().index.to_list())
+        scenario_names = (self.parameters.get_counterfactuals().index.to_list()) # TODO: remove this and add above back in
+        scenario_names.remove('GP')
         concatenated_dfs = concatenated_dfs.loc[
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
@@ -163,10 +165,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Load 'Sheet1' from the Excel workbook
         xlsx_df = self._load_sheet(file)
 
-        # TODO: remove later
-        if file.name == "tb_ic_reference_BGD.xlsx":
-            xlsx_df['iso3'] = 'BGD'
-
         # Only keep columns of immediate interest:
         xlsx_df = xlsx_df[
             [
@@ -192,14 +190,14 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "Notified_p",
                 "Notified_p_LB",
                 "Notified_p_UB",
-                "TxSR",
+                # "TxSR", # TODO: add back in later
                 "mdr_notified_n",
                 "mdr_notified_n_LB",
                 "mdr_notified_n_UB",
                 "mdr_notified_p",
                 "mdr_notified_p_LB",
                 "mdr_notified_p_UB",
-                "TxSR_MDR",
+                # "TxSR_MDR",# TODO: add back in later
                 "mdr_estnew_n",
                 "mdr_estretx_n",
                 "mdr_Tx",
@@ -210,7 +208,7 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB",
                 "tb_art_p",
                 "hiv_pos",
-                "Costs",
+                #"Costs", # TODO: add back in later
             ]
         ]
 
@@ -234,14 +232,14 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "Notified_p",
                 "Notified_p_LB",
                 "Notified_p_UB",
-                "TxSR",
+                # "TxSR",# TODO: add back in later
                 "mdr_notified_n",
                 "mdr_notified_n_LB",
                 "mdr_notified_n_UB",
                 "mdr_notified_p",
                 "mdr_notified_p_LB",
                 "mdr_notified_p_UB",
-                "TxSR_MDR",
+                # "TxSR_MDR",# TODO: add back in later
                 "mdr_estnew_n",
                 "mdr_estretx_n",
                 "mdr_Tx",
@@ -252,7 +250,7 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB",
                 "tb_art_p",
                 "hiv_pos",
-                "Costs",
+                #"Costs", # TODO: add back in later
         ]] = df_gp[[
              "Notified_n",
                 "Notified_n_LB",
@@ -260,14 +258,14 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "Notified_p",
                 "Notified_p_LB",
                 "Notified_p_UB",
-                "TxSR",
+                # "TxSR",# TODO: add back in later
                 "mdr_notified_n",
                 "mdr_notified_n_LB",
                 "mdr_notified_n_UB",
                 "mdr_notified_p",
                 "mdr_notified_p_LB",
                 "mdr_notified_p_UB",
-                "TxSR_MDR",
+                # "TxSR_MDR",# TODO: add back in later
                 "mdr_estnew_n",
                 "mdr_estretx_n",
                 "mdr_Tx",
@@ -278,7 +276,7 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB",
                 "tb_art_p",
                 "hiv_pos",
-                "Costs",
+                #"Costs", #TODO: add back in later
         ]].fillna(0)
 
         # Then put GP back into df
@@ -323,16 +321,18 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB": "tbart_high",
                 "tb_art_p": "tbartcoverage_central",
                 "hiv_pos": "plhiv_central",
-                "Costs": "cost_central",
+                #"Costs": "cost_central", # TODO: put back in later
             }
         )
 
         # Clean up funding fraction and PF scenario
-        xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
-            '')  # Puts the funding scenario number in a new column called funding fraction
-        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
-                                                                        1)  # Where there is no funding fraction, set it to 1
-        xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+        # xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+        #     '')  # Puts the funding scenario number in a new column called funding fraction TODO: put back in later
+        # xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
+        #                                                         1)  # Where there is no funding fraction, set it to 1
+        # xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+
+        xlsx_df['funding_fraction'] = 1 #TODO: remove later
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         xlsx_df["population_low"] = xlsx_df["Population"]
@@ -340,15 +340,15 @@ class ModelResultsTb(TBMixin, ModelResults):
         xlsx_df["population_high"] = xlsx_df["Population"]
         xlsx_df = xlsx_df.drop(columns=["Population"])
 
-        xlsx_df["TxSR_low"] = xlsx_df["TxSR"]
-        xlsx_df["TxSR_central"] = xlsx_df["TxSR"]
-        xlsx_df["TxSR_high"] = xlsx_df["TxSR"]
-        xlsx_df = xlsx_df.drop(columns=["TxSR"])
-
-        xlsx_df["mdrTxSR_low"] = xlsx_df["TxSR_MDR"]
-        xlsx_df["mdrTxSR_central"] = xlsx_df["TxSR_MDR"]
-        xlsx_df["mdrTxSR_high"] = xlsx_df["TxSR_MDR"]
-        xlsx_df = xlsx_df.drop(columns=["TxSR_MDR"])
+        # xlsx_df["TxSR_low"] = xlsx_df["TxSR"] # TODO: add back in later
+        # xlsx_df["TxSR_central"] = xlsx_df["TxSR"]
+        # xlsx_df["TxSR_high"] = xlsx_df["TxSR"]
+        # xlsx_df = xlsx_df.drop(columns=["TxSR"])
+        #
+        # xlsx_df["mdrTxSR_low"] = xlsx_df["TxSR_MDR"]
+        # xlsx_df["mdrTxSR_central"] = xlsx_df["TxSR_MDR"]
+        # xlsx_df["mdrTxSR_high"] = xlsx_df["TxSR_MDR"]
+        # xlsx_df = xlsx_df.drop(columns=["TxSR_MDR"])
 
         xlsx_df["mdrestimatesnew_low"] = xlsx_df["mdrestimatesnew_central"]
         xlsx_df["mdrestimatesnew_high"] = xlsx_df["mdrestimatesnew_central"]
@@ -362,8 +362,8 @@ class ModelResultsTb(TBMixin, ModelResults):
         xlsx_df["plhiv_low"] = xlsx_df["plhiv_central"]
         xlsx_df["plhiv_high"] = xlsx_df["plhiv_central"]
 
-        xlsx_df["cost_low"] = xlsx_df["cost_central"]
-        xlsx_df["cost_high"] = xlsx_df["cost_central"]
+        # xlsx_df["cost_low"] = xlsx_df["cost_central"] # TODO: put back in later
+        # xlsx_df["cost_high"] = xlsx_df["cost_central"]
 
         # Generate incidence and mortality
         xlsx_df["incidence_low"] = xlsx_df["cases_low"] / xlsx_df["population_low"]
@@ -397,7 +397,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Convert funding_fraction to float
         melted["funding_fraction"] = melted["funding_fraction"].astype(float)
 
-        # TODO: any NANs or NAs should be replaced. By zero? Do that for all diseases
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(
             [
