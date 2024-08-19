@@ -33,7 +33,7 @@ path_to_data_folder = get_data_path()
 # %% Flag to indicate whether the script should reload model results from raw files and re-run all the analysis, or
 # instead to re-load locally-cached versions of `ModelResults` binaries and locally-cached version of the analysis
 # results.
-DO_RUN = True
+DO_RUN = False
 
 # %% Find scenarios defined for GF Funding
 funding_path = path_to_data_folder / 'IC7' / 'TimEmulationTool' / 'funding'
@@ -239,7 +239,7 @@ def get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(r, indic
         )
         for scenario in r:
             scenario_reduction = 1.0 - (
-                        r[scenario][disease][indicator].at[2030, 'model_central'] / r[scenario][disease][indicator].at[2022, 'model_central']
+                        r[scenario][disease][indicator].at[2030, 'model_central'] / r['GP'][disease][indicator].at[2022, 'model_central']
             )
             s[disease][scenario] = 100 * scenario_reduction / gp_reduction
     return pd.DataFrame(s)
@@ -474,46 +474,111 @@ else:
 
 # %% Produce summary graphic
 
+# - Fraction of the GP reduction achieved in cases and deaths
+# NB. Sometimes the results undershoot/overshoot the GP because neither the model results under Approach B nor the GP is trying to maximise this metric.
 for disease in ('hiv', 'tb', 'malaria'):
-    to_plot_pc_reduction_in_cases_and_deaths = dict()
+    to_plot = list()
+    reduc_in_cases_under_gp = (1.0 - Results_LHS['GP'][disease]['cases'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['cases'].at[2022, 'model_central'])
+    reduc_in_deaths_under_gp = (1.0 - Results_LHS['GP'][disease]['deaths'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['deaths'].at[2022, 'model_central'])
 
-    key_for_full_funding_scenario = [k for k in Results_RHS[disease].keys() if not k.startswith('*') and round(float(k), 3)==1.0][0]
-    reduc_in_cases_under_full_funding = (100 * (1.0 - (Results_RHS[disease][key_for_full_funding_scenario]['cases'].at[2030, 'model_central'] / Results_RHS[disease][key_for_full_funding_scenario]['cases'].at[2022, 'model_central'])))
-    reduc_deaths_under_full_funding = (100 * (1.0 - (Results_RHS[disease][key_for_full_funding_scenario]['deaths'].at[2030, 'model_central'] / Results_RHS[disease][key_for_full_funding_scenario]['deaths'].at[2022, 'model_central'])))
+    for (scenario_name, funding_fraction), _res in Results_RHS[disease].items():
 
-    reduc_in_cases_under_gp = 100 * (1.0 - Results_LHS['GP'][disease]['cases'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['cases'].at[2022, 'model_central'])
-    reduc_in_deaths_under_gp = 100 * (1.0 - Results_LHS['GP'][disease]['deaths'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['deaths'].at[2022, 'model_central'])
+        reduction_in_cases_vs_gp = (1.0 - (_res['cases'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['cases'].at[2022, 'model_central'])) / reduc_in_cases_under_gp
+        reduction_in_deaths_vs_gp = (1.0 - (_res['deaths'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['deaths'].at[2022, 'model_central'])) / reduc_in_cases_under_gp
+        average_reduction_in_cases_and_deaths_vs_gp = (reduction_in_cases_vs_gp + reduction_in_deaths_vs_gp) / 2.  # Equal weighting to cases and deaths
 
-    for ff, r in Results_RHS[disease].items():
+        to_plot.extend([dict(
+            scenario_name=scenario_name if scenario_name is not None else '',
+            funding_fraction=100 * funding_fraction,
+            reduction_in_cases=100 * reduction_in_cases_vs_gp,
+            reduction_in_deaths=100 * reduction_in_deaths_vs_gp,
+            average_reduction_in_cases_and_deaths_vs_gp=100 * average_reduction_in_cases_and_deaths_vs_gp
+        )])
 
-        reduction_in_cases_vs_gp = (100 * (1.0 - (r['cases'].at[2030, 'model_central'] / r['cases'].at[2022, 'model_central']))) / reduc_in_cases_under_gp
-        reduction_in_deaths_vs_gp = (100 * (1.0 - (r['deaths'].at[2030, 'model_central'] / r['deaths'].at[2022, 'model_central']))) / reduc_in_deaths_under_gp
-        average_reduction_in_cases_and_deaths_vs_gp = 100. * (reduction_in_cases_vs_gp + reduction_in_deaths_vs_gp) / 2  # Equal weighting to cases and deaths
+    to_plot = pd.DataFrame.from_records(to_plot).sort_values(by='funding_fraction', ascending=True)
 
-        # todo: add label the scenarios with the replenishment funding amount
-        # Flag scenario names that begin with '*' as being scenarios that use the actual TGF funding scenarios
-        name_of_scenario = (100. * float(ff), False) if not ff.startswith('*') else (100. * float(ff.split('*')[1]), True)
-        to_plot_pc_reduction_in_cases_and_deaths[name_of_scenario] = average_reduction_in_cases_and_deaths_vs_gp
+    fig, ax = plt.subplots(nrows=1, ncols=3, sharey=True, sharex=True)
+    real_points = to_plot.loc[to_plot['scenario_name'].str.len() > 0]
 
-    to_plot_pc_reduction_in_cases_and_deaths = pd.Series(to_plot_pc_reduction_in_cases_and_deaths).sort_index()
-    fig, ax = plt.subplots()
-    all_points = to_plot_pc_reduction_in_cases_and_deaths.droplevel(axis=0, level=1)
-    real_points = to_plot_pc_reduction_in_cases_and_deaths.loc[(slice(None), True)]
-    ax.plot(all_points.index, all_points.values, label=None, marker='o', markersize=5, color='blue', linestyle='-')
-    ax.plot(real_points.index, real_points.values, label='Defined TGF Replenishment Scenarios', marker='o',
-            markersize=10, color='orange', linestyle='')
-    ax.set_xlabel('Fraction of GP Funding Covered From All Sources (%)')
-    ax.set_ylabel('Fraction of reduction in cases and deaths of GP Achieved (%)')
-    ax.set_title(f'Impact For Approach B: {disease}')
-    ax.set_xlim(30, 105)
-    ax.axhline(y=100, linestyle='--', color='black')
-    ax.set_ylim(bottom=0.)
-    ax.legend()
+    for _ax, _column, _title in zip(
+            ax,
+            ['reduction_in_cases', 'reduction_in_deaths', 'average_reduction_in_cases_and_deaths_vs_gp'],
+            ['cases', 'deaths', 'both']
+    ):
+        _ax.plot(to_plot['funding_fraction'],
+                to_plot[_column],
+                label=None, marker='o', markersize=5, color='black', linestyle='--')
+        for _, _real_pt in real_points.iterrows():
+            _ax.plot(_real_pt['funding_fraction'],
+                    _real_pt[_column],
+                    label=_real_pt.scenario_name,
+                    marker='o', markersize=10, linestyle='')
+        _ax.set_xlabel('Fraction of GP Funded (%)')
+        _ax.set_ylabel('Progress to GP 2030 target (%')
+        _ax.set_xlim(0, 120)
+        _ax.set_title(_title)
+        _ax.axhline(y=100, linestyle='--', color='grey')
+        _ax.set_ylim(bottom=0.)
+        _ax.legend(fontsize=8, loc='lower left')
+
+    fig.suptitle(f'Impact For Approach B: {disease}')
     fig.tight_layout()
     fig.show()
-    fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_{disease}'.png")
+    fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_cases_and_death_reduction_relative_to_gp_{disease}.png")
     plt.close(fig)
 
 
 
+#%% - Cases and death in the period 2023-2030, divided by the number achieved in GP (lower is better).
+for disease in ('hiv', 'tb', 'malaria'):
+    to_plot = list()
+
+    cases_2022_to_2030_gp = Results_LHS['GP'][disease]['cases'].loc[slice(2023, 2030), 'model_central'].sum()
+    deaths_2022_to_2030_gp = Results_LHS['GP'][disease]['deaths'].loc[slice(2023, 2030), 'model_central'].sum()
+
+    for (scenario_name, funding_fraction), _res in Results_RHS[disease].items():
+
+        cases_2022_to_2030 = _res['cases'].loc[slice(2023, 2030), 'model_central'].sum() / cases_2022_to_2030_gp
+        deaths_2022_to_2030 = _res['deaths'].loc[slice(2023, 2030), 'model_central'].sum() / deaths_2022_to_2030_gp
+        average_reduction_in_cases_and_deaths_vs_gp = (cases_2022_to_2030 + deaths_2022_to_2030) / 2.
+
+        to_plot.extend([dict(
+            scenario_name=scenario_name if scenario_name is not None else '',
+            funding_fraction=100 * funding_fraction,
+            reduction_in_cases=100 * cases_2022_to_2030,
+            reduction_in_deaths=100 * deaths_2022_to_2030,
+            average_reduction_in_cases_and_deaths_vs_gp=100 * average_reduction_in_cases_and_deaths_vs_gp
+            )])
+
+    to_plot = pd.DataFrame.from_records(to_plot).sort_values(by='funding_fraction', ascending=True)
+
+    fig, ax = plt.subplots(nrows=1, ncols=3, sharey=True, sharex=True)
+    real_points = to_plot.loc[to_plot['scenario_name'].str.len() > 0]
+
+    for _ax, _column, _title in zip(
+            ax,
+            ['reduction_in_cases', 'reduction_in_deaths', 'average_reduction_in_cases_and_deaths_vs_gp'],
+            ['cases', 'deaths', 'both']
+    ):
+        _ax.plot(to_plot['funding_fraction'],
+                to_plot[_column],
+                label=None, marker='o', markersize=5, color='black', linestyle='--')
+        for _, _real_pt in real_points.iterrows():
+            _ax.plot(_real_pt['funding_fraction'],
+                    _real_pt[_column],
+                    label=_real_pt.scenario_name,
+                    marker='o', markersize=10, linestyle='')
+        _ax.set_xlabel('Fraction of GP Funded (%)')
+        _ax.set_ylabel('Cases and Deaths 2023-2030 / That in GP (%)')
+        _ax.set_xlim(0, 105)
+        _ax.set_title(_title)
+        _ax.axhline(y=100, linestyle='--', color='grey')
+        _ax.set_ylim(bottom=0.)
+        _ax.legend(fontsize=8, loc='lower left')
+
+    fig.suptitle(f'Impact For Approach B: {disease}')
+    fig.tight_layout()
+    fig.show()
+    fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_cases_and_death_divided_by_gp_{disease}.png")
+    plt.close(fig)
 
