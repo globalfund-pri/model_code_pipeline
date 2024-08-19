@@ -251,7 +251,7 @@ stats = {
     'cases_relative_to_gp': get_sum_of_indicator_during_2022_to_2030_as_percent_of_gp(Results_LHS, indicator='cases'),
     'deaths_relative_to_gp': get_sum_of_indicator_during_2022_to_2030_as_percent_of_gp(Results_LHS, indicator='deaths'),
     'cases_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(Results_LHS, indicator='cases'),
-    'deaths_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(Results_LHS, indicator='deaths'),'
+    'deaths_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(Results_LHS, indicator='deaths'),
 }
 
 # Add the combination one: across cases and deaths and all disease
