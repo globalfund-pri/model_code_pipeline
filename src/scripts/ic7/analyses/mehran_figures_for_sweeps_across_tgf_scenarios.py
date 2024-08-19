@@ -121,7 +121,7 @@ def get_projections(
         innovation_on=innovation_on,
     )
     analysis_malaria = Analysis(
-        database=tb_db,
+        database=malaria_db,
         scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=gf_scenarios[tgf_funding_scenario]['malaria'],
         non_tgf_funding=NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / f'malaria{NON_TGF_FUNDING}'),
@@ -337,7 +337,7 @@ def make_graph(df: pd.Series, title: str):
     ax.set_xticklabels(black_dots.index)
     ax.set_title(title)
     ax.legend()
-    fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_{title}.png")
+    fig.savefig(project_root / 'outputs' / f"mehran_lhs_fig_{title}.png")
     fig.tight_layout()
     fig.show()
     plt.close(fig)
@@ -405,22 +405,28 @@ unfunded_amount = {
 }
 
 # Create a range of scenarios that, for each disease, span TGF Funding from $0 to the amount required to give full funding
+# key for the scenario name is:
+#   (
+#       Pretty-name-of-scenario if it's an actual defined scenario (None otherwise),
+#       Funding Fraction
+#   )
+
 num_new_scenarios = 5  # increase this for more points
 tgf_scenarios_for_rhs_plot = {
     disease: {
-        str(round((x + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum(), 3)):
+        (None, round((x + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum(), 3)):
             make_tgf_funding_scenario(int(x), based_on=gf_scenarios['Fubgible_gf_11b'][disease])
         for x in np.linspace(100e6, unfunded_amount[disease], num_new_scenarios)
     }
     for disease in ('hiv', 'tb', 'malaria')
 }
 
-# add in the defined tgf scenarios (the ones specified in the files) and denote with a '*'
+# add in the defined tgf scenarios (the ones specified in the files)
 for disease in ('hiv', 'tb', 'malaria'):
     tgf_scenarios_for_rhs_plot[disease].update(
         {
-            '*' + str((scenarios_to_run[b][disease].df['value'].sum() + non_tgf_funding_amt[disease].sum()) / gp_amt[
-                disease].sum()): scenarios_to_run[b][disease]
+            (mapper_to_pretty_names[b],
+             (scenarios_to_run[b][disease].df['value'].sum() + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum()): scenarios_to_run[b][disease]
             for b in scenarios_to_run.keys()
         }
     )
