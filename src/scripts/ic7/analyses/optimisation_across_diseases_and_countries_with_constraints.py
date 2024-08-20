@@ -118,70 +118,104 @@ approach_b = ApproachB_WithOptimisationForReducingDeathsOnly(
 #     plt_show=False
 # )
 
+Results = dict()
+for (_title,
+     _max_allocation_to_a_country,
+     _max_allocation_within_a_disease_to_a_country
+     ) in zip(
+        ('Without Constraints', 'With Constraints'),
+        (1.00, 0.075),   # (Value of 1.0 implies no constraint)  #todo chage it bacj
+        (1.00, 0.100)   # (Value of 1.0 implies no constraint)
+):
+    # Run Approach B using the data and capture a report about it
+    filename = outputs_path / f'cross_disease_optimisation_{_title}.pdf'
+    results = approach_b.run(
+        methods=['ga_forwards'],
+        provide_best_only=True,
+        filename=filename,
+        max_allocation_to_a_country=_max_allocation_to_a_country,
+        max_allocation_within_a_disease_to_a_country=_max_allocation_within_a_disease_to_a_country
+    )
+    open_file(filename)
+    Results[_title] = results
+
+    #%% Inspect the results
+
+    # - Differences in health
+    fig, ax = plt.subplots(nrows=1, ncols=2, )
+    ax[0].bar(x=['Approach A', 'Approach B'], height=[results['a'].total_result.cases, results['b'].total_result.cases])
+    ax[0].set_title(f'{_title}\nCases')
+    ax[1].bar(x=['Approach A', 'Approach B'], height=[results['a'].total_result.deaths, results['b'].total_result.deaths])
+    ax[1].set_title(f'{_title}\nDeaths')
+    fig.tight_layout()
+    fig.show()
+
+    # Note that these are not the fully-adjusted portfolio results. To get that, we would need to put these TGF Funding
+    # Allocations for each disease into a TGFFunding object, create a new Analysis class using that (as usual, for each
+    # country), and then get portfolio results from there (and also summary results from the Report class, if needed).
 
 
-# Run Approach B using the data and capture a report about it
-filename = outputs_path / 'cross_disease_optimisation.pdf'
-results = approach_b.run(
-    methods=['ga_forwards'],
-    provide_best_only=False,
-    filename=outputs_path / 'cross_disease_optimisation.pdf'
-)
-open_file(filename)
+    # - Difference in Allocation Across the Diseases (i.e. the total that end up being used for each disease, summed across
+    #   countries).
+    def total_funding_by_disease(d: dict) -> float:
+        x = pd.Series(d)
+        return x.groupby(x.index.str[0:-3]).sum()  # <--summing by disease, obtained by stripping off last three characters,
+        #                                               which are the ISO3 code
 
+    budget_alloc = pd.concat({
+        'Approach A': total_funding_by_disease(results['a'].tgf_budget_by_country),
+        'Approach B': total_funding_by_disease(results['b'].tgf_budget_by_country),
+    }).unstack().T
 
-#%% Inspect the results
+    fig, ax = plt.subplots()
+    budget_alloc.plot.bar(ax=ax)
+    ax.set_xlabel("Disease")
+    ax.set_ylabel("TGF Funding ($)")
+    ax.set_title(f"{_title}\nTGF Funding Allocation To Disease When\nOptimising Across Disease & Country")
+    fig.tight_layout()
+    fig.show()
 
-# - Differences in health
-fig, ax = plt.subplots(nrows=1, ncols=2, )
-ax[0].bar(x=['Approach A', 'Approach B'], height=[results['a'].total_result.cases, results['b'].total_result.cases])
-ax[0].set_title('Cases')
+    # Get the percentage split
+    budget_alloc['Approach B'] / budget_alloc['Approach B'].sum()
 
-ax[1].bar(x=['Approach A', 'Approach B'], height=[results['a'].total_result.deaths, results['b'].total_result.deaths])
-ax[1].set_title('Deaths')
+    # Show rank-ordered difference between B vs A, to see what is driving the change....
+    difference_b_vs_a = (
+         pd.Series(results['b'].tgf_budget_by_country) - pd.Series(results['a'].tgf_budget_by_country)
+                        ).sort_values()/1e6
 
-fig.tight_layout()
-fig.show()
+    fig, ax = plt.subplots(nrows=1, ncols=2, sharey=True)
+    difference_b_vs_a.head(20).plot.bar(ax=ax[0])
+    difference_b_vs_a.tail(20).plot.bar(ax=ax[1])
+    ax[0].set_ylim([-1200, 1200])
+    ax[0].set_ylabel("TGF Funding ($M)\nApproach B - Approach A")
+    ax[0].set_title("Top 20 Programs Receiving Less Under B", fontsize=8)
+    ax[1].set_title("Top 20 Programs Receiving More Under B", fontsize=8)
+    fig.suptitle(_title)
+    fig.tight_layout()
+    fig.show()
 
-# Note that these are not the fully-adjusted portfolio results. To get that, we would need to put these TGF Funding
-# Allocations for each disease into a TGFFunding object, create a new Analysis class using that (as usual, for each
-# country), and then get portfolio results from there (and also summary results from the Report class, if needed).
+    # Look at amount to each country and each country within disease
+    allox_by_country = pd.Series(results['b'].tgf_budget_by_country)
+    allox_by_country.index = allox_by_country.index.map(lambda _s: (_s[0:-3], _s[-3:]))
 
+    # - consider the amount that any country can receive
+    fr_to_each_country = (allox_by_country.groupby(axis=0, level=1).sum() / allox_by_country.sum()).fillna(0.0)
+    fig, ax = plt.subplots()
+    (100.* fr_to_each_country).sort_values(ascending=False).head(20).plot.bar(ax=ax)
+    ax.set_ylabel('%')
+    ax.set_title(f"{_title}\nFraction of All TGF Funding to Each Country")
+    ax.axhline(100. * _max_allocation_to_a_country, color='black', linestyle='--')
+    fig.tight_layout()
+    fig.show()
 
-# - Difference in Allocation Across the Diseases (i.e. the total that end up being used for each disease, summed across
-#   countries).
-def total_funding_by_disease(d: dict) -> float:
-    x = pd.Series(d)
-    return x.groupby(x.index.str[0:-3]).sum()  # <--summing by disease, obtained by stripping off last three characters,
-    #                                               which are the ISO3 code
+    # - consider the amount to each country within disease area
+    for disease in ('hiv', 'tb', 'malaria'):
+        allox_by_country_within_disease = allox_by_country.loc[(disease, slice(None))]
+        fig, ax = plt.subplots()
+        (100.* allox_by_country_within_disease/allox_by_country_within_disease.sum()).sort_values(ascending=False).head(20).plot.bar(ax=ax)
+        ax.set_ylabel('%')
+        ax.set_title(f"{_title}\nFraction of TGF Allocation for {disease} to Each Country")
+        ax.axhline(100. * _max_allocation_within_a_disease_to_a_country, color='black', linestyle='--')
+        fig.tight_layout()
+        fig.show()
 
-budget_alloc = pd.concat({
-    'Approach A': total_funding_by_disease(results['a'].tgf_budget_by_country),
-    'Approach B': total_funding_by_disease(results['b'].tgf_budget_by_country),
-}).unstack().T
-
-fig, ax = plt.subplots()
-budget_alloc.plot.bar(ax=ax)
-ax.set_xlabel("Disease")
-ax.set_ylabel("TGF Funding ($)")
-ax.set_title("TGF Funding Allocation To Disease When\nOptimising Across Disease & Country")
-fig.tight_layout()
-fig.show()
-
-# Get the percentage split
-budget_alloc['Approach B'] / budget_alloc['Approach B'].sum()
-
-# Show rank-ordered difference between B vs A, to see what is driving the change....
-difference_b_vs_a = (
-     pd.Series(results['b'].tgf_budget_by_country) - pd.Series(results['a'].tgf_budget_by_country)
-                    ).sort_values()/1e6
-
-fig, ax = plt.subplots(nrows=1, ncols=2, sharey=True)
-difference_b_vs_a.head(20).plot.bar(ax=ax[0])
-difference_b_vs_a.tail(20).plot.bar(ax=ax[1])
-ax[0].set_ylim([-1200, 1200])
-ax[0].set_ylabel("TGF Funding ($M)\nApproach B - Approach A")
-ax[0].set_title("Top 20 Programs Receiving Less Under B", fontsize=8)
-ax[1].set_title("Top 20 Programs Receiving More Under B", fontsize=8)
-fig.tight_layout()
-fig.show()

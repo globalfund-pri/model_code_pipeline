@@ -1,8 +1,8 @@
 import warnings
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 from pprint import pprint
-from typing import Iterable, NamedTuple, Optional, Union, List
+from typing import Iterable, NamedTuple, Optional, Union, List, Set
 
 import matplotlib
 import numpy as np
@@ -143,6 +143,8 @@ class ApproachB:
         self,
         methods: Optional[Iterable[str]],
         provide_best_only: bool,
+        max_allocation_to_a_country: float = 1.0,
+        max_allocation_within_a_disease_to_a_country: float = 1.0,
     ) -> Union[ApproachBResult, tuple[dict[str, ApproachBResult], str]]:
         """Returns results for each country and the allocation of TGF budget by country, given a non-tgf-budget by
         country and a total amount of TGF funding, following an optimisation procedure.
@@ -181,7 +183,11 @@ class ApproachB:
         solutions = dict()
         if "ga_forwards" in methods:
             solutions.update(
-                {"ga: forwards": self.greedy_algorithm.run_forward(n_steps=10_000)}
+                {"ga: forwards": self.greedy_algorithm.run_forward(
+                    n_steps=10_000,
+                    max_allocation_to_a_country=max_allocation_to_a_country,
+                    max_allocation_within_a_disease_to_a_country=max_allocation_within_a_disease_to_a_country)
+                }
             )
 
         if "ga_backwards" in methods:
@@ -821,17 +827,28 @@ class GreedyAlgorithm:
             ]
 
     def find_country_where_next_pop_leads_to_greatest_reduc_in_objfn(
-        self, states
+            self,
+            states,
+            countries_not_allowed_to_change: Optional[Set] = None,
     ) -> Optional[str]:
         """Returns the country symbol for which the next `pop` operation on its list would lead to the greatest
         reduction in the objective function; or None, if no more `pop`s are possible."""
+        if countries_not_allowed_to_change is None:
+            countries_not_allowed_to_change = set()
 
         reduction_in_obj_function_by_country = dict()
 
         current_obj_func = self._eval_objective_function(
             [states[_c][0] for _c in states]
         )
-        _countries_that_can_pop = [_c for _c in states if (len(states[_c]) > 1)]
+
+        # filter out countries that cannot receive additional funding because:
+        # * we're at the end of their state variable
+        # * the countries are not allowed to change
+        _countries_that_can_pop = [
+            _c for _c in states
+            if (len(states[_c]) > 1) and (_c not in countries_not_allowed_to_change)
+        ]
 
         if not _countries_that_can_pop:
             # No country can absorb the increment
@@ -866,9 +883,16 @@ class GreedyAlgorithm:
         """Return the list of Results for each country at the current funding level (i.e., 0th position in each list)"""
         return [_states[_c][0] for _c in _states]
 
-    def run_forward(self, n_steps: int) -> dict[str, float]:
+    def run_forward(self,
+                    n_steps: int,
+                    max_allocation_to_a_country: float,
+                    max_allocation_within_a_disease_to_a_country: float
+                    ) -> dict[str, float]:
         """Run the algorithm in "forward" mode, wherein we start each country at its non_tgf_budget and allocate each
         increment of the tgf budget to a country, until the TGF budget is exhausted."""
+
+        assert 0. <= max_allocation_to_a_country <= 1.
+        assert 0. <= max_allocation_within_a_disease_to_a_country <= 1.
 
         non_tgf_budget_by_country = self.approach_b.non_tgf_budgets
         tgf_budget = self.approach_b.tgf_budget
@@ -885,11 +909,47 @@ class GreedyAlgorithm:
         # Start by assuming that no country has any allocation of TGF funding
         tgf_allocation = {_c: 0.0 for _c in self._database.countries}
 
+
+        def countries_that_exceed_max_allocations(_tgf_allocation: dict) -> Set:
+            """Return set of countries that have reached the maximum allocation"""
+            diseases = ('hiv', 'tb', 'malaria')
+            countries_exceeding = set()
+
+            s = pd.Series(_tgf_allocation)
+            s.index = s.index.map(lambda _s: (_s[0:-3], _s[-3:]))
+
+            # consider the max amount that any country can receive
+            fr_to_each_country = (s.groupby(axis=0, level=1).sum() / s.sum()).fillna(0.0)
+            countries_exceeding_across_all_disease = fr_to_each_country.index[fr_to_each_country > max_allocation_to_a_country]
+
+            countries_exceeding.update(set([
+                f"{disease}{country}" for country in countries_exceeding_across_all_disease for disease in diseases]
+            ))
+
+            # consider the max amount that any country can receive within the disease
+            for disease in diseases:
+                _per_disease = s.loc[(disease, slice(None))]
+                _per_disease = (_per_disease / _per_disease.sum()).fillna(0.0)
+                countries_exceeding.update(
+                    set([
+                        f"{disease}{country}" for country in _per_disease.index[_per_disease > max_allocation_within_a_disease_to_a_country]
+                    ])
+                )
+
+            return countries_exceeding.intersection(_tgf_allocation.keys())  # only return countries-disease combos that were defined originally
+
+
         while tgf_budget > sum(tgf_allocation.values()):
+
+            # Determine which countries are not eligible to receive any more funding because the constrains have been
+            # met, and use this to specify which countries cannot receive any more (`countries_not_allowed_to_change`).
+            countries_exceeding = countries_that_exceed_max_allocations(tgf_allocation)
+
             # Determine the country for which the objective function is most reduced for the next increment:
             allocate_increment_to = (
                 self.find_country_where_next_pop_leads_to_greatest_reduc_in_objfn(
-                    states
+                    states=states,
+                    countries_not_allowed_to_change=countries_exceeding,
                 )
             )
 
