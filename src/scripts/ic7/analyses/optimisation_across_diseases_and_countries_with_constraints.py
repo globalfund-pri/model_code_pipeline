@@ -21,7 +21,7 @@ from tgftools.utils import (
     open_file, save_var, load_var,
 )
 
-DO_RUN = False
+DO_RUN = True
 
 #%% Load the data for HIV, Tb and Malaria
 
@@ -55,7 +55,7 @@ def get_tgf_funding_scenario(disease: str) -> TgfFunding:
     if disease == 'hiv':
         file = local_path_for_files / '$13.128b_HIVAIDS.csv'
     elif disease == 'tb':
-        file = local_path_for_files / '$11b_Tuberculosis.csv'
+        file = local_path_for_files / '$13.128b_Tuberculosis.csv'
     elif disease == 'malaria':
         file = local_path_for_files / '$13.128b_Malaria.csv'
     else:
