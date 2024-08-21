@@ -7,7 +7,7 @@ from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path
 
 
-class DatabaseChecksTb(TBMixin, CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, DatabaseChecks):
+class DatabaseChecksTb(TBMixin, CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks, DatabaseChecks):
     """This is the class for DatabaseChecks to do with the Tb data."""
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsTb(
-        path_to_data_folder / "IC8/modelling_outputs/tb/2024_08_20",
+        path_to_data_folder / "IC8/modelling_outputs/tb/2024_08_20_all",
         parameters=parameters,
     )
 
