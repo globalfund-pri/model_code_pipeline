@@ -1,5 +1,6 @@
 """The file is for the analysis where we allow allocation of fundings across the diseases and the countries, in order
 to find whether the GF allocation resembles the optimal allocation (for a given definition of 'optimal')."""
+from pathlib import Path
 
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -17,9 +18,10 @@ from tgftools.filehandler import (
 from tgftools.utils import (
     get_data_path,
     get_root_path,
-    open_file,
+    open_file, save_var, load_var,
 )
 
+DO_RUN = False
 
 #%% Load the data for HIV, Tb and Malaria
 
@@ -40,9 +42,39 @@ db = {
 }
 
 # Declare assumptions that are not going to change in the analysis
-TGF_FUNDING = 'Fubgible_gf_17b'
 NON_TGF_FUNDING = '_nonFubgible_dipiBase.csv'
 SCENARIO_DESCRIPTOR = 'IC_IC'
+
+# Create TGF Funding Scenarios from the bespoke files
+def get_tgf_funding_scenario(disease: str) -> TgfFunding:
+    """Find to load and reformat the new scenario file.
+    N.B.Previously, we've used the file thus: TgfFunding(funding_path / disease / 'tgf' / f'{disease}_{TGF_FUNDING}.csv')
+    """
+    local_path_for_files = Path(
+        '/Users/tbh03/Library/CloudStorage/OneDrive-ImperialCollegeLondon/Documents/Global Fund/2024/Cross-Disease Allocation/2024_08_20')
+    if disease == 'hiv':
+        file = local_path_for_files / '$13.128b_HIVAIDS.csv'
+    elif disease == 'tb':
+        file = local_path_for_files / '$11b_Tuberculosis.csv'
+    elif disease == 'malaria':
+        file = local_path_for_files / '$13.128b_Malaria.csv'
+    else:
+        raise ValueError
+
+    df = pd.read_csv(file).rename(columns={'ISO3': 'country', 'AmountUSD': 'value'}).set_index('country')[['value']]
+
+    # Get original file that this should be based on:
+    orig = TgfFunding(funding_path / disease / 'tgf' / f'{disease}_Fubgible_gf_17b.csv').df
+
+    # Cut-out countries from the new file that were not present in old file (Should check this assumption)
+    df = df.loc[df.index.isin(orig.index)]
+    # Add zero-line for any country that is not in the new file but was in the old file
+    for _c in list(set(orig.index) - set(df.index)):
+        df.loc[_c, 'value'] = 0
+    pd.testing.assert_index_equal(orig.index, df.index, check_order=False)
+
+    return TgfFunding.from_df(df.astype({'value': 'int'}))
+
 
 #%% Gerrymander the analysis.
 
@@ -69,7 +101,7 @@ approach_b_datasets = {
     disease: Analysis(
         database=db[disease],
         scenario_descriptor=SCENARIO_DESCRIPTOR,
-        tgf_funding=TgfFunding(funding_path / disease / 'tgf' / f'{disease}_{TGF_FUNDING}.csv'),
+        tgf_funding=get_tgf_funding_scenario(disease),
         non_tgf_funding=NonTgfFunding(funding_path / disease / 'non_tgf' / f'{disease}{NON_TGF_FUNDING}'),
         parameters=parameters,
         handle_out_of_bounds_costs=True,
@@ -118,28 +150,47 @@ approach_b = ApproachB_WithOptimisationForReducingDeathsOnly(
 #     plt_show=False
 # )
 
-Results = dict()
-for (_title,
-     _max_allocation_to_a_country,
-     _max_allocation_within_a_disease_to_a_country
-     ) in zip(
-        ('Without Constraints', 'With Constraints'),
-        (1.00, 0.075),   # (Value of 1.0 implies no constraint)  #todo chage it bacj
-        (1.00, 0.100)   # (Value of 1.0 implies no constraint)
-):
-    # Run Approach B using the data and capture a report about it
-    filename = outputs_path / f'cross_disease_optimisation_{_title}.pdf'
-    results = approach_b.run(
-        methods=['ga_forwards'],
-        provide_best_only=True,
-        filename=filename,
-        max_allocation_to_a_country=_max_allocation_to_a_country,
-        max_allocation_within_a_disease_to_a_country=_max_allocation_within_a_disease_to_a_country
+Scenarios = [
+    dict(
+        title='Without Constraints',
+        max_allocation_to_a_country=1.00,
+        max_allocation_within_a_disease_to_a_country=1.00
+    ),
+    dict(
+        title='With Constraints',
+        max_allocation_to_a_country=0.075,
+        max_allocation_within_a_disease_to_a_country=0.100
     )
-    open_file(filename)
-    Results[_title] = results
+]
 
-    #%% Inspect the results
+if DO_RUN:
+    Results = dict()
+    for s in Scenarios:
+        _title = s['title']
+        _max_allocation_to_a_country = s['max_allocation_to_a_country']
+        _max_allocation_within_a_disease_to_a_country = s['max_allocation_within_a_disease_to_a_country']
+
+        # Run Approach B using the data and capture a report about it
+        filename = outputs_path / f'cross_disease_optimisation_{_title}.pdf'
+        results = approach_b.run(
+            methods=['ga_forwards'],
+            provide_best_only=True,
+            filename=filename,
+            max_allocation_to_a_country=_max_allocation_to_a_country,
+            max_allocation_within_a_disease_to_a_country=_max_allocation_within_a_disease_to_a_country
+        )
+        open_file(filename)
+        Results[_title] = results
+    save_var(Results, project_root / 'sessions' / 'Results_For_Cross_Disease_Optimisation.pkl')
+else:
+    Results = load_var(project_root / 'sessions' / 'Results_For_Cross_Disease_Optimisation.pkl')
+
+#%% Inspect the results
+
+for s, results in zip(Scenarios, Results.values()):
+    _title = s['title']
+    _max_allocation_to_a_country = s['max_allocation_to_a_country']
+    _max_allocation_within_a_disease_to_a_country = s['max_allocation_within_a_disease_to_a_country']
 
     # - Differences in health
     fig, ax = plt.subplots(nrows=1, ncols=2, )
@@ -176,7 +227,16 @@ for (_title,
     fig.show()
 
     # Get the percentage split
-    budget_alloc['Approach B'] / budget_alloc['Approach B'].sum()
+    def plot_table(df):
+        fig, ax = plt.subplots()
+        ax.axis('off')
+        pd.plotting.table(ax, df, loc='center', cellLoc='center', colWidths=list([.2, .2]))
+        ax.set_title(_title)
+        fig.tight_layout()
+        fig.show()
+
+    disease_split = 100 * (budget_alloc['Approach B'] / budget_alloc['Approach B'].sum()).round(3)
+    plot_table(disease_split)
 
     # Show rank-ordered difference between B vs A, to see what is driving the change....
     difference_b_vs_a = (
@@ -205,6 +265,7 @@ for (_title,
     ax.set_ylabel('%')
     ax.set_title(f"{_title}\nFraction of All TGF Funding to Each Country")
     ax.axhline(100. * _max_allocation_to_a_country, color='black', linestyle='--')
+    ax.set_ylim(top=40)
     fig.tight_layout()
     fig.show()
 
@@ -216,6 +277,7 @@ for (_title,
         ax.set_ylabel('%')
         ax.set_title(f"{_title}\nFraction of TGF Allocation for {disease} to Each Country")
         ax.axhline(100. * _max_allocation_within_a_disease_to_a_country, color='black', linestyle='--')
+        ax.set_ylim(top=40)
         fig.tight_layout()
         fig.show()
 
