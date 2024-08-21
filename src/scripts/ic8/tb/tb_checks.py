@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsTb(
-        path_to_data_folder / "IC8/modelling_outputs/tb/2024_08_12",
+        path_to_data_folder / "IC8/modelling_outputs/tb/2024_08_20",
         parameters=parameters,
     )
 

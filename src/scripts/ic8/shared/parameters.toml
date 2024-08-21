@@ -252,8 +252,8 @@ PARTNER_DATA_YEARS = [2020,2021,2022]
 PF_DATA_YEARS = [2024,2025,2026]
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths', 'deathshivneg']
-INDICATORS_FOR_NULL_CHECK = ['notified', 'txcoverage', 'tbart', 'tbartcoverage', 'mdrnotified', 'mdrtxcoverage']
-INDICATORS_FOR_CC_CHECK = ['txcoverage', 'tbartcoverage', 'mdrtxcoverage']
+INDICATORS_FOR_NULL_CHECK = ['notified', 'txcoverage', 'tbart', 'tbartcoverage', 'mdrnotified', 'mdrtxcoverage', 'TxSR', 'mdrTxSR']
+INDICATORS_FOR_CC_CHECK = ['txcoverage', 'tbartcoverage', 'mdrtxcoverage', 'TxSR', 'mdrTxSR']
 NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.01798620996209160, 0.04742587317756680, 0.11920292202211800, 0.26894142136999500, 0.50000000000000000, 0.73105857863000500, 0.88079707797788200, 0.95257412682243300, 0.98201379003790800, 1]
 
 [[TB.indicator]]
@@ -328,11 +328,11 @@ description="number of estimated mdr cases amongst re-treated"
 type="count"
 use_scaling=false
 
-#[[TB.indicator]]
-#name="mdrTxSR"
-#description="mdr treatment succes rate"
-#type="fraction"
-#use_scaling=false
+[[TB.indicator]]
+name="mdrTxSR"
+description="mdr treatment succes rate"
+type="fraction"
+use_scaling=false
 
 [[TB.indicator]]
 name="notified"
@@ -346,11 +346,11 @@ description="percentage of patients with all forms of TB bacteriologically confi
 type="fraction"
 use_scaling=false
 
-#[[TB.indicator]]
-#name="TxSR"
-#description="treatment succes rate"
-#type="fraction"
-#use_scaling=false
+[[TB.indicator]]
+name="TxSR"
+description="treatment succes rate"
+type="fraction"
+use_scaling=false
 
 [[TB.indicator]]
 name="tbart"

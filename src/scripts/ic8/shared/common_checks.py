@@ -665,6 +665,49 @@ class CommonChecks_allscenarios:
             names=df.index.names,
         )
 
+        if self.disease_name == 'TB':
+            gp_year = GFYear(  # Load GF start year file
+                get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_tb.csv",
+            )  # TODO: this is ugly can we move it?
+
+            expected_idx = pd.MultiIndex.from_product(
+                [
+                    (['CC_2000', 'NULL_2000', 'HH']),
+                    expected_funding,
+                    self.EXPECTED_COUNTRIES,
+                    range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR),
+                    self.EXPECTED_EPI_INDICATORS,
+                ],
+                names=df.index.names,
+            )
+
+            expected_idx_2 = pd.MultiIndex.from_product(
+                [
+                    (['GP']), #TODO: add PF later
+                    expected_funding,
+                    self.EXPECTED_COUNTRIES,
+                    range(self.EXPECTED_START_YEAR-1, self.EXPECTED_LAST_YEAR),
+                    self.EXPECTED_EPI_INDICATORS,
+                ],
+                names=df.index.names,
+            )
+            expected_idx = expected_idx.append(expected_idx_2)
+
+            for country in self.EXPECTED_COUNTRIES:
+                year = gp_year.df.loc[(country), 'year']
+
+                expected_idx_2 = pd.MultiIndex.from_product(
+                [
+                        (['CC_FIRSTYEARGF', 'NULL_FIRSTYEARGF']),
+                        expected_funding,
+                        [country],
+                        range(year, self.EXPECTED_LAST_YEAR),
+                        self.EXPECTED_EPI_INDICATORS,
+                    ],
+                    names=df.index.names,
+                )
+                expected_idx = expected_idx.append(expected_idx_2)
+
         # Check what is missing from the model results
         missing_idx = expected_idx.difference(df.index)
 

@@ -190,14 +190,14 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "Notified_p",
                 "Notified_p_LB",
                 "Notified_p_UB",
-                # "TxSR", # TODO: add back in later
+                "TxSR",
                 "mdr_notified_n",
                 "mdr_notified_n_LB",
                 "mdr_notified_n_UB",
                 "mdr_notified_p",
                 "mdr_notified_p_LB",
                 "mdr_notified_p_UB",
-                # "TxSR_MDR",# TODO: add back in later
+                "TxSR_MDR",
                 "mdr_estnew_n",
                 "mdr_estretx_n",
                 "mdr_Tx",
@@ -232,14 +232,14 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "Notified_p",
                 "Notified_p_LB",
                 "Notified_p_UB",
-                # "TxSR",# TODO: add back in later
+                "TxSR",
                 "mdr_notified_n",
                 "mdr_notified_n_LB",
                 "mdr_notified_n_UB",
                 "mdr_notified_p",
                 "mdr_notified_p_LB",
                 "mdr_notified_p_UB",
-                # "TxSR_MDR",# TODO: add back in later
+                "TxSR_MDR",
                 "mdr_estnew_n",
                 "mdr_estretx_n",
                 "mdr_Tx",
@@ -258,14 +258,14 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "Notified_p",
                 "Notified_p_LB",
                 "Notified_p_UB",
-                # "TxSR",# TODO: add back in later
+                "TxSR",
                 "mdr_notified_n",
                 "mdr_notified_n_LB",
                 "mdr_notified_n_UB",
                 "mdr_notified_p",
                 "mdr_notified_p_LB",
                 "mdr_notified_p_UB",
-                # "TxSR_MDR",# TODO: add back in later
+                "TxSR_MDR",
                 "mdr_estnew_n",
                 "mdr_estretx_n",
                 "mdr_Tx",
@@ -340,15 +340,15 @@ class ModelResultsTb(TBMixin, ModelResults):
         xlsx_df["population_high"] = xlsx_df["Population"]
         xlsx_df = xlsx_df.drop(columns=["Population"])
 
-        # xlsx_df["TxSR_low"] = xlsx_df["TxSR"] # TODO: add back in later
-        # xlsx_df["TxSR_central"] = xlsx_df["TxSR"]
-        # xlsx_df["TxSR_high"] = xlsx_df["TxSR"]
-        # xlsx_df = xlsx_df.drop(columns=["TxSR"])
-        #
-        # xlsx_df["mdrTxSR_low"] = xlsx_df["TxSR_MDR"]
-        # xlsx_df["mdrTxSR_central"] = xlsx_df["TxSR_MDR"]
-        # xlsx_df["mdrTxSR_high"] = xlsx_df["TxSR_MDR"]
-        # xlsx_df = xlsx_df.drop(columns=["TxSR_MDR"])
+        xlsx_df["TxSR_low"] = xlsx_df["TxSR"]
+        xlsx_df["TxSR_central"] = xlsx_df["TxSR"]
+        xlsx_df["TxSR_high"] = xlsx_df["TxSR"]
+        xlsx_df = xlsx_df.drop(columns=["TxSR"])
+
+        xlsx_df["mdrTxSR_low"] = xlsx_df["TxSR_MDR"]
+        xlsx_df["mdrTxSR_central"] = xlsx_df["TxSR_MDR"]
+        xlsx_df["mdrTxSR_high"] = xlsx_df["TxSR_MDR"]
+        xlsx_df = xlsx_df.drop(columns=["TxSR_MDR"])
 
         xlsx_df["mdrestimatesnew_low"] = xlsx_df["mdrestimatesnew_central"]
         xlsx_df["mdrestimatesnew_high"] = xlsx_df["mdrestimatesnew_central"]
