@@ -228,7 +228,7 @@ for s, results in zip(Scenarios, Results.values()):
 
     # Get the percentage split
     def plot_table(df):
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(dpi=600)
         ax.axis('off')
         pd.plotting.table(ax, df, loc='center', cellLoc='center', colWidths=list([.2, .2]))
         ax.set_title(_title)
