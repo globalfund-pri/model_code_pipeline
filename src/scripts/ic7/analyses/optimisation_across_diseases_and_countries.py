@@ -123,8 +123,8 @@ approach_b = ApproachB_WithOptimisationForReducingDeathsOnly(
 # Run Approach B using the data and capture a report about it
 filename = outputs_path / 'cross_disease_optimisation.pdf'
 results = approach_b.run(
-    methods=['ga_forwards'],
-    provide_best_only=False,
+    methods=['ga_backwards'],
+    provide_best_only=True,
     filename=outputs_path / 'cross_disease_optimisation.pdf'
 )
 open_file(filename)
