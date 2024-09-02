@@ -137,8 +137,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         expected_countries = self.parameters.get(self.disease_name).get('MODELLED_COUNTRIES')
         scenario_names = (self.parameters.get_scenarios().index.to_list() +
                           self.parameters.get_counterfactuals().index.to_list())
-        # scenario_names = (self.parameters.get_counterfactuals().index.to_list()) # TODO: remove this and add above back in
-        # scenario_names.remove('GP')
         concatenated_dfs = concatenated_dfs.loc[
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
@@ -208,7 +206,7 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB",
                 "tb_art_p",
                 "hiv_pos",
-                "Costs", # TODO: add back in later
+                "Costs",
             ]
         ]
 
@@ -255,7 +253,7 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB",
                 "tb_art_p",
                 "hiv_pos",
-                "Costs", # TODO: add back in later
+                "Costs",
         ]] = df_gp[[
              "Notified_n",
                 "Notified_n_LB",
@@ -281,7 +279,7 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB",
                 "tb_art_p",
                 "hiv_pos",
-                "Costs", #TODO: add back in later
+                "Costs",
         ]].fillna(0)
 
         # Then put GP back into df
@@ -330,14 +328,15 @@ class ModelResultsTb(TBMixin, ModelResults):
             }
         )
 
+        # Remove rows with NAN for country
+        xlsx_df = xlsx_df[xlsx_df['country'].notna()]
+
         # Clean up funding fraction and PF scenario
         xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
-            '')  # Puts the funding scenario number in a new column called funding fraction TODO: put back in later
+            '')  # Puts the funding scenario number in a new column called funding fraction
         xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
                                                                 1)  # Where there is no funding fraction, set it to 1
         xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
-
-        # xlsx_df['funding_fraction'] = 1 #TODO: remove later
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         xlsx_df["population_low"] = xlsx_df["Population"]
@@ -367,7 +366,7 @@ class ModelResultsTb(TBMixin, ModelResults):
         xlsx_df["plhiv_low"] = xlsx_df["plhiv_central"]
         xlsx_df["plhiv_high"] = xlsx_df["plhiv_central"]
 
-        xlsx_df["cost_low"] = xlsx_df["cost_central"] # TODO: put back in later
+        xlsx_df["cost_low"] = xlsx_df["cost_central"]
         xlsx_df["cost_high"] = xlsx_df["cost_central"]
 
         # Generate incidence and mortality
