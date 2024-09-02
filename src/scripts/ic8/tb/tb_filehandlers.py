@@ -164,6 +164,8 @@ class ModelResultsTb(TBMixin, ModelResults):
         xlsx_df = self._load_sheet(file)
 
         # Only keep columns of immediate interest:
+        #TODO: to all the below add the vaccine_n and vaccine_cost and to the parameter toml file as variable
+        #TODO: add VNM, KEN and COD back to parameter toml file
         xlsx_df = xlsx_df[
             [
                 "iso3",
