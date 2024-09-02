@@ -186,6 +186,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "total_cost",
                 "cost_private",
                 "cost_vaccine",
+                "vaccine_compete",
         ]
         df = df[cols_needed]
 
@@ -246,6 +247,13 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
         # Then put GP back into df
         df = pd.concat([df, df_gp], axis=0)
+
+        # Which vaccine scenario do we want to use?
+        # Note if you want to run competing change both zeros below to ones!
+        df["vaccine_compete"] = df["vaccine_compete"].fillna(0)
+        df = df.loc[df['vaccine_compete'] == 0]
+        df = df.drop(columns=["vaccine_compete"])
+
 
         # Do some re-naming to make things easier
         df = df.rename(
