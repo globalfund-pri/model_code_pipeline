@@ -212,11 +212,6 @@ class ModelResultsTb(TBMixin, ModelResults):
             ]
         ]
 
-        # Removing non-vaccine scenarios
-        list_scenarios = ['PF_06', 'PF_07', 'PF_08', 'PF_09']
-        xlsx_df = xlsx_df[~xlsx_df['Scenario'].isin(list_scenarios)]
-        xlsx_df['Scenario'] = xlsx_df['Scenario'].str.replace('v', '')
-
         # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
         df_gp = xlsx_df[xlsx_df.Scenario == "GP"]
         xlsx_df = xlsx_df[xlsx_df.Scenario != "GP"]
