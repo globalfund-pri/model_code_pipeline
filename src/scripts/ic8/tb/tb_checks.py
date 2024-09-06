@@ -49,7 +49,7 @@ if __name__ == "__main__":
         model_results=model_results,
         # gp=gp,
         pf_input_data=pf_input_data,
-        # partner_data=partner_data,
+        partner_data=partner_data,
     )
 
     # Run the checks
