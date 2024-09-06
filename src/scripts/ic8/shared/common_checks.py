@@ -605,7 +605,8 @@ class CommonChecks_allscenarios:
         self.EXPECTED_CC_SCENARIOS = params.get_cccounterfactuals().index.to_list()
         self.EXPECTED_HISTORIC_FIRST_YEAR = params.get("HISTORIC_FIRST_YEAR")
         self.EXPECTED_START_YEAR = params.get("START_YEAR")
-        self.EXPECTED_LAST_YEAR_PF= params.get("LAST_YEAR_PF")
+        self.EXPECTED_GP_START_YEAR = params.get(self.disease_name).get("GP_START_YEAR")
+        self.EXPECTED_LAST_YEAR_PF = params.get("LAST_YEAR_PF")
         self.EXPECTED_LAST_YEAR = params.get("END_YEAR")
         self.EXPECTED_INDICATORS = params.get_indicators_for(self.disease_name)
         self.EXPECTED_EPI_INDICATORS = self.EXPECTED_INDICATORS.loc[
@@ -653,26 +654,43 @@ class CommonChecks_allscenarios:
         # Get shortcut to dataframe of model results
         df = db.model_results.df
 
-        # We expect an entry in the model results for each permutation of the following:
-        expected_idx = pd.MultiIndex.from_product(
-            [
-                (self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS),
-                expected_funding,
-                self.EXPECTED_COUNTRIES,
-                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR),
-                self.EXPECTED_EPI_INDICATORS,
-            ],
-            names=df.index.names,
-        )
+        if self.disease_name != 'TB':
+
+            list_of_scenario = (self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS)
+            list_of_scenario.remove("HH")
+
+            # We expect an entry in the model results for each permutation of the following:
+            expected_idx = pd.MultiIndex.from_product(
+                [
+                    list_of_scenario,
+                    expected_funding,
+                    self.EXPECTED_COUNTRIES,
+                    range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
+                    self.EXPECTED_EPI_INDICATORS,
+                ],
+                names=df.index.names,
+            )
+
+            expected_idx_2 = pd.MultiIndex.from_product(
+                [
+                    (["HH"]),
+                    expected_funding,
+                    self.EXPECTED_COUNTRIES,
+                    range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR),
+                    self.EXPECTED_EPI_INDICATORS,
+                ],
+                names=df.index.names,
+            )
+            expected_idx = expected_idx.append(expected_idx_2)
 
         if self.disease_name == 'TB':
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_tb.csv",
-            )  # TODO: this is ugly can we move it?
+            )# TODO: this is ugly can we move it?
 
             expected_idx = pd.MultiIndex.from_product(
                 [
-                    (['CC_2000', 'NULL_2000', 'HH']),
+                    (['HH']),
                     expected_funding,
                     self.EXPECTED_COUNTRIES,
                     range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR),
@@ -681,12 +699,40 @@ class CommonChecks_allscenarios:
                 names=df.index.names,
             )
 
+            list_of_scenarios2 = self.EXPECTED_FUNDING_SCENARIOS
+            list_of_scenarios2.append("CC_2022")
+            list_of_scenarios2.append("NULL_2022")
+
             expected_idx_2 = pd.MultiIndex.from_product(
                 [
-                    (['GP']), #TODO: add PF later
+                    list_of_scenarios2,
                     expected_funding,
                     self.EXPECTED_COUNTRIES,
-                    range(self.EXPECTED_START_YEAR-1, self.EXPECTED_LAST_YEAR),
+                    range(self.EXPECTED_START_YEAR-1, self.EXPECTED_LAST_YEAR+1),
+                    self.EXPECTED_EPI_INDICATORS,
+                ],
+                names=df.index.names,
+            )
+            expected_idx = expected_idx.append(expected_idx_2)
+
+            expected_idx_2 = pd.MultiIndex.from_product(
+                [
+                    (['GP']),
+                    expected_funding,
+                    self.EXPECTED_COUNTRIES,
+                    range(self.EXPECTED_GP_START_YEAR, self.EXPECTED_LAST_YEAR+1),
+                    self.EXPECTED_EPI_INDICATORS,
+                ],
+                names=df.index.names,
+            )
+            expected_idx = expected_idx.append(expected_idx_2)
+
+            expected_idx_2 = pd.MultiIndex.from_product(
+                [
+                    (['CC_2000', 'NULL_2000']),
+                    expected_funding,
+                    self.EXPECTED_COUNTRIES,
+                    range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
                     self.EXPECTED_EPI_INDICATORS,
                 ],
                 names=df.index.names,
@@ -701,7 +747,7 @@ class CommonChecks_allscenarios:
                         (['CC_FIRSTYEARGF', 'NULL_FIRSTYEARGF']),
                         expected_funding,
                         [country],
-                        range(year, self.EXPECTED_LAST_YEAR),
+                        range(year, self.EXPECTED_LAST_YEAR+1),
                         self.EXPECTED_EPI_INDICATORS,
                     ],
                     names=df.index.names,
