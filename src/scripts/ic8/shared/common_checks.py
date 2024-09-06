@@ -283,7 +283,7 @@ class CommonChecks_forwardchecks:
 
     def order_of_scenarios(self, db):
         """Checks that the scenarios follow the expected a certain pattern.That is in increasing order for cases and
-        deaths: GP, PF, CC, NULL and limited to funding fractions 100% over the investment case period."""
+        deaths: GP, PF, CC, NULL and limited to scenarios with funding fractions 100%. """
 
         correct_order = self.CORRECT_SCENARIO_ORDER
 
@@ -298,7 +298,7 @@ class CommonChecks_forwardchecks:
                             correct_order,
                             1.0,
                             country,
-                            range(self.EXPECTED_LAST_YEAR_PF+1, self.EXPECTED_LAST_YEAR+1),
+                            range(self.EXPECTED_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
                             indicator,
                         ),
                         "central",
