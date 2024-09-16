@@ -1,3 +1,5 @@
+import pandas
+
 from scripts.ic8.tb.tb_filehandlers import TBMixin, PFInputDataTb, PartnerDataTb
 from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.tb.tb_filehandlers import ModelResultsTb
@@ -53,10 +55,133 @@ if __name__ == "__main__":
     )
 
     # Run the checks
-    DatabaseChecksTb(
-        db=db,
-        parameters=parameters,
-    ).run(
-        suppress_error=True,
-        filename=project_root / "outputs" / "tb_report_of_checks.pdf"
-    )
+    # DatabaseChecksTb(
+    #     db=db,
+    #     parameters=parameters,
+    # ).run(
+    #     suppress_error=True,
+    #     filename=project_root / "outputs" / "tb_report_of_checks.pdf"
+    # )
+
+    # Run new resource need:
+    cost_df = model_results.df.loc[
+            ("PF", 1, slice(None), slice(None), 'cost')
+        ]
+    cost_df = cost_df.reset_index()
+    cost_by_year = cost_df.groupby('year').sum()
+    del cost_by_year['country']
+    cost_by_year = cost_by_year.rename(columns={'central': 'cost', 'high': 'cost_ub', 'low': 'cost_lb'})
+
+    cost_vx_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'costvx')
+    ]
+    cost_vx_df = cost_vx_df.reset_index()
+    cost_vx_by_year = cost_vx_df.groupby('year').sum()
+    del cost_vx_by_year['country']
+    cost_vx_by_year = cost_vx_by_year.rename(columns={'central': 'costvx', 'high': 'costvx_ub', 'low': 'costvx_lb'})
+
+    # Forward looking epi
+    cases_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'cases')
+    ]
+    deaths_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'deaths')
+    ]
+    pop_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'population')
+    ]
+
+    cases_df = cases_df.reset_index()
+    cases_by_year = cases_df.groupby('year').sum()
+    del cases_by_year['country']
+
+    deaths_df = deaths_df.reset_index()
+    deaths_by_year = deaths_df.groupby('year').sum()
+    del deaths_by_year['country']
+
+    pop_df = pop_df.reset_index()
+    pop_by_year = pop_df.groupby('year').sum()
+    del pop_by_year['country']
+
+    incidence_by_year = cases_by_year / pop_by_year
+    mortality_by_year = deaths_by_year / pop_by_year
+
+    incidence_by_year = incidence_by_year.rename(columns={'central': 'incidence', 'high': 'incidence_ub', 'low': 'incidence_lb'})
+    mortality_by_year = mortality_by_year.rename(
+        columns={'central': 'mortality', 'high': 'mortality_ub', 'low': 'mortality_lb'})
+
+    # Historic epidemic
+    cases_df_hh = model_results.df.loc[
+        ("HH", 1, slice(None), slice(None), 'cases')
+    ]
+    deaths_df_hh = model_results.df.loc[
+        ("HH", 1, slice(None), slice(None), 'deaths')
+    ]
+    pop_df_hh = model_results.df.loc[
+        ("HH", 1, slice(None), slice(None), 'population')
+    ]
+
+    cases_df_hh = cases_df_hh.reset_index()
+    cases_hh_by_year = cases_df_hh.groupby('year').sum()
+    del cases_hh_by_year['country']
+
+    deaths_df_hh = deaths_df_hh.reset_index()
+    deaths_hh_by_year = deaths_df_hh.groupby('year').sum()
+    del deaths_hh_by_year['country']
+
+    pop_df_hh = pop_df_hh.reset_index()
+    pop_hh_by_year = pop_df_hh.groupby('year').sum()
+    del pop_hh_by_year['country']
+
+    incidence_hh_by_year = cases_hh_by_year / pop_hh_by_year
+    mortality_hh_by_year = deaths_hh_by_year / pop_hh_by_year
+
+    incidence_hh_by_year = incidence_hh_by_year.rename(
+        columns={'central': 'incidence', 'high': 'incidence_ub', 'low': 'incidence_lb'})
+    mortality_hh_by_year = mortality_hh_by_year.rename(
+        columns={'central': 'mortality', 'high': 'mortality_ub', 'low': 'mortality_lb'})
+
+    # Concat epi
+    incidence_by_year = pandas.concat([incidence_hh_by_year, incidence_by_year])
+    mortality_by_year = pandas.concat([mortality_hh_by_year, mortality_by_year])
+
+    # Merge all into one and save the output
+    df_costs = pandas.concat([cost_by_year, cost_vx_by_year], axis=1)
+    df_costs = df_costs.reset_index()
+    df_epi = pandas.concat([incidence_by_year, mortality_by_year], axis=1)
+    df_epi = df_epi.reset_index()
+
+    df_resource_need = (pandas.merge(df_epi, df_costs, on='year', how = 'outer'))
+    df_resource_need.to_csv('df_resource_need_tb.csv')
+
+
+    # Get the GP / pF costs comparison
+    cost_gp_df = model_results.df.loc[
+        ("GP", 1, slice(None), slice(None), 'cost')
+    ]
+    cost_gp_df = cost_gp_df.reset_index()
+    cost_gp_by_year = cost_gp_df.rename(columns={'central': 'gp_cost', 'high': 'gp_cost_ub', 'low': 'gp_cost_lb'})
+
+    cost_vx_gp_df = model_results.df.loc[
+        ("GP", 1, slice(None), slice(None), 'costvx')
+    ]
+    cost_vx_gp_df = cost_vx_gp_df.reset_index()
+    cost_vx_gp_by_year = cost_vx_gp_df.rename(columns={'central': 'gp_costvx', 'high': 'gp_costvx_ub', 'low': 'gp_costvx_lb'})
+
+    cost_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'cost')
+    ]
+    cost_df = cost_df.reset_index()
+    cost_by_year = cost_df.rename(columns={'central': 'cost', 'high': 'cost_ub', 'low': 'cost_lb'})
+
+    cost_vx_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'costvx')
+    ]
+    cost_vx_df = cost_vx_df.reset_index()
+    cost_vx_by_year = cost_vx_df.rename(columns={'central': 'costvx', 'high': 'costvx_ub', 'low': 'costvx_lb'})
+
+    df_gp = pandas.merge(cost_gp_by_year, cost_vx_gp_by_year, on=['year', 'country'])
+    df_pf = pandas.merge(cost_by_year, cost_vx_by_year, on=['year', 'country'])
+
+    df_cost_comparison = (pandas.merge(df_gp, df_pf, on=['year', 'country'], how='outer'))
+    df_cost_comparison.to_csv('df_cost_comparison_tb.csv')

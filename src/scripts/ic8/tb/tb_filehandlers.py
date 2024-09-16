@@ -209,6 +209,9 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_p",
                 "hiv_pos",
                 "Costs",
+                "vacc_number",
+                "vacc_costs",
+
             ]
         ]
 
@@ -251,6 +254,8 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_p",
                 "hiv_pos",
                 "Costs",
+                "vacc_number",
+                "vacc_costs",
         ]] = df_gp[[
              "Notified_n",
                 "Notified_n_LB",
@@ -277,6 +282,8 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_p",
                 "hiv_pos",
                 "Costs",
+                "vacc_number",
+                "vacc_costs",
         ]].fillna(0)
 
         # Then put GP back into df
@@ -321,6 +328,8 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB": "tbart_high",
                 "tb_art_p": "tbartcoverage_central",
                 "hiv_pos": "plhiv_central",
+                "vacc_number": "vaccine_central",
+                "vacc_costs": "costvx_central",
                 "Costs": "cost_central",
             }
         )
@@ -365,6 +374,12 @@ class ModelResultsTb(TBMixin, ModelResults):
 
         xlsx_df["cost_low"] = xlsx_df["cost_central"]
         xlsx_df["cost_high"] = xlsx_df["cost_central"]
+
+        xlsx_df["costvx_low"] = xlsx_df["costvx_central"]
+        xlsx_df["costvx_high"] = xlsx_df["costvx_central"]
+
+        xlsx_df["vaccine_low"] = xlsx_df["vaccine_central"]
+        xlsx_df["vaccine_high"] = xlsx_df["vaccine_central"]
 
         # Generate incidence and mortality
         xlsx_df["incidence_low"] = xlsx_df["cases_low"] / xlsx_df["population_low"]

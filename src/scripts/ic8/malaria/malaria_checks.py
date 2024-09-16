@@ -1,3 +1,5 @@
+import pandas
+
 from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin, PFInputDataMalaria, PartnerDataMalaria
 from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria
@@ -56,10 +58,76 @@ if __name__ == "__main__":
     )
 
     # Run the checks
-    DatabaseChecksMalaria(
-        db=db,
-        parameters=parameters,
-    ).run(
-        suppress_error=True,
-        filename=project_root / "outputs" / "malaria_report_of_checks.pdf"
-    )
+    # DatabaseChecksMalaria(
+    #     db=db,
+    #     parameters=parameters,
+    # ).run(
+    #     suppress_error=True,
+    #     filename=project_root / "outputs" / "malaria_report_of_checks.pdf"
+    # )
+
+    # Run new resource need:
+    cost_df = model_results.df.loc[
+            ("PF", 1, slice(None), slice(None), 'cost')
+        ]
+    cost_df = cost_df.reset_index()
+    cost_by_year = cost_df.groupby('year').sum()
+    del cost_by_year['country']
+    cost_by_year = cost_by_year.rename(columns={'central': 'cost_lb', 'high': 'cost_ub', 'low': 'cost_lb'})
+
+
+    cost_vx_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'costvx')
+    ]
+    cost_vx_df = cost_vx_df.reset_index()
+    cost_vx_by_year = cost_vx_df.groupby('year').sum()
+    del cost_vx_by_year['country']
+    cost_vx_by_year = cost_vx_by_year.rename(columns={'central': 'costvx_lb', 'high': 'costvx_ub', 'low': 'costvx_lb'})
+
+    cost_priv_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'costtxprivate')
+    ]
+    cost_priv_df = cost_priv_df.reset_index()
+    cost_priv_by_year = cost_priv_df.groupby('year').sum()
+    del cost_priv_by_year['country']
+    cost_priv_by_year = cost_priv_by_year.rename(columns={'central': 'costpriv_lb', 'high': 'costpriv_ub', 'low': 'costpriv_lb'})
+
+    cases_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'cases')
+    ]
+    deaths_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'deaths')
+    ]
+    par_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), 'par')
+    ]
+
+    cases_df = cases_df.reset_index()
+    cases_by_year = cases_df.groupby('year').sum()
+    del cases_by_year['country']
+
+    deaths_df = deaths_df.reset_index()
+    deaths_by_year = deaths_df.groupby('year').sum()
+    del deaths_by_year['country']
+
+    par_df = par_df.reset_index()
+    par_by_year = par_df.groupby('year').sum()
+    del par_by_year['country']
+
+    incidence_by_year = cases_by_year / par_by_year
+    mortality_by_year = deaths_by_year / par_by_year
+
+    incidence_by_year = incidence_by_year.rename(columns={'central': 'incidence_lb', 'high': 'incidence_ub', 'low': 'incidence_lb'})
+    mortality_by_year = mortality_by_year.rename(
+        columns={'central': 'mortality_lb', 'high': 'mortality_ub', 'low': 'mortality_lb'})
+
+    # Merge all into one and save the output
+    df_resource_need = pandas.concat([cost_by_year, cost_vx_by_year, cost_priv_by_year, incidence_by_year, mortality_by_year], axis=1)
+    df_resource_need.to_csv('df_resource_need_malaria.csv')
+
+
+
+
+
+
+
