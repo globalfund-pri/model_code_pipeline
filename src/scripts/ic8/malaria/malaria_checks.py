@@ -66,6 +66,31 @@ if __name__ == "__main__":
     #     filename=project_root / "outputs" / "malaria_report_of_checks.pdf"
     # )
 
+    # Save output for Nick Menzies
+    fuc_mainscenario_df = model_results.df.loc[
+            ("PF", 1, slice(None), slice(None), slice(None))
+        ]
+    fuc_mainscenario_df = fuc_mainscenario_df.reset_index()
+    fuc_mainscenario_df['scenario_descriptor'] = "PF_100"
+
+    fuc_cc2022_df = model_results.df.loc[
+        ("CC_2022", 1, slice(None), slice(None), slice(None))
+    ]
+    fuc_cc2022_df = fuc_cc2022_df.reset_index()
+    fuc_cc2022_df['scenario_descriptor'] = "CC_2022"
+
+    fuc_null2022_df = model_results.df.loc[
+        ("NULL_2022", 1, slice(None), slice(None), slice(None))
+    ]
+    fuc_null2022_df = fuc_null2022_df.reset_index()
+    fuc_null2022_df['scenario_descriptor'] = "NULL_2022"
+
+    fuc_df = pandas.concat(
+        [fuc_mainscenario_df, fuc_cc2022_df, fuc_null2022_df], axis=0)
+
+    # Save output
+    fuc_df.to_csv('df_freed_up_capacity_malaria.csv')
+
     # Run new resource need:
     cost_df = model_results.df.loc[
             ("PF", 1, slice(None), slice(None), 'cost')
