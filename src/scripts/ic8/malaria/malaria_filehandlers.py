@@ -141,6 +141,24 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
 
+        # Make IC scenario
+        funding_fraction = 1
+        ic_df = concatenated_dfs.loc[
+            ("PF", 0.1, slice(None), slice(None), slice(None))
+        ]
+        ic_df = ic_df.reset_index()
+        ic_df["scenario_descriptor"] = "IC_IC"
+        ic_df["funding_fraction"] = funding_fraction
+        ic_df = ic_df.set_index(
+            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
+        )  # repack the index
+
+        # Sort the ic_df
+        ic_df.sort_index(level="country")
+
+        # Add ic_ic scenario to model output
+        concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
+
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
@@ -156,24 +174,19 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "iso3",
                 "year",
                 "scenario",
-                "budget_proportion",    # this is the 'funding_fraction'
-                "cases",                # }
-                "cases_lb",             # }
-                "cases_ub",             # }
-                "deaths",               # }
-                "deaths_lb",            # }
-                "deaths_ub",            # } these are needed are the GP scenarios do not have the "_smooth" versions
-                # "cases_smooth",
-                # "cases_smooth_lb",
-                # "cases_smooth_ub",
-                # "deaths_smooth",
-                # "deaths_smooth_lb",
-                # "deaths_smooth_ub",
+                "budget_proportion",
+                "cases",
+                "cases_lb",
+                "cases_ub",
+                "deaths",
+                "deaths_lb",
+                "deaths_ub",
                 "net_n",
                 "irs_people_protected",
                 "irs_hh",
                 "treatments_given_public",
                 "treatment_coverage",
+                "hosp_malaria",
                 "smc_children_protected",
                 "smc_coverage",
                 "vector_control_n",
@@ -214,6 +227,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             'irs_hh',
             "treatments_given_public",
             "treatment_coverage",
+            "hosp_malaria",
             "smc_children_protected",
             "smc_coverage",
             "vector_control_n",
@@ -232,6 +246,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             'irs_hh',
             "treatments_given_public",
             "treatment_coverage",
+            "hosp_malaria",
             "smc_children_protected",
             "smc_coverage",
             "vector_control_n",
@@ -308,6 +323,11 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df["txcoverage_central"] = df["treatment_coverage"]
         df["txcoverage_high"] = df["treatment_coverage"]
         df = df.drop(columns=["treatment_coverage"])
+
+        df["hospitalization_low"] = df["hosp_malaria"]
+        df["hospitalization_central"] = df["hosp_malaria"]
+        df["hospitalization_high"] = df["hosp_malaria"]
+        df = df.drop(columns=["hosp_malaria"])
 
         df["smc_low"] = df["smc_children_protected"]
         df["smc_central"] = df["smc_children_protected"]
