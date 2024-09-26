@@ -135,14 +135,14 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # TODO: @richard: when John sends forward looking scenarios uncomment the section below and remove part on "scenario_names
         # Filter out any countries that we do not need
         expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-        scenario_names = ["HH", "GP", "NULL_2000", "CC_2000", "CC_FIRSTYEARGF", "NULL_FIRSTYEARGF"] # TODO @richard: remove this line
-        # TODO @richard: uncomment the part below
-        # scenario_names = (self.parameters.get_scenarios().index.to_list() +
-        #                   self.parameters.get_counterfactuals().index.to_list()
-        #                   )
-        concatenated_dfs = concatenated_dfs.loc[
-            (scenario_names, slice(None), expected_countries, slice(None), slice(None))
-        ]
+        # scenario_names = ["HH", "GP", "NULL_2000", "CC_2000", "CC_FIRSTYEARGF", "NULL_FIRSTYEARGF"] # TODO @richard: remove this line
+        # # TODO @richard: uncomment the part below
+        # # scenario_names = (self.parameters.get_scenarios().index.to_list() +
+        # #                   self.parameters.get_counterfactuals().index.to_list()
+        # #                   )
+        # concatenated_dfs = concatenated_dfs.loc[
+        #     (scenario_names, slice(None), expected_countries, slice(None), slice(None))
+        # ]
 
         # Make funding numbers into fractions
         concatenated_dfs = concatenated_dfs.reset_index()
@@ -189,6 +189,45 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "ART_total_LB",
                 "ART_total_UB",
                 "ART_cov",
+                'Deaths_0_4',
+                'Deaths_5_9',
+                'Deaths_10_14',
+                'Deaths_15_19',
+                'Deaths_20_24',
+                'Deaths_25_29',
+                'Deaths_30_34',
+                'Deaths_35_39',
+                'Deaths_40_44',
+                'Deaths_45_49',
+                'Deaths_50_54',
+                'Deaths_55_59',
+                'Deaths_60_64',
+                'Deaths_65_69',
+                'Deaths_70_74',
+                'Deaths_75_79',
+                'Deaths_80',
+                "Adult_ART",
+                'Ped_ART',
+                'notx_15plus_more500',
+                'notx_15plus_350_500',
+                'notx_15plus_250_350',
+                'notx_15plus_200_250',
+                'notx_15plus_100_200',
+                'notx_15plus_50_100',
+                'notx_15plus_less50',
+                'notx_5_14_more1000',
+                'notx_5_14_750_999',
+                'notx_5_14_500_749',
+                'notx_5_14_350_499',
+                'notx_5_14_200_349',
+                'notx_5_14_less200',
+                'notx_less5_more30',
+                'notx_less5_26_30',
+                'notx_less5_21_25',
+                'notx_less5_16_20',
+                'notx_less5_11_15',
+                'notx_less5_5_10',
+                'notx_less5_less5',
                 "PMTCT_num",
                 "PMTCT_num_LB",
                 "PMTCT_num_UB",
@@ -246,6 +285,45 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # 2. Replace nan with zeros
         df_gp[[
             "ART_cov",
+            'Deaths_0_4',
+            'Deaths_5_9',
+            'Deaths_10_14',
+            'Deaths_15_19',
+            'Deaths_20_24',
+            'Deaths_25_29',
+            'Deaths_30_34',
+            'Deaths_35_39',
+            'Deaths_40_44',
+            'Deaths_45_49',
+            'Deaths_50_54',
+            'Deaths_55_59',
+            'Deaths_60_64',
+            'Deaths_65_69',
+            'Deaths_70_74',
+            'Deaths_75_79',
+            'Deaths_80',
+            "Adult_ART",
+            'Ped_ART',
+            'notx_15plus_more500',
+            'notx_15plus_350_500',
+            'notx_15plus_250_350',
+            'notx_15plus_200_250',
+            'notx_15plus_100_200',
+            'notx_15plus_50_100',
+            'notx_15plus_less50',
+            'notx_5_14_more1000',
+            'notx_5_14_750_999',
+            'notx_5_14_500_749',
+            'notx_5_14_350_499',
+            'notx_5_14_200_349',
+            'notx_5_14_less200',
+            'notx_less5_more30',
+            'notx_less5_26_30',
+            'notx_less5_21_25',
+            'notx_less5_16_20',
+            'notx_less5_11_15',
+            'notx_less5_5_10',
+            'notx_less5_less5',
                 "PMTCT_num",
                 "PMTCT_num_LB",
                 "PMTCT_num_UB",
@@ -283,6 +361,45 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "Total_cost",
         ]] = df_gp[[
             "ART_cov",
+            'Deaths_0_4',
+            'Deaths_5_9',
+            'Deaths_10_14',
+            'Deaths_15_19',
+            'Deaths_20_24',
+            'Deaths_25_29',
+            'Deaths_30_34',
+            'Deaths_35_39',
+            'Deaths_40_44',
+            'Deaths_45_49',
+            'Deaths_50_54',
+            'Deaths_55_59',
+            'Deaths_60_64',
+            'Deaths_65_69',
+            'Deaths_70_74',
+            'Deaths_75_79',
+            'Deaths_80',
+            "Adult_ART",
+            'Ped_ART',
+            'notx_15plus_more500',
+            'notx_15plus_350_500',
+            'notx_15plus_250_350',
+            'notx_15plus_200_250',
+            'notx_15plus_100_200',
+            'notx_15plus_50_100',
+            'notx_15plus_less50',
+            'notx_5_14_more1000',
+            'notx_5_14_750_999',
+            'notx_5_14_500_749',
+            'notx_5_14_350_499',
+            'notx_5_14_200_349',
+            'notx_5_14_less200',
+            'notx_less5_more30',
+            'notx_less5_26_30',
+            'notx_less5_21_25',
+            'notx_less5_16_20',
+            'notx_less5_11_15',
+            'notx_less5_5_10',
+            'notx_less5_less5',
             "PMTCT_num",
             "PMTCT_num_LB",
             "PMTCT_num_UB",
@@ -376,16 +493,223 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             }
         )
 
+        # Clean up scenario names
+        csv_df = csv_df.replace('Step1', 'NULL_2022')
+        csv_df = csv_df.replace('Step2', 'Python CC_2022')
+
+
+
         # Clean up funding fraction and PF scenario
-        csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna('') # Puts the funding scenario number in a new column called funding fraction
+        csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('Step(\d+)$').fillna('') # Puts the funding scenario number in a new column called funding fraction
         csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('', 1) # Where there is no funding fraction, set it to 1
-        csv_df.loc[csv_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF' # removes "_"
+        csv_df.loc[csv_df['scenario_descriptor'].str.contains('Step'), 'scenario_descriptor'] = 'PF' # removes "_"
+
+        # Remove rows without funding fraction results
+        csv_df = csv_df[csv_df['plhiv_central'].notna()]
+
+        # Convert funding fraction to number
+        csv_df['funding_fraction'] = csv_df['funding_fraction'].astype('float')
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         csv_df["artcoverage_low"] = csv_df["ART_cov"]
         csv_df["artcoverage_central"] = csv_df["ART_cov"]
         csv_df["artcoverage_high"] = csv_df["ART_cov"]
         csv_df = csv_df.drop(columns=["ART_cov"])
+
+        csv_df["deaths0to4_low"] = csv_df["Deaths_0_4"]
+        csv_df["deaths0to4_central"] = csv_df["Deaths_0_4"]
+        csv_df["deaths0to4_high"] = csv_df["Deaths_0_4"]
+        csv_df = csv_df.drop(columns=["Deaths_0_4"])
+
+        csv_df["deaths5to9_low"] = csv_df["Deaths_5_9"]
+        csv_df["deaths5to9_central"] = csv_df["Deaths_5_9"]
+        csv_df["deaths5to9_high"] = csv_df["Deaths_5_9"]
+        csv_df = csv_df.drop(columns=["Deaths_5_9"])
+
+        csv_df["deaths10to14_low"] = csv_df["Deaths_10_14"]
+        csv_df["deaths10to14_central"] = csv_df["Deaths_10_14"]
+        csv_df["deaths10to14_high"] = csv_df["Deaths_10_14"]
+        csv_df = csv_df.drop(columns=["Deaths_10_14"])
+
+        csv_df["deaths15to19_low"] = csv_df["Deaths_15_19"]
+        csv_df["deaths15to19_central"] = csv_df["Deaths_15_19"]
+        csv_df["deaths15to19_high"] = csv_df["Deaths_15_19"]
+        csv_df = csv_df.drop(columns=["Deaths_15_19"])
+
+        csv_df["deaths20to24_low"] = csv_df["Deaths_20_24"]
+        csv_df["deaths20to24_central"] = csv_df["Deaths_20_24"]
+        csv_df["deaths20to24_high"] = csv_df["Deaths_20_24"]
+        csv_df = csv_df.drop(columns=["Deaths_20_24"])
+
+        csv_df["deaths25to29_low"] = csv_df["Deaths_25_29"]
+        csv_df["deaths25to29_central"] = csv_df["Deaths_25_29"]
+        csv_df["deaths25to29_high"] = csv_df["Deaths_25_29"]
+        csv_df = csv_df.drop(columns=["Deaths_25_29"])
+
+        csv_df["deaths30to34_low"] = csv_df["Deaths_30_34"]
+        csv_df["deaths30to34_central"] = csv_df["Deaths_30_34"]
+        csv_df["deaths30to34_high"] = csv_df["Deaths_30_34"]
+        csv_df = csv_df.drop(columns=["Deaths_30_34"])
+
+        csv_df["deaths35to39_low"] = csv_df["Deaths_35_39"]
+        csv_df["deaths35to39_central"] = csv_df["Deaths_35_39"]
+        csv_df["deaths35to39_high"] = csv_df["Deaths_35_39"]
+        csv_df = csv_df.drop(columns=["Deaths_35_39"])
+
+        csv_df["deaths40to44_low"] = csv_df["Deaths_40_44"]
+        csv_df["deaths40to44_central"] = csv_df["Deaths_40_44"]
+        csv_df["deaths40to44_high"] = csv_df["Deaths_40_44"]
+        csv_df = csv_df.drop(columns=["Deaths_40_44"])
+
+        csv_df["deaths45to49_low"] = csv_df["Deaths_45_49"]
+        csv_df["deaths45to49_central"] = csv_df["Deaths_45_49"]
+        csv_df["deaths45to49_high"] = csv_df["Deaths_45_49"]
+        csv_df = csv_df.drop(columns=["Deaths_45_49"])
+
+        csv_df["deaths50to54_low"] = csv_df["Deaths_50_54"]
+        csv_df["deaths50to54_central"] = csv_df["Deaths_50_54"]
+        csv_df["deaths50to54_high"] = csv_df["Deaths_50_54"]
+        csv_df = csv_df.drop(columns=["Deaths_50_54"])
+
+        csv_df["deaths55to59_low"] = csv_df["Deaths_55_59"]
+        csv_df["deaths55to59_central"] = csv_df["Deaths_55_59"]
+        csv_df["deaths55to59_high"] = csv_df["Deaths_55_59"]
+        csv_df = csv_df.drop(columns=["Deaths_55_59"])
+
+        csv_df["deaths60to64_low"] = csv_df["Deaths_60_64"]
+        csv_df["deaths60to64_central"] = csv_df["Deaths_60_64"]
+        csv_df["deaths60to64_high"] = csv_df["Deaths_60_64"]
+        csv_df = csv_df.drop(columns=["Deaths_60_64"])
+
+        csv_df["deaths65to69_low"] = csv_df["Deaths_65_69"]
+        csv_df["deaths65to69_central"] = csv_df["Deaths_65_69"]
+        csv_df["deaths65to69_high"] = csv_df["Deaths_65_69"]
+        csv_df = csv_df.drop(columns=["Deaths_65_69"])
+
+        csv_df["deaths70to74_low"] = csv_df["Deaths_70_74"]
+        csv_df["deaths70to74_central"] = csv_df["Deaths_70_74"]
+        csv_df["deaths70to74_high"] = csv_df["Deaths_70_74"]
+        csv_df = csv_df.drop(columns=["Deaths_70_74"])
+
+        csv_df["deaths75to79_low"] = csv_df["Deaths_75_79"]
+        csv_df["deaths75to79_central"] = csv_df["Deaths_75_79"]
+        csv_df["deaths75to79_high"] = csv_df["Deaths_75_79"]
+        csv_df = csv_df.drop(columns=["Deaths_75_79"])
+
+        csv_df["deaths80_low"] = csv_df["Deaths_80"]
+        csv_df["deaths80_central"] = csv_df["Deaths_80"]
+        csv_df["deaths80_high"] = csv_df["Deaths_80"]
+        csv_df = csv_df.drop(columns=["Deaths_80"])
+
+        csv_df["adultart_low"] = csv_df["Adult_ART"]
+        csv_df["adultart_central"] = csv_df["Adult_ART"]
+        csv_df["adultart_high"] = csv_df["Adult_ART"]
+        csv_df = csv_df.drop(columns=["Adult_ART"])
+
+        csv_df["pedart_low"] = csv_df["Ped_ART"]
+        csv_df["pedart_central"] = csv_df["Ped_ART"]
+        csv_df["pedart_high"] = csv_df["Ped_ART"]
+        csv_df = csv_df.drop(columns=["Ped_ART"])
+
+        csv_df["notx15plusmore500_low"] = csv_df["notx_15plus_more500"]
+        csv_df["notx15plusmore500_central"] = csv_df["notx_15plus_more500"]
+        csv_df["notx15plusmore500_high"] = csv_df["notx_15plus_more500"]
+        csv_df = csv_df.drop(columns=["notx_15plus_more500"])
+
+        csv_df["notx15plus350to500_low"] = csv_df["notx_15plus_350_500"]
+        csv_df["notx15plus350to500_central"] = csv_df["notx_15plus_350_500"]
+        csv_df["notx15plus350to500_high"] = csv_df["notx_15plus_350_500"]
+        csv_df = csv_df.drop(columns=["notx_15plus_350_500"])
+
+        csv_df["notx15plus250to350_low"] = csv_df["notx_15plus_250_350"]
+        csv_df["notx15plus250to350_central"] = csv_df["notx_15plus_250_350"]
+        csv_df["notx15plus250to350_high"] = csv_df["notx_15plus_250_350"]
+        csv_df = csv_df.drop(columns=["notx_15plus_250_350"])
+
+        csv_df["notx15plus200to250_low"] = csv_df["notx_15plus_200_250"]
+        csv_df["notx15plus200to250_central"] = csv_df["notx_15plus_200_250"]
+        csv_df["notx15plus200to250_high"] = csv_df["notx_15plus_200_250"]
+        csv_df = csv_df.drop(columns=["notx_15plus_200_250"])
+
+        csv_df["notx15plus100to200_low"] = csv_df["notx_15plus_100_200"]
+        csv_df["notx15plus100to200_central"] = csv_df["notx_15plus_100_200"]
+        csv_df["notx15plus100to200_high"] = csv_df["notx_15plus_100_200"]
+        csv_df = csv_df.drop(columns=["notx_15plus_100_200"])
+
+        csv_df["notx15plus50to100_low"] = csv_df["notx_15plus_50_100"]
+        csv_df["notx15plus50to100_central"] = csv_df["notx_15plus_50_100"]
+        csv_df["notx15plus50to100_high"] = csv_df["notx_15plus_50_100"]
+        csv_df = csv_df.drop(columns=["notx_15plus_50_100"])
+
+        csv_df["notx15plusless50_low"] = csv_df["notx_15plus_less50"]
+        csv_df["notx15plusless50_central"] = csv_df["notx_15plus_less50"]
+        csv_df["notx15plusless50_high"] = csv_df["notx_15plus_less50"]
+        csv_df = csv_df.drop(columns=["notx_15plus_less50"])
+
+        csv_df["notx5to14more1000_low"] = csv_df["notx_5_14_more1000"]
+        csv_df["notx5to14more1000_central"] = csv_df["notx_5_14_more1000"]
+        csv_df["notx5to14more1000_high"] = csv_df["notx_5_14_more1000"]
+        csv_df = csv_df.drop(columns=["notx_5_14_more1000"])
+
+        csv_df["notx5to14cd750to999_low"] = csv_df["notx_5_14_750_999"]
+        csv_df["notx5to14cd750to999_central"] = csv_df["notx_5_14_750_999"]
+        csv_df["notx5to14cd750to999_high"] = csv_df["notx_5_14_750_999"]
+        csv_df = csv_df.drop(columns=["notx_5_14_750_999"])
+
+        csv_df["notx5to14cd500to749_low"] = csv_df["notx_5_14_500_749"]
+        csv_df["notx5to14cd500to749_central"] = csv_df["notx_5_14_500_749"]
+        csv_df["notx5to14cd500to749_high"] = csv_df["notx_5_14_500_749"]
+        csv_df = csv_df.drop(columns=["notx_5_14_500_749"])
+
+        csv_df["notx5to14cd350to499_low"] = csv_df["notx_5_14_350_499"]
+        csv_df["notx5to14cd350to499_central"] = csv_df["notx_5_14_350_499"]
+        csv_df["notx5to14cd350to499_high"] = csv_df["notx_5_14_350_499"]
+        csv_df = csv_df.drop(columns=["notx_5_14_350_499"])
+
+        csv_df["notx5to14cd200to349_low"] = csv_df["notx_5_14_200_349"]
+        csv_df["notx5to14cd200to349_central"] = csv_df["notx_5_14_200_349"]
+        csv_df["notx5to14cd200to349_high"] = csv_df["notx_5_14_200_349"]
+        csv_df = csv_df.drop(columns=["notx_5_14_200_349"])
+
+        csv_df["notx5to14less200_low"] = csv_df["notx_5_14_less200"]
+        csv_df["notx5to14less200_central"] = csv_df["notx_5_14_less200"]
+        csv_df["notx5to14less200_high"] = csv_df["notx_5_14_less200"]
+        csv_df = csv_df.drop(columns=["notx_5_14_less200"])
+
+        csv_df["notxless5more30_low"] = csv_df["notx_less5_more30"]
+        csv_df["notxless5more30_central"] = csv_df["notx_less5_more30"]
+        csv_df["notxless5more30_high"] = csv_df["notx_less5_more30"]
+        csv_df = csv_df.drop(columns=["notx_less5_more30"])
+
+        csv_df["notxless5cd26to30_low"] = csv_df["notx_less5_26_30"]
+        csv_df["notxless5cd26to30_central"] = csv_df["notx_less5_26_30"]
+        csv_df["notxless5cd26to30_high"] = csv_df["notx_less5_26_30"]
+        csv_df = csv_df.drop(columns=["notx_less5_26_30"])
+
+        csv_df["notxless5cd21to25_low"] = csv_df["notx_less5_21_25"]
+        csv_df["notxless5cd21to25_central"] = csv_df["notx_less5_21_25"]
+        csv_df["notxless5cd21to25_high"] = csv_df["notx_less5_21_25"]
+        csv_df = csv_df.drop(columns=["notx_less5_21_25"])
+
+        csv_df["notxless5cd16to20_low"] = csv_df["notx_less5_16_20"]
+        csv_df["notxless5cd16to20_central"] = csv_df["notx_less5_16_20"]
+        csv_df["notxless5cd16to20_high"] = csv_df["notx_less5_16_20"]
+        csv_df = csv_df.drop(columns=["notx_less5_16_20"])
+
+        csv_df["notxless5cd11to15_low"] = csv_df["notx_less5_11_15"]
+        csv_df["notxless5cd11to15_central"] = csv_df["notx_less5_11_15"]
+        csv_df["notxless5cd11to15_high"] = csv_df["notx_less5_11_15"]
+        csv_df = csv_df.drop(columns=["notx_less5_11_15"])
+
+        csv_df["notxless5cd5to10_low"] = csv_df["notx_less5_5_10"]
+        csv_df["notxless5cd5to10_central"] = csv_df["notx_less5_5_10"]
+        csv_df["notxless5cd5to10_high"] = csv_df["notx_less5_5_10"]
+        csv_df = csv_df.drop(columns=["notx_less5_5_10"])
+
+        csv_df["notxless5less5_low"] = csv_df["notx_less5_less5"]
+        csv_df["notxless5less5_central"] = csv_df["notx_less5_less5"]
+        csv_df["notxless5less5_high"] = csv_df["notx_less5_less5"]
+        csv_df = csv_df.drop(columns=["notx_less5_less5"])
 
         csv_df["pmtctcoverage_low"] = csv_df["PMTCT_cov"]
         csv_df["pmtctcoverage_central"] = csv_df["PMTCT_cov"]
@@ -422,7 +746,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["incidence_high"] = csv_df["cases_high"] / csv_df["hivneg_central"]
 
         csv_df["mortality_low"] = csv_df["deaths_low"] / csv_df["plhiv_central"]
-        csv_df["mortality_central"] =csv_df["deaths_central"] / csv_df["plhiv_central"]
+        csv_df["mortality_central"] = csv_df["deaths_central"] / csv_df["plhiv_central"]
         csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["plhiv_central"]
 
         # Pivot to long format
