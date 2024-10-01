@@ -1,6 +1,7 @@
-from scripts.ic7.malaria.malaria_checks import DatabaseChecksMalaria
-from scripts.ic7.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria, \
-    GpMalaria
+from scripts.ic8.malaria.malaria_checks import DatabaseChecksMalaria
+from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria
+# , \
+    # GpMalaria
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -52,7 +53,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsMalaria(
-            path_to_data_folder / "IC8/TimEmulationTool/modelling_outputs/malaria/standard",
+            path_to_data_folder / "IC8/modelling_outputs/malaria/2024_08_30",
             parameters=parameters
         )
         # Save tge model_results object
@@ -62,31 +63,31 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
         model_results = load_var(project_root / "sessions" / "malaria_model_data.pkl")
 
     pf_input_data = PFInputDataMalaria(
-        path_to_data_folder / "IC8/TimEmulationTool/pf/malaria",
+        path_to_data_folder / "IC8/pf/malaria/2024_03_28",
         parameters=parameters
     )
 
     partner_data = PartnerDataMalaria(
-        path_to_data_folder / "IC8/TimEmulationTool/partner/malaria",
+        path_to_data_folder / "IC8/partner/malaria/2024_07_10",
         parameters=parameters
     )
 
-    fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "ic8" / "shared" / "fixed_gps" / "malaria_gp.csv",
-        parameters=parameters
-    )
+    # fixed_gp = FixedGp(
+    #     get_root_path() / "src" / "scripts" / "ic8" / "shared" / "fixed_gps" / "malaria_gp.csv",
+    #     parameters=parameters
+    # )
 
-    gp = GpMalaria(
-        fixed_gp=fixed_gp,
-        model_results=model_results,
-        partner_data=partner_data,
-        parameters=parameters,
-    )
+    # gp = GpMalaria(
+    #     # fixed_gp=fixed_gp,
+    #     model_results=model_results,
+    #     partner_data=partner_data,
+    #     parameters=parameters,
+    # )
 
     # Create and return the database
     return Database(
         model_results=model_results,
-        gp=gp,
+        # gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
     )
@@ -120,7 +121,7 @@ def get_malaria_analysis(
     tgf_funding = (
         TgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC8"
             / "funding"
             / "malaria"
             / "tgf"
@@ -130,7 +131,7 @@ def get_malaria_analysis(
     non_tgf_funding = (
         NonTgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC8"
             / "funding"
             / "malaria"
             / "non_tgf"
@@ -145,13 +146,13 @@ def get_malaria_analysis(
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
         handle_out_of_bounds_costs=True,
-        innovation_on=True,
+        innovation_on=False,
     )
 
 
 if __name__ == "__main__":
     LOAD_DATA_FROM_RAW_FILES = True
-    DO_CHECKS = True
+    DO_CHECKS = False
 
     # Create the Analysis object
     analysis = get_malaria_analysis(

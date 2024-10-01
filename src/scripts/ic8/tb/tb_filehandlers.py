@@ -163,11 +163,9 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Load 'Sheet1' from the Excel workbook
         xlsx_df = self._load_sheet(file)
 
-        # TODO: remove later
-        if file.name == "tb_ic_reference_BGD.xlsx":
-            xlsx_df['iso3'] = 'BGD'
-
         # Only keep columns of immediate interest:
+        #TODO: to all the below add the vaccine_n and vaccine_cost and to the parameter toml file as variable
+        #TODO: add VNM, KEN and COD back to parameter toml file
         xlsx_df = xlsx_df[
             [
                 "iso3",
@@ -211,6 +209,9 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_p",
                 "hiv_pos",
                 "Costs",
+                "vacc_number",
+                "vacc_costs",
+
             ]
         ]
 
@@ -253,6 +254,8 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_p",
                 "hiv_pos",
                 "Costs",
+                "vacc_number",
+                "vacc_costs",
         ]] = df_gp[[
              "Notified_n",
                 "Notified_n_LB",
@@ -279,6 +282,8 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_p",
                 "hiv_pos",
                 "Costs",
+                "vacc_number",
+                "vacc_costs",
         ]].fillna(0)
 
         # Then put GP back into df
@@ -323,15 +328,20 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB": "tbart_high",
                 "tb_art_p": "tbartcoverage_central",
                 "hiv_pos": "plhiv_central",
+                "vacc_number": "vaccine_central",
+                "vacc_costs": "costvx_central",
                 "Costs": "cost_central",
             }
         )
+
+        # Remove rows with NAN for country
+        xlsx_df = xlsx_df[xlsx_df['country'].notna()]
 
         # Clean up funding fraction and PF scenario
         xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
             '')  # Puts the funding scenario number in a new column called funding fraction
         xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
-                                                                        1)  # Where there is no funding fraction, set it to 1
+                                                                1)  # Where there is no funding fraction, set it to 1
         xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
@@ -365,6 +375,12 @@ class ModelResultsTb(TBMixin, ModelResults):
         xlsx_df["cost_low"] = xlsx_df["cost_central"]
         xlsx_df["cost_high"] = xlsx_df["cost_central"]
 
+        xlsx_df["costvx_low"] = xlsx_df["costvx_central"]
+        xlsx_df["costvx_high"] = xlsx_df["costvx_central"]
+
+        xlsx_df["vaccine_low"] = xlsx_df["vaccine_central"]
+        xlsx_df["vaccine_high"] = xlsx_df["vaccine_central"]
+
         # Generate incidence and mortality
         xlsx_df["incidence_low"] = xlsx_df["cases_low"] / xlsx_df["population_low"]
         xlsx_df["incidence_central"] = (
@@ -395,9 +411,10 @@ class ModelResultsTb(TBMixin, ModelResults):
         melted = melted.dropna()
 
         # Convert funding_fraction to float
-        melted["funding_fraction"] = melted["funding_fraction"].astype(float)
+        melted = melted[melted['funding_fraction'].notnull()].copy()
+        melted['funding_fraction'] = melted['funding_fraction'].astype(float)
 
-        # TODO: any NANs or NAs should be replaced. By zero? Do that for all diseases
+
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(
             [
