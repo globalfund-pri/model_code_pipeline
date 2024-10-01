@@ -81,13 +81,13 @@ is_cc=false
 # HIV specific definitions
 
 [HIV]
-PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'CUB', 'DJI', 'DOM', 'ECU', 'EGY', 'ERI', 'ETH', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MRT', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'STP', 'SUR', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
-MODELLED_COUNTRIES = ['AFG' ,'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BRA', 'BTN', 'BWA', 'CAF', 'CHN', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'CUB', 'DJI', 'DOM', 'DZA', 'ECU', 'EGY', 'ERI', 'ETH', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MDV', 'MEX', 'MKD', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MRT', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RUS', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'STP', 'SUR', 'SWZ', 'SYR', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'YEM', 'ZAF', 'ZMB', 'ZWE']
-FUNDING_FRACTIONS = [0.1,0.2,0.4,0.6,0.75,0.8,0.85,0.9,0.95,1.0]
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'CUB', 'DJI', 'DOM', 'DZA', 'ECU', 'EGY', 'ERI', 'ETH', 'FJI', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBN', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MDV', 'MDK', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MRT', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'STP', 'SUR', 'SWZ', 'SYR', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VEN', 'VNM', 'XKX', 'YEM', 'ZAF', 'ZAN', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AFG' ,'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'DOM', 'ECU', 'EGY', 'ERI', 'ETH', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MDV', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MWI', 'MYS', 'NAM', 'NER', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SRB', 'SSD', 'SUR', 'SWZ', 'SYR', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'VNM', 'YEM', 'ZAF', 'ZMB', 'ZWE']
+FUNDING_FRACTIONS = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
 GP_START_YEAR = 2010
 PARTNER_DATA_YEARS = [2022]
 PF_DATA_YEARS = [2024,2025,2026]
-TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.0
+TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
 INDICATORS_FOR_NULL_CHECK = ['art', 'artcoverage', 'pmtct', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage', 'prep', 'fswprep', 'msmprep', 'pwidprep', 'ost', 'vmmc']
 INDICATORS_FOR_CC_CHECK = ['artcoverage', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage', 'status', 'vls']
@@ -378,7 +378,7 @@ use_scaling=false
 
 [MALARIA]
 PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PHL', 'PNG', 'PRK', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SOM', 'SSD', 'STP', 'SUR', 'SWZ', 'TCD', 'TGO', 'THA', 'TLS', 'TZA', 'UGA', 'VEN', 'VNM', 'VUT', 'YEM', 'ZAN', 'ZMB', 'ZWE']
-MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
 GP_START_YEAR = 2015
 PARTNER_DATA_YEARS = [2020, 2021, 2022]
