@@ -1,3 +1,4 @@
+import math
 import re
 import warnings
 from pathlib import Path
@@ -132,25 +133,38 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         ]
         concatenated_dfs = pd.concat(list_of_df, axis=0)
 
-        # TODO: @richard: when John sends forward looking scenarios uncomment the section below and remove part on "scenario_names
         # Filter out any countries that we do not need
         expected_countries = self.parameters.get_modelled_countries_for(self.disease_name)
-        # scenario_names = ["HH", "GP", "NULL_2000", "CC_2000", "CC_FIRSTYEARGF", "NULL_FIRSTYEARGF"] # TODO @richard: remove this line
-        # # TODO @richard: uncomment the part below
-        # # scenario_names = (self.parameters.get_scenarios().index.to_list() +
-        # #                   self.parameters.get_counterfactuals().index.to_list()
-        # #                   )
-        # concatenated_dfs = concatenated_dfs.loc[
-        #     (scenario_names, slice(None), expected_countries, slice(None), slice(None))
-        # ]
+
+        scenario_names = (self.parameters.get_scenarios().index.to_list() +
+                          self.parameters.get_counterfactuals().index.to_list()
+                          )
+        concatenated_dfs = concatenated_dfs.loc[
+            (scenario_names, slice(None), expected_countries, slice(None), slice(None))
+        ]
 
         # Make funding numbers into fractions
         concatenated_dfs = concatenated_dfs.reset_index()
+        concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2
+        concatenated_dfs.loc[concatenated_dfs.funding_fraction == -1, 'funding_fraction'] = 1 # Because now 1s will be -1s
+
         concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
             'funding_fraction'].transform('max')
         concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
-        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 2})
+        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 3})
+        concatenated_dfs.loc[
+            concatenated_dfs.funding_fraction == 0.091, 'funding_fraction'] = 0.0  # otherwise we have duplicates of the 0.5 funding fraction
+        concatenated_dfs.loc[
+            concatenated_dfs.funding_fraction == 0.182, 'funding_fraction'] = 0.1  # otherwise we have duplicates of the 0.5 funding fraction
+        concatenated_dfs.loc[
+            concatenated_dfs.funding_fraction == 0.273, 'funding_fraction'] = 0.2  # otherwise we have duplicates of the 0.5 funding fraction
+        concatenated_dfs.loc[
+            concatenated_dfs.funding_fraction == 0.364, 'funding_fraction'] = 0.3  # otherwise we have duplicates of the 0.5 funding fraction
+        concatenated_dfs.loc[concatenated_dfs.funding_fraction == 0.455, 'funding_fraction'] = 0.4  # otherwise we have duplicates of the 0.5 funding fraction
+        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 1})
         concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
+
+        df_duplicates = concatenated_dfs[concatenated_dfs.duplicated()]
 
         # Re-pack the df
         concatenated_dfs = concatenated_dfs.set_index(
@@ -495,7 +509,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # Clean up scenario names
         csv_df = csv_df.replace('Step1', 'NULL_2022')
-        csv_df = csv_df.replace('Step2', 'Python CC_2022')
+        csv_df = csv_df.replace('Step2', 'CC_2022')
 
 
 

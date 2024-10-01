@@ -239,48 +239,48 @@ class CommonChecks_forwardchecks:
         if len(missing_idx) > 0:
             return CheckResult(passes=False, message=self._summarise(missing_idx))
 
-    def funding_vs_scenario_impact(self, db: Database):
-        """Compares percentage funding-need met to impact for each modelled scenario to check that increased funding
-        results in increased impact. This check is limited to the core scenarios (PF based scenario) and
-        exclued GP, NULL and CC. """
-        # Percentage need met is calculated by comparing sum of funding in GP to that in each scenario
-        # The impact should be more or less proportional to the percentage funding available.
-        # example here: /Users/mc1405/Dropbox/The Global Fund/Strategic Targets 2022-2028/Processed Model Results/Key Stats/HIV_funding need met check.xlsx
-
-        figs = []
-        for scenario in self.EXPECTED_FUNDING_SCENARIOS:
-            for country in self.EXPECTED_COUNTRIES:
-                for indicator in ("cases", "deaths"):
-                    df = (
-                        db.model_results.df.loc[
-                            (
-                                scenario,
-                                slice(None),
-                                country,
-                                range(
-                                    self.EXPECTED_FIRST_YEAR,
-                                    self.EXPECTED_LAST_YEAR + 1,
-                                ),
-                                indicator,
-                            ),
-                            "central",
-                        ]
-                        .groupby(axis=0, level="funding_fraction")
-                        .sum()
-                    )
-                    df = df[df.index.notnull()]
-                    df = df.sort_index(ascending=True)
-
-                    fig, ax = plt.subplots()
-                    df.plot(ax=ax)
-                    ax.set_ylabel(indicator)
-                    ax.set_title(f"{scenario=}, {country=}")
-                    fig.tight_layout()
-                    plt.close(fig)
-                    figs.append(f"{scenario=}, {country=}, {indicator=}")
-
-        return CheckResult(passes=True, message=figs)
-
+#     def funding_vs_scenario_impact(self, db: Database):
+#         """Compares percentage funding-need met to impact for each modelled scenario to check that increased funding
+#         results in increased impact. This check is limited to the core scenarios (PF based scenario) and
+#         exclued GP, NULL and CC. """
+#         # Percentage need met is calculated by comparing sum of funding in GP to that in each scenario
+#         # The impact should be more or less proportional to the percentage funding available.
+#         # example here: /Users/mc1405/Dropbox/The Global Fund/Strategic Targets 2022-2028/Processed Model Results/Key Stats/HIV_funding need met check.xlsx
+#
+#         figs = []
+#         for scenario in self.EXPECTED_FUNDING_SCENARIOS:
+#             for country in self.EXPECTED_COUNTRIES:
+#                 for indicator in ("cases", "deaths"):
+#                     df = (
+#                         db.model_results.df.loc[
+#                             (
+#                                 scenario,
+#                                 slice(None),
+#                                 country,
+#                                 range(
+#                                     self.EXPECTED_FIRST_YEAR,
+#                                     self.EXPECTED_LAST_YEAR + 1,
+#                                 ),
+#                                 indicator,
+#                             ),
+#                             "central",
+#                         ]
+#                         .groupby(axis=0, level="funding_fraction")
+#                         .sum()
+#                     )
+#                     df = df[df.index.notnull()]
+#                     df = df.sort_index(ascending=True)
+#
+#                     fig, ax = plt.subplots()
+#                     df.plot(ax=ax)
+#                     ax.set_ylabel(indicator)
+#                     ax.set_title(f"{scenario=}, {country=}")
+#                     fig.tight_layout()
+#                     plt.close(fig)
+#                     figs.append(f"{scenario=}, {country=}, {indicator=}")
+#
+#         return CheckResult(passes=True, message=figs)
+#
     def order_of_scenarios(self, db):
         """Checks that the scenarios follow the expected a certain pattern.That is in increasing order for cases and
         deaths: GP, PF, CC, NULL and limited to scenarios with funding fractions 100%. """
@@ -521,6 +521,7 @@ class CommonChecks_allscenarios:
         self.EXPECTED_NULL_SCENARIOS = params.get_nullcounterfactuals().index.to_list()
         self.EXPECTED_CC_SCENARIOS = params.get_cccounterfactuals().index.to_list()
         self.EXPECTED_HISTORIC_FIRST_YEAR = params.get("HISTORIC_FIRST_YEAR")
+        self.PARTNER_DATA_YEARS = params.get(self.disease_name).get("PARTNER_DATA_YEARS")
         self.EXPECTED_START_YEAR = params.get("START_YEAR")
         self.EXPECTED_GP_START_YEAR = params.get(self.disease_name).get("GP_START_YEAR")
         self.EXPECTED_LAST_YEAR_PF = params.get("LAST_YEAR_PF")
@@ -571,105 +572,87 @@ class CommonChecks_allscenarios:
         # Get shortcut to dataframe of model results
         df = db.model_results.df
 
-        if self.disease_name != 'TB':
-
-            list_of_scenario = (self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS)
-            list_of_scenario.remove("HH")
-
-            # We expect an entry in the model results for each permutation of the following:
-            expected_idx = pd.MultiIndex.from_product(
-                [
-                    list_of_scenario,
-                    expected_funding,
-                    self.EXPECTED_COUNTRIES,
-                    range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
-                    self.EXPECTED_EPI_INDICATORS,
-                ],
-                names=df.index.names,
-            )
-
-            expected_idx_2 = pd.MultiIndex.from_product(
-                [
-                    (["HH"]),
-                    expected_funding,
-                    self.EXPECTED_COUNTRIES,
-                    range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR),
-                    self.EXPECTED_EPI_INDICATORS,
-                ],
-                names=df.index.names,
-            )
-            expected_idx = expected_idx.append(expected_idx_2)
+        # Get the GF first year files
+        if self.disease_name == 'HIV':
+            gp_year = GFYear(  # Load GF start year file
+                get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_hiv.csv",
+            )  # TODO: this is ugly can we move it?
 
         if self.disease_name == 'TB':
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_tb.csv",
-            )# TODO: this is ugly can we move it?
+            )  # TODO: this is ugly can we move it?
 
-            expected_idx = pd.MultiIndex.from_product(
-                [
-                    (['HH']),
-                    expected_funding,
-                    self.EXPECTED_COUNTRIES,
-                    range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR),
-                    self.EXPECTED_EPI_INDICATORS,
-                ],
-                names=df.index.names,
-            )
+        if self.disease_name == 'MALARIA':
+            gp_year = GFYear(  # Load GF start year file
+                get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_malaria.csv",
+            )  # TODO: this is ugly can we move it?
 
-            list_of_scenarios2 = self.EXPECTED_FUNDING_SCENARIOS
-            list_of_scenarios2.append("CC_2022")
-            list_of_scenarios2.append("NULL_2022")
+        expected_idx = pd.MultiIndex.from_product(
+            [
+                (['HH']),
+                expected_funding,
+                self.EXPECTED_COUNTRIES,
+                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR),
+                self.EXPECTED_EPI_INDICATORS,
+            ],
+            names=df.index.names,
+        )
+
+        list_of_scenarios2 = self.EXPECTED_FUNDING_SCENARIOS
+        list_of_scenarios2.append("CC_2022")
+        list_of_scenarios2.append("NULL_2022")
+
+        expected_idx_2 = pd.MultiIndex.from_product(
+            [
+                list_of_scenarios2,
+                expected_funding,
+                self.EXPECTED_COUNTRIES,
+                range(self.EXPECTED_START_YEAR-1, self.EXPECTED_LAST_YEAR+1),
+                self.EXPECTED_EPI_INDICATORS,
+            ],
+            names=df.index.names,
+        )
+        expected_idx = expected_idx.append(expected_idx_2)
+
+        expected_idx_2 = pd.MultiIndex.from_product(
+            [
+                (['GP']),
+                expected_funding,
+                self.EXPECTED_COUNTRIES,
+                range(self.EXPECTED_GP_START_YEAR, self.EXPECTED_LAST_YEAR+1),
+                self.EXPECTED_EPI_INDICATORS,
+            ],
+            names=df.index.names,
+        )
+        expected_idx = expected_idx.append(expected_idx_2)
+
+        expected_idx_2 = pd.MultiIndex.from_product(
+            [
+                (['CC_2000', 'NULL_2000']),
+                expected_funding,
+                self.EXPECTED_COUNTRIES,
+                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
+                self.EXPECTED_EPI_INDICATORS,
+            ],
+            names=df.index.names,
+        )
+        expected_idx = expected_idx.append(expected_idx_2)
+
+        for country in self.EXPECTED_COUNTRIES:
+            year = gp_year.df.loc[(country), 'year']
 
             expected_idx_2 = pd.MultiIndex.from_product(
-                [
-                    list_of_scenarios2,
+            [
+                    (['CC_FIRSTYEARGF', 'NULL_FIRSTYEARGF']),
                     expected_funding,
-                    self.EXPECTED_COUNTRIES,
-                    range(self.EXPECTED_START_YEAR-1, self.EXPECTED_LAST_YEAR+1),
+                    [country],
+                    range(year, self.EXPECTED_LAST_YEAR+1),
                     self.EXPECTED_EPI_INDICATORS,
                 ],
                 names=df.index.names,
             )
             expected_idx = expected_idx.append(expected_idx_2)
-
-            expected_idx_2 = pd.MultiIndex.from_product(
-                [
-                    (['GP']),
-                    expected_funding,
-                    self.EXPECTED_COUNTRIES,
-                    range(self.EXPECTED_GP_START_YEAR, self.EXPECTED_LAST_YEAR+1),
-                    self.EXPECTED_EPI_INDICATORS,
-                ],
-                names=df.index.names,
-            )
-            expected_idx = expected_idx.append(expected_idx_2)
-
-            expected_idx_2 = pd.MultiIndex.from_product(
-                [
-                    (['CC_2000', 'NULL_2000']),
-                    expected_funding,
-                    self.EXPECTED_COUNTRIES,
-                    range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
-                    self.EXPECTED_EPI_INDICATORS,
-                ],
-                names=df.index.names,
-            )
-            expected_idx = expected_idx.append(expected_idx_2)
-
-            for country in self.EXPECTED_COUNTRIES:
-                year = gp_year.df.loc[(country), 'year']
-
-                expected_idx_2 = pd.MultiIndex.from_product(
-                [
-                        (['CC_FIRSTYEARGF', 'NULL_FIRSTYEARGF']),
-                        expected_funding,
-                        [country],
-                        range(year, self.EXPECTED_LAST_YEAR+1),
-                        self.EXPECTED_EPI_INDICATORS,
-                    ],
-                    names=df.index.names,
-                )
-                expected_idx = expected_idx.append(expected_idx_2)
 
         # Check what is missing from the model results
         missing_idx = expected_idx.difference(df.index)
@@ -677,54 +660,52 @@ class CommonChecks_allscenarios:
         if len(missing_idx) > 0:
             return CheckResult(passes=False, message=self._summarise(missing_idx))
 
-    def graphs_for_basic_checks(self, db: Database):
-        """This produces graphs of cases/new infections and deaths for each country for all scenarios but limited to
-        funding fraction of 100%."""
-        # TODO: review this with Mehran and the instructions in grey he gave (see below)
-        # Plot the full set of scenarios to eyeball i) cases, ii) deaths, iii) incidence and iv) mortality
-        # Compare plot of GP/NULL and CONSTCOV line to equivalent of latest exercise (IC or ST) and to
-        # service level coverage for sense-check (check Table 3 here: https://docs.google.com/document/d/1TA5HtXytbOy3122KSKxuTqF10l-Kd49_5gBL9k2Fs1M/edit)
-        # Check CFs for HIV deaths, cases and TB cases trends look comparable to last exercise
-        # compare each scenario and make sure order makes sense
-
-        if self.disease_name == 'HIV': # TODO @richard update once we have more hiv scenarios update
-            scenarios = self.EXPECTED_CF_SCENARIOS
-            scenarios.remove("NULL_2022")
-            scenarios.remove("CC_2022")
-
-        if self.disease_name == 'TB':
-            scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
-
-        if self.disease_name == 'MALARIA':
-            scenarios = self.EXPECTED_CF_SCENARIOS
-
-        figs = []
-        for country in self.EXPECTED_COUNTRIES:
-            for indicator in ("cases", "deaths"):
-                df = db.model_results.df.loc[
-                    (
-                        scenarios, # TODO: self.Expected + all + scenarios
-                        1.0,
-                        country,
-                        range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
-                        indicator,
-                    ),
-                    "central",
-                ]
-                df = df.reset_index()
-                df = df.loc[(df.funding_fraction == 1.0) | (df.funding_fraction.isnull())]
-                col_list = ["year", "scenario_descriptor", "central"]
-                df = df[col_list]
-                df.set_index("year", inplace=True)
-
-                fig, ax = plt.subplots()
-                df.groupby("scenario_descriptor")["central"].plot(legend=True)
-                ax.set_ylabel(indicator)
-                ax.set_title(f"{country=}, {indicator=}")
-                fig.tight_layout()
-                plt.close(fig)
-                figs.append(fig)
-        return CheckResult(passes=True, message=figs)
+    # def graphs_for_basic_checks(self, db: Database):
+    #     """This produces graphs of cases/new infections and deaths for each country for all scenarios but limited to
+    #     funding fraction of 100%."""
+    #     # TODO: review this with Mehran and the instructions in grey he gave (see below)
+    #     # Plot the full set of scenarios to eyeball i) cases, ii) deaths, iii) incidence and iv) mortality
+    #     # Compare plot of GP/NULL and CONSTCOV line to equivalent of latest exercise (IC or ST) and to
+    #     # service level coverage for sense-check (check Table 3 here: https://docs.google.com/document/d/1TA5HtXytbOy3122KSKxuTqF10l-Kd49_5gBL9k2Fs1M/edit)
+    #     # Check CFs for HIV deaths, cases and TB cases trends look comparable to last exercise
+    #     # compare each scenario and make sure order makes sense
+    #
+    #     if self.disease_name == 'HIV': # TODO @richard update once we have more hiv scenarios update
+    #         scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
+    #
+    #     if self.disease_name == 'TB':
+    #         scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
+    #
+    #     if self.disease_name == 'MALARIA':
+    #         scenarios = self.EXPECTED_CF_SCENARIOS
+    #
+    #     figs = []
+    #     for country in self.EXPECTED_COUNTRIES:
+    #         for indicator in ("cases", "deaths"):
+    #             df = db.model_results.df.loc[
+    #                 (
+    #                     scenarios, # TODO: self.Expected + all + scenarios
+    #                     1.0,
+    #                     country,
+    #                     range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
+    #                     indicator,
+    #                 ),
+    #                 "central",
+    #             ]
+    #             df = df.reset_index()
+    #             df = df.loc[(df.funding_fraction == 1.0) | (df.funding_fraction.isnull())]
+    #             col_list = ["year", "scenario_descriptor", "central"]
+    #             df = df[col_list]
+    #             df.set_index("year", inplace=True)
+    #
+    #             fig, ax = plt.subplots()
+    #             df.groupby("scenario_descriptor")["central"].plot(legend=True)
+    #             ax.set_ylabel(indicator)
+    #             ax.set_title(f"{country=}, {indicator=}")
+    #             fig.tight_layout()
+    #             plt.close(fig)
+    #             figs.append(fig)
+    #     return CheckResult(passes=True, message=figs)
 
     def graphs_of_aggregates(self, db: Database):
         """This produces graphs of cases/new infections, incidence, deaths and mortality over years aggregated across
@@ -777,7 +758,6 @@ class CommonChecks_allscenarios:
         # TODO: remove hardcoding. @richard update here on the scenarios only as needed for hiv and malaria
         if self.disease_name == 'HIV':
             scenario_list = self.EXPECTED_NULL_SCENARIOS
-            scenario_list.remove("NULL_2022")
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_hiv.csv",
             )  # TODO: this is ugly can we move it?
@@ -845,7 +825,6 @@ class CommonChecks_allscenarios:
         # TODO: remove hardcoding. @richard update here on the scenarios only as needed for hiv and malaria
         if self.disease_name == 'HIV':
             scenario_list = self.EXPECTED_CC_SCENARIOS
-            scenario_list.remove("CC_2022")
             gp_year = GFYear(  # Load GF start year file
                 get_root_path() / "src" / "scripts" / "IC8" / "shared" / "GFyear_hiv.csv",
             )  # TODO: this is ugly can we move it?
