@@ -661,7 +661,7 @@ class Analysis:
             gp_data = self.database.gp.df['central'].unstack()
         else:
             # Get GP for HIV
-            gp_data = self.portfolio_projection_counterfactual(self.EXPECTED_GP_SCENARIO[0])  # todo softcode
+            gp_data = self.portfolio_projection_counterfactual(self.EXPECTED_GP_SCENARIO[0])
 
             # Convert to the same format as other diseases
             gp_data = gp_data.portfolio_results
