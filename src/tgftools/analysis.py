@@ -656,7 +656,7 @@ class Analysis:
     def get_gp(self) -> pd.DataFrame:
         """Returns data-frame of the GP elements that are needed for reporting."""
 
-        if self.disease_name != 'test':
+        if self.disease_name == 'test':
             gp_data = self.database.gp.df['central'].unstack()
         else:
             # Get GP for HIV
