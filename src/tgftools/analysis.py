@@ -152,6 +152,7 @@ class Analysis:
         self.years_for_funding = self.parameters.get('YEARS_FOR_FUNDING')
         self.indicators_for_adj_for_innovations = self.parameters.get(self.disease_name).get(
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
+        self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
 
         # Create emulators for each country so that results can be created for any cost (within the range of actual
         # results).
@@ -656,11 +657,11 @@ class Analysis:
     def get_gp(self) -> pd.DataFrame:
         """Returns data-frame of the GP elements that are needed for reporting."""
 
-        if self.disease_name == 'test':
+        if self.disease_name != 'HIV':
             gp_data = self.database.gp.df['central'].unstack()
         else:
             # Get GP for HIV
-            gp_data = self.portfolio_projection_counterfactual('GP')  # todo softcode
+            gp_data = self.portfolio_projection_counterfactual(self.EXPECTED_GP_SCENARIO[0])  # todo softcode
 
             # Convert to the same format as other diseases
             gp_data = gp_data.portfolio_results

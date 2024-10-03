@@ -1,5 +1,5 @@
 from scripts.ic7.hiv.hiv_checks import DatabaseChecksHiv
-from scripts.ic7.hiv.hiv_filehandlers import ModelResultsHiv # , PFInputDataHIV, PartnerDataHIV, GpHiv
+from scripts.ic7.hiv.hiv_filehandlers import ModelResultsHiv, PFInputDataHIV, PartnerDataHIV, GpHiv
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -67,33 +67,33 @@ def get_hiv_analysis(
 
     # Load the files
     pf_input_data = PFInputDataHIV(
-        path_to_data_folder / "IC8/pf/hiv",
+        path_to_data_folder / "IC8/pf/hiv/2024_03_28",
         parameters=parameters,
     )
 
     partner_data = PartnerDataHIV(
-        path_to_data_folder / "IC8/partner/hiv",
+        path_to_data_folder / "IC8/partner/hiv/2024_10_03",
         parameters=parameters,
     )
 
-    fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
-        parameters=parameters,
-    )
+    # fixed_gp = FixedGp(
+    #     get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
+    #     parameters=parameters,
+    # )
 
-    gp = GpHiv(
-        fixed_gp=fixed_gp,
-        model_results=model_results,
-        partner_data=partner_data,
-        parameters=parameters
-    )
+    # gp = GpHiv(
+    #     fixed_gp=fixed_gp,
+    #     model_results=model_results,
+    #     partner_data=partner_data,
+    #     parameters=parameters
+    # )
 
-    gp.save(project_root / "outputs" / "hiv_gp.csv")
+    # gp.save(project_root / "outputs" / "hiv_gp.csv")
 
     # Create the database
     db = Database(
         model_results=model_results,
-        gp=gp,
+        # gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
     )
@@ -112,7 +112,7 @@ def get_hiv_analysis(
     tgf_funding = (
         TgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC8"
             / "funding"
             / "hiv"
             / "tgf"
@@ -122,17 +122,17 @@ def get_hiv_analysis(
     non_tgf_funding = (
         NonTgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC7"
             / "funding"
             / "hiv"
             / "non_tgf"
-            / "hiv_nonFubgible_dipiBase.csv"
+            / "hiv_econgrowth_18Sept2024.csv"
         )
     )
 
     return Analysis(
         database=db,
-        scenario_descriptor='IC_IC',
+        scenario_descriptor='PF',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,

@@ -24,48 +24,56 @@ name="GP"
 description="Follow GP milestones"
 is_null=false
 is_cc=false
+is_gp=true
 
 [[counterfactual]]
 name="HH"
 description="Historical (modelled) time series"
 is_null=false
 is_cc=false
+is_gp=false
 
 [[counterfactual]]
 name="CC_2000"
 description="constant coverage starting in 2000"
 is_null=false
 is_cc=true
+is_gp=false
 
 [[counterfactual]]
 name="NULL_2000"
 description="null starting in 2000"
 is_null=true
 is_cc=false
+is_gp=false
 
 [[counterfactual]]
 name="CC_FIRSTYEARGF"
 description="constant coverage starting in first year of GF results"
 is_null=false
 is_cc=true
+is_gp=false
 
 [[counterfactual]]
 name="NULL_FIRSTYEARGF"
 description="null starting in first year of GF results"
 is_null=true
 is_cc=false
+is_gp=false
 
 [[counterfactual]]
 name="CC_2022"
 description="constant coverage starting from baseline"
 is_null=false
 is_cc=true
+is_gp=false
 
 [[counterfactual]]
 name="NULL_2022"
 description="null starting from baseline"
 is_null=true
 is_cc=false
+is_gp=false
 
 # Definition of the Scenarios defined the model results
 [[scenario]]
@@ -73,6 +81,7 @@ name="PF"
 description="follow PF targets and maintain coverage"
 is_null=false
 is_cc=false
+is_gp=false
 
 # --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------

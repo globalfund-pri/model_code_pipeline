@@ -20,43 +20,53 @@ SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'GP_GP'
 [[counterfactual]]
 name="GP_GP"
 description="Follow GP and revert to GP"
+is_gp=true
 
 [[counterfactual]]
 name="CC_CC"
 description="constant coverage and constant coverage"
+is_gp=false
 
 [[counterfactual]]
 name="NULL_NULL"
 description="null and null"
+is_gp=false
 
 # Definition of the Scenarios defined the model results
 [[scenario]]
 name="PF_MC"
 description="follow PF targets and maintain coverage"
+is_gp=false
 
 [[scenario]]
 name="PF_GP"
 description="follow PF targets and revert to GP"
+is_gp=false
 
 [[scenario]]
 name="PP_MC"
 description="follow past performance (adjusted PFs) and maintain coverage"
+is_gp=false
 
 [[scenario]]
 name="PP_GP"
 description="follow past performance (adjusted PFs) and revert to GP"
+is_gp=false
 
 [[scenario]]
 name="CD_MC"
 description="continued disruption (e.g. COVID_19 disruption) and maintain coverage"
+is_gp=false
 
 [[scenario]]
 name="CD_GP"
 description="continued disruption (e.g. COVID_19 disruption) and revert to GP"
+is_gp=false
 
 [[scenario]]
 name="IC_IC"
 description="This is a hybrid scenario and is constructed as follows: 2021 is CD, 2022 is mean of CD and PF and after that is PF_MC"
+is_gp=false
 
 
 # --------------------------------------------------------------------------------------------------

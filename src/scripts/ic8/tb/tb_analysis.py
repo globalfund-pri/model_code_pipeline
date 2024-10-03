@@ -58,7 +58,7 @@ def get_tb_analysis(
             parameters=parameters,
         )
         # Save the model_results object
-        save_var(model_results, project_root / "sessions" / "tb_model_data.pkl")
+        save_var(model_results, project_root / "sessions" / "tb_model_data_ic8.pkl")
     else:
         # Load the model results
         model_results = load_var(project_root / "sessions" / "tb_model_data.pkl")

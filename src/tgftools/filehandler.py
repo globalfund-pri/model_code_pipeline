@@ -358,6 +358,17 @@ class Parameters:
         except:
             return pd.Series()
 
+    def get_gpscenario(self) -> pd.Series:
+        """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario).
+        If there is no flag for gp, return empty pd.DataFrame(provided for backward
+        compatibility).
+        """
+        try:
+            df = pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')
+            return df.loc[df['is_gp'], 'description']
+        except:
+            return pd.Series()
+
     def get_indicators_for(self, disease_name) -> pd.DataFrame:
         """Helper function to return pd.DataFrame of all the indicators for a particular disease (index is the name of
         the indicator)."""
