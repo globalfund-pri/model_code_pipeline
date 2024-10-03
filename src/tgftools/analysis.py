@@ -674,13 +674,13 @@ class Analysis:
         """ Return the CF time series to compute lives saved for malaria"""
 
         if self.disease_name != "MALARIA":
-
             return pd.DataFrame()
 
         # Get partner mortality data
         mortality_partner_data = self.database.partner_data.df.loc[
             (self.scenario_descriptor, slice(None), 2000, "mortality"), "central"
         ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
+        # 2000 is hard-coded as the year as that is intrinsic to the analysis.
 
         # TODO: make mean of funding fractions?
         # Set years of model output
