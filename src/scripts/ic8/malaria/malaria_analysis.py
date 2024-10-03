@@ -1,7 +1,5 @@
 from scripts.ic8.malaria.malaria_checks import DatabaseChecksMalaria
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria
-# , \
-    # GpMalaria
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (

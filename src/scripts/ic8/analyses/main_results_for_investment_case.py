@@ -62,6 +62,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
         }
     )
 
+
 def get_report(
         load_data_from_raw_files: bool = True,
         run_analysis: bool = False,
@@ -98,9 +99,9 @@ def get_report(
 
     else:
         # Load the projections
-        hiv_projections = load_var(project_root / "sessions" / "hiv_projections.pkl")
-        tb_projections = load_var(project_root / "sessions" / "tb_projections.pkl")
-        malaria_projections = load_var(project_root / "sessions" / "malaria_projections.pkl")
+        hiv_projections = load_var(project_root / "sessions" / "hiv_projections_ic8.pkl")
+        tb_projections = load_var(project_root / "sessions" / "tb_projections_ic8.pkl")
+        malaria_projections = load_var(project_root / "sessions" / "malaria_projections_ic8.pkl")
 
     report = HTMReport(
         hiv=hiv_projections,
@@ -114,7 +115,7 @@ def get_report(
 
 if __name__ == "__main__":
     # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = False
+    LOAD_DATA_FROM_RAW_FILES = True
     DO_CHECKS = False
     RUN_ANALYSIS = True
     outputpath = get_root_path() / 'outputs'

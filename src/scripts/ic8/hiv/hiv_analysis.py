@@ -1,5 +1,5 @@
-from scripts.ic7.hiv.hiv_checks import DatabaseChecksHiv
-from scripts.ic7.hiv.hiv_filehandlers import ModelResultsHiv, PFInputDataHIV, PartnerDataHIV, GpHiv
+from scripts.ic8.hiv.hiv_checks import DatabaseChecksHiv
+from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv, PFInputDataHIV, PartnerDataHIV
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -50,12 +50,12 @@ def get_hiv_analysis(
     project_root = get_root_path()
 
     # Declare the parameters, indicators and scenarios
-    parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
+    parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
 
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsHiv(
-            path_to_data_folder / "IC8/modelling_outputs/hiv",
+            path_to_data_folder / "IC8/modelling_outputs/hiv/2024_09_25",
             parameters=parameters,
         )
         # Save the model_results object
@@ -122,11 +122,11 @@ def get_hiv_analysis(
     non_tgf_funding = (
         NonTgfFunding(
             path_to_data_folder
-            / "IC7"
+            / "IC8"
             / "funding"
             / "hiv"
             / "non_tgf"
-            / "hiv_econgrowth_18Sept2024.csv"
+            / "hiv_econgrowth_18Sep2024.csv"
         )
     )
 

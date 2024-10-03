@@ -10,7 +10,7 @@ YEARS_FOR_OBJ_FUNC = [2024, 2025, 2026, 2027, 2028, 2029, 2030]  # These are the
 RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE = 1.0
 RHO_BETWEEN_DISEASES = 1.0
 Z_VALUE = 1.282
-SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'GP_GP'
+SCENARIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'GP_GP'
 
 # --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------

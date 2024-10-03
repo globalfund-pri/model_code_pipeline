@@ -1,5 +1,5 @@
-from scripts.ic7.tb.tb_checks import DatabaseChecksTb
-from scripts.ic7.tb.tb_filehandlers import PartnerDataTb, PFInputDataTb, GpTb, ModelResultsTb
+from scripts.ic8.tb.tb_checks import DatabaseChecksTb
+from scripts.ic8.tb.tb_filehandlers import PartnerDataTb, PFInputDataTb, ModelResultsTb
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -49,12 +49,12 @@ def get_tb_analysis(
     project_root = get_root_path()
 
     # Declare the parameters, indicators and scenarios
-    parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
+    parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
 
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsTb(
-            path_to_data_folder / "IC7/TimEmulationTool/modelling_outputs/tb",
+            path_to_data_folder / "IC8/modelling_outputs/tb/2024_09_04",
             parameters=parameters,
         )
         # Save the model_results object
@@ -65,33 +65,33 @@ def get_tb_analysis(
 
     # Load the files
     pf_input_data = PFInputDataTb(
-        path_to_data_folder / "IC7/TimEmulationTool/pf/tb",
+        path_to_data_folder / "IC8/pf/tb/2024_03_28",
         parameters=parameters
     )
 
     partner_data = PartnerDataTb(
-        path_to_data_folder / "IC7/TimEmulationTool/partner/tb",
+        path_to_data_folder / "IC8/partner/tb/2024_10_03",
         parameters=parameters,
     )
-
-    fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "ic7" / "shared" / "fixed_gps" / "tb_gp.csv",
-        parameters=parameters,
-    )
-
-    gp = GpTb(
-        fixed_gp=fixed_gp,
-        model_results=model_results,
-        partner_data=partner_data,
-        parameters=parameters,
-    )
+    #
+    # fixed_gp = FixedGp(
+    #     get_root_path() / "src" / "scripts" / "ic7" / "shared" / "fixed_gps" / "tb_gp.csv",
+    #     parameters=parameters,
+    # )
+    #
+    # gp = GpTb(
+    #     fixed_gp=fixed_gp,
+    #     model_results=model_results,
+    #     partner_data=partner_data,
+    #     parameters=parameters,
+    # )
 
     gp.save(project_root / "outputs" / "tb_gp.csv")
 
     # Create the database
     db = Database(
         model_results=model_results,
-        gp=gp,
+        # gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
     )
@@ -110,7 +110,7 @@ def get_tb_analysis(
     tgf_funding = (
         TgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC8"
             / "funding"
             / "tb"
             / "tgf"
@@ -120,11 +120,11 @@ def get_tb_analysis(
     non_tgf_funding = (
         NonTgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC8"
             / "funding"
             / "tb"
             / "non_tgf"
-            / "tb_nonFubgible_dipiBase.csv"
+            / "tb_econgrowth_18Sep2024.csv"
         )
     )
 

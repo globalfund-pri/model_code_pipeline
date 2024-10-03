@@ -477,7 +477,7 @@ class Analysis:
 
         else:
             # Get the fully funded version of the model output
-            scenario_that_represents_full_impact_including_innovation = self.parameters.get('SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION')
+            scenario_that_represents_full_impact_including_innovation = self.parameters.get('SCENARIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION')
             full_funding_without_innovation = self.portfolio_projection_counterfactual(scenario_that_represents_full_impact_including_innovation)
 
             return (

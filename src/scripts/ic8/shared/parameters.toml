@@ -13,6 +13,7 @@ YEARS_FOR_OBJ_FUNC = [2027, 2028, 2029, 2030]  # These are the years for which c
 RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE = 1.0
 RHO_BETWEEN_DISEASES = 1.0
 Z_VALUE = 1.282
+SCENARIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'FULL_FUNDING'
 
 # --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------
@@ -245,6 +246,243 @@ name="cost"
 description="total cost fot this scenario"
 type="count"
 use_scaling=false
+
+[[HIV.indicator]]
+name="deaths0to4"
+description="number of HIV related deaths amongst 0 to 4 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths5to9"
+description="number of HIV related deaths amongst 5 to 9 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths10to14"
+description="number of HIV related deaths amongst 10 to 14 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths15to19"
+description="number of HIV related deaths amongst 15 to 19 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths20to24"
+description="number of HIV related deaths amongst 20 to 24 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths25to29"
+description="number of HIV related deaths amongst 25 to 29 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths30to34"
+description="number of HIV related deaths amongst 30 to 34 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths35to39"
+description="number of HIV related deaths amongst 35 to 39 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths40to44"
+description="number of HIV related deaths amongst 40 to 44 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths45to49"
+description="number of HIV related deaths amongst 45 to 49 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths50to54"
+description="number of HIV related deaths amongst 50 to 54 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths55to59"
+description="number of HIV related deaths amongst 55 to 59 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths60to64"
+description="number of HIV related deaths amongst 60 to 64 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths65to69"
+description="number of HIV related deaths amongst 65 to 69 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths70to74"
+description="number of HIV related deaths amongst 70 to 74 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths75to79"
+description="number of HIV related deaths amongst 75 to 79 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="deaths80"
+description="number of HIV related deaths amongst over 80 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="adultart"
+description="number of adults 15+ on art"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="pedart"
+description="number of pediatric patients on ART"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx15plusmore500"
+description="number of people not on treatment aged 15 plus with CD4 more than 500"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx15plus350to500"
+description="number of people not on treatment aged 15 plus with CD4 btw 350 and 500"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx15plus250to350"
+description="number of people not on treatment aged 15 plus with CD4 btw 250 and 350"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx15plus200to250"
+description="number of people not on treatment aged 15 plus with CD4 btw 200 and 250"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx15plus100to200"
+description="number of people not on treatment aged 15 plus with CD4 btw 100 and 200"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx15plus50to100"
+description="number of people not on treatment aged 15 plus with CD4 btw 50 and 100"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx15plusless50"
+description="number of people not on treatment aged 15 plus with CD4 less than 50"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx5to14more1000"
+description="number of people not on treatment aged 5 to 14 with CD4 more than 1000"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx5to14cd750to999"
+description="number of people not on treatment aged 5 to 14 with CD4 btw 750 and 999"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx5to14cd500to749"
+description="number of people not on treatment aged 5 to 14 with CD4 btw 500 and 749"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx5to14cd350to499"
+description="number of people not on treatment aged 5 to 14 with CD4 btw 350 and 499"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx5to14cd200to349"
+description="number of people not on treatment aged 5 to 14 with CD4 btw 200 and 349"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notx5to14less200"
+description="number of people not on treatment aged 5 to 14 with CD4 less than 200"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notxless5more30"
+description="number of people not on treatment aged less than 5 years old with CD status more than 30"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notxless5cd26to30"
+description="number of people not on treatment aged less than 5 years old with CD status btw 26 and 30"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notxless5cd21to25"
+description="number of people not on treatment aged less than 5 years old with CD status btw 21 and 25"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notxless5cd16to20"
+description="number of people not on treatment aged less than 5 years old with CD status btw 16 and 20"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notxless5cd11to15"
+description="number of people not on treatment aged less than 5 years old with CD status btw 11 and 15"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notxless5cd5to10"
+description="number of people not on treatment aged less than 5 years old with CD status btw 5 and 10"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="notxless5less5"
+description="number of people not on treatment aged less than 5 years old with CD status less than 5"
+type="count"
+use_scaling=false
+
+
+
 
 # --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------
