@@ -68,7 +68,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
     )
 
     partner_data = PartnerDataMalaria(
-        path_to_data_folder / "IC8/partner/malaria/2024_07_10",
+        path_to_data_folder / "IC8/partner/malaria/2024_10_03",
         parameters=parameters
     )
 
