@@ -144,7 +144,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Make IC scenario
         funding_fraction = 1
         ic_df = concatenated_dfs.loc[
-            ("PF", 0.1, slice(None), slice(None), slice(None))
+            ("PF", funding_fraction, slice(None), slice(None), slice(None))
         ]
         ic_df = ic_df.reset_index()
         ic_df["scenario_descriptor"] = "IC_IC"
@@ -185,11 +185,13 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "irs_people_protected",
                 "irs_hh",
                 "treatments_given_public",
+                "treatments_given_private",
                 "treatment_coverage",
                 "hosp_malaria",
                 "smc_children_protected",
                 "smc_coverage",
                 "vector_control_n",
+                "vector_control_coverage",
                 "vaccine_n",
                 "vaccine_doses_n",
                 "vaccine_coverage",
@@ -226,11 +228,13 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "irs_people_protected",
             'irs_hh',
             "treatments_given_public",
+            "treatments_given_private",
             "treatment_coverage",
             "hosp_malaria",
             "smc_children_protected",
             "smc_coverage",
             "vector_control_n",
+            "vector_control_coverage",
             "vaccine_n",
             "vaccine_doses_n",
             "vaccine_coverage",
@@ -245,11 +249,13 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "irs_people_protected",
             'irs_hh',
             "treatments_given_public",
+            "treatments_given_private",
             "treatment_coverage",
             "hosp_malaria",
             "smc_children_protected",
             "smc_coverage",
             "vector_control_n",
+            "vector_control_coverage",
             "vaccine_n",
             "vaccine_doses_n",
             "vaccine_coverage",
@@ -319,6 +325,11 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df["txpublic_high"] = df["treatments_given_public"]
         df = df.drop(columns=["treatments_given_public"])
 
+        df["txprivate_low"] = df["treatments_given_private"]
+        df["txprivate_central"] = df["treatments_given_private"]
+        df["txprivate_high"] = df["treatments_given_private"]
+        df = df.drop(columns=["treatments_given_private"])
+
         df["txcoverage_low"] = df["treatment_coverage"]
         df["txcoverage_central"] = df["treatment_coverage"]
         df["txcoverage_high"] = df["treatment_coverage"]
@@ -343,6 +354,11 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df["vectorcontrol_central"] = df["vector_control_n"]
         df["vectorcontrol_high"] = df["vector_control_n"]
         df = df.drop(columns=["vector_control_n"])
+
+        df["vectorcontrolcoverage_low"] = df["vector_control_coverage"]
+        df["vectorcontrolcoverage_central"] = df["vector_control_coverage"]
+        df["vectorcontrolcoverage_high"] = df["vector_control_coverage"]
+        df = df.drop(columns=["vector_control_coverage"])
 
         df["vaccine_low"] = df["vaccine_n"]
         df["vaccine_central"] = df["vaccine_n"]

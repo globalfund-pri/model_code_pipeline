@@ -656,11 +656,11 @@ class Analysis:
     def get_gp(self) -> pd.DataFrame:
         """Returns data-frame of the GP elements that are needed for reporting."""
 
-        if self.disease_name != 'HIV':
+        if self.disease_name != 'test':
             gp_data = self.database.gp.df['central'].unstack()
         else:
             # Get GP for HIV
-            gp_data = self.portfolio_projection_counterfactual('GP_GP')  # todo softcode
+            gp_data = self.portfolio_projection_counterfactual('GP')  # todo softcode
 
             # Convert to the same format as other diseases
             gp_data = gp_data.portfolio_results

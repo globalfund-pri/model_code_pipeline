@@ -56,11 +56,11 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
             path_to_data_folder / "IC8/modelling_outputs/malaria/2024_08_30",
             parameters=parameters
         )
-        # Save tge model_results object
-        save_var(model_results, project_root / "sessions" / "malaria_model_data.pkl")
+        # Save the model_results object
+        save_var(model_results, project_root / "sessions" / "malaria_model_data_ic8.pkl")
     else:
         # Load the model results
-        model_results = load_var(project_root / "sessions" / "malaria_model_data.pkl")
+        model_results = load_var(project_root / "sessions" / "malaria_model_data_ic8.pkl")
 
     pf_input_data = PFInputDataMalaria(
         path_to_data_folder / "IC8/pf/malaria/2024_03_28",
@@ -135,13 +135,13 @@ def get_malaria_analysis(
             / "funding"
             / "malaria"
             / "non_tgf"
-            / "malaria_nonFubgible_dipiBase.csv"
+            / "malaria_econgrowth_18Sep2024.csv"
         )
     )
 
     return Analysis(
         database=db,
-        scenario_descriptor='IC_IC',
+        scenario_descriptor='PF',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
@@ -151,7 +151,7 @@ def get_malaria_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object
@@ -166,5 +166,6 @@ if __name__ == "__main__":
     # analysis.portfolio_projection_counterfactual('CC_CC')
 
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
-    from scripts.ic7.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
+    from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
+    a = 3
