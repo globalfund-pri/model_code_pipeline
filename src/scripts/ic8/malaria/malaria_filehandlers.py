@@ -562,7 +562,7 @@ class PartnerDataMalaria(MALARIAMixin, PartnerData):
 
         # Only keep indicators and years of immediate interest:
         countries = self.parameters.get_portfolio_countries_for(self.disease_name)
-        start_year = self.parameters.get("PARTNER_START_YEAR")
+        start_year = self.parameters.get("HISTORIC_FIRST_YEAR")
         f = concatenated_dfs.reset_index()
         f = f.loc[f["country"].isin(countries)]
         f = f.loc[f["year"] >= start_year]
