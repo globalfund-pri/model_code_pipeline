@@ -63,7 +63,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
     )
 
 def get_report(
-        load_data_from_raw_files: bool = False,
+        load_data_from_raw_files: bool = True,
         run_analysis: bool = False,
         do_checks: bool = False,
 ) -> Report:

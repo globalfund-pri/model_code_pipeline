@@ -59,7 +59,7 @@ def get_hiv_analysis(
             parameters=parameters,
         )
         # Save the model_results object
-        save_var(model_results, project_root / "sessions" / "hiv_model_data.pkl")
+        save_var(model_results, project_root / "sessions" / "hiv_model_data_ic8.pkl")
 
     else:
         # Load the model results
