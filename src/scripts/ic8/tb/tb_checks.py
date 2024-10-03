@@ -37,7 +37,7 @@ if __name__ == "__main__":
     )
 
     partner_data = PartnerDataTb(
-        path_to_data_folder / "IC8/partner/tb/2024_07_10",
+        path_to_data_folder / "IC8/partner/tb/2024_10_03",
         parameters=parameters,
     )
 

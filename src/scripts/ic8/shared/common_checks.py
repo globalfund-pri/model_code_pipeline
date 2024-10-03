@@ -243,7 +243,7 @@ class CommonChecks_forwardchecks:
         """Compares percentage funding-need met to impact for each modelled scenario to check that increased funding
         results in increased impact. This check is limited to the core scenarios (PF based scenario) and
         exclued GP, NULL and CC. """
-        # TODO: this does not work for HIV or Malaria!
+        # TODO: this does not work for HIV!
         # Percentage need met is calculated by comparing sum of funding in GP to that in each scenario
         # The impact should be more or less proportional to the percentage funding available.
         # example here: /Users/mc1405/Dropbox/The Global Fund/Strategic Targets 2022-2028/Processed Model Results/Key Stats/HIV_funding need met check.xlsx
