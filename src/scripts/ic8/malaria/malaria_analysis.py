@@ -1,5 +1,6 @@
 from scripts.ic8.malaria.malaria_checks import DatabaseChecksMalaria
-from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria
+from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria, \
+    GpMalaria
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -70,22 +71,22 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
         parameters=parameters
     )
 
-    # fixed_gp = FixedGp(
-    #     get_root_path() / "src" / "scripts" / "ic8" / "shared" / "fixed_gps" / "malaria_gp.csv",
-    #     parameters=parameters
-    # )
+    fixed_gp = FixedGp(
+        get_root_path() / "src" / "scripts" / "ic8" / "shared" / "fixed_gps" / "malaria_gp.csv",
+        parameters=parameters
+    )
 
-    # gp = GpMalaria(
-    #     # fixed_gp=fixed_gp,
-    #     model_results=model_results,
-    #     partner_data=partner_data,
-    #     parameters=parameters,
-    # )
+    gp = GpMalaria(
+        fixed_gp=fixed_gp,
+        model_results=model_results,
+        partner_data=partner_data,
+        parameters=parameters,
+    )
 
     # Create and return the database
     return Database(
         model_results=model_results,
-        # gp=gp,
+        gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
     )
@@ -144,12 +145,12 @@ def get_malaria_analysis(
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
         handle_out_of_bounds_costs=True,
-        innovation_on=False,
+        innovation_on=True,
     )
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = False
+    LOAD_DATA_FROM_RAW_FILES = True
     DO_CHECKS = False
 
     # Create the Analysis object
@@ -166,4 +167,3 @@ if __name__ == "__main__":
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
-    a = 3

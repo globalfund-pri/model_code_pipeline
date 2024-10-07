@@ -79,7 +79,7 @@ def get_report(
                 do_checks=do_checks
             )
         )
-        save_var(hiv_projections, project_root / "sessions" / "hiv_projections.pkl")
+        save_var(hiv_projections, project_root / "sessions" / "hiv_projections_ic8.pkl")
 
         tb_projections = get_set_of_portfolio_projections(
             get_tb_analysis(
@@ -87,7 +87,7 @@ def get_report(
                 do_checks=do_checks
             )
         )
-        save_var(tb_projections, project_root / "sessions" / "tb_projections.pkl")
+        save_var(tb_projections, project_root / "sessions" / "tb_projections_ic8.pkl")
 
         malaria_projections = get_set_of_portfolio_projections(
             get_malaria_analysis(
@@ -95,13 +95,13 @@ def get_report(
                 do_checks=do_checks
             )
         )
-        save_var(malaria_projections, project_root / "sessions" / "malaria_projections.pkl")
+        save_var(malaria_projections, project_root / "sessions" / "malaria_projections_ic8.pkl")
 
     else:
         # Load the projections
-        hiv_projections = load_var(project_root / "sessions" / "hiv_projections_ic8.pkl")
-        tb_projections = load_var(project_root / "sessions" / "tb_projections_ic8.pkl")
-        malaria_projections = load_var(project_root / "sessions" / "malaria_projections_ic8.pkl")
+        hiv_projections = load_var(project_root / "sessions" / "hiv_model_data_ic8.pkl")
+        tb_projections = load_var(project_root / "sessions" / "tb_model_data_ic8.pkl")
+        malaria_projections = load_var(project_root / "sessions" / "malaria_model_data_ic8.pkl")
 
     report = HTMReport(
         hiv=hiv_projections,
@@ -115,7 +115,7 @@ def get_report(
 
 if __name__ == "__main__":
     # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
     RUN_ANALYSIS = True
     outputpath = get_root_path() / 'outputs'

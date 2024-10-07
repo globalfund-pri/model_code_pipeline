@@ -916,7 +916,7 @@ class CommonChecks_allscenarios:
                         scenario_tag = "baseline"
                     if scenario == list_scenarios_2022:
                         start_year = self.EXPECTED_START_YEAR - 1
-                        end_year = self.EXPECTED_LAST_YEAR_PF + 1
+                        end_year = self.EXPECTED_START_YEAR - 1
                         scenario_tag = "2022start"
 
                     if (scenario == list_scenarios_2022 and self.disease_name == "HIV") or (scenario == list_scenarios_2022 and self.disease_name == "MALARIA"): # TODO: @richard, once John and Pete share the forward runs, edit this

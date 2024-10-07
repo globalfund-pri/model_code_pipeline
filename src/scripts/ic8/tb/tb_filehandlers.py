@@ -7,10 +7,10 @@ import pandas as pd
 import regex
 
 from tgftools.filehandler import (
-    # FixedGp,
-    # Gp,
+    FixedGp,
+    Gp,
     ModelResults,
-    # Parameters,
+    Parameters,
     PFInputData,
     PartnerData,
 )
@@ -152,6 +152,24 @@ class ModelResultsTb(TBMixin, ModelResults):
         concatenated_dfs = concatenated_dfs.set_index(
             ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
         )
+
+        # Make IC scenario
+        funding_fraction = 1
+        ic_df = concatenated_dfs.loc[
+            ("PF", funding_fraction, slice(None), slice(None), slice(None))
+        ]
+        ic_df = ic_df.reset_index()
+        ic_df["scenario_descriptor"] = "FULL_FUNDING"
+        ic_df["funding_fraction"] = funding_fraction
+        ic_df = ic_df.set_index(
+            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
+        )  # repack the index
+
+        # Sort the ic_df
+        ic_df.sort_index(level="country")
+
+        # Add ic_ic scenario to model output
+        concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
 
         return concatenated_dfs
 
@@ -565,7 +583,7 @@ class PartnerDataTb(TBMixin, PartnerData):
 
         # Only keep indicators and years of immediate interest:
         countries = self.parameters.get_portfolio_countries_for(self.disease_name)
-        start_year = self.parameters.get("PARTNER_START_YEAR")
+        start_year = self.parameters.get("HISTORIC_FIRST_YEAR")
         f = concatenated_dfs.reset_index()
         f = f.loc[f["country"].isin(countries)]
         f = f.loc[f["year"] >= start_year]
@@ -634,114 +652,113 @@ class PartnerDataTb(TBMixin, PartnerData):
         return pd.read_csv(file, encoding="ISO-8859-1")
 
 
+class GpTb(TBMixin, Gp):
+    """Hold the GP for TB. It has to construct it from a file (fixed_gp) that shows the trend over time and
+    the partner data and some model results."""
 
-# class GpTb(TBMixin, Gp):
-#     """Hold the GP for TB. It has to construct it from a file (fixed_gp) that shows the trend over time and
-#     the partner data and some model results."""
-#
-#     def _build_df(
-#         self,
-#         fixed_gp: FixedGp,
-#         model_results: ModelResults,
-#         partner_data: PartnerData,
-#         parameters: Parameters,
-#     ) -> pd.DataFrame:
-#
-#         # Gather the parameters for this function
-#         gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
-#         first_year = parameters.get("START_YEAR")
-#         last_year = parameters.get("END_YEAR")
-#
-#         tb_countries = RegionInformation().tb_countries
-#         tb_m_countries = parameters.get_modelled_countries_for(self.disease_name)
-#
-#         # Extract relevant partner and model data
-#         pop_model = (
-#             model_results.df.loc[
-#                 ("GP_GP", slice(None), tb_m_countries, slice(None), "population")
-#             ]["central"]
-#             .groupby(axis=0, level=3)
-#             .sum()
-#         )
-#         pop_partner = (
-#             partner_data.df.loc[("CD_GP", tb_countries, slice(None), "population")][
-#                 "central"
-#             ]
-#             .groupby(axis=0, level=2)
-#             .sum()
-#         )
-#
-#         # Get population estimates from first model year to generate ratio
-#         pop_m_firstyear = (
-#             model_results.df.loc[
-#                 ("GP_GP", slice(None), tb_m_countries, first_year, "population")
-#             ]["central"]
-#             .groupby(axis=0, level=3)
-#             .sum()
-#         )
-#         pop_firstyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, first_year, "population")
-#         ].sum()["central"]
-#         ratio = pop_m_firstyear / pop_firstyear
-#
-#         # Use GP baseline year partner data to get the cases/deaths/incidence/mortality estimates at baseline
-#         cases_baseyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, gp_start_year, "cases")
-#         ].sum()["central"]
-#         deaths_baseyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, gp_start_year, "deaths")
-#         ].sum()["central"]
-#         deathshivneg_baseyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, gp_start_year, "deathshivneg")
-#         ].sum()["central"]
-#         pop_baseyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, gp_start_year, "population")
-#         ].sum()["central"]
-#         incidence_baseyear = cases_baseyear / pop_baseyear
-#         mortality_rate_2015 = deaths_baseyear / pop_baseyear
-#
-#         # Make a time series of population estimates
-#         pop_glued = pd.concat(
-#             [
-#                 pop_partner.loc[
-#                     pop_partner.index.isin(
-#                         [
-#                             gp_start_year,
-#                             gp_start_year + 1,
-#                             gp_start_year + 2,
-#                             gp_start_year + 3,
-#                             gp_start_year + 4,
-#                         ]
-#                     )
-#                 ],
-#                 pop_model.loc[pop_model.index.isin(range(first_year, last_year + 1))]
-#                 / ratio.values,
-#             ]
-#         )
-#
-#         # Convert reduction and get gp time series
-#         relative_incidence = 1.0 - fixed_gp.df["incidence_reduction"]
-#         gp_incidence = relative_incidence * incidence_baseyear
-#         gp_cases = gp_incidence * pop_glued
-#         relative_deaths = 1.0 - fixed_gp.df["death_rate_reduction"]
-#         gp_deaths = relative_deaths * deaths_baseyear
-#         gp_deathshivneg = relative_deaths * deathshivneg_baseyear
-#         gp_mortality_rate = gp_deaths / pop_glued
-#         gp_mortality_rate_hivneg = gp_deathshivneg / pop_glued
-#
-#         # Put it all together into a df
-#         df = pd.DataFrame(
-#             {
-#                 "incidence": gp_incidence,
-#                 "mortality": gp_mortality_rate,
-#                 "mortalityhivneg": gp_mortality_rate_hivneg,
-#                 "cases": gp_cases,
-#                 "deaths": gp_deaths,
-#                 "deathshivneg": gp_deathshivneg,
-#             }
-#         )
-#
-#         # Return in expected format
-#         df.columns.name = "indicator"
-#         df.index.name = "year"
-#         return pd.DataFrame({"central": df.stack()})
+    def _build_df(
+        self,
+        fixed_gp: FixedGp,
+        model_results: ModelResults,
+        partner_data: PartnerData,
+        parameters: Parameters,
+    ) -> pd.DataFrame:
+
+        # Gather the parameters for this function
+        gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
+        first_year = parameters.get("START_YEAR")
+        last_year = parameters.get("END_YEAR")
+
+        tb_countries = parameters.get_portfolio_countries_for(self.disease_name)
+        tb_m_countries = parameters.get_modelled_countries_for(self.disease_name)
+
+        # Extract relevant partner and model data
+        pop_model = (
+            model_results.df.loc[
+                ("GP", slice(None), tb_m_countries, slice(None), "population")
+            ]["central"]
+            .groupby(axis=0, level=3)
+            .sum()
+        )
+        pop_partner = (
+            partner_data.df.loc[("PF", tb_countries, slice(None), "population")][
+                "central"
+            ]
+            .groupby(axis=0, level=2)
+            .sum()
+        )
+
+        # Get population estimates from first model year to generate ratio
+        pop_m_firstyear = (
+            model_results.df.loc[
+                ("GP", slice(None), tb_m_countries, first_year, "population")
+            ]["central"]
+            .groupby(axis=0, level=3)
+            .sum()
+        )
+        pop_firstyear = partner_data.df.loc[
+            ("PF", tb_countries, first_year, "population")
+        ].sum()["central"]
+        ratio = pop_m_firstyear / pop_firstyear
+
+        # Use GP baseline year partner data to get the cases/deaths/incidence/mortality estimates at baseline
+        cases_baseyear = partner_data.df.loc[
+            ("PF", tb_countries, gp_start_year, "cases")
+        ].sum()["central"]
+        deaths_baseyear = partner_data.df.loc[
+            ("PF", tb_countries, gp_start_year, "deaths")
+        ].sum()["central"]
+        deathshivneg_baseyear = partner_data.df.loc[
+            ("PF", tb_countries, gp_start_year, "deathshivneg")
+        ].sum()["central"]
+        pop_baseyear = partner_data.df.loc[
+            ("PF", tb_countries, gp_start_year, "population")
+        ].sum()["central"]
+        incidence_baseyear = cases_baseyear / pop_baseyear
+        mortality_rate_2015 = deaths_baseyear / pop_baseyear
+
+        # Make a time series of population estimates
+        pop_glued = pd.concat(
+            [
+                pop_partner.loc[
+                    pop_partner.index.isin(
+                        [
+                            gp_start_year,
+                            gp_start_year + 1,
+                            gp_start_year + 2,
+                            gp_start_year + 3,
+                            gp_start_year + 4,
+                        ]
+                    )
+                ],
+                pop_model.loc[pop_model.index.isin(range(first_year, last_year + 1))]
+                / ratio.values,
+            ]
+        )
+
+        # Convert reduction and get gp time series
+        relative_incidence = 1.0 - fixed_gp.df["incidence_reduction"]
+        gp_incidence = relative_incidence * incidence_baseyear
+        gp_cases = gp_incidence * pop_glued
+        relative_deaths = 1.0 - fixed_gp.df["death_rate_reduction"]
+        gp_deaths = relative_deaths * deaths_baseyear
+        gp_deathshivneg = relative_deaths * deathshivneg_baseyear
+        gp_mortality_rate = gp_deaths / pop_glued
+        gp_mortality_rate_hivneg = gp_deathshivneg / pop_glued
+
+        # Put it all together into a df
+        df = pd.DataFrame(
+            {
+                "incidence": gp_incidence,
+                "mortality": gp_mortality_rate,
+                "mortalityhivneg": gp_mortality_rate_hivneg,
+                "cases": gp_cases,
+                "deaths": gp_deaths,
+                "deathshivneg": gp_deathshivneg,
+            }
+        )
+
+        # Return in expected format
+        df.columns.name = "indicator"
+        df.index.name = "year"
+        return pd.DataFrame({"central": df.stack()})

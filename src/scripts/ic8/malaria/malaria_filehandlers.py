@@ -147,7 +147,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             ("PF", funding_fraction, slice(None), slice(None), slice(None))
         ]
         ic_df = ic_df.reset_index()
-        ic_df["scenario_descriptor"] = "IC_IC"
+        ic_df["scenario_descriptor"] = "FULL_FUNDING"
         ic_df["funding_fraction"] = funding_fraction
         ic_df = ic_df.set_index(
             ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
@@ -630,89 +630,86 @@ class PartnerDataMalaria(MALARIAMixin, PartnerData):
         return pd.read_csv(file, encoding="ISO-8859-1")
 
 
-# Define the checks
+class GpMalaria(MALARIAMixin, Gp):
+    """Hold the GP for malaria. It has to construct it from a file (fixed_gp) that shows the trend over time and
+    the partner data and some model results."""
 
+    def _build_df(
+        self,
+        fixed_gp: FixedGp,
+        model_results: ModelResults,
+        partner_data: PartnerData,
+        parameters: Parameters
+    ) -> pd.DataFrame:
 
-# class GpMalaria(MALARIAMixin, Gp):
-#     """Hold the GP for malaria. It has to construct it from a file (fixed_gp) that shows the trend over time and
-#     the partner data and some model results."""
-#
-#     def _build_df(
-#         self,
-#         fixed_gp: FixedGp,
-#         model_results: ModelResults,
-#         partner_data: PartnerData,
-#         parameters: Parameters
-#     ) -> pd.DataFrame:
-#
-#         # Gather the parameters for this function
-#         gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
-#         first_year = parameters.get("START_YEAR")
-#         last_year = parameters.get("END_YEAR")
-#
-#         malaria_countries = parameters.get_portfolio_countries_for(self.disease_name)
-#         malaria_m_countries = parameters.get_modelled_countries_for(self.disease_name)
-#
-#         # Extract relevant partner and model data
-#         pop_model = (
-#             model_results.df.loc[("GP_GP", 1, malaria_m_countries, slice(None), "par")][
-#                 "central"
-#             ]
-#             .groupby(axis=0, level=3)
-#             .sum()
-#         )
-#
-#         # Get population estimates from first model year to generate ratio
-#         pop_m_firstyear = (
-#             model_results.df.loc[
-#                 ("GP_GP", 1, malaria_m_countries, gp_start_year, "par")
-#             ]["central"]
-#             .groupby(axis=0, level=1)
-#             .sum()
-#         )
-#         pop_firstyear = partner_data.df.loc[
-#             ("CD_GP", malaria_countries, gp_start_year, "par")
-#         ].sum()["central"]
-#         ratio = pop_m_firstyear / pop_firstyear
-#
-#         # Use baseline partner data to get the cases/deaths/incidence/mortality estimates at baseline
-#         cases_baseyear = partner_data.df.loc[
-#             ("CD_GP", malaria_countries, gp_start_year, "cases")
-#         ].sum()["central"]
-#         pop_baseyear = partner_data.df.loc[
-#             ("CD_GP", malaria_countries, gp_start_year, "par")
-#         ].sum()["central"]
-#         deaths_baseyear = partner_data.df.loc[
-#             ("CD_GP", malaria_countries, gp_start_year, "deaths")
-#         ].sum()["central"]
-#         incidence_baseyear = cases_baseyear / pop_baseyear
-#         mortality_rate_baseyear = deaths_baseyear / pop_baseyear
-#
-#         # Make a time series of population estimate
-#         pop_glued = (
-#             pop_model.loc[pop_model.index.isin(range(gp_start_year, last_year + 1))]
-#             / ratio.values
-#         )
-#
-#         # Convert reduction and get gp time series
-#         relative_incidence = 1.0 - fixed_gp.df["incidence_reduction"]
-#         gp_incidence = relative_incidence * incidence_baseyear
-#         relative_mortality_rate = 1.0 - fixed_gp.df["death_rate_reduction"]
-#         gp_mortality_rate = relative_mortality_rate * mortality_rate_baseyear
-#         gp_cases = gp_incidence * pop_glued
-#         gp_deaths = gp_mortality_rate * pop_glued
-#
-#         # Put it all together into a df
-#         df = pd.DataFrame(
-#             {
-#                 "incidence": gp_incidence,
-#                 "mortality": gp_mortality_rate,
-#                 "cases": gp_cases,
-#                 "deaths": gp_deaths,
-#             }
-#         )
-#
-#         # Return in expected format
-#         df.columns.name = "indicator"
-#         df.index.name = "year"
-#         return pd.DataFrame({"central": df.stack()})
+        # Gather the parameters for this function
+        gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
+        first_year = parameters.get("START_YEAR")
+        last_year = parameters.get("END_YEAR")
+
+        malaria_countries = parameters.get_portfolio_countries_for(self.disease_name)
+        malaria_m_countries = parameters.get_modelled_countries_for(self.disease_name)
+
+        # Extract relevant partner and model data
+        pop_model = (
+            model_results.df.loc[("GP", 1, malaria_m_countries, slice(None), "par")][
+                "central"
+            ]
+            .groupby(axis=0, level=3)
+            .sum()
+        )
+
+        # Get population estimates from first model year to generate ratio
+        pop_m_firstyear = (
+            model_results.df.loc[
+                ("GP", 1, malaria_m_countries, gp_start_year, "par")
+            ]["central"]
+            .groupby(axis=0, level=1)
+            .sum()
+        )
+        pop_firstyear = partner_data.df.loc[
+            ("PF", malaria_countries, gp_start_year, "par")
+        ].sum()["central"]
+        ratio = pop_m_firstyear / pop_firstyear
+
+        # Use baseline partner data to get the cases/deaths/incidence/mortality estimates at baseline
+        cases_baseyear = partner_data.df.loc[
+            ("PF", malaria_countries, gp_start_year, "cases")
+        ].sum()["central"]
+        pop_baseyear = partner_data.df.loc[
+            ("PF", malaria_countries, gp_start_year, "par")
+        ].sum()["central"]
+        deaths_baseyear = partner_data.df.loc[
+            ("PF", malaria_countries, gp_start_year, "deaths")
+        ].sum()["central"]
+        incidence_baseyear = cases_baseyear / pop_baseyear
+        mortality_rate_baseyear = deaths_baseyear / pop_baseyear
+
+        # Make a time series of population estimate
+        pop_glued = (
+            pop_model.loc[pop_model.index.isin(range(gp_start_year, last_year + 1))]
+            / ratio.values
+        )
+
+        # Convert reduction and get gp time series
+        relative_incidence = 1.0 - fixed_gp.df["incidence_reduction"]
+        gp_incidence = relative_incidence * incidence_baseyear
+        relative_mortality_rate = 1.0 - fixed_gp.df["death_rate_reduction"]
+        gp_mortality_rate = relative_mortality_rate * mortality_rate_baseyear
+        gp_cases = gp_incidence * pop_glued
+        gp_deaths = gp_mortality_rate * pop_glued
+
+        # Put it all together into a df
+        df = pd.DataFrame(
+            {
+                "incidence": gp_incidence,
+                "mortality": gp_mortality_rate,
+                "cases": gp_cases,
+                "deaths": gp_deaths,
+            }
+        )
+
+        # Return in expected format
+        df.columns.name = "indicator"
+        df.index.name = "year"
+        return pd.DataFrame({"central": df.stack()})
