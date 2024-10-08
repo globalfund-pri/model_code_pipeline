@@ -103,7 +103,7 @@ class Emulator:
         # Get the funding_fractions which are known, for this particular scenario_descriptor; put in ascending order
         # in a numpy array
         funding_fractions_known = self.database.model_results.df.loc[
-            (self.scenario_descriptor, slice(None), slice(None), slice(None), slice(None))
+            (self.scenario_descriptor, slice(None), self.country, slice(None), slice(None))
         ].index.get_level_values("funding_fraction").dropna().unique().sort_values().to_numpy()
 
         if (

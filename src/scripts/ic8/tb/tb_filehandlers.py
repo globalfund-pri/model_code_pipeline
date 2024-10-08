@@ -181,6 +181,10 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Load 'Sheet1' from the Excel workbook
         xlsx_df = self._load_sheet(file)
 
+        # Get costs without vaccine
+        xlsx_df['TotalCost'] = xlsx_df["Costs"]
+        xlsx_df['Costs'] = xlsx_df["TotalCost"] - xlsx_df["vacc_costs"]
+
         # Only keep columns of immediate interest:
         #TODO: to all the below add the vaccine_n and vaccine_cost and to the parameter toml file as variable
         #TODO: add VNM, KEN and COD back to parameter toml file
@@ -229,7 +233,6 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "Costs",
                 "vacc_number",
                 "vacc_costs",
-
             ]
         ]
 

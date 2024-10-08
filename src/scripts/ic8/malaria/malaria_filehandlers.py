@@ -169,6 +169,10 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Load csv
         df = self._load_sheet(file)
 
+        # Get costs without vaccine
+        df['TotalCost'] = df["total_cost"]
+        df['total_cost'] = df["TotalCost"] - df["cost_vaccine"]
+
         # Only keep columns of immediate interest:
         cols_needed = [
                 "iso3",

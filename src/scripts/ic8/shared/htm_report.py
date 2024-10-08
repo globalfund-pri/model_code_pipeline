@@ -330,7 +330,7 @@ class HTMReport(Report):
     def hiv_cases(self) -> pd.DataFrame:
         """Produce graph for HIV cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2029)), name='Year'),
+            index=pd.Index(list(range(2015, 2031)), name='Year'),
             data={
                 'Actual': self.hiv.PARTNER['cases'],
                 'GP': self.hiv.CF_forgraphs['cases'],
@@ -344,7 +344,7 @@ class HTMReport(Report):
     def hiv_deaths(self) -> pd.DataFrame:
         """Produce graph for HIV deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2029)), name='Year'),
+            index=pd.Index(list(range(2015, 2031)), name='Year'),
             data={
                 'Actual': self.hiv.PARTNER['deaths'],
                 'GP': self.hiv.CF_forgraphs['deaths'],
@@ -358,7 +358,7 @@ class HTMReport(Report):
     def tb_cases(self) -> pd.DataFrame:
         """Produce graph for TB cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2029)), name='Year'),
+            index=pd.Index(list(range(2015, 2031)), name='Year'),
             data={
                 'Actual': self.tb.PARTNER['cases'],
                 'GP': self.tb.CF_forgraphs['cases'],
@@ -372,7 +372,7 @@ class HTMReport(Report):
     def tb_deaths(self) -> pd.DataFrame:
         """Produce graph for TB deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2029)), name='Year'),
+            index=pd.Index(list(range(2015, 2031)), name='Year'),
             data={
                 'Actual': self.tb.PARTNER['deaths'],
                 'GP': self.tb.CF_forgraphs['deaths'],
@@ -386,7 +386,7 @@ class HTMReport(Report):
     def mal_cases(self) -> pd.DataFrame:
         """Produce graph for malaria cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2029)), name='Year'),
+            index=pd.Index(list(range(2015, 2031)), name='Year'),
             data={
                 'Actual': self.malaria.PARTNER['cases'],
                 'GP': self.malaria.CF_forgraphs['cases'],
@@ -400,7 +400,7 @@ class HTMReport(Report):
     def mal_deaths(self) -> pd.DataFrame:
         """Produce graph for malaria deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2029)), name='Year'),
+            index=pd.Index(list(range(2015, 2031)), name='Year'),
             data={
                 'Actual': self.malaria.PARTNER['deaths'],
                 'GP': self.malaria.CF_forgraphs['deaths'],
@@ -496,8 +496,8 @@ class HTMReport(Report):
             From: https://realpython.com/openpyxl-excel-spreadsheets-python/#adding-pretty-charts
             """
             # References to the data
-            data = Reference(ws, min_col=2, min_row=1, max_col=7, max_row=13)
-            categories = Reference(ws, min_col=1, min_row=2, max_row=13)
+            data = Reference(ws, min_col=2, min_row=1, max_col=7, max_row=17)
+            categories = Reference(ws, min_col=1, min_row=2, max_row=17)
 
             # Plot standard chart
             c1 = LineChart()
@@ -628,7 +628,7 @@ class HTMReport(Report):
         malaria_mortality_gp = pd.DataFrame(malaria_mortality_gp)
         malaria_mortality_gp = malaria_mortality_gp[malaria_mortality_gp.index > 2020]
 
-        # Step 3.1 Normalise each disease to 100 in 2020 for partner and IC
+        # Step 3.1 Normalise each disease to 100 in 2023 for partner and IC
         combined_hiv_mortality = pd.concat([hiv_mortality_partner,hiv_mortality_ic])
         combined_hiv_mortality = pd.DataFrame(combined_hiv_mortality)
         combined_hiv_mortality = 100*(combined_hiv_mortality / combined_hiv_mortality.iloc[5,:])
@@ -751,8 +751,8 @@ class HTMReport(Report):
         # Clean up so we can output the graphs
         actual = combined_mortality.loc[combined_mortality.index <2024].iloc[:,0]
         gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2023].iloc[:,0]
-        cf = combined_mortality_cf.loc[combined_mortality_cf.index >2021].iloc[:,0]
-        ic = combined_mortality.loc[combined_mortality.index > 2021].iloc[:,0]
+        cf = combined_mortality_cf.loc[combined_mortality_cf.index >2023].iloc[:,0]
+        ic = combined_mortality.loc[combined_mortality.index > 2023].iloc[:,0]
         ic_lb = combined_lb.loc[combined_lb.index > 2023].iloc[:,0]
         ic_ub = combined_ub.loc[combined_ub.index > 2023].iloc[:,0]
 
@@ -989,8 +989,8 @@ class HTMReport(Report):
         # Clean up so we can output the graphs
         actual = combined_incidence.loc[combined_incidence.index <2024].iloc[:,0]
         gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2023].iloc[:,0]
-        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2021].iloc[:,0]
-        ic = combined_incidence.loc[combined_incidence.index > 2021].iloc[:,0]
+        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2023].iloc[:,0]
+        ic = combined_incidence.loc[combined_incidence.index > 2023].iloc[:,0]
         ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2023].iloc[:,0]
         ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2023].iloc[:,0]
 
