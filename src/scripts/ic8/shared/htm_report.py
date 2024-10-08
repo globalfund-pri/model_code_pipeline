@@ -53,282 +53,284 @@ class HTMReport(Report):
             })
 
     def get_key_stats_hiv(self) -> Dict[str, float]:
-        """Generate the incidence reduction between 2026 and 2020, per disease"""
+        """Generate the incidence reduction between 2029 and 2023, per disease"""
 
         # Generate output relating cases
-        hiv_cases_2020 = self.hiv.IC.portfolio_results["cases"].at[2020, "model_central"]
-        hiv_cases_2026 = self.hiv.IC.portfolio_results["cases"].at[2026, "model_central"]
-        hiv_case_reduction = (hiv_cases_2026 / hiv_cases_2020 - 1) * 100
+        hiv_cases_2023 = self.hiv.IC.portfolio_results["cases"].at[2023, "model_central"]
+        hiv_cases_2029 = self.hiv.IC.portfolio_results["cases"].at[2029, "model_central"]
+        hiv_case_reduction = (hiv_cases_2029 / hiv_cases_2023 - 1) * 100
 
         # Generate output relating to incidence
-        hiv_incidence_2020 = self.hiv.IC.portfolio_results["cases"].at[2020, "model_central"] / \
-                             self.hiv.IC.portfolio_results["hivneg"].at[2020, "model_central"]
-        hiv_incidence_2026 = self.hiv.IC.portfolio_results["cases"].at[2026, "model_central"] / \
-                             self.hiv.IC.portfolio_results["hivneg"].at[2026, "model_central"]
-        hiv_incidence_reduction = (hiv_incidence_2026 / hiv_incidence_2020 - 1) * 100
+        hiv_incidence_2023 = self.hiv.IC.portfolio_results["cases"].at[2023, "model_central"] / \
+                             self.hiv.IC.portfolio_results["hivneg"].at[2023, "model_central"]
+        hiv_incidence_2029 = self.hiv.IC.portfolio_results["cases"].at[2029, "model_central"] / \
+                             self.hiv.IC.portfolio_results["hivneg"].at[2029, "model_central"]
+        hiv_incidence_reduction = (hiv_incidence_2029 / hiv_incidence_2023 - 1) * 100
 
         # Generate output relating deaths
-        hiv_deaths_2020 = self.hiv.IC.portfolio_results["deaths"].at[2020, "model_central"]
-        hiv_deaths_2026 = self.hiv.IC.portfolio_results["deaths"].at[2026, "model_central"]
-        hiv_death_reduction = (hiv_deaths_2026 / hiv_deaths_2020 - 1) * 100
+        hiv_deaths_2023 = self.hiv.IC.portfolio_results["deaths"].at[2023, "model_central"]
+        hiv_deaths_2029 = self.hiv.IC.portfolio_results["deaths"].at[2029, "model_central"]
+        hiv_death_reduction = (hiv_deaths_2029 / hiv_deaths_2023 - 1) * 100
 
         # Generate output relating to mortality
-        hiv_mortality_2020 = self.hiv.IC.portfolio_results["deaths"].at[2020, "model_central"] / \
-                             self.hiv.IC.portfolio_results["population"].at[2020, "model_central"]
-        hiv_mortality_2026 = self.hiv.IC.portfolio_results["deaths"].at[2026, "model_central"] / \
-                             self.hiv.IC.portfolio_results["population"].at[2026, "model_central"]
-        hiv_mortality_reduction = (hiv_mortality_2026 / hiv_mortality_2020 - 1) * 100
+        hiv_mortality_2023 = self.hiv.IC.portfolio_results["deaths"].at[2023, "model_central"] / \
+                             self.hiv.IC.portfolio_results["population"].at[2023, "model_central"]
+        hiv_mortality_2029 = self.hiv.IC.portfolio_results["deaths"].at[2029, "model_central"] / \
+                             self.hiv.IC.portfolio_results["population"].at[2029, "model_central"]
+        hiv_mortality_reduction = (hiv_mortality_2029 / hiv_mortality_2023 - 1) * 100
 
         # Generate output relating to service coverage
-        art_coverage_2020 = self.hiv.IC.portfolio_results["art"].at[2020, "model_central"] / \
-                            self.hiv.IC.portfolio_results["plhiv"].at[2020, "model_central"] * 100
-        art_coverage_2026 = self.hiv.IC.portfolio_results["art"].at[2026, "model_central"] / \
-                            self.hiv.IC.portfolio_results["plhiv"].at[2026, "model_central"] * 100
-        art_number_2026 = self.hiv.IC.portfolio_results["art"].at[2026, "model_central"]
+        art_coverage_2023 = self.hiv.IC.portfolio_results["art"].at[2023, "model_central"] / \
+                            self.hiv.IC.portfolio_results["plhiv"].at[2023, "model_central"] * 100
+        art_coverage_2029 = self.hiv.IC.portfolio_results["art"].at[2029, "model_central"] / \
+                            self.hiv.IC.portfolio_results["plhiv"].at[2029, "model_central"] * 100
+        art_number_2029 = self.hiv.IC.portfolio_results["art"].at[2029, "model_central"]
 
         return {
-            "Number of new hiv infections in the year 2020": hiv_cases_2020,
-            "Number of new hiv infections  in the year 2026": hiv_cases_2026,
-            "Reduction in new hiv infections  between the year 2026 compared to 2020": hiv_case_reduction,
+            "Number of new hiv infections in the year 2023": hiv_cases_2023,
+            "Number of new hiv infections  in the year 2029": hiv_cases_2029,
+            "Reduction in new hiv infections  between the year 2029 compared to 2023": hiv_case_reduction,
 
-            "Hiv incidence in the year 2020": hiv_incidence_2020,
-            "Hiv incidence in the year 2026": hiv_incidence_2026,
-            "Reduction in hiv incidence between the year 2026 compared to 2020": hiv_incidence_reduction,
+            "Hiv incidence in the year 2023": hiv_incidence_2023,
+            "Hiv incidence in the year 2029": hiv_incidence_2029,
+            "Reduction in hiv incidence between the year 2029 compared to 2023": hiv_incidence_reduction,
 
-            "Number of hiv deaths in the year 2020": hiv_deaths_2020,
-            "Number of  hiv deaths  in the year 2026": hiv_deaths_2026,
-            "Reduction in of hiv deaths  between the year 2026 compared to 2020": hiv_death_reduction,
+            "Number of hiv deaths in the year 2023": hiv_deaths_2023,
+            "Number of  hiv deaths  in the year 2029": hiv_deaths_2029,
+            "Reduction in of hiv deaths  between the year 2029 compared to 2023": hiv_death_reduction,
 
-            "Hiv mortality rate in the year 2020": hiv_mortality_2020,
-            "Hiv mortality rate in the year 2026": hiv_mortality_2026,
-            "Reduction in hiv mortality rate between the year 2026 compared to 2020": hiv_mortality_reduction,
+            "Hiv mortality rate in the year 2023": hiv_mortality_2023,
+            "Hiv mortality rate in the year 2029": hiv_mortality_2029,
+            "Reduction in hiv mortality rate between the year 2029 compared to 2023": hiv_mortality_reduction,
 
-            "ART coverage in the year 2020": art_coverage_2020,
-            "ART coverage in the year 2026": art_coverage_2026,
-            "Number of people on ART in the year 2026": art_number_2026,
+            "ART coverage in the year 2023": art_coverage_2023,
+            "ART coverage in the year 2029": art_coverage_2029,
+            "Number of people on ART in the year 2029": art_number_2029,
         }
 
     def get_key_stats_tb(self) -> Dict[str, float]:
         """ Get the key stats for tb.  """
 
         # Generate output relating to cases
-        tb_cases_2020 = self.tb.IC.portfolio_results["cases"].at[2020, "model_central"]
-        tb_cases_2026 = self.tb.IC.portfolio_results["cases"].at[2026, "model_central"]
-        tb_case_reduction = (tb_cases_2026 / tb_cases_2020 - 1) * 100
+        tb_cases_2023 = self.tb.IC.portfolio_results["cases"].at[2023, "model_central"]
+        tb_cases_2029 = self.tb.IC.portfolio_results["cases"].at[2029, "model_central"]
+        tb_case_reduction = (tb_cases_2029 / tb_cases_2023 - 1) * 100
 
         # Generate output relating to incidence
-        tb_incidence_2020 = self.tb.IC.portfolio_results["cases"].at[2020, "model_central"] / \
-                            self.tb.IC.portfolio_results["population"].at[2020, "model_central"]
-        tb_incidence_2026 = self.tb.IC.portfolio_results["cases"].at[2026, "model_central"] / \
-                            self.tb.IC.portfolio_results["population"].at[2026, "model_central"]
-        tb_incidence_reduction = (tb_incidence_2026 / tb_incidence_2020 - 1) * 100
+        tb_incidence_2023 = self.tb.IC.portfolio_results["cases"].at[2023, "model_central"] / \
+                            self.tb.IC.portfolio_results["population"].at[2023, "model_central"]
+        tb_incidence_2029 = self.tb.IC.portfolio_results["cases"].at[2029, "model_central"] / \
+                            self.tb.IC.portfolio_results["population"].at[2029, "model_central"]
+        tb_incidence_reduction = (tb_incidence_2029 / tb_incidence_2023 - 1) * 100
 
         # Generate output relating to cases
-        tb_deaths_2020 = self.tb.IC.portfolio_results["deaths"].at[2020, "model_central"]
-        tb_deaths_2026 = self.tb.IC.portfolio_results["deaths"].at[2026, "model_central"]
-        tb_deaths_reduction = (tb_deaths_2026 / tb_deaths_2020 - 1) * 100
+        tb_deaths_2023 = self.tb.IC.portfolio_results["deaths"].at[2023, "model_central"]
+        tb_deaths_2029 = self.tb.IC.portfolio_results["deaths"].at[2029, "model_central"]
+        tb_deaths_reduction = (tb_deaths_2029 / tb_deaths_2023 - 1) * 100
 
-        tb_deaths_hivneg_2020 = self.tb.IC.portfolio_results["deathshivneg"].at[2020, "model_central"]
-        tb_deaths_hivneg_2026 = self.tb.IC.portfolio_results["deathshivneg"].at[2026, "model_central"]
-        tb_deaths_hivneg_reduction = (tb_deaths_hivneg_2026 / tb_deaths_hivneg_2020 - 1) * 100
+        tb_deaths_hivneg_2023 = self.tb.IC.portfolio_results["deathshivneg"].at[2023, "model_central"]
+        tb_deaths_hivneg_2029 = self.tb.IC.portfolio_results["deathshivneg"].at[2029, "model_central"]
+        tb_deaths_hivneg_reduction = (tb_deaths_hivneg_2029 / tb_deaths_hivneg_2023 - 1) * 100
 
         # Generate output relating to mortality related
-        tb_mortality_2020 = self.tb.IC.portfolio_results["deaths"].at[2020, "model_central"] / \
-                            self.tb.IC.portfolio_results["population"].at[2020, "model_central"]
-        tb_mortality_2026 = self.tb.IC.portfolio_results["deaths"].at[2026, "model_central"] / \
-                            self.tb.IC.portfolio_results["population"].at[2026, "model_central"]
-        tb_mortality_reduction = (tb_mortality_2026 / tb_mortality_2020 - 1) * 100
+        tb_mortality_2023 = self.tb.IC.portfolio_results["deaths"].at[2023, "model_central"] / \
+                            self.tb.IC.portfolio_results["population"].at[2023, "model_central"]
+        tb_mortality_2029 = self.tb.IC.portfolio_results["deaths"].at[2029, "model_central"] / \
+                            self.tb.IC.portfolio_results["population"].at[2029, "model_central"]
+        tb_mortality_reduction = (tb_mortality_2029 / tb_mortality_2023 - 1) * 100
 
-        tb_mortality_hivneg_2020 = self.tb.IC.portfolio_results["deathshivneg"].at[2020, "model_central"] / \
-                                   self.tb.IC.portfolio_results["population"].at[2020, "model_central"]
-        tb_mortality_hivneg_2026 = self.tb.IC.portfolio_results["deathshivneg"].at[2026, "model_central"] / \
-                                   self.tb.IC.portfolio_results["population"].at[2026, "model_central"]
-        tb_mortality_hivneg_reduction = (tb_mortality_hivneg_2026 / tb_mortality_hivneg_2020 - 1) * 100
+        tb_mortality_hivneg_2023 = self.tb.IC.portfolio_results["deathshivneg"].at[2023, "model_central"] / \
+                                   self.tb.IC.portfolio_results["population"].at[2023, "model_central"]
+        tb_mortality_hivneg_2029 = self.tb.IC.portfolio_results["deathshivneg"].at[2029, "model_central"] / \
+                                   self.tb.IC.portfolio_results["population"].at[2029, "model_central"]
+        tb_mortality_hivneg_reduction = (tb_mortality_hivneg_2029 / tb_mortality_hivneg_2023 - 1) * 100
 
         # Generate output relating to service coverage
-        notified_2024_2026 = self.tb.IC.portfolio_results["notified"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        notified_2021_2026 = self.tb.IC.portfolio_results["notified"].loc[
-            slice(2021, 2026), "model_central"].sum()
-        mdr_tx_2024_2026 = self.tb.IC.portfolio_results["mdrtx"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        mdr_tx_2021_2026 = self.tb.IC.portfolio_results["mdrtx"].loc[
-            slice(2021, 2026), "model_central"].sum()
-        tb_txcoverage_2020 = self.tb.IC.portfolio_results["notified"].at[2020, "model_central"] / \
-                             self.tb.IC.portfolio_results["cases"].at[2020, "model_central"] * 100
-        tb_txcoverage_2026 = self.tb.IC.portfolio_results["notified"].at[2026, "model_central"] / \
-                             self.tb.IC.portfolio_results["cases"].at[2026, "model_central"] * 100
+        notified_2027_2029 = self.tb.IC.portfolio_results["notified"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        notified_2024_2029 = self.tb.IC.portfolio_results["notified"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        # TODO; correct this
+        # mdr_tx_2027_2029 = self.tb.IC.portfolio_results["mdrTx"].loc[
+        #     slice(2027, 2029), "model_central"].sum()
+        # mdr_tx_2024_2029 = self.tb.IC.portfolio_results["mdrTx"].loc[
+        #     slice(2024, 2029), "model_central"].sum()
+        tb_txcoverage_2023 = self.tb.IC.portfolio_results["notified"].at[2023, "model_central"] / \
+                             self.tb.IC.portfolio_results["cases"].at[2023, "model_central"] * 100
+        tb_txcoverage_2029 = self.tb.IC.portfolio_results["notified"].at[2029, "model_central"] / \
+                             self.tb.IC.portfolio_results["cases"].at[2029, "model_central"] * 100
 
         return {
-            "Number of TB cases in the year 2020": tb_cases_2020,
-            "Number of TB cases in the year 2026": tb_cases_2026,
-            "Reduction in TB cases  between the year 2026 compared to 2020 ": tb_case_reduction,
+            "Number of TB cases in the year 2023": tb_cases_2023,
+            "Number of TB cases in the year 2029": tb_cases_2029,
+            "Reduction in TB cases  between the year 2029 compared to 2023 ": tb_case_reduction,
 
-            "TB incidence in the year 2020 ": tb_incidence_2020,
-            "TB incidence in the year 2026 ": tb_incidence_2026,
-            "Reduction in TB incidence between the year 2026 compared to 2020 ": tb_incidence_reduction,
+            "TB incidence in the year 2023 ": tb_incidence_2023,
+            "TB incidence in the year 2029 ": tb_incidence_2029,
+            "Reduction in TB incidence between the year 2029 compared to 2023 ": tb_incidence_reduction,
 
-            "Number of TB deaths in the year 2020 ": tb_deaths_2020,
-            "Number of TB deaths in the year 2026 ": tb_deaths_2026,
-            "Reduction in TB deaths between the year 2026 compared to 2020": tb_deaths_reduction,
+            "Number of TB deaths in the year 2023 ": tb_deaths_2023,
+            "Number of TB deaths in the year 2029 ": tb_deaths_2029,
+            "Reduction in TB deaths between the year 2029 compared to 2023": tb_deaths_reduction,
 
-            "Number of TB deaths amongst hiv-negative individuals in the year 2020 ": tb_deaths_hivneg_2020,
-            "Number of TB deaths amongst hiv-negative individuals in the year 2026 ": tb_deaths_hivneg_2026,
-            "Reduction in TB deaths amongst hiv-negative individuals between the year 2026 compared to 2020": tb_deaths_hivneg_reduction,
+            "Number of TB deaths amongst hiv-negative individuals in the year 2023 ": tb_deaths_hivneg_2023,
+            "Number of TB deaths amongst hiv-negative individuals in the year 2029 ": tb_deaths_hivneg_2029,
+            "Reduction in TB deaths amongst hiv-negative individuals between the year 2029 compared to 2023": tb_deaths_hivneg_reduction,
 
-            "TB mortality rate in the year 2020 ": tb_mortality_2020,
-            "TB mortality rate in the year 2026 ": tb_mortality_2026,
-            "Reduction in TB mortality rate between the year 2026 compared to 2020 ": tb_mortality_reduction,
+            "TB mortality rate in the year 2023 ": tb_mortality_2023,
+            "TB mortality rate in the year 2029 ": tb_mortality_2029,
+            "Reduction in TB mortality rate between the year 2029 compared to 2023 ": tb_mortality_reduction,
 
-            "TB mortality rate amongst hiv-negative individuals in the year 2020 ": tb_mortality_hivneg_2020,
-            "TB mortality rate amongst hiv-negative individuals in the year 2026 ": tb_mortality_hivneg_2026,
-            "Reduction in TB mortality rate amongst hiv-negative individuals between the year 2026 compared to 2020 ": tb_mortality_hivneg_reduction,
+            "TB mortality rate amongst hiv-negative individuals in the year 2023 ": tb_mortality_hivneg_2023,
+            "TB mortality rate amongst hiv-negative individuals in the year 2029 ": tb_mortality_hivneg_2029,
+            "Reduction in TB mortality rate amongst hiv-negative individuals between the year 2029 compared to 2023 ": tb_mortality_hivneg_reduction,
 
-            "Number of TB notifications between 2024 and 2026 ": notified_2024_2026,
-            "Number of TB notifications between 2021 and 2026 ": notified_2021_2026,
-            "Number of MDR cases who received treatment between 2024 and 2026 ": mdr_tx_2024_2026,
-            "Number of MDR cases who received treatment between 2021 and 2026 ": mdr_tx_2021_2026,
-            "TB treatment coverage in 2020 ": tb_txcoverage_2020,
-            "TB treatment coverage in 2026 ": tb_txcoverage_2026,
+            "Number of TB notifications between 2027 and 2029 ": notified_2027_2029,
+            "Number of TB notifications between 2024 and 2029 ": notified_2024_2029,
+            # TODO: correct and uncomment
+            # "Number of MDR cases who received treatment between 2027 and 2029 ": mdr_tx_2027_2029,
+            # "Number of MDR cases who received treatment between 2024 and 2029 ": mdr_tx_2024_2029,
+            "TB treatment coverage in 2023 ": tb_txcoverage_2023,
+            "TB treatment coverage in 2029 ": tb_txcoverage_2029,
         }
 
     def get_key_stats_malaria(self) -> Dict[str, float]:
         """ Get the key stats for malaria.  """
 
         # Generate output relating to cases
-        malaria_cases_2020 = self.malaria.IC.portfolio_results["cases"].at[2020, "model_central"]
-        malaria_cases_2026 = self.malaria.IC.portfolio_results["cases"].at[2026, "model_central"]
-        malaria_case_reduction = (malaria_cases_2026 / malaria_cases_2020 - 1) * 100
+        malaria_cases_2023 = self.malaria.IC.portfolio_results["cases"].at[2023, "model_central"]
+        malaria_cases_2029 = self.malaria.IC.portfolio_results["cases"].at[2029, "model_central"]
+        malaria_case_reduction = (malaria_cases_2029 / malaria_cases_2023 - 1) * 100
 
         # Generate output relating to incidence
-        malaria_incidence_2020 = self.malaria.IC.portfolio_results["cases"].at[2020, "model_central"] / \
-                                 self.malaria.IC.portfolio_results["par"].at[2020, "model_central"]
-        malaria_incidence_2026 = self.malaria.IC.portfolio_results["cases"].at[2026, "model_central"] / \
-                                 self.malaria.IC.portfolio_results["par"].at[2026, "model_central"]
-        malaria_incidence_reduction = (malaria_incidence_2026 / malaria_incidence_2020 - 1) * 100
+        malaria_incidence_2023 = self.malaria.IC.portfolio_results["cases"].at[2023, "model_central"] / \
+                                 self.malaria.IC.portfolio_results["par"].at[2023, "model_central"]
+        malaria_incidence_2029 = self.malaria.IC.portfolio_results["cases"].at[2029, "model_central"] / \
+                                 self.malaria.IC.portfolio_results["par"].at[2029, "model_central"]
+        malaria_incidence_reduction = (malaria_incidence_2029 / malaria_incidence_2023 - 1) * 100
 
         # Generate output relating to mortality
-        malaria_deaths_2020 = self.malaria.IC.portfolio_results["deaths"].at[2020, "model_central"]
-        malaria_deaths_2026 = self.malaria.IC.portfolio_results["deaths"].at[2026, "model_central"]
-        malaria_death_reduction = (malaria_deaths_2026 / malaria_deaths_2020 - 1) * 100
+        malaria_deaths_2023 = self.malaria.IC.portfolio_results["deaths"].at[2023, "model_central"]
+        malaria_deaths_2029 = self.malaria.IC.portfolio_results["deaths"].at[2029, "model_central"]
+        malaria_death_reduction = (malaria_deaths_2029 / malaria_deaths_2023 - 1) * 100
 
         # Generate output relating to mortality
-        malaria_mortality_2020 = self.malaria.IC.portfolio_results["deaths"].at[2020, "model_central"] / \
-                                 self.malaria.IC.portfolio_results["par"].at[2020, "model_central"]
-        malaria_mortality_2026 = self.malaria.IC.portfolio_results["deaths"].at[2026, "model_central"] / \
-                                 self.malaria.IC.portfolio_results["par"].at[2026, "model_central"]
-        malaria_mortality_reduction = (malaria_mortality_2026 / malaria_mortality_2020 - 1) * 100
+        malaria_mortality_2023 = self.malaria.IC.portfolio_results["deaths"].at[2023, "model_central"] / \
+                                 self.malaria.IC.portfolio_results["par"].at[2023, "model_central"]
+        malaria_mortality_2029 = self.malaria.IC.portfolio_results["deaths"].at[2029, "model_central"] / \
+                                 self.malaria.IC.portfolio_results["par"].at[2029, "model_central"]
+        malaria_mortality_reduction = (malaria_mortality_2029 / malaria_mortality_2023 - 1) * 100
 
         # Generate output to service coverage
-        malaria_llins_2024_2026 = self.malaria.IC.portfolio_results["llins"].loc[
-            slice(2024, 2026), "model_central"].sum()
+        malaria_llins_2027_2029 = self.malaria.IC.portfolio_results["llins"].loc[
+            slice(2027, 2029), "model_central"].sum()
 
-        malaria_llins_2021_2026 = self.malaria.IC.portfolio_results["llins"].loc[
-            slice(2021, 2026), "model_central"].sum()
+        malaria_llins_2024_2029 = self.malaria.IC.portfolio_results["llins"].loc[
+            slice(2024, 2029), "model_central"].sum()
 
-        tx_publicsector_2020_2026 = self.malaria.IC.portfolio_results["tx"].loc[
-            slice(2021, 2026), "model_central"].sum()
+        tx_publicsector_2024_2029 = self.malaria.IC.portfolio_results["txpublic"].loc[
+            slice(2024, 2029), "model_central"].sum()
 
         return {
-            "Number of malaria cases in the year 2020": malaria_cases_2020,
-            "Number of malaria cases in the year 2026": malaria_cases_2026,
-            "Reduction in malaria cases between the year 2026 compared to 2020 ": malaria_case_reduction,
+            "Number of malaria cases in the year 2023": malaria_cases_2023,
+            "Number of malaria cases in the year 2029": malaria_cases_2029,
+            "Reduction in malaria cases between the year 2029 compared to 2023 ": malaria_case_reduction,
 
-            "Malaria incidence in the year 2020": malaria_incidence_2020,
-            "Malaria incidence in the year 2026": malaria_incidence_2026,
-            "Reduction in malaria incidence between the year 2026 compared to 2020": malaria_incidence_reduction,
+            "Malaria incidence in the year 2023": malaria_incidence_2023,
+            "Malaria incidence in the year 2029": malaria_incidence_2029,
+            "Reduction in malaria incidence between the year 2029 compared to 2023": malaria_incidence_reduction,
 
-            "Number of malaria deaths in the year 2020": malaria_deaths_2020,
-            "Number of malaria deaths  in the year 2026": malaria_deaths_2026,
-            "Reduction in malaria deaths between the year 2026 compared to 2020": malaria_death_reduction,
+            "Number of malaria deaths in the year 2023": malaria_deaths_2023,
+            "Number of malaria deaths  in the year 2029": malaria_deaths_2029,
+            "Reduction in malaria deaths between the year 2029 compared to 2023": malaria_death_reduction,
 
-            "Malaria mortality rate in the year 2020": malaria_mortality_2020,
-            "Malaria mortality rate in the year 2026": malaria_mortality_2026,
-            "Reduction in malaria mortality rate between the year 2026 compared to 2020": malaria_mortality_reduction,
+            "Malaria mortality rate in the year 2023": malaria_mortality_2023,
+            "Malaria mortality rate in the year 2029": malaria_mortality_2029,
+            "Reduction in malaria mortality rate between the year 2029 compared to 2023": malaria_mortality_reduction,
 
-            "Number of bed nets distributed between 2024 and 2026": malaria_llins_2024_2026,
-            "Number of bed nets distributed between 2021 and 2026": malaria_llins_2021_2026,
-            "Number of people treated in the public sector between 2020 and 2026": tx_publicsector_2020_2026,
+            "Number of bed nets distributed between 2027 and 2029": malaria_llins_2027_2029,
+            "Number of bed nets distributed between 2024 and 2029": malaria_llins_2024_2029,
+            "Number of people treated in the public sector between 2023 and 2029": tx_publicsector_2024_2029,
         }
 
     def get_lives_saved(self) -> Dict[str, float]:
         """Save a graph to the outputs directory"""
 
         # Get lives saved for HIV
-        hiv_deaths_2021_2026_ic = self.hiv.IC.portfolio_results["deaths"].loc[slice(2021, 2026), "model_central"].sum()
-        hiv_deaths_2021_2026_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
-            slice(2021, 2026), "model_central"].sum()
-        lives_saved_hiv_2021_2026 = hiv_deaths_2021_2026_cf - hiv_deaths_2021_2026_ic
+        hiv_deaths_2024_2029_ic = self.hiv.IC.portfolio_results["deaths"].loc[slice(2024, 2029), "model_central"].sum()
+        hiv_deaths_2024_2029_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        lives_saved_hiv_2024_2029 = hiv_deaths_2024_2029_cf - hiv_deaths_2024_2029_ic
 
-        hiv_deaths_2024_2026_ic = self.hiv.IC.portfolio_results["deaths"].loc[slice(2024, 2026), "model_central"].sum()
-        hiv_deaths_2024_2026_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        lives_saved_hiv_2024_2026 = hiv_deaths_2024_2026_cf - hiv_deaths_2024_2026_ic
+        hiv_deaths_2027_2029_ic = self.hiv.IC.portfolio_results["deaths"].loc[slice(2027, 2029), "model_central"].sum()
+        hiv_deaths_2027_2029_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        lives_saved_hiv_2027_2029 = hiv_deaths_2027_2029_cf - hiv_deaths_2027_2029_ic
 
         # Get lives saved for TB
-        tb_deaths_hivneg_2021_2026_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
-            slice(2020, 2026), "model_central"].sum()
-        tb_deaths_hivneg_2021_2026_cf = self.tb.IC.portfolio_results["deathsnotxhivneg"].loc[
-            slice(2020, 2026), "model_central"].sum()
-        lives_saved_tb_hivneg_2021_2026 = tb_deaths_hivneg_2021_2026_cf - tb_deaths_hivneg_2021_2026_ic
+        tb_deaths_hivneg_2024_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        tb_deaths_hivneg_2024_2029_cf = self.tb.IC.portfolio_results["deathsnotxhivneg"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        lives_saved_tb_hivneg_2024_2029 = tb_deaths_hivneg_2024_2029_cf - tb_deaths_hivneg_2024_2029_ic
 
-        tb_deaths_hivneg_2024_2026_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        tb_deaths_hivneg_2024_2026_cf = self.tb.IC.portfolio_results["deathsnotxhivneg"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        lives_saved_tb_hivneg_2024_2026 = tb_deaths_hivneg_2024_2026_cf - tb_deaths_hivneg_2024_2026_ic
+        tb_deaths_hivneg_2027_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        tb_deaths_hivneg_2027_2029_cf = self.tb.IC.portfolio_results["deathsnotxhivneg"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        lives_saved_tb_hivneg_2027_2029 = tb_deaths_hivneg_2027_2029_cf - tb_deaths_hivneg_2027_2029_ic
 
         # Get lives saved for malaria
-        malaria_deaths_2021_2026_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2020, 2026), "model_central"].sum()
-        malaria_deaths_2021_2026_cf = self.malaria.CF_LivesSaved_Malaria.loc[2020:2026].sum()
-        lives_saved_malaria_2021_2026 = malaria_deaths_2021_2026_cf - malaria_deaths_2021_2026_ic
+        malaria_deaths_2024_2029_ic = self.malaria.IC.portfolio_results["deaths"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        malaria_deaths_2024_2029_cf = self.malaria.CF_LivesSaved_Malaria.loc[2024:2029].sum()
+        lives_saved_malaria_2024_2029 = malaria_deaths_2024_2029_cf - malaria_deaths_2024_2029_ic
 
-        malaria_deaths_2024_2026_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        malaria_deaths_2024_2026_cf = self.malaria.CF_LivesSaved_Malaria.loc[2024:2026].sum()
-        lives_saved_malaria_2024_2026 = malaria_deaths_2024_2026_cf - malaria_deaths_2024_2026_ic
+        malaria_deaths_2027_2029_ic = self.malaria.IC.portfolio_results["deaths"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        malaria_deaths_2027_2029_cf = self.malaria.CF_LivesSaved_Malaria.loc[2027:2029].sum()
+        lives_saved_malaria_2027_2029 = malaria_deaths_2027_2029_cf - malaria_deaths_2027_2029_ic
 
         return {
-            "Number of lives saved relating to hiv from 2021 to 2026": lives_saved_hiv_2021_2026,
-            "Number of lives saved relating to hiv from 2024 to 2026": lives_saved_hiv_2024_2026,
-            "Number of lives saved relating to tb  amongst hivneg from 2021 to 2026": lives_saved_tb_hivneg_2021_2026,
-            "Number of lives saved relating to tb  amongst hivneg from 2024 to 2026": lives_saved_tb_hivneg_2024_2026,
-            "Number of lives saved relating to malaria from 2021 to 2026": lives_saved_malaria_2021_2026,
-            "Number of lives saved relating to malaria 2024 to 2026": lives_saved_malaria_2024_2026,
+            "Number of lives saved relating to hiv from 2024 to 2029": lives_saved_hiv_2024_2029,
+            "Number of lives saved relating to hiv from 2027 to 2029": lives_saved_hiv_2027_2029,
+            "Number of lives saved relating to tb  amongst hivneg from 2024 to 2029": lives_saved_tb_hivneg_2024_2029,
+            "Number of lives saved relating to tb  amongst hivneg from 2027 to 2029": lives_saved_tb_hivneg_2027_2029,
+            "Number of lives saved relating to malaria from 2024 to 2029": lives_saved_malaria_2024_2029,
+            "Number of lives saved relating to malaria 2027 to 2029": lives_saved_malaria_2027_2029,
         }
 
     def get_infections_averted(self) -> dict[str, Any]:
         """ Generate infections averted """
 
         # Get infections averted for HIV
-        hiv_cases_2024_2026_ic = self.hiv.IC.portfolio_results["cases"].loc[slice(2024, 2026), "model_central"].sum()
-        hiv_cases_2024_2026_cf = self.hiv.CF_InfAve.portfolio_results["cases"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        infections_averted_2024_2026_hiv = hiv_cases_2024_2026_cf - hiv_cases_2024_2026_ic
+        hiv_cases_2027_2029_ic = self.hiv.IC.portfolio_results["cases"].loc[slice(2027, 2029), "model_central"].sum()
+        hiv_cases_2027_2029_cf = self.hiv.CF_InfAve.portfolio_results["cases"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        infections_averted_2027_2029_hiv = hiv_cases_2027_2029_cf - hiv_cases_2027_2029_ic
 
         # Get infections averted for TB
-        tb_cases_2024_2026_ic = self.tb.IC.portfolio_results["cases"].loc[slice(2024, 2026), "model_central"].sum()
-        tb_cases_2024_2026_cf = self.tb.CF_InfAve.portfolio_results["cases"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        infections_averted_2024_2026_tb = tb_cases_2024_2026_cf - tb_cases_2024_2026_ic
+        tb_cases_2027_2029_ic = self.tb.IC.portfolio_results["cases"].loc[slice(2027, 2029), "model_central"].sum()
+        tb_cases_2027_2029_cf = self.tb.CF_InfAve.portfolio_results["cases"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        infections_averted_2027_2029_tb = tb_cases_2027_2029_cf - tb_cases_2027_2029_ic
 
         # Get infections averted for malaria
-        malaria_cases_2024_2026_ic = self.malaria.IC.portfolio_results["cases"].loc[
-            slice(2024, 2026), "model_central"].sum()
-        malaria_cases_2024_2026_cf = self.malaria.CF_InfectionsAverted_Malaria.loc[2024:2026].sum()
-        infections_averted_2024_2026_malaria = malaria_cases_2024_2026_cf - malaria_cases_2024_2026_ic
+        malaria_cases_2027_2029_ic = self.malaria.IC.portfolio_results["cases"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        malaria_cases_2027_2029_cf = self.malaria.CF_InfectionsAverted_Malaria.loc[2027:2029].sum()
+        infections_averted_2027_2029_malaria = malaria_cases_2027_2029_cf - malaria_cases_2027_2029_ic
 
         return {
-            "Infections averted relating to HIV from 2024 to 2026": infections_averted_2024_2026_hiv,
-            "Infections averted relating to TB from 2024 to 2026": infections_averted_2024_2026_tb,
-            "Infections averted relating to malaria from 2024 to 2026": infections_averted_2024_2026_malaria,
+            "Infections averted relating to HIV from 2027 to 2029": infections_averted_2027_2029_hiv,
+            "Infections averted relating to TB from 2027 to 2029": infections_averted_2027_2029_tb,
+            "Infections averted relating to malaria from 2027 to 2029": infections_averted_2027_2029_malaria,
         }
 
     def hiv_cases(self) -> pd.DataFrame:
         """Produce graph for HIV cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            index=pd.Index(list(range(2015, 2029)), name='Year'),
             data={
                 'Actual': self.hiv.PARTNER['cases'],
                 'GP': self.hiv.CF_forgraphs['cases'],
@@ -342,7 +344,7 @@ class HTMReport(Report):
     def hiv_deaths(self) -> pd.DataFrame:
         """Produce graph for HIV deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            index=pd.Index(list(range(2015, 2029)), name='Year'),
             data={
                 'Actual': self.hiv.PARTNER['deaths'],
                 'GP': self.hiv.CF_forgraphs['deaths'],
@@ -356,7 +358,7 @@ class HTMReport(Report):
     def tb_cases(self) -> pd.DataFrame:
         """Produce graph for TB cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            index=pd.Index(list(range(2015, 2029)), name='Year'),
             data={
                 'Actual': self.tb.PARTNER['cases'],
                 'GP': self.tb.CF_forgraphs['cases'],
@@ -370,7 +372,7 @@ class HTMReport(Report):
     def tb_deaths(self) -> pd.DataFrame:
         """Produce graph for TB deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            index=pd.Index(list(range(2015, 2029)), name='Year'),
             data={
                 'Actual': self.tb.PARTNER['deaths'],
                 'GP': self.tb.CF_forgraphs['deaths'],
@@ -384,7 +386,7 @@ class HTMReport(Report):
     def mal_cases(self) -> pd.DataFrame:
         """Produce graph for malaria cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            index=pd.Index(list(range(2015, 2029)), name='Year'),
             data={
                 'Actual': self.malaria.PARTNER['cases'],
                 'GP': self.malaria.CF_forgraphs['cases'],
@@ -398,7 +400,7 @@ class HTMReport(Report):
     def mal_deaths(self) -> pd.DataFrame:
         """Produce graph for malaria deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2027)), name='Year'),
+            index=pd.Index(list(range(2015, 2029)), name='Year'),
             data={
                 'Actual': self.malaria.PARTNER['deaths'],
                 'GP': self.malaria.CF_forgraphs['deaths'],
@@ -412,47 +414,47 @@ class HTMReport(Report):
     def get_combined_stats(self) -> dict[str, Any]:
         """ Generate combined stats """
 
-        # Get deaths in 2020 for each disease
-        hiv_deaths_2020 = self.hiv.IC.portfolio_results["deaths"].at[2020, "model_central"]
-        tb_deaths_2020 = self.tb.IC.portfolio_results["deaths"].at[2020, "model_central"]
-        malaria_deaths_2020 = self.malaria.IC.portfolio_results["deaths"].at[2020, "model_central"]
-        total_deaths_2020 = hiv_deaths_2020 + tb_deaths_2020 + malaria_deaths_2020
+        # Get deaths in 2023 for each disease
+        hiv_deaths_2023 = self.hiv.IC.portfolio_results["deaths"].at[2023, "model_central"]
+        tb_deaths_2023 = self.tb.IC.portfolio_results["deaths"].at[2023, "model_central"]
+        malaria_deaths_2023 = self.malaria.IC.portfolio_results["deaths"].at[2023, "model_central"]
+        total_deaths_2023 = hiv_deaths_2023 + tb_deaths_2023 + malaria_deaths_2023
 
-        # Get deaths in 2026 for each disease
-        hiv_deaths_2026 = self.hiv.IC.portfolio_results["deaths"].at[2026, "model_central"]
-        tb_deaths_2026 = self.tb.IC.portfolio_results["deaths"].at[2026, "model_central"]
-        malaria_deaths_2026 = self.malaria.IC.portfolio_results["deaths"].at[2026, "model_central"]
-        total_deaths_2026 = hiv_deaths_2026 + tb_deaths_2026 + malaria_deaths_2026
+        # Get deaths in 2029 for each disease
+        hiv_deaths_2029 = self.hiv.IC.portfolio_results["deaths"].at[2029, "model_central"]
+        tb_deaths_2029 = self.tb.IC.portfolio_results["deaths"].at[2029, "model_central"]
+        malaria_deaths_2029 = self.malaria.IC.portfolio_results["deaths"].at[2029, "model_central"]
+        total_deaths_2029 = hiv_deaths_2029 + tb_deaths_2029 + malaria_deaths_2029
 
-        # Get sum of deaths from IC for 2021 to 2026
-        hiv_deaths_2021_2026_ic = self.hiv.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2026), "model_central"].sum()
-        tb_deaths_2021_2026_ic = self.tb.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2026), "model_central"].sum()
-        malaria_deaths_2021_2026_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2026), "model_central"].sum()
+        # Get sum of deaths from IC for 2024 to 2029
+        hiv_deaths_2024_2029_ic = self.hiv.IC.portfolio_results["deaths"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        tb_deaths_2024_2029_ic = self.tb.IC.portfolio_results["deaths"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        malaria_deaths_2024_2029_ic = self.malaria.IC.portfolio_results["deaths"].loc[
+            slice(2024, 2029), "model_central"].sum()
 
-        # Get deaths averted from CFs for 2021 to 2026
-        hiv_deaths_2021_2026_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
-            slice(2021, 2026), "model_central"].sum()
-        tb_deaths_2021_2026_cf = self.tb.CF_LivesSaved.portfolio_results["deaths"].loc[
-            slice(2021, 2026), "model_central"].sum()
-        malaria_deaths_2021_2026_cf = self.malaria.CF_LivesSaved.portfolio_results["deaths"].loc[
-            slice(2021, 2026), "model_central"].sum()
+        # Get deaths averted from CFs for 2024 to 2029
+        hiv_deaths_2024_2029_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        tb_deaths_2024_2029_cf = self.tb.CF_LivesSaved.portfolio_results["deaths"].loc[
+            slice(2024, 2029), "model_central"].sum()
+        malaria_deaths_2024_2029_cf = self.malaria.CF_LivesSaved.portfolio_results["deaths"].loc[
+            slice(2024, 2029), "model_central"].sum()
 
         # Compute deaths averted
-        hiv_deaths_averted_2021_2026 = hiv_deaths_2021_2026_cf - hiv_deaths_2021_2026_ic
-        tb_deaths_averted_2021_2026 = tb_deaths_2021_2026_cf - tb_deaths_2021_2026_ic
-        malaria_deaths_averted_2021_2026 = malaria_deaths_2021_2026_cf - malaria_deaths_2021_2026_ic
-        total_deaths_averted = hiv_deaths_averted_2021_2026 + tb_deaths_averted_2021_2026 + malaria_deaths_averted_2021_2026
+        hiv_deaths_averted_2024_2029 = hiv_deaths_2024_2029_cf - hiv_deaths_2024_2029_ic
+        tb_deaths_averted_2024_2029 = tb_deaths_2024_2029_cf - tb_deaths_2024_2029_ic
+        malaria_deaths_averted_2024_2029 = malaria_deaths_2024_2029_cf - malaria_deaths_2024_2029_ic
+        total_deaths_averted = hiv_deaths_averted_2024_2029 + tb_deaths_averted_2024_2029 + malaria_deaths_averted_2024_2029
 
         return {
-            "Total number of deaths from 3 diseases in 2020 ": total_deaths_2020,
-            "Total number of deaths from 3 diseases in 2026 ": total_deaths_2026,
-            "Deaths averted (covid disruption) for HIV 2021 to 2026": hiv_deaths_averted_2021_2026,
-            "Deaths averted (covid disruption) for TB 2021 to 2026": tb_deaths_averted_2021_2026,
-            "Deaths averted (covid disruption) for malaria 2021 to 2026": malaria_deaths_averted_2021_2026,
-            "Total Deaths averted (covid disruption) for hiv 2021 to 2026": total_deaths_averted,
+            "Total number of deaths from 3 diseases in 2023 ": total_deaths_2023,
+            "Total number of deaths from 3 diseases in 2029 ": total_deaths_2029,
+            "Deaths averted (covid disruption) for HIV 2024 to 2029": hiv_deaths_averted_2024_2029,
+            "Deaths averted (covid disruption) for TB 2024 to 2029": tb_deaths_averted_2024_2029,
+            "Deaths averted (covid disruption) for malaria 2024 to 2029": malaria_deaths_averted_2024_2029,
+            "Total Deaths averted (covid disruption) for hiv 2024 to 2029": total_deaths_averted,
         }
 
     def comb_mort(self) -> pd.DataFrame:
@@ -553,32 +555,32 @@ class HTMReport(Report):
 
         # Step 2.1 Get mortality for each disease from IC including LB and UB
         hiv_deaths_ic = self.hiv.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         hiv_deaths_lb_ic = self.hiv.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2030), "model_low"]
+            slice(2024, 2030), "model_low"]
         hiv_deaths_ub_ic = self.hiv.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2030), "model_high"]
+            slice(2024, 2030), "model_high"]
 
         tb_deaths_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         tb_deaths_lb_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
-            slice(2021, 2030), "model_low"]
+            slice(2024, 2030), "model_low"]
         tb_deaths_ub_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
-            slice(2021, 2030), "model_high"]
+            slice(2024, 2030), "model_high"]
 
         malaria_deaths_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         malaria_deaths_lb_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2030), "model_low"]
+            slice(2024, 2030), "model_low"]
         malaria_deaths_ub_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2021, 2030), "model_high"]
+            slice(2024, 2030), "model_high"]
 
         hiv_pop_ic = self.hiv.IC.portfolio_results["population"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         tb_pop_ic = self.tb.IC.portfolio_results["population"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         malaria_pop_ic = self.malaria.IC.portfolio_results["par"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
 
         hiv_mortality_ic = hiv_deaths_ic / hiv_pop_ic
         tb_mortality_ic = tb_deaths_ic / tb_pop_ic
@@ -594,18 +596,18 @@ class HTMReport(Report):
 
         # Step 2.2 Get incidence for each disease from Covid disruption
         hiv_deaths_cf = self.hiv.CF_InfAve.portfolio_results["deaths"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         tb_deaths_cf = self.tb.CF_InfAve.portfolio_results["deathshivneg"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         malaria_deaths_cf = self.malaria.CF_InfAve.portfolio_results["deaths"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
 
         hiv_pop_cf = self.hiv.CF_InfAve.portfolio_results["population"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         tb_pop_cf = self.tb.CF_InfAve.portfolio_results["population"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         malaria_pop_cf = self.malaria.CF_InfAve.portfolio_results["par"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
 
         hiv_mortality_cf = hiv_deaths_cf / hiv_pop_cf
         tb_mortality_cf = tb_deaths_cf / tb_pop_cf
@@ -670,7 +672,7 @@ class HTMReport(Report):
         # Prepare to generate CIs
         # rho_btw_diseases = 1 # TODO: update
         rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
-        years = list(range(2021, 2031))
+        years = list(range(2024, 2031))
         combined_temp = (hiv_mortality_ic + tb_mortality_ic + malaria_mortality_ic) / 3
 
         # Make an empty dataframe
@@ -743,16 +745,16 @@ class HTMReport(Report):
         combined_mortality_gp = (combined_hiv_mortality_gp + combined_tb_mortality_gp + combined_malaria_mortality_gp) / 3
 
         # Compute the needed reductions
-        reduction_ic = combined_mortality.loc[2026, 0] - 100
-        reduction_cf = combined_mortality_cf.loc[2026, 0] - 100
+        reduction_ic = combined_mortality.loc[2029, 0] - 100
+        reduction_cf = combined_mortality_cf.loc[2029, 0] - 100
 
         # Clean up so we can output the graphs
-        actual = combined_mortality.loc[combined_mortality.index <2021].iloc[:,0]
-        gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2020].iloc[:,0]
-        cf = combined_mortality_cf.loc[combined_mortality_cf.index >2019 ].iloc[:,0]
-        ic = combined_mortality.loc[combined_mortality.index > 2019].iloc[:,0]
-        ic_lb = combined_lb.loc[combined_lb.index > 2020].iloc[:,0]
-        ic_ub = combined_ub.loc[combined_ub.index > 2020].iloc[:,0]
+        actual = combined_mortality.loc[combined_mortality.index <2024].iloc[:,0]
+        gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2023].iloc[:,0]
+        cf = combined_mortality_cf.loc[combined_mortality_cf.index >2021].iloc[:,0]
+        ic = combined_mortality.loc[combined_mortality.index > 2021].iloc[:,0]
+        ic_lb = combined_lb.loc[combined_lb.index > 2023].iloc[:,0]
+        ic_ub = combined_ub.loc[combined_ub.index > 2023].iloc[:,0]
 
         comb_mort_df = pd.DataFrame(
             index=pd.Index(list(range(2015, 2031)), name='Year'),
@@ -791,32 +793,32 @@ class HTMReport(Report):
 
         # Step 2.1 Get incidence for each disease from IC including LB and UB
         hiv_cases_ic = self.hiv.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         hiv_cases_lb_ic = self.hiv.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_low"]
+            slice(2024, 2030), "model_low"]
         hiv_cases_ub_ic = self.hiv.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_high"]
+            slice(2024, 2030), "model_high"]
 
         tb_cases_ic = self.tb.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         tb_cases_lb_ic = self.tb.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_low"]
+            slice(2024, 2030), "model_low"]
         tb_cases_ub_ic = self.tb.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_high"]
+            slice(2024, 2030), "model_high"]
 
         malaria_cases_ic = self.malaria.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         malaria_cases_lb_ic = self.malaria.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_low"]
+            slice(2024, 2030), "model_low"]
         malaria_cases_ub_ic = self.malaria.IC.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_high"]
+            slice(2024, 2030), "model_high"]
 
         hiv_pop_ic = self.hiv.IC.portfolio_results["hivneg"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         tb_pop_ic = self.tb.IC.portfolio_results["population"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         malaria_pop_ic = self.malaria.IC.portfolio_results["par"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
 
         hiv_incidence_ic = hiv_cases_ic / hiv_pop_ic
         tb_incidence_ic = tb_cases_ic / tb_pop_ic
@@ -832,18 +834,18 @@ class HTMReport(Report):
 
         # Step 2.2 Get incidence for each disease from Covid disruption
         hiv_cases_cf = self.hiv.CF_InfAve.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         tb_cases_cf = self.tb.CF_InfAve.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         malaria_cases_cf = self.malaria.CF_InfAve.portfolio_results["cases"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
 
         hiv_pop_cf = self.hiv.CF_InfAve.portfolio_results["hivneg"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         tb_pop_cf = self.tb.CF_InfAve.portfolio_results["population"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
         malaria_pop_cf = self.malaria.CF_InfAve.portfolio_results["par"].loc[
-            slice(2021, 2030), "model_central"]
+            slice(2024, 2030), "model_central"]
 
         hiv_incidence_cf = hiv_cases_cf / hiv_pop_cf
         tb_incidence_cf = tb_cases_cf / tb_pop_cf
@@ -907,7 +909,7 @@ class HTMReport(Report):
 
         # Prepare to generate CIs
         rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
-        years = list(range(2021, 2031))
+        years = list(range(2024, 2031))
         combined_temp = (hiv_incidence_ic + tb_incidence_ic + malaria_incidence_ic) / 3
 
         # Make an empty dataframe
@@ -981,16 +983,16 @@ class HTMReport(Report):
         combined_incidence_gp = (combined_hiv_incidence_gp + combined_tb_incidence_gp + combined_malaria_incidence_gp) / 3
 
         # Compute the needed reductions
-        reduction_ic = combined_incidence.loc[2026, 0] - 100
-        reduction_cf = combined_incidence_cf.loc[2026, 0] - 100
+        reduction_ic = combined_incidence.loc[2029, 0] - 100
+        reduction_cf = combined_incidence_cf.loc[2029, 0] - 100
 
         # Clean up so we can output the graphs
-        actual = combined_incidence.loc[combined_incidence.index <2021].iloc[:,0]
-        gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2020].iloc[:,0]
-        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2019 ].iloc[:,0]
-        ic = combined_incidence.loc[combined_incidence.index > 2019].iloc[:,0]
-        ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2020].iloc[:,0]
-        ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2020].iloc[:,0]
+        actual = combined_incidence.loc[combined_incidence.index <2024].iloc[:,0]
+        gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2023].iloc[:,0]
+        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2021].iloc[:,0]
+        ic = combined_incidence.loc[combined_incidence.index > 2021].iloc[:,0]
+        ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2023].iloc[:,0]
+        ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2023].iloc[:,0]
 
         comb_inc_df = pd.DataFrame(
             index=pd.Index(list(range(2015, 2031)), name='Year'),

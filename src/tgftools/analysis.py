@@ -648,9 +648,11 @@ class Analysis:
         if self.disease_name == 'MALARIA':
             indicator_partner = ['cases', 'deaths', 'par']
 
+        expected_first_year = self.parameters.get("START_YEAR") - 5
+        expected_last_year = self.parameters.get("START_YEAR") + 1
+
         partner_data = self.database.partner_data.df.loc[
-            # TODO: remove hard coding
-            (self.scenario_descriptor, slice(None), range(2015, 2021), indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
+            (self.scenario_descriptor, slice(None), range(expected_first_year, expected_last_year), indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
 
         return partner_data
 

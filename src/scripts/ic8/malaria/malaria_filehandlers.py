@@ -652,7 +652,7 @@ class GpMalaria(MALARIAMixin, Gp):
 
         # Extract relevant partner and model data
         pop_model = (
-            model_results.df.loc[("GP", 1, malaria_m_countries, slice(None), "par")][
+            model_results.df.loc[("PF", 1, malaria_m_countries, slice(None), "par")][
                 "central"
             ]
             .groupby(axis=0, level=3)
@@ -662,7 +662,7 @@ class GpMalaria(MALARIAMixin, Gp):
         # Get population estimates from first model year to generate ratio
         pop_m_firstyear = (
             model_results.df.loc[
-                ("GP", 1, malaria_m_countries, gp_start_year, "par")
+                ("PF", 1, malaria_m_countries, gp_start_year, "par")
             ]["central"]
             .groupby(axis=0, level=1)
             .sum()

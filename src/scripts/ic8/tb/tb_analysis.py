@@ -91,7 +91,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
     )
 
 def get_tb_analysis(
-        load_data_from_raw_files: bool = True,
+        load_data_from_raw_files: bool = False,
         do_checks: bool = False,
 ) -> Analysis:
     """Return the Analysis object for TB."""
@@ -122,7 +122,7 @@ def get_tb_analysis(
             / "funding"
             / "tb"
             / "tgf"
-            / "tb_Fubgible_gf_17b_incUnalloc.csv"
+            / "tb_Fungible_gf_17b_incUnalloc.csv"
         )
     )
     non_tgf_funding = (
@@ -132,7 +132,7 @@ def get_tb_analysis(
             / "funding"
             / "tb"
             / "non_tgf"
-            / "tb_econgrowth_18Sep2024.csv"
+            / "tb_nonFungible_dipiBase_v2.csv"
         )
     )
 
@@ -143,7 +143,7 @@ def get_tb_analysis(
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
         handle_out_of_bounds_costs=True,
-        innovation_on=True,
+        innovation_on=False,
     )
 
 

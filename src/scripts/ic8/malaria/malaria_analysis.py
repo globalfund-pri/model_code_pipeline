@@ -93,7 +93,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
 
 
 def get_malaria_analysis(
-        load_data_from_raw_files: bool = True,
+        load_data_from_raw_files: bool = False,
         do_checks: bool = False,
 ) -> Analysis:
     """Return the Analysis object for Malaria."""
@@ -124,7 +124,7 @@ def get_malaria_analysis(
             / "funding"
             / "malaria"
             / "tgf"
-            / "malaria_Fubgible_gf_17b_incUnalloc.csv"
+            / "malaria_Fungible_gf_17b_incUnalloc.csv"
         )
     )
     non_tgf_funding = (
@@ -134,7 +134,7 @@ def get_malaria_analysis(
             / "funding"
             / "malaria"
             / "non_tgf"
-            / "malaria_econgrowth_18Sep2024.csv"
+            / "malaria_nonFungible_dipiBase.csv"
         )
     )
 
@@ -145,12 +145,12 @@ def get_malaria_analysis(
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
         handle_out_of_bounds_costs=True,
-        innovation_on=True,
+        innovation_on=False,
     )
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object

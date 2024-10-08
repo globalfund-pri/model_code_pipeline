@@ -126,7 +126,7 @@ def get_hiv_analysis(
             / "funding"
             / "hiv"
             / "tgf"
-            / "hiv_Fubgible_gf_17b_incUnalloc.csv"
+            / "hiv_Fungible_gf_17b_incUnalloc.csv"
         )
     )
     non_tgf_funding = (
@@ -136,7 +136,7 @@ def get_hiv_analysis(
             / "funding"
             / "hiv"
             / "non_tgf"
-            / "hiv_econgrowth_18Sep2024.csv"
+            / "hiv_nonFungible_dipiBase.csv"
         )
     )
 
@@ -147,13 +147,13 @@ def get_hiv_analysis(
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
         handle_out_of_bounds_costs=True,
-        innovation_on=True,
+        innovation_on=False,
     )
 
 
 if __name__ == "__main__":
     LOAD_DATA_FROM_RAW_FILES = False
-    DO_CHECKS = True
+    DO_CHECKS = False
 
     # Create the Analysis object
     analysis = get_hiv_analysis(
