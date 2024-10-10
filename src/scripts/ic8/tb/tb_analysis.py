@@ -50,7 +50,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsTb(
-            path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_01",
+            path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_10",
             parameters=parameters,
         )
         # Save the model_results object
@@ -91,7 +91,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
     )
 
 def get_tb_analysis(
-        load_data_from_raw_files: bool = False,
+        load_data_from_raw_files: bool = True,
         do_checks: bool = False,
 ) -> Analysis:
     """Return the Analysis object for TB."""
@@ -121,7 +121,7 @@ def get_tb_analysis(
             / "IC8"
             / "funding"
             / "tb"
-            / "tgf"
+            / "tgf_2024_10_09"
             / "tb_Fungible_gf_17b_incUnalloc.csv"
         )
     )
@@ -131,8 +131,8 @@ def get_tb_analysis(
             / "IC8"
             / "funding"
             / "tb"
-            / "non_tgf"
-            / "tb_nonFungible_dipiBase_v2.csv"
+            / "non_tgf_2024_10_09"
+            / "tb_nonFungible_Base_except_IND_IDN_tb_dipi50.csv"
         )
     )
 
@@ -148,7 +148,7 @@ def get_tb_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object

@@ -6,6 +6,10 @@ from tgftools.database import Database
 from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path, save_var, load_var
 
+""" When running the resource need make sure to go to the parameter.toml file and select the second modelled country "
+ "list under each disease, where there is a second list. This list matches modelled countries to countries for which "
+ "we have health finance data, so we can compute a comparable resource need estimate.  """
+
 
 class DatabaseChecksMalaria(MALARIAMixin,):
     """This is the class for DatabaseChecks to do with the Malaria data."""
@@ -102,7 +106,7 @@ if __name__ == "__main__":
 
     # Merge all into one and save the output
     df_resource_need = pandas.concat([cost_by_year, cost_vx_by_year, cost_priv_by_year, incidence_by_year, mortality_by_year], axis=1)
-    df_resource_need.to_csv('df_resource_need_malaria.csv')
+    df_resource_need.to_csv('df_resource_need_malaria_9OCT.csv')
 
 
 

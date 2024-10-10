@@ -51,7 +51,7 @@ def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsHiv(
-            path_to_data_folder / "IC8/modelling_outputs/hiv/2024_09_25",
+            path_to_data_folder / "IC8/modelling_outputs/hiv/2024_09_25_v2",
             parameters=parameters,
         )
         # Save the model_results object
@@ -125,7 +125,7 @@ def get_hiv_analysis(
             / "IC8"
             / "funding"
             / "hiv"
-            / "tgf"
+            / "tgf_2024_10_09"
             / "hiv_Fungible_gf_17b_incUnalloc.csv"
         )
     )
@@ -135,7 +135,7 @@ def get_hiv_analysis(
             / "IC8"
             / "funding"
             / "hiv"
-            / "non_tgf"
+            / "non_tgf_2024_10_09"
             / "hiv_nonFungible_dipiBase.csv"
         )
     )
