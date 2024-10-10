@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Tuple
 
 import pandas as pd
+from matplotlib import pyplot as plt
 
 from tgftools.filehandler import (
     FixedGp,
@@ -165,6 +166,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         )
 
         return adj_concatenated_dfs
+        #   return concatenated_dfs
 
     def adjust_dfs(self, df:pd.DataFrame) -> pd.DataFrame:
         """ this function will adjust the data in the df for the period 2027 to 2029 to match 2027 estimates. """
@@ -189,7 +191,10 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Implement smoothing, using 3 year rolling-average, using right-window
         # (Using for-loop as use rolling on groupby/multi-index is not supported: see https://github.com/pandas-dev/pandas/issues/34642)
         for country in df.index.get_level_values('country').unique():
-            for funding_fraction in df.index.get_level_values('funding_fraction').unique():
+            funding_fractions_known = df.loc[
+                (slice(None), slice(None), country, slice(None), slice(None))
+            ].index.get_level_values("funding_fraction").dropna().unique().sort_values().to_numpy()
+            for funding_fraction in funding_fractions_known:
                 for indicator in cols_to_be_adjusted:
                     mask = ("PF", funding_fraction, country, slice(None), indicator)
                     for variant in ("central", "high", "low"):
@@ -230,12 +235,12 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "deaths",
                 "deaths_lb",
                 "deaths_ub",
-                "cases_smooth",
-                "cases_smooth_lb",
-                "cases_smooth_ub",
-                "deaths_smooth",
-                "deaths_smooth_lb",
-                "deaths_smooth_ub",
+                # "cases_smooth",
+                # "cases_smooth_lb",
+                # "cases_smooth_ub",
+                # "deaths_smooth",
+                # "deaths_smooth_lb",
+                # "deaths_smooth_ub",
                 "net_n",
                 "irs_people_protected",
                 "irs_hh",
@@ -263,16 +268,16 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # TODO: If we want to switch back to smoothed cases/deaths uncomment below and above smoothed cases/deaths
         # For GP scenario, we only have cases, deaths (not smoothed), but for other scenarios we update the values
         # for cases and deaths with the smoothed versions. We then drop the smoothed versions of the columns
-        df.loc[df.scenario != "GP", 'cases'] = df.loc[df.scenario != "GP", 'cases_smooth']
-        df.loc[df.scenario != "GP", 'cases_ub'] = df.loc[df.scenario != "GP", 'cases_smooth_ub']
-        df.loc[df.scenario != "GP", 'cases_lb'] = df.loc[df.scenario != "GP", 'cases_smooth_lb']
-        df.loc[df.scenario != "GP", 'deaths'] = df.loc[df.scenario != "GP", 'deaths_smooth']
-        df.loc[df.scenario != "GP", 'deaths_ub'] = df.loc[df.scenario != "GP", 'deaths_smooth_ub']
-        df.loc[df.scenario != "GP", 'deaths_lb'] = df.loc[df.scenario != "GP", 'deaths_smooth_lb']
-        df = df.drop(
-            columns=['cases_smooth', 'cases_smooth_lb', 'cases_smooth_ub',
-                     'deaths_smooth', 'deaths_smooth_lb', 'deaths_smooth_ub']
-        )
+        # df.loc[df.scenario != "GP", 'cases'] = df.loc[df.scenario != "GP", 'cases_smooth']
+        # df.loc[df.scenario != "GP", 'cases_ub'] = df.loc[df.scenario != "GP", 'cases_smooth_ub']
+        # df.loc[df.scenario != "GP", 'cases_lb'] = df.loc[df.scenario != "GP", 'cases_smooth_lb']
+        # df.loc[df.scenario != "GP", 'deaths'] = df.loc[df.scenario != "GP", 'deaths_smooth']
+        # df.loc[df.scenario != "GP", 'deaths_ub'] = df.loc[df.scenario != "GP", 'deaths_smooth_ub']
+        # df.loc[df.scenario != "GP", 'deaths_lb'] = df.loc[df.scenario != "GP", 'deaths_smooth_lb']
+        # df = df.drop(
+        #     columns=['cases_smooth', 'cases_smooth_lb', 'cases_smooth_ub',
+        #              'deaths_smooth', 'deaths_smooth_lb', 'deaths_smooth_ub']
+        # )
 
         # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
         df_gp = df[df.scenario == "GP"]

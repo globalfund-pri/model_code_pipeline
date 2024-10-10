@@ -120,8 +120,9 @@ def get_tb_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
+            / "2024_10_10"
             / "tb"
-            / "tgf_2024_10_09"
+            / "tgf"
             / "tb_Fungible_gf_17b_incUnalloc.csv"
         )
     )
@@ -130,8 +131,9 @@ def get_tb_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
+            / "2024_10_10"
             / "tb"
-            / "non_tgf_2024_10_09"
+            / "non_tgf"
             / "tb_nonFungible_Base_except_IND_IDN_tb_dipi50.csv"
         )
     )
@@ -148,7 +150,7 @@ def get_tb_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = False
+    LOAD_DATA_FROM_RAW_FILES = True
     DO_CHECKS = False
 
     # Create the Analysis object
@@ -156,7 +158,6 @@ if __name__ == "__main__":
         load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
         do_checks=DO_CHECKS
     )
-
 
     # To examine results from approach A / B....
     # analysis.portfolio_projection_approach_a()

@@ -124,8 +124,9 @@ def get_hiv_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
+            / "2024_10_10"
             / "hiv"
-            / "tgf_2024_10_09"
+            / "tgf"
             / "hiv_Fungible_gf_17b_incUnalloc.csv"
         )
     )
@@ -134,8 +135,9 @@ def get_hiv_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
+            / "2024_10_10"
             / "hiv"
-            / "non_tgf_2024_10_09"
+            / "non_tgf"
             / "hiv_nonFungible_dipiBase.csv"
         )
     )
@@ -152,7 +154,7 @@ def get_hiv_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = False
+    LOAD_DATA_FROM_RAW_FILES = True
     DO_CHECKS = False
 
     # Create the Analysis object

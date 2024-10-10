@@ -122,8 +122,9 @@ def get_malaria_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
+            / "2024_10_10"
             / "malaria"
-            / "tgf_2024_10_09"
+            / "tgf"
             / "malaria_Fungible_gf_17b_incUnalloc.csv"
         )
     )
@@ -132,9 +133,10 @@ def get_malaria_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
+            / "2024_10_10"
             / "malaria"
-            / "non_tgf_2024_10_09"
-            / "malaria_nonFungible_dipiBase.csv"
+            / "non_tgf"
+            / "malaria_nonFungible_dipiBase_MS.csv"
         )
     )
 
