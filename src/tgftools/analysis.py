@@ -222,6 +222,22 @@ class Analysis:
             )
         )
 
+
+    def portfolio_projection_approach_c(self, funding_fraction: float) -> PortfolioProjection:
+        """Returns the PortfolioProjection For Approach C: i.e., the funding fraction is the same in all countries
+        """
+        country_results = self._get_country_projection_given_funding_fraction(funding_fraction=funding_fraction)
+        return PortfolioProjection(
+            tgf_funding_by_country=None,  # In this scenario, we do not know the split between TGF and non-TGF sources
+            non_tgf_funding_by_country=None,
+            country_results=country_results,
+            portfolio_results=self._make_portfolio_results(
+                country_results=country_results,
+                adjust_for_unmodelled_innovation=self.innovation_on
+            ),
+        )
+
+
     def portfolio_projection_counterfactual(
             self,
             name: str,
@@ -233,11 +249,7 @@ class Analysis:
 
         # Create dict of country_results corresponding to the counterfactual scenario
         country_results = dict()
-        for country in self.tgf_funding.countries:
-
-            if country not in self.countries:
-                # Skip a country that is included in the funding data but not included in the model results
-                continue
+        for country in self.countries:
 
             model_projection = {
                 indicator:
@@ -254,8 +266,8 @@ class Analysis:
             )
 
         return PortfolioProjection(
-            tgf_funding_by_country={k: float('nan') for k in self.tgf_funding.df["value"].keys()},
-            non_tgf_funding_by_country={k: float('nan') for k in self.tgf_funding.df["value"].keys()},
+            tgf_funding_by_country={k: float('nan') for k in self.countries},
+            non_tgf_funding_by_country={k: float('nan') for k in self.countries},
             country_results=country_results,
             portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False),
         )
@@ -406,6 +418,21 @@ class Analysis:
             )
             country_results[country] = country_projection
 
+        return country_results
+
+    def _get_country_projection_given_funding_fraction(self, funding_fraction: float) -> Dict[str, CountryProjection]:
+        """Returns a dict of CountryProjections given a specified funding_fraction, which is the same in all countries"""
+        country_results = dict()
+        for country in self.countries:
+            model_projection = self.emulators[country].get(
+                funding_fraction=funding_fraction,
+            )
+            country_projection = CountryProjection(
+                model_projection=model_projection,
+                model_projection_adj=self._adjust_to_partner_data(model_projection),
+                funding=None,  # could find this from self.emulators[country]._lookup_dollars_to_funding_fraction[1.0]
+            )
+            country_results[country] = country_projection
         return country_results
 
     def _adjust_to_partner_data(self, model_projection: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
