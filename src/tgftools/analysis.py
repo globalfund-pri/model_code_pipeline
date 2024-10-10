@@ -190,19 +190,27 @@ class Analysis:
         self,
         methods: Union[Iterable[str], None],
         optimisation_params: Optional[Dict] = None,
+        filename: Optional[Path] = None,
     ) -> PortfolioProjection:
         """Returns the PortfolioProjection For Approach B: i.e., the projection for each country, given the funding
         to each country when the TGF funding allocated to a country _CAN_ be changed. Multiple methods for optimisation
         may be tried, but only a single result is provided (that of the best solution found.)
         :param methods: List of methods to use in approach_b (For method see `do_approach_b`)
         :param optimisation_params: Dict of parameters specifying how to construct the optimisation.
+        :param filename: Filename to save the optimisation results.
         See `_get_data_frames_for_approach_b`
         """
         # Use the `ApproachB` class to get the TGF funding allocations from the optimisation, getting only the best
         # result.
-        results_from_approach_b = self._approach_b(optimisation_params).do_approach_b(
+        approach_b = self._approach_b(optimisation_params)
+        results_from_approach_b = approach_b.do_approach_b(
             methods=methods, provide_best_only=True
         )
+
+        # Make report of the results if a filename has been provided
+        if filename is not None:
+            approach_b.do_report(results=results_from_approach_b, filename=filename, plt_show=False)
+
         tgf_funding_under_approach_b = results_from_approach_b.tgf_budget_by_country
 
         country_results = self._get_country_projections_given_funding_dollar_amounts(

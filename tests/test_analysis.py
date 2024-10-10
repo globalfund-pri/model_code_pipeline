@@ -51,7 +51,8 @@ def test_analysis_approach_a(analysis):
     assert isinstance(rtn, PortfolioProjection)
 
 
-def test_analysis_approach_b(analysis):
+def test_analysis_approach_b(analysis,tmp_path):
+    file_name_for_approach_b_report = tmp_path / "approach_b_report.pdf"
     rtn = analysis.portfolio_projection_approach_b(
         optimisation_params={
             "force_monotonic_decreasing": False,
@@ -71,8 +72,11 @@ def test_analysis_approach_b(analysis):
             "local_start_at_random",  # <-- repeats so that different random starting points are used
             "local_start_at_random",
         ],
+        filename=file_name_for_approach_b_report,
     )
     assert isinstance(rtn, PortfolioProjection)
+    assert os.exists(file_name_for_approach_b_report)
+    open_file(file_name_for_approach_b_report)
 
 
 def test_analysis_portfolio_projection_counterfactual(analysis):
