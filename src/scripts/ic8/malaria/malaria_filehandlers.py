@@ -159,7 +159,62 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Add ic_ic scenario to model output
         concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
 
-        return concatenated_dfs
+        # smooth out 2027-2029
+        adj_concatenated_dfs = self.adjust_dfs(
+            concatenated_dfs
+        )
+
+        return adj_concatenated_dfs
+
+    def adjust_dfs(self, df:pd.DataFrame) -> pd.DataFrame:
+        """ this function will adjust the data in the df for the period 2027 to 2029 to match 2027 estimates. """
+        print("hello")
+        df_keep = df.copy()
+
+        cols_needed = [
+            'cases',
+            'deaths',
+            'mortality',
+            'incidence'
+            'par',
+        ]
+
+        # replace 2029 with 2028
+        df.loc[
+            ("PF", slice(None), slice(None), 2029, cols_needed)
+        ] = df.loc[
+            ("PF", slice(None), slice(None), 2028, cols_needed)
+        ]
+
+        mask = ("PF", slice(None), slice(None), slice(None), cols_needed)
+
+        # extract just the scenario and variable we want to change
+        df_tochange = df.loc[
+          mask
+        ].copy()
+
+        # fill in AFG
+        # df_tochange = df_tochange.ffill()  # fill in nan with data point before
+        df_tochange = df_tochange.fillna(0)
+
+        # Reset index
+        df_tochange = df_tochange.reset_index()
+
+        df_tochange[["year", "central","high" ,"low"]]  = df_tochange[["year", "central", "high", "low"]].rolling(window=3, axis=0, on="year", center=False).mean()
+
+        df_tochange = df_tochange.set_index(
+            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
+        )  # repack the index
+
+        df.loc[mask] = df_tochange
+
+        mask_casesinuganda = ("PF", 1.0, "AFG", slice(None), "cases")
+
+        df_keep.loc[mask_casesinuganda].plot()
+        df.loc[mask_casesinuganda].plot()
+
+        return df
+
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
         """Returns formatted pd.DataFrame from the csv file provided. The returned dataframe is specific to one country,
