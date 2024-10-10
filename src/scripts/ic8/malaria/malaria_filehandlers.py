@@ -185,6 +185,12 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "deaths",
                 "deaths_lb",
                 "deaths_ub",
+                "cases_smooth",
+                "cases_smooth_lb",
+                "cases_smooth_ub",
+                "deaths_smooth",
+                "deaths_smooth_lb",
+                "deaths_smooth_ub",
                 "net_n",
                 "irs_people_protected",
                 "irs_hh",
@@ -212,16 +218,16 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # TODO: If we want to switch back to smoothed cases/deaths uncomment below and above smoothed cases/deaths
         # For GP scenario, we only have cases, deaths (not smoothed), but for other scenarios we update the values
         # for cases and deaths with the smoothed versions. We then drop the smoothed versions of the columns
-        # df.loc[df.scenario != "GP", 'cases'] = df.loc[df.scenario != "GP", 'cases_smooth']
-        # df.loc[df.scenario != "GP", 'cases_ub'] = df.loc[df.scenario != "GP", 'cases_smooth_ub']
-        # df.loc[df.scenario != "GP", 'cases_lb'] = df.loc[df.scenario != "GP", 'cases_smooth_lb']
-        # df.loc[df.scenario != "GP", 'deaths'] = df.loc[df.scenario != "GP", 'deaths_smooth']
-        # df.loc[df.scenario != "GP", 'deaths_ub'] = df.loc[df.scenario != "GP", 'deaths_smooth_ub']
-        # df.loc[df.scenario != "GP", 'deaths_lb'] = df.loc[df.scenario != "GP", 'deaths_smooth_lb']
-        # df = df.drop(
-        #     columns=['cases_smooth', 'cases_smooth_lb', 'cases_smooth_ub',
-        #              'deaths_smooth', 'deaths_smooth_lb', 'deaths_smooth_ub']
-        # )
+        df.loc[df.scenario != "GP", 'cases'] = df.loc[df.scenario != "GP", 'cases_smooth']
+        df.loc[df.scenario != "GP", 'cases_ub'] = df.loc[df.scenario != "GP", 'cases_smooth_ub']
+        df.loc[df.scenario != "GP", 'cases_lb'] = df.loc[df.scenario != "GP", 'cases_smooth_lb']
+        df.loc[df.scenario != "GP", 'deaths'] = df.loc[df.scenario != "GP", 'deaths_smooth']
+        df.loc[df.scenario != "GP", 'deaths_ub'] = df.loc[df.scenario != "GP", 'deaths_smooth_ub']
+        df.loc[df.scenario != "GP", 'deaths_lb'] = df.loc[df.scenario != "GP", 'deaths_smooth_lb']
+        df = df.drop(
+            columns=['cases_smooth', 'cases_smooth_lb', 'cases_smooth_ub',
+                     'deaths_smooth', 'deaths_smooth_lb', 'deaths_smooth_ub']
+        )
 
         # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
         df_gp = df[df.scenario == "GP"]
