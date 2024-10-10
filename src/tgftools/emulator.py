@@ -100,8 +100,8 @@ class Emulator:
          respectively (if `handle_out_of_bounds_costs` is `True`).
         """
 
-        # Get the funding_fractions which are known, for this particular scenario_descriptor; put in ascending order
-        # in a numpy array
+        # Get the funding_fractions which are known, for this particular scenario_descriptor and country; put in
+        # ascending order in a numpy array
         funding_fractions_known = self.database.model_results.df.loc[
             (self.scenario_descriptor, slice(None), self.country, slice(None), slice(None))
         ].index.get_level_values("funding_fraction").dropna().unique().sort_values().to_numpy()
