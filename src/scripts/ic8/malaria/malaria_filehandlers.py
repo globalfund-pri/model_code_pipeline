@@ -14,7 +14,7 @@ from tgftools.filehandler import (
     PFInputData,
 )
 from tgftools.utils import (
-    get_files_with_extension,
+    get_files_with_extension, get_data_path, get_root_path,
 )
 
 """ START HERE FOR malaria: This file sets up everything needed to run malaria related code, including reading in the 
@@ -168,50 +168,40 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
     def adjust_dfs(self, df:pd.DataFrame) -> pd.DataFrame:
         """ this function will adjust the data in the df for the period 2027 to 2029 to match 2027 estimates. """
-        print("hello")
+
         df_keep = df.copy()
 
-        cols_needed = [
+        cols_to_be_adjusted = [
             'cases',
             'deaths',
             'mortality',
-            'incidence'
+            'incidence',
             'par',
         ]
 
-        # replace 2029 with 2028
+        # replace values in 2029 with those for 2028
         df.loc[
-            ("PF", slice(None), slice(None), 2029, cols_needed)
+            ("PF", slice(None), slice(None), 2029, cols_to_be_adjusted)
         ] = df.loc[
-            ("PF", slice(None), slice(None), 2028, cols_needed)
+            ("PF", slice(None), slice(None), 2028, cols_to_be_adjusted)
         ]
 
-        mask = ("PF", slice(None), slice(None), slice(None), cols_needed)
+        # Implement smoothing, using 3 year rolling-average, using right-window
+        # (Using for-loop as use rolling on groupby/multi-index is not supported: see https://github.com/pandas-dev/pandas/issues/34642)
+        for country in df.index.get_level_values('country').unique():
+            for funding_fraction in df.index.get_level_values('funding_fraction').unique():
+                for indicator in cols_to_be_adjusted:
+                    mask = ("PF", funding_fraction, country, slice(None), indicator)
+                    for variant in ("central", "high", "low"):
+                        df.loc[mask, variant] = df.loc[mask, variant].rolling(window=3, center=False).mean()
 
-        # extract just the scenario and variable we want to change
-        df_tochange = df.loc[
-          mask
-        ].copy()
-
-        # fill in AFG
-        # df_tochange = df_tochange.ffill()  # fill in nan with data point before
-        df_tochange = df_tochange.fillna(0)
-
-        # Reset index
-        df_tochange = df_tochange.reset_index()
-
-        df_tochange[["year", "central","high" ,"low"]]  = df_tochange[["year", "central", "high", "low"]].rolling(window=3, axis=0, on="year", center=False).mean()
-
-        df_tochange = df_tochange.set_index(
-            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
-        )  # repack the index
-
-        df.loc[mask] = df_tochange
-
-        mask_casesinuganda = ("PF", 1.0, "AFG", slice(None), "cases")
-
-        df_keep.loc[mask_casesinuganda].plot()
-        df.loc[mask_casesinuganda].plot()
+        # Check:
+        # mask_cases_test = ("PF", 1.0, "BFA", slice(None), "cases")
+        # pd.concat([
+        #     df_keep.loc[mask_cases_test, 'central'].reset_index()[['year', 'central']],
+        #     df.loc[mask_cases_test, 'central'].reset_index()['central']
+        #     ], axis=1).plot(x='year')
+        # plt.show()
 
         return df
 
