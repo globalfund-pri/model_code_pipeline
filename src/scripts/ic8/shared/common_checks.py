@@ -239,48 +239,48 @@ class CommonChecks_forwardchecks:
         if len(missing_idx) > 0:
             return CheckResult(passes=False, message=self._summarise(missing_idx))
 
-    def funding_vs_scenario_impact(self, db: Database):
-        """Compares percentage funding-need met to impact for each modelled scenario to check that increased funding
-        results in increased impact. This check is limited to the core scenarios (PF based scenario) and
-        exclued GP, NULL and CC. """
-        # TODO: this does not work for HIV!
-        # Percentage need met is calculated by comparing sum of funding in GP to that in each scenario
-        # The impact should be more or less proportional to the percentage funding available.
-        # example here: /Users/mc1405/Dropbox/The Global Fund/Strategic Targets 2022-2028/Processed Model Results/Key Stats/HIV_funding need met check.xlsx
-
-        figs = []
-        for scenario in self.EXPECTED_FUNDING_SCENARIOS:
-            for country in self.EXPECTED_COUNTRIES:
-                for indicator in ("cases", "deaths"):
-                    df = (
-                        db.model_results.df.loc[
-                            (
-                                scenario,
-                                slice(None),
-                                country,
-                                range(
-                                    self.EXPECTED_FIRST_YEAR,
-                                    self.EXPECTED_LAST_YEAR + 1,
-                                ),
-                                indicator,
-                            ),
-                            "central",
-                        ]
-                        .groupby(axis=0, level="funding_fraction")
-                        .sum()
-                    )
-                    df = df[df.index.notnull()]
-                    df = df.sort_index(ascending=True)
-
-                    fig, ax = plt.subplots()
-                    df.plot(ax=ax)
-                    ax.set_ylabel(indicator)
-                    ax.set_title(f"{scenario=}, {country=}")
-                    fig.tight_layout()
-                    plt.close(fig)
-                    figs.append(f"{scenario=}, {country=}, {indicator=}")
-
-        return CheckResult(passes=True, message=figs)
+    # def funding_vs_scenario_impact(self, db: Database):
+    #     """Compares percentage funding-need met to impact for each modelled scenario to check that increased funding
+    #     results in increased impact. This check is limited to the core scenarios (PF based scenario) and
+    #     exclued GP, NULL and CC. """
+    #     # TODO: this does not work for HIV!
+    #     # Percentage need met is calculated by comparing sum of funding in GP to that in each scenario
+    #     # The impact should be more or less proportional to the percentage funding available.
+    #     # example here: /Users/mc1405/Dropbox/The Global Fund/Strategic Targets 2022-2028/Processed Model Results/Key Stats/HIV_funding need met check.xlsx
+    #
+    #     figs = []
+    #     for scenario in self.EXPECTED_FUNDING_SCENARIOS:
+    #         for country in self.EXPECTED_COUNTRIES:
+    #             for indicator in ("cases", "deaths"):
+    #                 df = (
+    #                     db.model_results.df.loc[
+    #                         (
+    #                             scenario,
+    #                             slice(None),
+    #                             country,
+    #                             range(
+    #                                 self.EXPECTED_FIRST_YEAR,
+    #                                 self.EXPECTED_LAST_YEAR + 1,
+    #                             ),
+    #                             indicator,
+    #                         ),
+    #                         "central",
+    #                     ]
+    #                     .groupby(axis=0, level="funding_fraction")
+    #                     .sum()
+    #                 )
+    #                 df = df[df.index.notnull()]
+    #                 df = df.sort_index(ascending=True)
+    #
+    #                 fig, ax = plt.subplots()
+    #                 df.plot(ax=ax)
+    #                 ax.set_ylabel(indicator)
+    #                 ax.set_title(f"{scenario=}, {country=}")
+    #                 fig.tight_layout()
+    #                 plt.close(fig)
+    #                 figs.append(f"{scenario=}, {country=}, {indicator=}")
+    #
+    #     return CheckResult(passes=True, message=figs)
 
     def order_of_scenarios(self, db):
         """Checks that the scenarios follow the expected a certain pattern.That is in increasing order for cases and
@@ -703,7 +703,7 @@ class CommonChecks_allscenarios:
 
     def graphs_of_aggregates(self, db: Database):
         """This produces graphs of cases/new infections, incidence, deaths and mortality over years aggregated across
-        all countries. The graphs plot all scenarios against each other, with one graph per funding fraction. """
+        all countries. The graphs plot all scenarios against each other, limited to 1.0 funding. """
 
         scenarios = self.EXPECTED_CF_SCENARIOS + self.EXPECTED_FUNDING_SCENARIOS
 
@@ -714,7 +714,7 @@ class CommonChecks_allscenarios:
                     db.model_results.df.loc[
                         (
                             scenarios,
-                            slice(None),
+                            1.0,
                             slice(None),
                             slice(None),
                             indicator,

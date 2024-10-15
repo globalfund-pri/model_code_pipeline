@@ -50,7 +50,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsTb(
-            path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_10",
+            path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_15",
             parameters=parameters,
         )
         # Save the model_results object

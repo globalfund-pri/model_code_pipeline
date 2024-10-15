@@ -358,6 +358,9 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Remove rows with NAN for country
         xlsx_df = xlsx_df[xlsx_df['country'].notna()]
 
+        # Remove PF_05a scenario
+        xlsx_df = xlsx_df.drop(xlsx_df[xlsx_df.scenario_descriptor =="PF_05a"].index)
+
         # Clean up funding fraction and PF scenario
         xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
             '')  # Puts the funding scenario number in a new column called funding fraction
@@ -434,7 +437,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Convert funding_fraction to float
         melted = melted[melted['funding_fraction'].notnull()].copy()
         melted['funding_fraction'] = melted['funding_fraction'].astype(float)
-
 
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(
