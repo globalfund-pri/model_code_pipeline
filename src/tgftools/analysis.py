@@ -183,7 +183,8 @@ class Analysis:
             country_results=country_results,
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
-                adjust_for_unmodelled_innovation=self.innovation_on
+                adjust_for_unmodelled_innovation=self.innovation_on,
+                scenario='none',
             ),
         )
 
@@ -218,7 +219,8 @@ class Analysis:
             country_results=country_results,
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
-                adjust_for_unmodelled_innovation=self.innovation_on
+                adjust_for_unmodelled_innovation=self.innovation_on,
+                name='none',
             )
         )
 
@@ -233,7 +235,8 @@ class Analysis:
             country_results=country_results,
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
-                adjust_for_unmodelled_innovation=self.innovation_on
+                adjust_for_unmodelled_innovation=self.innovation_on,
+                name='none',
             ),
         )
 
@@ -269,7 +272,7 @@ class Analysis:
             tgf_funding_by_country={k: float('nan') for k in self.countries},
             non_tgf_funding_by_country={k: float('nan') for k in self.countries},
             country_results=country_results,
-            portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False),
+            portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False, name=name),
         )
 
     def dump_everything_to_xlsx(
@@ -489,13 +492,14 @@ class Analysis:
             self,
             country_results: Dict[str, CountryProjection],
             adjust_for_unmodelled_innovation: bool,
+            name: str,
     ) -> Dict[str, pd.DataFrame]:
         """ This function generates portfolio level results. This included summing up variables across countries,
         scaling up for non-modelled countries, and doing the adjustment for GP-related innovation. """
 
         actual_without_innovation = (
             self._scale_up_for_non_modelled_countries(
-                self._summing_up_countries(country_results)
+                self._summing_up_countries(country_results, name), name
             )
         )
 
@@ -515,11 +519,13 @@ class Analysis:
                 )
             )
 
-    def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection]) -> Dict[str, pd.DataFrame]:
+    def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
         # Get the first year of the model and list of epi indicators
         first_year = self.parameters.get("START_YEAR")
+        if name == ('GP'):
+            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
 
         # Get the indicators that should be scaled
         indicator_list = self.parameters.get_indicators_for(self.disease_name).use_scaling
@@ -597,7 +603,7 @@ class Analysis:
 
         return adj_country_results
 
-    def _summing_up_countries(self, country_results: Dict[str, CountryProjection]) -> Dict[str, pd.DataFrame]:
+    def _summing_up_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
         """ This will sum up all the country results to get the portolfio-level results. This will use the adjusted
         country results and be used to generate uncertainty. """
 
@@ -625,6 +631,8 @@ class Analysis:
         # Define years and parameters we need
         p = self.parameters
         first_year = p.get("START_YEAR")
+        if name == ('GP'):
+            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
         last_year = p.get("END_YEAR")
         z_value = p.get("Z_VALUE")
         rho_btw_countries = p.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")

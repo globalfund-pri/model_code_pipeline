@@ -99,7 +99,7 @@ MODELLED_COUNTRIES = ['AFG' ,'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'B
 #Resource need
 #MODELLED_COUNTRIES = ['AFG' ,'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'DJI', 'DOM', 'ECU', 'EGY', 'ERI', 'ETH', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MDV', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'SUR', 'SWZ', 'SYR', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'YEM', 'ZAF', 'ZMB', 'ZWE',]
 FUNDING_FRACTIONS = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
-GP_START_YEAR = 2010
+GP_START_YEAR = 2020
 PARTNER_DATA_YEARS = [2022]
 PF_DATA_YEARS = [2024,2025,2026]
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1

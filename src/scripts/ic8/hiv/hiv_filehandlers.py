@@ -1052,26 +1052,26 @@ class GpHiv(HIVMixin, Gp):
             .sum()
         )
 
-        # Get population estimates from first model year to generate ratio
+        # Get population estimates from first GP year to generate ratio
         pop_hivneg_m_firstyear = (
             model_results.df.loc[
-                ("GP", slice(None), hiv_m_countries, first_year, "hivneg")
+                ("GP", slice(None), hiv_m_countries, gp_start_year, "hivneg")
             ]["central"]
             .groupby(axis=0, level=3)
             .sum()
         )
         pop_m_firstyear = (
             model_results.df.loc[
-                ("GP", slice(None), hiv_m_countries, first_year, "population")
+                ("GP", slice(None), hiv_m_countries, gp_start_year, "population")
             ]["central"]
             .groupby(axis=0, level=3)
             .sum()
         )
         pop_hivneg_firstyear = partner_data.df.loc[
-            ("PF", hiv_countries, first_year, "hivneg")
+            ("PF", hiv_countries, gp_start_year, "hivneg")
         ].sum()["central"]
         pop_firstyear = partner_data.df.loc[
-            ("PF", hiv_countries, first_year, "population")
+            ("PF", hiv_countries, gp_start_year, "population")
         ].sum()["central"]
 
         ratio_hivneg = pop_hivneg_m_firstyear / pop_hivneg_firstyear
@@ -1102,13 +1102,6 @@ class GpHiv(HIVMixin, Gp):
                             gp_start_year,
                             gp_start_year + 1,
                             gp_start_year + 2,
-                            gp_start_year + 3,
-                            gp_start_year + 4,
-                            gp_start_year + 5,
-                            gp_start_year + 6,
-                            gp_start_year + 7,
-                            gp_start_year + 8,
-                            gp_start_year + 9,
                         ]
                     )
                 ],
@@ -1125,13 +1118,6 @@ class GpHiv(HIVMixin, Gp):
                             gp_start_year,
                             gp_start_year + 1,
                             gp_start_year + 2,
-                            gp_start_year + 3,
-                            gp_start_year + 4,
-                            gp_start_year + 5,
-                            gp_start_year + 6,
-                            gp_start_year + 7,
-                            gp_start_year + 8,
-                            gp_start_year + 9,
                         ]
                     )
                 ],
