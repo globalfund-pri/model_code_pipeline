@@ -160,13 +160,13 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Add ic_ic scenario to model output
         concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
 
-        # smooth out 2027-2029
-        adj_concatenated_dfs = self.adjust_dfs(
-            concatenated_dfs
-        )
-
-        return adj_concatenated_dfs
-        #   return concatenated_dfs
+        # # smooth out 2027-2029
+        # adj_concatenated_dfs = self.adjust_dfs(
+        #     concatenated_dfs
+        # )
+        #
+        # return adj_concatenated_dfs
+        return concatenated_dfs
 
     def adjust_dfs(self, df:pd.DataFrame) -> pd.DataFrame:
         """ this function will adjust the data in the df for the period 2027 to 2029 to match 2027 estimates. """
@@ -182,11 +182,32 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         ]
 
         # replace values in 2029 with those for 2028
-        df.loc[
-            ("PF", slice(None), slice(None), 2029, cols_to_be_adjusted)
-        ] = df.loc[
+        # df.loc[
+        #     ("PF", slice(None), slice(None), 2029, cols_to_be_adjusted)
+        # ] = df.loc[
+        #     ("PF", slice(None), slice(None), 2028, cols_to_be_adjusted)
+        # ]
+
+        df = df.reset_index()
+        df = df.drop(df[(df['scenario_descriptor'] == 'PF') & (df['year'] == 2029) & (df['indicator'].isin(cols_to_be_adjusted))].index)
+        df = df.set_index(
+            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
+        )  # repack the index
+
+        # Extract 2028 interested indicators and change year to 2029
+        replace = df.loc[
             ("PF", slice(None), slice(None), 2028, cols_to_be_adjusted)
-        ]
+        ].copy().reset_index()
+        replace['year'] = 2029
+        replace = replace.set_index(
+            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
+        )  # repack the index
+
+        # Concat the two and sort
+        frames = [df, replace]
+        df = pd.concat(frames, axis=0)
+        df.reset_index()
+        df = df.sort_values(['funding_fraction', 'country', 'year', 'scenario_descriptor', 'indicator'])
 
         # Implement smoothing, using 3 year rolling-average, using right-window
         # (Using for-loop as use rolling on groupby/multi-index is not supported: see https://github.com/pandas-dev/pandas/issues/34642)
@@ -198,7 +219,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 for indicator in cols_to_be_adjusted:
                     mask = ("PF", funding_fraction, country, slice(None), indicator)
                     for variant in ("central", "high", "low"):
-                        df.loc[mask, variant] = df.loc[mask, variant].rolling(window=3, center=False).mean()
+                        df.loc[mask, variant] = df.loc[mask, variant].rolling(window=5, center=False).mean()
 
         # Check:
         # mask_cases_test = ("PF", 1.0, "BFA", slice(None), "cases")

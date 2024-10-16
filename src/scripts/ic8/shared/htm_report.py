@@ -67,6 +67,12 @@ class HTMReport(Report):
                              self.hiv.IC.portfolio_results["hivneg"].at[2029, "model_central"]
         hiv_incidence_reduction = (hiv_incidence_2029 / hiv_incidence_2023 - 1) * 100
 
+        hiv_incidence_2021 = self.hiv.PARTNER["cases"].at[2021] / \
+                             self.hiv.PARTNER["hivneg"].at[2021]
+        hiv_incidence_2028 = self.hiv.IC.portfolio_results["cases"].at[2028, "model_central"] / \
+                             self.hiv.IC.portfolio_results["hivneg"].at[2028, "model_central"]
+        hiv_incidence_reduction_st = (hiv_incidence_2028 / hiv_incidence_2021 - 1) * 100
+
         # Generate output relating deaths
         hiv_deaths_2023 = self.hiv.IC.portfolio_results["deaths"].at[2023, "model_central"]
         hiv_deaths_2029 = self.hiv.IC.portfolio_results["deaths"].at[2029, "model_central"]
@@ -78,6 +84,12 @@ class HTMReport(Report):
         hiv_mortality_2029 = self.hiv.IC.portfolio_results["deaths"].at[2029, "model_central"] / \
                              self.hiv.IC.portfolio_results["population"].at[2029, "model_central"]
         hiv_mortality_reduction = (hiv_mortality_2029 / hiv_mortality_2023 - 1) * 100
+
+        hiv_mortality_2021 = self.hiv.PARTNER["deaths"].at[2021] / \
+                             self.hiv.PARTNER["population"].at[2021]
+        hiv_mortality_2028 = self.hiv.IC.portfolio_results["deaths"].at[2028, "model_central"] / \
+                             self.hiv.IC.portfolio_results["population"].at[2028, "model_central"]
+        hiv_mortality_reduction_st = (hiv_mortality_2028 / hiv_mortality_2021 - 1) * 100
 
         # Generate output relating to service coverage
         art_coverage_2023 = self.hiv.IC.portfolio_results["art"].at[2023, "model_central"] / \
@@ -95,6 +107,10 @@ class HTMReport(Report):
             "Hiv incidence in the year 2029": hiv_incidence_2029,
             "Reduction in hiv incidence between the year 2029 compared to 2023": hiv_incidence_reduction,
 
+            "Hiv incidence in the year 2021": hiv_incidence_2021,
+            "Hiv incidence in the year 2028": hiv_incidence_2028,
+            "Reduction in hiv incidence between the year 2028 compared to 2021": hiv_incidence_reduction_st,
+
             "Number of hiv deaths in the year 2023": hiv_deaths_2023,
             "Number of  hiv deaths  in the year 2029": hiv_deaths_2029,
             "Reduction in of hiv deaths  between the year 2029 compared to 2023": hiv_death_reduction,
@@ -102,6 +118,10 @@ class HTMReport(Report):
             "Hiv mortality rate in the year 2023": hiv_mortality_2023,
             "Hiv mortality rate in the year 2029": hiv_mortality_2029,
             "Reduction in hiv mortality rate between the year 2029 compared to 2023": hiv_mortality_reduction,
+
+            "Hiv mortality rate in the year 2021": hiv_mortality_2021,
+            "Hiv mortality rate in the year 2029": hiv_mortality_2028,
+            "Reduction in hiv mortality rate between the year 2028 compared to 2021": hiv_mortality_reduction_st,
 
             "ART coverage in the year 2023": art_coverage_2023,
             "ART coverage in the year 2029": art_coverage_2029,
@@ -122,6 +142,12 @@ class HTMReport(Report):
         tb_incidence_2029 = self.tb.IC.portfolio_results["cases"].at[2029, "model_central"] / \
                             self.tb.IC.portfolio_results["population"].at[2029, "model_central"]
         tb_incidence_reduction = (tb_incidence_2029 / tb_incidence_2023 - 1) * 100
+
+        tb_incidence_2021 = self.tb.PARTNER["cases"].at[2021] / \
+                            self.tb.PARTNER["population"].at[2021]
+        tb_incidence_2028 = self.tb.IC.portfolio_results["cases"].at[2028, "model_central"] / \
+                            self.tb.IC.portfolio_results["population"].at[2028, "model_central"]
+        tb_incidence_reduction_st = (tb_incidence_2029 / tb_incidence_2023 - 1) * 100
 
         # Generate output relating to cases
         tb_deaths_2023 = self.tb.IC.portfolio_results["deaths"].at[2023, "model_central"]
@@ -144,6 +170,18 @@ class HTMReport(Report):
         tb_mortality_hivneg_2029 = self.tb.IC.portfolio_results["deathshivneg"].at[2029, "model_central"] / \
                                    self.tb.IC.portfolio_results["population"].at[2029, "model_central"]
         tb_mortality_hivneg_reduction = (tb_mortality_hivneg_2029 / tb_mortality_hivneg_2023 - 1) * 100
+
+        tb_mortality_2021 = self.tb.PARTNER["deaths"].at[2021] / \
+                            self.tb.PARTNER["population"].at[2021]
+        tb_mortality_2028 = self.tb.IC.portfolio_results["deaths"].at[2028, "model_central"] / \
+                            self.tb.IC.portfolio_results["population"].at[2028, "model_central"]
+        tb_mortality_reduction_st = (tb_mortality_2028 / tb_mortality_2021 - 1) * 100
+
+        tb_mortality_hivneg_2021 = self.tb.PARTNER["deathshivneg"].at[2021] / \
+                                   self.tb.PARTNER["population"].at[2021]
+        tb_mortality_hivneg_2028 = self.tb.IC.portfolio_results["deathshivneg"].at[2028, "model_central"] / \
+                                   self.tb.IC.portfolio_results["population"].at[2028, "model_central"]
+        tb_mortality_hivneg_reduction_st = (tb_mortality_hivneg_2028 / tb_mortality_hivneg_2021 - 1) * 100
 
         # Generate output relating to service coverage
         notified_2027_2029 = self.tb.IC.portfolio_results["notified"].loc[
@@ -169,6 +207,10 @@ class HTMReport(Report):
             "TB incidence in the year 2029 ": tb_incidence_2029,
             "Reduction in TB incidence between the year 2029 compared to 2023 ": tb_incidence_reduction,
 
+            "TB incidence in the year 2021 ": tb_incidence_2021,
+            "TB incidence in the year 2028 ": tb_incidence_2028,
+            "Reduction in TB incidence between the year 2028 compared to 2021 ": tb_incidence_reduction_st,
+
             "Number of TB deaths in the year 2023 ": tb_deaths_2023,
             "Number of TB deaths in the year 2029 ": tb_deaths_2029,
             "Reduction in TB deaths between the year 2029 compared to 2023": tb_deaths_reduction,
@@ -184,6 +226,14 @@ class HTMReport(Report):
             "TB mortality rate amongst hiv-negative individuals in the year 2023 ": tb_mortality_hivneg_2023,
             "TB mortality rate amongst hiv-negative individuals in the year 2029 ": tb_mortality_hivneg_2029,
             "Reduction in TB mortality rate amongst hiv-negative individuals between the year 2029 compared to 2023 ": tb_mortality_hivneg_reduction,
+
+            "TB mortality rate in the year 2021 ": tb_mortality_2021,
+            "TB mortality rate in the year 2028 ": tb_mortality_2028,
+            "Reduction in TB mortality rate between the year 2028 compared to 2021 ": tb_mortality_reduction_st,
+
+            "TB mortality rate amongst hiv-negative individuals in the year 2021 ": tb_mortality_hivneg_2021,
+            "TB mortality rate amongst hiv-negative individuals in the year 2028 ": tb_mortality_hivneg_2028,
+            "Reduction in TB mortality rate amongst hiv-negative individuals between the year 2028 compared to 202 ": tb_mortality_hivneg_reduction_st,
 
             "Number of TB notifications between 2027 and 2029 ": notified_2027_2029,
             "Number of TB notifications between 2024 and 2029 ": notified_2024_2029,
@@ -209,6 +259,12 @@ class HTMReport(Report):
                                  self.malaria.IC.portfolio_results["par"].at[2029, "model_central"]
         malaria_incidence_reduction = (malaria_incidence_2029 / malaria_incidence_2023 - 1) * 100
 
+        malaria_incidence_2021 = self.malaria.PARTNER["cases"].at[2021] / \
+                                 self.malaria.PARTNER["par"].at[2021]
+        malaria_incidence_2028 = self.malaria.IC.portfolio_results["cases"].at[2028, "model_central"] / \
+                                 self.malaria.IC.portfolio_results["par"].at[2028, "model_central"]
+        malaria_incidence_reduction_st = (malaria_incidence_2028 / malaria_incidence_2021 - 1) * 100
+
         # Generate output relating to mortality
         malaria_deaths_2023 = self.malaria.IC.portfolio_results["deaths"].at[2023, "model_central"]
         malaria_deaths_2029 = self.malaria.IC.portfolio_results["deaths"].at[2029, "model_central"]
@@ -220,6 +276,12 @@ class HTMReport(Report):
         malaria_mortality_2029 = self.malaria.IC.portfolio_results["deaths"].at[2029, "model_central"] / \
                                  self.malaria.IC.portfolio_results["par"].at[2029, "model_central"]
         malaria_mortality_reduction = (malaria_mortality_2029 / malaria_mortality_2023 - 1) * 100
+
+        malaria_mortality_2021 = self.malaria.PARTNER["deaths"].at[2021] / \
+                                 self.malaria.PARTNER["par"].at[2021]
+        malaria_mortality_2028 = self.malaria.IC.portfolio_results["deaths"].at[2028, "model_central"] / \
+                                 self.malaria.IC.portfolio_results["par"].at[2028, "model_central"]
+        malaria_mortality_reduction_st = (malaria_mortality_2028 / malaria_mortality_2021 - 1) * 100
 
         # Generate output to service coverage
         malaria_llins_2027_2029 = self.malaria.IC.portfolio_results["llins"].loc[
@@ -240,6 +302,10 @@ class HTMReport(Report):
             "Malaria incidence in the year 2029": malaria_incidence_2029,
             "Reduction in malaria incidence between the year 2029 compared to 2023": malaria_incidence_reduction,
 
+            "Malaria incidence in the year 2021": malaria_incidence_2021,
+            "Malaria incidence in the year 2028": malaria_incidence_2028,
+            "Reduction in malaria incidence between the year 2028 compared to 2021": malaria_incidence_reduction_st,
+
             "Number of malaria deaths in the year 2023": malaria_deaths_2023,
             "Number of malaria deaths  in the year 2029": malaria_deaths_2029,
             "Reduction in malaria deaths between the year 2029 compared to 2023": malaria_death_reduction,
@@ -247,6 +313,10 @@ class HTMReport(Report):
             "Malaria mortality rate in the year 2023": malaria_mortality_2023,
             "Malaria mortality rate in the year 2029": malaria_mortality_2029,
             "Reduction in malaria mortality rate between the year 2029 compared to 2023": malaria_mortality_reduction,
+
+            "Malaria mortality rate in the year 2021": malaria_mortality_2021,
+            "Malaria mortality rate in the year 2028": malaria_mortality_2028,
+            "Reduction in malaria mortality rate between the year 2028 compared to 2021": malaria_mortality_reduction_st,
 
             "Number of bed nets distributed between 2027 and 2029": malaria_llins_2027_2029,
             "Number of bed nets distributed between 2024 and 2029": malaria_llins_2024_2029,
