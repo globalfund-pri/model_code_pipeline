@@ -209,7 +209,11 @@ class Analysis:
 
         # Make report of the results if a filename has been provided
         if filename is not None:
-            approach_b.do_report(results=results_from_approach_b, filename=filename, plt_show=False)
+            approach_b.do_report(
+                results={"a": None, "b": results_from_approach_b},
+                filename=filename,
+                plt_show=False
+            )
 
         tgf_funding_under_approach_b = results_from_approach_b.tgf_budget_by_country
 
