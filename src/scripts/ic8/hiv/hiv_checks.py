@@ -37,7 +37,7 @@ if __name__ == "__main__":
     )
 
     partner_data = PartnerDataHIV(
-        path_to_data_folder / "IC8/partner/hiv/2024_10_03",
+        path_to_data_folder / "IC8/partner/hiv/2024_10_17",
         parameters=parameters,
     )
 

@@ -41,7 +41,7 @@ if __name__ == "__main__":
     )
 
     partner_data = PartnerDataMalaria(
-        path_to_data_folder / "IC8/partner/malaria/2024_10_03",
+        path_to_data_folder / "IC8/partner/malaria/2024_10_17",
         parameters=parameters,
     )
 

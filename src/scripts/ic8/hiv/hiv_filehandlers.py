@@ -1101,7 +1101,6 @@ class GpHiv(HIVMixin, Gp):
                         [
                             gp_start_year,
                             gp_start_year + 1,
-                            gp_start_year + 2,
                         ]
                     )
                 ],
@@ -1117,7 +1116,6 @@ class GpHiv(HIVMixin, Gp):
                         [
                             gp_start_year,
                             gp_start_year + 1,
-                            gp_start_year + 2,
                         ]
                     )
                 ],

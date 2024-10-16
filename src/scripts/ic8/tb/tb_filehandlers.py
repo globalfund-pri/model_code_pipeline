@@ -696,7 +696,7 @@ class GpTb(TBMixin, Gp):
         # Get population estimates from first model year to generate ratio
         pop_m_firstyear = (
             model_results.df.loc[
-                ("GP", slice(None), tb_m_countries, first_year, "population")
+                ("GP", slice(None), tb_m_countries, first_year+1, "population")
             ]["central"]
             .groupby(axis=0, level=3)
             .sum()

@@ -67,7 +67,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
     )
 
     partner_data = PartnerDataMalaria(
-        path_to_data_folder / "IC8/partner/malaria/2024_10_03",
+        path_to_data_folder / "IC8/partner/malaria/2024_10_17",
         parameters=parameters
     )
 
@@ -122,10 +122,10 @@ def get_malaria_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_10_10"
+            / "2024_10_15"
             / "malaria"
             / "tgf"
-            / "malaria_Fungible_gf_17b_incUnalloc.csv"
+            / "malaria_fung_inc_unalc_bs17.csv"
         )
     )
     non_tgf_funding = (
@@ -133,10 +133,10 @@ def get_malaria_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_10_10"
+            / "2024_10_15"
             / "malaria"
             / "non_tgf"
-            / "malaria_nonFungible_dipiBase_MS.csv"
+            / "malaria_nonfung_base_c.csv"
         )
     )
 

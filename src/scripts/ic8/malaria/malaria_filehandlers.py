@@ -160,13 +160,13 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Add ic_ic scenario to model output
         concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
 
-        # # smooth out 2027-2029
-        # adj_concatenated_dfs = self.adjust_dfs(
-        #     concatenated_dfs
-        # )
-        #
-        # return adj_concatenated_dfs
-        return concatenated_dfs
+        # smooth out 2027-2029
+        adj_concatenated_dfs = self.adjust_dfs(
+            concatenated_dfs
+        )
+
+        return adj_concatenated_dfs
+        # return concatenated_dfs
 
     def adjust_dfs(self, df:pd.DataFrame) -> pd.DataFrame:
         """ this function will adjust the data in the df for the period 2027 to 2029 to match 2027 estimates. """
@@ -725,7 +725,6 @@ class GpMalaria(MALARIAMixin, Gp):
 
         # Gather the parameters for this function
         gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
-        first_year = parameters.get("START_YEAR")
         last_year = parameters.get("END_YEAR")
 
         malaria_countries = parameters.get_portfolio_countries_for(self.disease_name)

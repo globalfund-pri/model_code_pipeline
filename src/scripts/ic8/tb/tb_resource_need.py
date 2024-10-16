@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsTb(
-        path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_10",
+        path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_15",
         parameters=parameters,
     )
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     )
 
     partner_data = PartnerDataTb(
-        path_to_data_folder / "IC8/partner/tb/2024_07_10",
+        path_to_data_folder / "IC8/partner/tb/2024_10_17",
         parameters=parameters,
     )
 
@@ -192,47 +192,6 @@ if __name__ == "__main__":
     mortality_by_year = mortality_by_year.rename(
         columns={'central': 'mortality', 'high': 'mortality_ub', 'low': 'mortality_lb'})
 
-    # Historic epidemic
-    cases_df_hh = model_results.df.loc[
-        ("HH", 1, slice(None), slice(None), 'cases')
-    ]
-    deaths_df_hh = model_results.df.loc[
-        ("HH", 1, slice(None), slice(None), 'deaths')
-    ]
-    pop_df_hh = model_results.df.loc[
-        ("HH", 1, slice(None), slice(None), 'population')
-    ]
-
-    cases_df_hh = cases_df_hh.reset_index()
-    cases_hh_by_year = cases_df_hh.groupby('year').sum()
-    del cases_hh_by_year['country']
-
-    deaths_df_hh = deaths_df_hh.reset_index()
-    deaths_hh_by_year = deaths_df_hh.groupby('year').sum()
-    del deaths_hh_by_year['country']
-
-    pop_df_hh = pop_df_hh.reset_index()
-    pop_hh_by_year = pop_df_hh.groupby('year').sum()
-    del pop_hh_by_year['country']
-
-    incidence_hh_by_year = cases_hh_by_year / pop_hh_by_year
-    mortality_hh_by_year = deaths_hh_by_year / pop_hh_by_year
-
-    incidence_hh_by_year = incidence_hh_by_year.rename(
-        columns={'central': 'incidence', 'high': 'incidence_ub', 'low': 'incidence_lb'})
-    mortality_hh_by_year = mortality_hh_by_year.rename(
-        columns={'central': 'mortality', 'high': 'mortality_ub', 'low': 'mortality_lb'})
-
-    # Concat epi
-    incidence_by_year = pandas.concat([incidence_hh_by_year, incidence_by_year])
-    mortality_by_year = pandas.concat([mortality_hh_by_year, mortality_by_year])
-
-    # Merge all into one and save the output
-    df_costs = pandas.concat([cost_by_year, cost_vx_by_year], axis=1)
-    df_costs = df_costs.reset_index()
-    df_epi = pandas.concat([incidence_by_year, mortality_by_year], axis=1)
-    df_epi = df_epi.reset_index()
-
-    df_resource_need = (pandas.merge(df_epi, df_costs, on='year', how='outer'))
+    df_resource_need = (pandas.merge(incidence_by_year, mortality_by_year, on='year', how='outer'))
     df_resource_need.to_csv('df_resource_need_tb_gp.csv')
 

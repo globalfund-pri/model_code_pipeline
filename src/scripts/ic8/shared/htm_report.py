@@ -233,7 +233,7 @@ class HTMReport(Report):
 
             "TB mortality rate amongst hiv-negative individuals in the year 2021 ": tb_mortality_hivneg_2021,
             "TB mortality rate amongst hiv-negative individuals in the year 2028 ": tb_mortality_hivneg_2028,
-            "Reduction in TB mortality rate amongst hiv-negative individuals between the year 2028 compared to 202 ": tb_mortality_hivneg_reduction_st,
+            "Reduction in TB mortality rate amongst hiv-negative individuals between the year 2028 compared to 2021 ": tb_mortality_hivneg_reduction_st,
 
             "Number of TB notifications between 2027 and 2029 ": notified_2027_2029,
             "Number of TB notifications between 2024 and 2029 ": notified_2024_2029,
@@ -625,32 +625,32 @@ class HTMReport(Report):
 
         # Step 2.1 Get mortality for each disease from IC including LB and UB
         hiv_deaths_ic = self.hiv.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         hiv_deaths_lb_ic = self.hiv.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2030), "model_low"]
+            slice(2023, 2030), "model_low"]
         hiv_deaths_ub_ic = self.hiv.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2030), "model_high"]
+            slice(2023, 2030), "model_high"]
 
         tb_deaths_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         tb_deaths_lb_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
-            slice(2024, 2030), "model_low"]
+            slice(2023, 2030), "model_low"]
         tb_deaths_ub_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
-            slice(2024, 2030), "model_high"]
+            slice(2023, 2030), "model_high"]
 
         malaria_deaths_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         malaria_deaths_lb_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2030), "model_low"]
+            slice(2023, 2030), "model_low"]
         malaria_deaths_ub_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2030), "model_high"]
+            slice(2023, 2030), "model_high"]
 
         hiv_pop_ic = self.hiv.IC.portfolio_results["population"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         tb_pop_ic = self.tb.IC.portfolio_results["population"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         malaria_pop_ic = self.malaria.IC.portfolio_results["par"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
 
         hiv_mortality_ic = hiv_deaths_ic / hiv_pop_ic
         tb_mortality_ic = tb_deaths_ic / tb_pop_ic
@@ -666,18 +666,18 @@ class HTMReport(Report):
 
         # Step 2.2 Get incidence for each disease from Covid disruption
         hiv_deaths_cf = self.hiv.CF_InfAve.portfolio_results["deaths"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         tb_deaths_cf = self.tb.CF_InfAve.portfolio_results["deathshivneg"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         malaria_deaths_cf = self.malaria.CF_InfAve.portfolio_results["deaths"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
 
         hiv_pop_cf = self.hiv.CF_InfAve.portfolio_results["population"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         tb_pop_cf = self.tb.CF_InfAve.portfolio_results["population"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         malaria_pop_cf = self.malaria.CF_InfAve.portfolio_results["par"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
 
         hiv_mortality_cf = hiv_deaths_cf / hiv_pop_cf
         tb_mortality_cf = tb_deaths_cf / tb_pop_cf
@@ -688,15 +688,15 @@ class HTMReport(Report):
         hiv_pop_gp = self.hiv.CF_forgraphs["population"]
         hiv_mortality_gp = hiv_deaths_gp / hiv_pop_gp
         hiv_mortality_gp = pd.DataFrame(hiv_mortality_gp)
-        hiv_mortality_gp = hiv_mortality_gp[hiv_mortality_gp.index > 2020]
+        hiv_mortality_gp = hiv_mortality_gp[hiv_mortality_gp.index > 2019]
 
         tb_mortality_gp = self.tb.CF_forgraphs["mortalityhivneg"]
         tb_mortality_gp = pd.DataFrame(tb_mortality_gp)
-        tb_mortality_gp = tb_mortality_gp[tb_mortality_gp.index >2020]
+        tb_mortality_gp = tb_mortality_gp[tb_mortality_gp.index >2014]
 
         malaria_mortality_gp = self.malaria.CF_forgraphs["mortality"]
         malaria_mortality_gp = pd.DataFrame(malaria_mortality_gp)
-        malaria_mortality_gp = malaria_mortality_gp[malaria_mortality_gp.index > 2020]
+        malaria_mortality_gp = malaria_mortality_gp[malaria_mortality_gp.index > 2014]
 
         # Step 3.1 Normalise each disease to 100 in 2023 for partner and IC
         combined_hiv_mortality = pd.concat([hiv_mortality_partner,hiv_mortality_ic])
@@ -742,7 +742,7 @@ class HTMReport(Report):
         # Prepare to generate CIs
         # rho_btw_diseases = 1 # TODO: update
         rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
-        years = list(range(2024, 2031))
+        years = list(range(2023, 2031))
         combined_temp = (hiv_mortality_ic + tb_mortality_ic + malaria_mortality_ic) / 3
 
         # Make an empty dataframe
@@ -795,9 +795,9 @@ class HTMReport(Report):
         combined_malaria_mortality_cf = 100 * (combined_malaria_mortality_cf / combined_malaria_mortality_cf.iloc[5, :])
 
         # Step 3.3 Normalise each disease to 100 in 2020 for GP
-        combined_hiv_mortality_gp = pd.concat([hiv_mortality_partner, hiv_mortality_gp])
+        combined_hiv_mortality_gp = hiv_mortality_gp
         combined_hiv_mortality_gp = pd.DataFrame(combined_hiv_mortality_gp)
-        combined_hiv_mortality_gp = 100 * (combined_hiv_mortality_gp / combined_hiv_mortality_gp.iloc[5, :])
+        combined_hiv_mortality_gp = 100 * (combined_hiv_mortality_gp / combined_hiv_mortality_gp.iloc[3, :])
 
         combined_tb_mortality_gp = pd.concat([tb_mortality_partner, tb_mortality_gp])
         combined_tb_mortality_gp = combined_tb_mortality_gp.bfill(axis=1).iloc[:, 0]
@@ -820,11 +820,11 @@ class HTMReport(Report):
 
         # Clean up so we can output the graphs
         actual = combined_mortality.loc[combined_mortality.index <2024].iloc[:,0]
-        gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2023].iloc[:,0]
-        cf = combined_mortality_cf.loc[combined_mortality_cf.index >2023].iloc[:,0]
-        ic = combined_mortality.loc[combined_mortality.index > 2023].iloc[:,0]
-        ic_lb = combined_lb.loc[combined_lb.index > 2023].iloc[:,0]
-        ic_ub = combined_ub.loc[combined_ub.index > 2023].iloc[:,0]
+        gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2022].iloc[:,0]
+        cf = combined_mortality_cf.loc[combined_mortality_cf.index >2022].iloc[:,0]
+        ic = combined_mortality.loc[combined_mortality.index > 2022].iloc[:,0]
+        ic_lb = combined_lb.loc[combined_lb.index > 2022].iloc[:,0]
+        ic_ub = combined_ub.loc[combined_ub.index > 2022].iloc[:,0]
 
         comb_mort_df = pd.DataFrame(
             index=pd.Index(list(range(2015, 2031)), name='Year'),
@@ -863,32 +863,32 @@ class HTMReport(Report):
 
         # Step 2.1 Get incidence for each disease from IC including LB and UB
         hiv_cases_ic = self.hiv.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         hiv_cases_lb_ic = self.hiv.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_low"]
+            slice(2023, 2030), "model_low"]
         hiv_cases_ub_ic = self.hiv.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_high"]
+            slice(2023, 2030), "model_high"]
 
         tb_cases_ic = self.tb.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         tb_cases_lb_ic = self.tb.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_low"]
+            slice(2023, 2030), "model_low"]
         tb_cases_ub_ic = self.tb.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_high"]
+            slice(2023, 2030), "model_high"]
 
         malaria_cases_ic = self.malaria.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         malaria_cases_lb_ic = self.malaria.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_low"]
+            slice(2023, 2030), "model_low"]
         malaria_cases_ub_ic = self.malaria.IC.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_high"]
+            slice(2023, 2030), "model_high"]
 
         hiv_pop_ic = self.hiv.IC.portfolio_results["hivneg"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         tb_pop_ic = self.tb.IC.portfolio_results["population"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         malaria_pop_ic = self.malaria.IC.portfolio_results["par"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
 
         hiv_incidence_ic = hiv_cases_ic / hiv_pop_ic
         tb_incidence_ic = tb_cases_ic / tb_pop_ic
@@ -904,18 +904,18 @@ class HTMReport(Report):
 
         # Step 2.2 Get incidence for each disease from Covid disruption
         hiv_cases_cf = self.hiv.CF_InfAve.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         tb_cases_cf = self.tb.CF_InfAve.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         malaria_cases_cf = self.malaria.CF_InfAve.portfolio_results["cases"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
 
         hiv_pop_cf = self.hiv.CF_InfAve.portfolio_results["hivneg"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         tb_pop_cf = self.tb.CF_InfAve.portfolio_results["population"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
         malaria_pop_cf = self.malaria.CF_InfAve.portfolio_results["par"].loc[
-            slice(2024, 2030), "model_central"]
+            slice(2023, 2030), "model_central"]
 
         hiv_incidence_cf = hiv_cases_cf / hiv_pop_cf
         tb_incidence_cf = tb_cases_cf / tb_pop_cf
@@ -979,7 +979,7 @@ class HTMReport(Report):
 
         # Prepare to generate CIs
         rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
-        years = list(range(2024, 2031))
+        years = list(range(2023, 2031))
         combined_temp = (hiv_incidence_ic + tb_incidence_ic + malaria_incidence_ic) / 3
 
         # Make an empty dataframe
@@ -1058,11 +1058,11 @@ class HTMReport(Report):
 
         # Clean up so we can output the graphs
         actual = combined_incidence.loc[combined_incidence.index <2024].iloc[:,0]
-        gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2023].iloc[:,0]
-        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2023].iloc[:,0]
-        ic = combined_incidence.loc[combined_incidence.index > 2023].iloc[:,0]
-        ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2023].iloc[:,0]
-        ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2023].iloc[:,0]
+        gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2022].iloc[:,0]
+        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2022].iloc[:,0]
+        ic = combined_incidence.loc[combined_incidence.index > 2022].iloc[:,0]
+        ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2022].iloc[:,0]
+        ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2022].iloc[:,0]
 
         comb_inc_df = pd.DataFrame(
             index=pd.Index(list(range(2015, 2031)), name='Year'),

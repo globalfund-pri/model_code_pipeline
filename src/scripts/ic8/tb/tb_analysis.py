@@ -66,7 +66,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
     )
 
     partner_data = PartnerDataTb(
-        path_to_data_folder / "IC8/partner/tb/2024_10_03",
+        path_to_data_folder / "IC8/partner/tb/2024_10_17",
         parameters=parameters,
     )
 
@@ -120,10 +120,10 @@ def get_tb_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_10_10"
+            / "2024_10_15"
             / "tb"
             / "tgf"
-            / "tb_Fungible_gf_17b_incUnalloc.csv"
+            / "tb_fung_inc_unalc_bs_INDdp5017.csv"
         )
     )
     non_tgf_funding = (
@@ -131,10 +131,10 @@ def get_tb_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_10_10"
+            / "2024_10_15"
             / "tb"
             / "non_tgf"
-            / "tb_nonFungible_Base_except_IND_IDN_tb_dipi50.csv"
+            / "tb_nonfung_base_INDdp50_c.csv"
         )
     )
 
@@ -150,7 +150,7 @@ def get_tb_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object

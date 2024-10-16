@@ -227,7 +227,7 @@ class CommonChecks_forwardchecks:
                 self.EXPECTED_FUNDING_SCENARIOS,
                 self.EXPECTED_FUNDING_FRACTIONS,
                 self.EXPECTED_COUNTRIES,
-                range(self.EXPECTED_FIRST_YEAR, self.EXPECTED_LAST_YEAR + 1),
+                range(self.EXPECTED_FIRST_YEAR+1, self.EXPECTED_LAST_YEAR + 1),
                 self.EXPECTED_EPI_INDICATORS,
             ],
             names=df.index.names,
@@ -259,7 +259,7 @@ class CommonChecks_forwardchecks:
     #                             slice(None),
     #                             country,
     #                             range(
-    #                                 self.EXPECTED_FIRST_YEAR,
+    #                                 self.EXPECTED_FIRST_YEAR+1,
     #                                 self.EXPECTED_LAST_YEAR + 1,
     #                             ),
     #                             indicator,
@@ -299,7 +299,7 @@ class CommonChecks_forwardchecks:
                             correct_order,
                             1.0,
                             country,
-                            range(self.EXPECTED_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
+                            range(self.EXPECTED_FIRST_YEAR+1, self.EXPECTED_LAST_YEAR+1),
                             indicator,
                         ),
                         "central",
@@ -594,7 +594,7 @@ class CommonChecks_allscenarios:
                 (['HH']),
                 expected_funding,
                 self.EXPECTED_COUNTRIES,
-                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR),
+                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR-1),
                 self.EXPECTED_EPI_INDICATORS,
             ],
             names=df.index.names,
@@ -829,7 +829,7 @@ class CommonChecks_allscenarios:
                     if scenario == "CC_FIRSTYEARGF":
                         year = gp_year.df.loc[(country), 'year']
                     if scenario == "CC_2022":
-                        year = self.EXPECTED_START_YEAR - 1
+                        year = self.EXPECTED_START_YEAR
                     # Get all the results for this country and indicator, up to (and including) the year 20XX
                     country_result_for_this_indicator = pd.DataFrame(db.model_results.df.loc[
                                                                          (scenario, slice(None), country,
@@ -911,12 +911,12 @@ class CommonChecks_allscenarios:
                         end_year = gp_year.df.loc[(country), 'year'] - 1
                         scenario_tag = "GFstart"
                     if scenario == list_scenarios_baseline:
-                        start_year = self.EXPECTED_START_YEAR - 1
-                        end_year = self.EXPECTED_START_YEAR - 1
+                        start_year = self.EXPECTED_START_YEAR
+                        end_year = self.EXPECTED_START_YEAR
                         scenario_tag = "baseline"
                     if scenario == list_scenarios_2022:
-                        start_year = self.EXPECTED_START_YEAR - 1
-                        end_year = self.EXPECTED_START_YEAR - 1
+                        start_year = self.EXPECTED_START_YEAR
+                        end_year = self.EXPECTED_START_YEAR
                         scenario_tag = "2022start"
 
                     if (scenario == list_scenarios_2022 and self.disease_name == "HIV") or (scenario == list_scenarios_2022 and self.disease_name == "MALARIA"): # TODO: @richard, once John and Pete share the forward runs, edit this
