@@ -190,31 +190,19 @@ class Analysis:
         self,
         methods: Union[Iterable[str], None],
         optimisation_params: Optional[Dict] = None,
-        filename: Optional[Path] = None,
     ) -> PortfolioProjection:
         """Returns the PortfolioProjection For Approach B: i.e., the projection for each country, given the funding
         to each country when the TGF funding allocated to a country _CAN_ be changed. Multiple methods for optimisation
         may be tried, but only a single result is provided (that of the best solution found.)
         :param methods: List of methods to use in approach_b (For method see `do_approach_b`)
         :param optimisation_params: Dict of parameters specifying how to construct the optimisation.
-        :param filename: Filename to save the optimisation results.
         See `_get_data_frames_for_approach_b`
         """
         # Use the `ApproachB` class to get the TGF funding allocations from the optimisation, getting only the best
         # result.
-        approach_b = self._approach_b(optimisation_params)
-        results_from_approach_b = approach_b.do_approach_b(
+        results_from_approach_b = self._approach_b(optimisation_params).do_approach_b(
             methods=methods, provide_best_only=True
         )
-
-        # Make report of the results if a filename has been provided
-        if filename is not None:
-            approach_b.do_report(
-                results={"a": None, "b": results_from_approach_b},
-                filename=filename,
-                plt_show=False
-            )
-
         tgf_funding_under_approach_b = results_from_approach_b.tgf_budget_by_country
 
         country_results = self._get_country_projections_given_funding_dollar_amounts(
@@ -797,3 +785,25 @@ class Analysis:
         adjusted_incidence_total.index = adjusted_incidence_total.index.astype(int)
 
         return adjusted_incidence_total
+
+    def make_diagnostic_report(
+            self,
+            plt_show: Optional[bool] = False,
+            filename: Optional[Path] = None,
+            optimisation_params: Optional[Dict] = None,
+            **kwargs):
+        """
+        Create a report that compares the results from Approach A and B (and alternative optimisation methods for
+        Approach B if these are specified).
+        :param plt_show: determines whether to show the plot
+        :param filename: filename to save the report to
+        :param optimisation_params: dictionary with parameters to pass to the optimisation method
+        Other parameters are passed through as those that would be passed to `Analysis.portfolio_projection_approach_b()`
+        This is done by passing through to the `ApproachB.run()` method.
+        """
+        # Create the approach_b object using the specified optimisation parameters
+        approach_b_object = self._approach_b(optimisation_params if optimisation_params else {})
+
+        # Run the report, specifying whether to plot graphs, the filename, and passing through any other kwargs
+        # Suppress the returned results as the purpose of this function is generating the report.
+        _ = approach_b_object.run(plt_show=plt_show, filename=filename, **kwargs)
