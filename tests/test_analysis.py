@@ -102,7 +102,7 @@ def test_analysis_diagnostic_report(analysis, tmp_path):
         plt_show=False,
     )
     assert os.path.exists(filename_for_report)
-    open_file(filename_for_report)
+    # open_file(filename_for_report)
 
 
 def test_analysis_portfolio_projection_counterfactual(analysis):
