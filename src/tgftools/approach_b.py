@@ -367,12 +367,18 @@ class ApproachB:
         # - compare results of the optimization analysis (if more than one method has been used)
         if not isinstance(results["b"], ApproachBResult):
             b_methods = results["b"][0]
+            allocations = {method: result.tgf_budget_by_country for method, result in b_methods.items()}
+            allocations.update({
+                'Approach A': results["a"].tgf_budget_by_country
+            })
+            tgf_funding_allox = pd.DataFrame(allocations)
 
-            tgf_funding_allox = pd.DataFrame(
-                {method: result.tgf_budget_by_country for method, result in b_methods.items()}
-            )
             fig, ax = plt.subplots()
-            tgf_funding_allox.plot(ax=ax)
+            tgf_funding_allox.plot(ax=ax, marker='x')
+            ax.set_ylabel('Funding Allocated to the Country')
+            ax.set_xlabel('Country')
+            ax.set_xticks(list(range(len(tgf_funding_allox.index))),
+                          labels=tgf_funding_allox.index.to_list())
             if plt_show:
                 plt.show()
             plt.close(fig)
