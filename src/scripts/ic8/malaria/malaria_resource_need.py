@@ -106,11 +106,5 @@ if __name__ == "__main__":
 
     # Merge all into one and save the output
     df_resource_need = pandas.concat([cost_by_year, cost_vx_by_year, cost_priv_by_year, incidence_by_year, mortality_by_year], axis=1)
-    df_resource_need.to_csv('df_resource_need_malaria_9OCT.csv')
-
-
-
-
-
-
+    df_resource_need.to_csv('df_resource_need_malaria_pf100.csv')
 

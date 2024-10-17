@@ -72,7 +72,7 @@ if __name__ == "__main__":
         ("PF", 1, slice(None), slice(None), 'cases')
     ]
     deaths_df = model_results.df.loc[
-        ("PF", 1, slice(None), slice(None), 'deaths')
+        ("PF", 1, slice(None), slice(None), 'deathshivneg')
     ]
     pop_df = model_results.df.loc[
         ("PF", 1, slice(None), slice(None), 'population')
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         ("HH", 1, slice(None), slice(None), 'cases')
     ]
     deaths_df_hh = model_results.df.loc[
-        ("HH", 1, slice(None), slice(None), 'deaths')
+        ("HH", 1, slice(None), slice(None), 'deathshivneg')
     ]
     pop_df_hh = model_results.df.loc[
         ("HH", 1, slice(None), slice(None), 'population')
@@ -166,7 +166,7 @@ if __name__ == "__main__":
         ("GP", 1, slice(None), slice(None), 'cases')
     ]
     deaths_df = model_results.df.loc[
-        ("GP", 1, slice(None), slice(None), 'deaths')
+        ("GP", 1, slice(None), slice(None), 'deathshivneg')
     ]
     pop_df = model_results.df.loc[
         ("GP", 1, slice(None), slice(None), 'population')
