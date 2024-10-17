@@ -683,7 +683,7 @@ class Analysis:
         if self.disease_name == 'MALARIA':
             indicator_partner = ['cases', 'deaths', 'par']
 
-        expected_first_year = self.parameters.get("START_YEAR") - 5
+        expected_first_year = self.parameters.get("GRAPH_FIRST_YEAR") - 5
         expected_last_year = self.parameters.get("START_YEAR") + 1
 
         partner_data = self.database.partner_data.df.loc[

@@ -5,6 +5,7 @@
 # Overall specification of the analysis
 START_YEAR = 2020  # The first year of the model results (and the last year for which data available). This is the year upon which calibrating adjustments are made for the model results.
 END_YEAR = 2030  # The final year of the model results
+GRAPH_FIRST_YEAR = 2020 # Year for which we want data in the report
 YEARS_FOR_FUNDING = [2024, 2025, 2026]  # These are the years for which the funding data corrrespond
 YEARS_FOR_OBJ_FUNC = [2024, 2025, 2026, 2027, 2028, 2029, 2030]  # These are the years for which cases/deathhs are minimised
 RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE = 1.0

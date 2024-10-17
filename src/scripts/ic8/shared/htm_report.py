@@ -400,7 +400,7 @@ class HTMReport(Report):
     def hiv_cases(self) -> pd.DataFrame:
         """Produce graph for HIV cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2031)), name='Year'),
+            index=pd.Index(list(range(2010, 2031)), name='Year'),
             data={
                 'Actual': self.hiv.PARTNER['cases'],
                 'GP': self.hiv.CF_forgraphs['cases'],
@@ -414,7 +414,7 @@ class HTMReport(Report):
     def hiv_deaths(self) -> pd.DataFrame:
         """Produce graph for HIV deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2031)), name='Year'),
+            index=pd.Index(list(range(2010, 2031)), name='Year'),
             data={
                 'Actual': self.hiv.PARTNER['deaths'],
                 'GP': self.hiv.CF_forgraphs['deaths'],
@@ -428,7 +428,7 @@ class HTMReport(Report):
     def tb_cases(self) -> pd.DataFrame:
         """Produce graph for TB cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2031)), name='Year'),
+            index=pd.Index(list(range(2010, 2031)), name='Year'),
             data={
                 'Actual': self.tb.PARTNER['cases'],
                 'GP': self.tb.CF_forgraphs['cases'],
@@ -442,7 +442,7 @@ class HTMReport(Report):
     def tb_deaths(self) -> pd.DataFrame:
         """Produce graph for TB deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2031)), name='Year'),
+            index=pd.Index(list(range(2010, 2031)), name='Year'),
             data={
                 'Actual': self.tb.PARTNER['deaths'],
                 'GP': self.tb.CF_forgraphs['deaths'],
@@ -456,7 +456,7 @@ class HTMReport(Report):
     def mal_cases(self) -> pd.DataFrame:
         """Produce graph for malaria cases"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2031)), name='Year'),
+            index=pd.Index(list(range(2010, 2031)), name='Year'),
             data={
                 'Actual': self.malaria.PARTNER['cases'],
                 'GP': self.malaria.CF_forgraphs['cases'],
@@ -470,7 +470,7 @@ class HTMReport(Report):
     def mal_deaths(self) -> pd.DataFrame:
         """Produce graph for malaria deaths"""
         return pd.DataFrame(
-            index=pd.Index(list(range(2015, 2031)), name='Year'),
+            index=pd.Index(list(range(2010, 2031)), name='Year'),
             data={
                 'Actual': self.malaria.PARTNER['deaths'],
                 'GP': self.malaria.CF_forgraphs['deaths'],
@@ -496,35 +496,35 @@ class HTMReport(Report):
         malaria_deaths_2029 = self.malaria.IC.portfolio_results["deaths"].at[2029, "model_central"]
         total_deaths_2029 = hiv_deaths_2029 + tb_deaths_2029 + malaria_deaths_2029
 
-        # Get sum of deaths from IC for 2024 to 2029
-        hiv_deaths_2024_2029_ic = self.hiv.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2029), "model_central"].sum()
-        tb_deaths_2024_2029_ic = self.tb.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2029), "model_central"].sum()
-        malaria_deaths_2024_2029_ic = self.malaria.IC.portfolio_results["deaths"].loc[
-            slice(2024, 2029), "model_central"].sum()
+        # Get sum of deaths from IC for 2027 to 2029
+        hiv_deaths_2027_2029_ic = self.hiv.IC.portfolio_results["deaths"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        tb_deaths_2027_2029_ic = self.tb.IC.portfolio_results["deaths"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        malaria_deaths_2027_2029_ic = self.malaria.IC.portfolio_results["deaths"].loc[
+            slice(2027, 2029), "model_central"].sum()
 
-        # Get deaths averted from CFs for 2024 to 2029
-        hiv_deaths_2024_2029_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
-            slice(2024, 2029), "model_central"].sum()
-        tb_deaths_2024_2029_cf = self.tb.CF_LivesSaved.portfolio_results["deaths"].loc[
-            slice(2024, 2029), "model_central"].sum()
-        malaria_deaths_2024_2029_cf = self.malaria.CF_LivesSaved.portfolio_results["deaths"].loc[
-            slice(2024, 2029), "model_central"].sum()
+        # Get deaths averted from CFs for 2027 to 2029
+        hiv_deaths_2027_2029_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        tb_deaths_2027_2029_cf = self.tb.CF_LivesSaved.portfolio_results["deaths"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        malaria_deaths_2027_2029_cf = self.malaria.CF_LivesSaved.portfolio_results["deaths"].loc[
+            slice(2027, 2029), "model_central"].sum()
 
         # Compute deaths averted
-        hiv_deaths_averted_2024_2029 = hiv_deaths_2024_2029_cf - hiv_deaths_2024_2029_ic
-        tb_deaths_averted_2024_2029 = tb_deaths_2024_2029_cf - tb_deaths_2024_2029_ic
-        malaria_deaths_averted_2024_2029 = malaria_deaths_2024_2029_cf - malaria_deaths_2024_2029_ic
-        total_deaths_averted = hiv_deaths_averted_2024_2029 + tb_deaths_averted_2024_2029 + malaria_deaths_averted_2024_2029
+        hiv_deaths_averted_2027_2029 = hiv_deaths_2027_2029_cf - hiv_deaths_2027_2029_ic
+        tb_deaths_averted_2027_2029 = tb_deaths_2027_2029_cf - tb_deaths_2027_2029_ic
+        malaria_deaths_averted_2027_2029 = malaria_deaths_2027_2029_cf - malaria_deaths_2027_2029_ic
+        total_deaths_averted = hiv_deaths_averted_2027_2029 + tb_deaths_averted_2027_2029 + malaria_deaths_averted_2027_2029
 
         return {
             "Total number of deaths from 3 diseases in 2023 ": total_deaths_2023,
             "Total number of deaths from 3 diseases in 2029 ": total_deaths_2029,
-            "Deaths averted (covid disruption) for HIV 2024 to 2029": hiv_deaths_averted_2024_2029,
-            "Deaths averted (covid disruption) for TB 2024 to 2029": tb_deaths_averted_2024_2029,
-            "Deaths averted (covid disruption) for malaria 2024 to 2029": malaria_deaths_averted_2024_2029,
-            "Total Deaths averted (covid disruption) for hiv 2024 to 2029": total_deaths_averted,
+            "Deaths averted (constant coverage) for HIV 2027 to 2029": hiv_deaths_averted_2027_2029,
+            "Deaths averted (constant coverage) for TB 2027 to 2029": tb_deaths_averted_2027_2029,
+            "Deaths averted (constant coverage) for malaria 2027 to 2029": malaria_deaths_averted_2027_2029,
+            "Total Deaths averted (constant coverage) for 2027 to 2029": total_deaths_averted,
         }
 
     def comb_mort(self) -> pd.DataFrame:
@@ -566,8 +566,8 @@ class HTMReport(Report):
             From: https://realpython.com/openpyxl-excel-spreadsheets-python/#adding-pretty-charts
             """
             # References to the data
-            data = Reference(ws, min_col=2, min_row=1, max_col=7, max_row=17)
-            categories = Reference(ws, min_col=1, min_row=2, max_row=17)
+            data = Reference(ws, min_col=2, min_row=1, max_col=7, max_row=22)
+            categories = Reference(ws, min_col=1, min_row=2, max_row=22)
 
             # Plot standard chart
             c1 = LineChart()
@@ -701,37 +701,37 @@ class HTMReport(Report):
         # Step 3.1 Normalise each disease to 100 in 2023 for partner and IC
         combined_hiv_mortality = pd.concat([hiv_mortality_partner,hiv_mortality_ic])
         combined_hiv_mortality = pd.DataFrame(combined_hiv_mortality)
-        combined_hiv_mortality = 100*(combined_hiv_mortality / combined_hiv_mortality.iloc[5,:])
+        combined_hiv_mortality = 100*(combined_hiv_mortality / combined_hiv_mortality.iloc[15,:])
 
         combined_tb_mortality = pd.concat([tb_mortality_partner, tb_mortality_ic])
         combined_tb_mortality = pd.DataFrame(combined_tb_mortality)
-        combined_tb_mortality = 100 * (combined_tb_mortality / combined_tb_mortality.iloc[5, :])
+        combined_tb_mortality = 100 * (combined_tb_mortality / combined_tb_mortality.iloc[15, :])
 
         combined_malaria_mortality = pd.concat([malaria_mortality_partner, malaria_mortality_ic])
         combined_malaria_mortality = pd.DataFrame(combined_malaria_mortality)
-        combined_malaria_mortality = 100 * (combined_malaria_mortality / combined_malaria_mortality.iloc[5, :])
+        combined_malaria_mortality = 100 * (combined_malaria_mortality / combined_malaria_mortality.iloc[15, :])
 
         # Step 3.2. Normalise the LB and UB for the IC
         combined_hiv_mortality_lb = pd.concat([hiv_mortality_partner, hiv_mortality_lb_ic])
         combined_hiv_mortality_lb = pd.DataFrame(combined_hiv_mortality_lb)
-        combined_hiv_mortality_lb = 100 * (combined_hiv_mortality_lb / combined_hiv_mortality_lb.iloc[5, :])
+        combined_hiv_mortality_lb = 100 * (combined_hiv_mortality_lb / combined_hiv_mortality_lb.iloc[15, :])
         combined_hiv_mortality_ub = pd.concat([hiv_mortality_partner, hiv_mortality_ub_ic])
         combined_hiv_mortality_ub = pd.DataFrame(combined_hiv_mortality_ub)
-        combined_hiv_mortality_ub = 100 * (combined_hiv_mortality_ub / combined_hiv_mortality_ub.iloc[5, :])
+        combined_hiv_mortality_ub = 100 * (combined_hiv_mortality_ub / combined_hiv_mortality_ub.iloc[15, :])
 
         combined_tb_mortality_ub = pd.concat([tb_mortality_partner, tb_mortality_lb_ic])
         combined_tb_mortality_lb = pd.DataFrame(combined_tb_mortality_ub)
-        combined_tb_mortality_lb = 100 * (combined_tb_mortality_lb / combined_tb_mortality_lb.iloc[5, :])
+        combined_tb_mortality_lb = 100 * (combined_tb_mortality_lb / combined_tb_mortality_lb.iloc[15, :])
         combined_tb_mortality_ub = pd.concat([tb_mortality_partner, tb_mortality_ub_ic])
         combined_tb_mortality_ub = pd.DataFrame(combined_tb_mortality_ub)
-        combined_tb_mortality_ub = 100 * (combined_tb_mortality_ub / combined_tb_mortality_ub.iloc[5, :])
+        combined_tb_mortality_ub = 100 * (combined_tb_mortality_ub / combined_tb_mortality_ub.iloc[15, :])
 
         combined_malaria_mortality_lb = pd.concat([malaria_mortality_partner, malaria_mortality_lb_ic])
         combined_malaria_mortality_lb = pd.DataFrame(combined_malaria_mortality_lb)
-        combined_malaria_mortality_lb = 100 * (combined_malaria_mortality_lb / combined_malaria_mortality_lb.iloc[5, :])
+        combined_malaria_mortality_lb = 100 * (combined_malaria_mortality_lb / combined_malaria_mortality_lb.iloc[15, :])
         combined_malaria_mortality_ub = pd.concat([malaria_mortality_partner, malaria_mortality_ub_ic])
         combined_malaria_mortality_ub = pd.DataFrame(combined_malaria_mortality_ub)
-        combined_malaria_mortality_ub = 100 * (combined_malaria_mortality_ub / combined_malaria_mortality_ub.iloc[5, :])
+        combined_malaria_mortality_ub = 100 * (combined_malaria_mortality_ub / combined_malaria_mortality_ub.iloc[15, :])
 
         # Back calculate SD at
         hiv_sd = (hiv_mortality_ub_ic - hiv_mortality_ic)/1.96
@@ -775,39 +775,42 @@ class HTMReport(Report):
 
         combined_lb = pd.concat([combined_partner, low])
         combined_lb = pd.DataFrame(combined_lb)
-        combined_lb = 100 * (combined_lb / combined_lb.iloc[5, :])
+        combined_lb = 100 * (combined_lb / combined_lb.iloc[15, :])
 
         combined_ub = pd.concat([combined_partner, high])
         combined_ub = pd.DataFrame(combined_ub)
-        combined_ub = 100 * (combined_ub / combined_ub.iloc[5, :])
+        combined_ub = 100 * (combined_ub / combined_ub.iloc[15, :])
 
         # Step 3.2 Normalise each disease to 100 in 2020 for Covid disruption
         combined_hiv_mortality_cf = pd.concat([hiv_mortality_partner, hiv_mortality_cf])
         combined_hiv_mortality_cf = pd.DataFrame(combined_hiv_mortality_cf)
-        combined_hiv_mortality_cf = 100 * (combined_hiv_mortality_cf / combined_hiv_mortality_cf.iloc[5, :])
+        combined_hiv_mortality_cf = 100 * (combined_hiv_mortality_cf / combined_hiv_mortality_cf.iloc[15, :])
 
         combined_tb_mortality_cf = pd.concat([tb_mortality_partner, tb_mortality_cf])
         combined_tb_mortality_cf = pd.DataFrame(combined_tb_mortality_cf)
-        combined_tb_mortality_cf = 100 * (combined_tb_mortality_cf / combined_tb_mortality_cf.iloc[5, :])
+        combined_tb_mortality_cf = 100 * (combined_tb_mortality_cf / combined_tb_mortality_cf.iloc[15, :])
 
         combined_malaria_mortality_cf = pd.concat([malaria_mortality_partner, malaria_mortality_cf])
         combined_malaria_mortality_cf = pd.DataFrame(combined_malaria_mortality_cf)
-        combined_malaria_mortality_cf = 100 * (combined_malaria_mortality_cf / combined_malaria_mortality_cf.iloc[5, :])
+        combined_malaria_mortality_cf = 100 * (combined_malaria_mortality_cf / combined_malaria_mortality_cf.iloc[15, :])
 
         # Step 3.3 Normalise each disease to 100 in 2020 for GP
-        combined_hiv_mortality_gp = hiv_mortality_gp
+        hiv_mortality_partner_gp = hiv_mortality_partner[(hiv_mortality_partner.index < 2020)]
+        hiv_mortality_partner_gp = hiv_mortality_partner_gp[(hiv_mortality_partner_gp.index > 2014)]
+        combined_hiv_mortality_gp = pd.concat([hiv_mortality_partner_gp, hiv_mortality_gp])
         combined_hiv_mortality_gp = pd.DataFrame(combined_hiv_mortality_gp)
-        combined_hiv_mortality_gp = 100 * (combined_hiv_mortality_gp / combined_hiv_mortality_gp.iloc[3, :])
+        combined_hiv_mortality_gp = 100 * (combined_hiv_mortality_gp / combined_hiv_mortality_gp.iloc[5, :])
+        combined_hiv_mortality_gp.columns = ['mortality']
 
-        combined_tb_mortality_gp = pd.concat([tb_mortality_partner, tb_mortality_gp])
-        combined_tb_mortality_gp = combined_tb_mortality_gp.bfill(axis=1).iloc[:, 0]
+        combined_tb_mortality_gp = tb_mortality_gp
         combined_tb_mortality_gp = pd.DataFrame(combined_tb_mortality_gp)
         combined_tb_mortality_gp = 100 * (combined_tb_mortality_gp / combined_tb_mortality_gp.iloc[5, :])
+        combined_tb_mortality_gp.columns = ['mortality']
 
-        combined_malaria_mortality_gp = pd.concat([malaria_mortality_partner, malaria_mortality_gp])
-        combined_malaria_mortality_gp = combined_malaria_mortality_gp.bfill(axis=1).iloc[:, 0]
+        combined_malaria_mortality_gp = malaria_mortality_gp
         combined_malaria_mortality_gp = pd.DataFrame(combined_malaria_mortality_gp)
         combined_malaria_mortality_gp = 100 * (combined_malaria_mortality_gp / combined_malaria_mortality_gp.iloc[5, :])
+        combined_malaria_mortality_gp.columns = ['mortality']
 
         # Step 4. Combine the three normalised incidence rates by doing simple average
         combined_mortality = (combined_hiv_mortality + combined_tb_mortality + combined_malaria_mortality)/3
@@ -820,14 +823,14 @@ class HTMReport(Report):
 
         # Clean up so we can output the graphs
         actual = combined_mortality.loc[combined_mortality.index <2024].iloc[:,0]
-        gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2022].iloc[:,0]
+        gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2019].iloc[:,0]
         cf = combined_mortality_cf.loc[combined_mortality_cf.index >2022].iloc[:,0]
         ic = combined_mortality.loc[combined_mortality.index > 2022].iloc[:,0]
         ic_lb = combined_lb.loc[combined_lb.index > 2022].iloc[:,0]
         ic_ub = combined_ub.loc[combined_ub.index > 2022].iloc[:,0]
 
         comb_mort_df = pd.DataFrame(
-            index=pd.Index(list(range(2015, 2031)), name='Year'),
+            index=pd.Index(list(range(2010, 2031)), name='Year'),
             data={
                 'Actual': actual,
                 'GP': gp,
@@ -926,50 +929,50 @@ class HTMReport(Report):
         hiv_pop_gp = self.hiv.CF_forgraphs["hivneg"]
         hiv_incidence_gp = hiv_cases_gp / hiv_pop_gp
         hiv_incidence_gp = pd.DataFrame(hiv_incidence_gp)
-        hiv_incidence_gp = hiv_incidence_gp[hiv_incidence_gp.index > 2020]
+        hiv_incidence_gp = hiv_incidence_gp[hiv_incidence_gp.index > 2019]
 
         tb_incidence_gp = self.tb.CF_forgraphs["incidence"]
         tb_incidence_gp = pd.DataFrame(tb_incidence_gp)
-        tb_incidence_gp = tb_incidence_gp[tb_incidence_gp.index >2020]
+        tb_incidence_gp = tb_incidence_gp[tb_incidence_gp.index >2014]
 
         malaria_incidence_gp = self.malaria.CF_forgraphs["incidence"]
         malaria_incidence_gp = pd.DataFrame(malaria_incidence_gp)
-        malaria_incidence_gp = malaria_incidence_gp[malaria_incidence_gp.index > 2020]
+        malaria_incidence_gp = malaria_incidence_gp[malaria_incidence_gp.index > 2014]
 
         # Step 3.1 Normalise each disease to 100 in 2020 for partner and IC
         combined_hiv_incidence = pd.concat([hiv_incidence_partner,hiv_incidence_ic])
         combined_hiv_incidence = pd.DataFrame(combined_hiv_incidence)
-        combined_hiv_incidence = 100*(combined_hiv_incidence / combined_hiv_incidence.iloc[5,:])
+        combined_hiv_incidence = 100*(combined_hiv_incidence / combined_hiv_incidence.iloc[15,:])
 
         combined_tb_incidence = pd.concat([tb_incidence_partner, tb_incidence_ic])
         combined_tb_incidence = pd.DataFrame(combined_tb_incidence)
-        combined_tb_incidence = 100 * (combined_tb_incidence / combined_tb_incidence.iloc[5, :])
+        combined_tb_incidence = 100 * (combined_tb_incidence / combined_tb_incidence.iloc[15, :])
 
         combined_malaria_incidence = pd.concat([malaria_incidence_partner, malaria_incidence_ic])
         combined_malaria_incidence = pd.DataFrame(combined_malaria_incidence)
-        combined_malaria_incidence = 100 * (combined_malaria_incidence / combined_malaria_incidence.iloc[5, :])
+        combined_malaria_incidence = 100 * (combined_malaria_incidence / combined_malaria_incidence.iloc[15, :])
 
         # Step 3.2. Normalise the LB and UB for the IC
         combined_hiv_incidence_lb = pd.concat([hiv_incidence_partner, hiv_incidence_lb_ic])
         combined_hiv_incidence_lb = pd.DataFrame(combined_hiv_incidence_lb)
-        combined_hiv_incidence_lb = 100 * (combined_hiv_incidence_lb / combined_hiv_incidence_lb.iloc[5, :])
+        combined_hiv_incidence_lb = 100 * (combined_hiv_incidence_lb / combined_hiv_incidence_lb.iloc[15, :])
         combined_hiv_incidence_ub = pd.concat([hiv_incidence_partner, hiv_incidence_ub_ic])
         combined_hiv_incidence_ub = pd.DataFrame(combined_hiv_incidence_ub)
-        combined_hiv_incidence_ub = 100 * (combined_hiv_incidence_ub / combined_hiv_incidence_ub.iloc[5, :])
+        combined_hiv_incidence_ub = 100 * (combined_hiv_incidence_ub / combined_hiv_incidence_ub.iloc[15, :])
 
         combined_tb_incidence_ub = pd.concat([tb_incidence_partner, tb_incidence_lb_ic])
         combined_tb_incidence_lb = pd.DataFrame(combined_tb_incidence_ub)
-        combined_tb_incidence_lb = 100 * (combined_tb_incidence_lb / combined_tb_incidence_lb.iloc[5, :])
+        combined_tb_incidence_lb = 100 * (combined_tb_incidence_lb / combined_tb_incidence_lb.iloc[15, :])
         combined_tb_incidence_ub = pd.concat([tb_incidence_partner, tb_incidence_ub_ic])
         combined_tb_incidence_ub = pd.DataFrame(combined_tb_incidence_ub)
-        combined_tb_incidence_ub = 100 * (combined_tb_incidence_ub / combined_tb_incidence_ub.iloc[5, :])
+        combined_tb_incidence_ub = 100 * (combined_tb_incidence_ub / combined_tb_incidence_ub.iloc[15, :])
 
         combined_malaria_incidence_lb = pd.concat([malaria_incidence_partner, malaria_incidence_lb_ic])
         combined_malaria_incidence_lb = pd.DataFrame(combined_malaria_incidence_lb)
-        combined_malaria_incidence_lb = 100 * (combined_malaria_incidence_lb / combined_malaria_incidence_lb.iloc[5, :])
+        combined_malaria_incidence_lb = 100 * (combined_malaria_incidence_lb / combined_malaria_incidence_lb.iloc[15, :])
         combined_malaria_incidence_ub = pd.concat([malaria_incidence_partner, malaria_incidence_ub_ic])
         combined_malaria_incidence_ub = pd.DataFrame(combined_malaria_incidence_ub)
-        combined_malaria_incidence_ub = 100 * (combined_malaria_incidence_ub / combined_malaria_incidence_ub.iloc[5, :])
+        combined_malaria_incidence_ub = 100 * (combined_malaria_incidence_ub / combined_malaria_incidence_ub.iloc[15, :])
 
         # Back calculate SD at
         hiv_sd = (hiv_incidence_ub_ic - hiv_incidence_ic) / 1.96
@@ -1020,30 +1023,35 @@ class HTMReport(Report):
         # Step 3.2 Normalise each disease to 100 in 2020 for Covid disruption
         combined_hiv_incidence_cf = pd.concat([hiv_incidence_partner, hiv_incidence_cf])
         combined_hiv_incidence_cf = pd.DataFrame(combined_hiv_incidence_cf)
-        combined_hiv_incidence_cf = 100 * (combined_hiv_incidence_cf / combined_hiv_incidence_cf.iloc[5, :])
+        combined_hiv_incidence_cf = 100 * (combined_hiv_incidence_cf / combined_hiv_incidence_cf.iloc[15, :])
 
         combined_tb_incidence_cf = pd.concat([tb_incidence_partner, tb_incidence_cf])
         combined_tb_incidence_cf = pd.DataFrame(combined_tb_incidence_cf)
-        combined_tb_incidence_cf = 100 * (combined_tb_incidence_cf / combined_tb_incidence_cf.iloc[5, :])
+        combined_tb_incidence_cf = 100 * (combined_tb_incidence_cf / combined_tb_incidence_cf.iloc[15, :])
 
         combined_malaria_incidence_cf = pd.concat([malaria_incidence_partner, malaria_incidence_cf])
         combined_malaria_incidence_cf = pd.DataFrame(combined_malaria_incidence_cf)
-        combined_malaria_incidence_cf = 100 * (combined_malaria_incidence_cf / combined_malaria_incidence_cf.iloc[5, :])
+        combined_malaria_incidence_cf = 100 * (combined_malaria_incidence_cf / combined_malaria_incidence_cf.iloc[15, :])
 
         # Step 3.3 Normalise each disease to 100 in 2020 for GP
-        combined_hiv_incidence_gp = pd.concat([hiv_incidence_partner, hiv_incidence_gp])
+        hiv_incidence_partner_gp = hiv_incidence_partner[(hiv_incidence_partner.index < 2020)]
+        hiv_incidence_partner_gp = hiv_incidence_partner_gp[(hiv_incidence_partner_gp.index > 2014)]
+        combined_hiv_incidence_gp = pd.concat([hiv_incidence_partner_gp, hiv_incidence_gp])
         combined_hiv_incidence_gp = pd.DataFrame(combined_hiv_incidence_gp)
         combined_hiv_incidence_gp = 100 * (combined_hiv_incidence_gp / combined_hiv_incidence_gp.iloc[5, :])
+        combined_hiv_incidence_gp.columns = ['incidence']
 
-        combined_tb_incidence_gp = pd.concat([tb_incidence_partner, tb_incidence_gp])
+        combined_tb_incidence_gp = tb_incidence_gp
         combined_tb_incidence_gp = combined_tb_incidence_gp.bfill(axis=1).iloc[:, 0]
         combined_tb_incidence_gp = pd.DataFrame(combined_tb_incidence_gp)
         combined_tb_incidence_gp = 100 * (combined_tb_incidence_gp / combined_tb_incidence_gp.iloc[5, :])
+        combined_tb_incidence_gp.columns = ['incidence']
 
-        combined_malaria_incidence_gp = pd.concat([malaria_incidence_partner, malaria_incidence_gp])
+        combined_malaria_incidence_gp = malaria_incidence_gp
         combined_malaria_incidence_gp = combined_malaria_incidence_gp.bfill(axis=1).iloc[:, 0]
         combined_malaria_incidence_gp = pd.DataFrame(combined_malaria_incidence_gp)
         combined_malaria_incidence_gp = 100 * (combined_malaria_incidence_gp / combined_malaria_incidence_gp.iloc[5, :])
+        combined_malaria_incidence_gp.columns = ['incidence']
 
         # Step 4. Combine the three normalised incidence rates by doing simple average
         combined_incidence = (combined_hiv_incidence + combined_tb_incidence + combined_malaria_incidence)/3
@@ -1058,14 +1066,14 @@ class HTMReport(Report):
 
         # Clean up so we can output the graphs
         actual = combined_incidence.loc[combined_incidence.index <2024].iloc[:,0]
-        gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2022].iloc[:,0]
+        gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2019].iloc[:,0]
         cf = combined_incidence_cf.loc[combined_incidence_cf.index >2022].iloc[:,0]
         ic = combined_incidence.loc[combined_incidence.index > 2022].iloc[:,0]
         ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2022].iloc[:,0]
         ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2022].iloc[:,0]
 
         comb_inc_df = pd.DataFrame(
-            index=pd.Index(list(range(2015, 2031)), name='Year'),
+            index=pd.Index(list(range(2010, 2031)), name='Year'),
             data={
                 'Actual': actual,
                 'GP': gp,
