@@ -1,3 +1,5 @@
+import pandas
+
 from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV, PartnerDataHIV
 from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv
@@ -7,7 +9,7 @@ from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path
 
 
-class DatabaseChecksHiv(HIVMixin, CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, DatabaseChecks):
+class DatabaseChecksHiv(HIVMixin, CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks, DatabaseChecks):
     """This is the class for DatabaseChecks to do with the HIV data."""
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +26,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsHiv(
-        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_07_28",
+        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_09_25",
         parameters=parameters,
     )
 
@@ -35,7 +37,7 @@ if __name__ == "__main__":
     )
 
     partner_data = PartnerDataHIV(
-        path_to_data_folder / "IC8/partner/hiv/2024_07_10",
+        path_to_data_folder / "IC8/partner/hiv/2024_10_17",
         parameters=parameters,
     )
 
