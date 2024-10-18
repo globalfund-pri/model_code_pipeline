@@ -1,5 +1,5 @@
-from scripts.ic7.malaria.malaria_checks import DatabaseChecksMalaria
-from scripts.ic7.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria, \
+from scripts.ic8.malaria.malaria_checks import DatabaseChecksMalaria
+from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria, \
     GpMalaria
 from tgftools.analysis import Analysis
 from tgftools.database import Database
@@ -52,22 +52,22 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsMalaria(
-            path_to_data_folder / "IC8/TimEmulationTool/modelling_outputs/malaria/standard",
+            path_to_data_folder / "IC8/modelling_outputs/malaria/2024_08_30",
             parameters=parameters
         )
-        # Save tge model_results object
-        save_var(model_results, project_root / "sessions" / "malaria_model_data.pkl")
+        # Save the model_results object
+        save_var(model_results, project_root / "sessions" / "malaria_model_data_ic8.pkl")
     else:
         # Load the model results
-        model_results = load_var(project_root / "sessions" / "malaria_model_data.pkl")
+        model_results = load_var(project_root / "sessions" / "malaria_model_data_ic8.pkl")
 
     pf_input_data = PFInputDataMalaria(
-        path_to_data_folder / "IC8/TimEmulationTool/pf/malaria",
+        path_to_data_folder / "IC8/pf/malaria/2024_03_28",
         parameters=parameters
     )
 
     partner_data = PartnerDataMalaria(
-        path_to_data_folder / "IC8/TimEmulationTool/partner/malaria",
+        path_to_data_folder / "IC8/partner/malaria/2024_10_17",
         parameters=parameters
     )
 
@@ -93,7 +93,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
 
 
 def get_malaria_analysis(
-        load_data_from_raw_files: bool = True,
+        load_data_from_raw_files: bool = False,
         do_checks: bool = False,
 ) -> Analysis:
     """Return the Analysis object for Malaria."""
@@ -120,38 +120,40 @@ def get_malaria_analysis(
     tgf_funding = (
         TgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC8"
             / "funding"
+            / "2024_10_15"
             / "malaria"
             / "tgf"
-            / "malaria_Fubgible_gf_17b_incUnalloc.csv"
+            / "malaria_fung_inc_unalc_bs17.csv"
         )
     )
     non_tgf_funding = (
         NonTgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC8"
             / "funding"
+            / "2024_10_15"
             / "malaria"
             / "non_tgf"
-            / "malaria_nonFubgible_dipiBase.csv"
+            / "malaria_nonfung_base_c.csv"
         )
     )
 
     return Analysis(
         database=db,
-        scenario_descriptor='IC_IC',
+        scenario_descriptor='PF',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
         handle_out_of_bounds_costs=True,
-        innovation_on=True,
+        innovation_on=False,
     )
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
-    DO_CHECKS = True
+    LOAD_DATA_FROM_RAW_FILES = False
+    DO_CHECKS = False
 
     # Create the Analysis object
     analysis = get_malaria_analysis(
@@ -165,5 +167,5 @@ if __name__ == "__main__":
     # analysis.portfolio_projection_counterfactual('CC_CC')
 
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
-    from scripts.ic7.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
+    from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
