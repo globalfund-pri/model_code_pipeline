@@ -677,7 +677,7 @@ class Analysis:
         """Returns data-frame of the partner data that are needed for reporting."""
 
         if self.disease_name == 'HIV':
-            indicator_partner = ['cases', 'deaths', 'hivneg', 'population']
+            indicator_partner = ['cases', 'deaths', 'hivneg', 'plhiv']
         if self.disease_name == 'TB':
             indicator_partner = ['cases', 'deaths', 'deathshivneg', 'population']
         if self.disease_name == 'MALARIA':
