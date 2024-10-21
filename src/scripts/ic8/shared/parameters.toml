@@ -853,6 +853,422 @@ type="count"
 use_scaling=true
 
 [[TB.indicator]]
+name="cases0to4"
+description="number of new tb infections amongst those 0 to 4"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases5to9"
+description="number of new tb infections amongst those 5 to 9"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases10to14"
+description="number of new tb infections amongst those 10 to 14"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases15to19"
+description="number of new tb infections amongst those 15 to 19"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases20to24"
+description="number of new tb infections amongst those 20 to 24"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases25to29"
+description="number of new tb infections amongst those 25 to 29"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases30to34"
+description="number of new tb infections amongst those 30 to 34"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases35to39"
+description="number of new tb infections amongst those 35 to 39"
+type="count"
+
+[[TB.indicator]]
+name="cases40to44"
+description="number of new tb infections amongst those 40 to 44"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases45to49"
+description="number of new tb infections amongst those 45 to 49"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases50to54"
+description="number of new tb infections amongst those 50 to 54"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases55to59"
+description="number of new tb infections amongst those 55 to 59"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases60to64"
+description="number of new tb infections amongst those 60 to 64"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases65to69"
+description="number of new tb infections amongst those 65 to 69"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases70to74"
+description="number of new tb infections amongst those 70 to 74"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases75to79"
+description="number of new tb infections amongst those 75 to 79"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="cases80"
+description="number of new tb infections amongst those 80 plus"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths0to4"
+description="number of tb related deaths amongst those 0 to 4"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths5to9"
+description="number of tb related deaths amongst those 5 to 9"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths10to14"
+description="number of tb related deaths amongst those 10 to 14"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths15to19"
+description="number of tb related deaths amongst those 15 to 19"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths20to24"
+description="number of tb related deaths amongst those 20 to 24"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths25to29"
+description="number of tb related deaths amongst those 25 to 29"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths30to34"
+description="number of tb related deaths amongst those 30 to 34"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths35to39"
+description="number of tb related deaths amongst those 35 to 39"
+type="count"
+
+[[TB.indicator]]
+name="deaths40to44"
+description="number of tb related deaths amongst those 40 to 44"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths45to49"
+description="number of tb related deaths amongst those 45 to 49"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths50to54"
+description="number of tb related deaths amongst those 50 to 54"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths55to59"
+description="number of tb related deaths amongst those 55 to 59"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths60to64"
+description="number of tb related deaths amongst those 60 to 64"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths65to69"
+description="number of tb related deaths amongst those 65 to 69"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths70to74"
+description="number of tb related deaths amongst those 70 to 74"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths75to79"
+description="number of tb related deaths amongst those 75 to 79"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deaths80"
+description="number of tb related deaths amongst those 80 plus"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg0to4"
+description="number of tb deaths amongst hiv-negative individuals amongst those 0 to 4"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg5to9"
+description="number of tb deaths amongst hiv-negative individuals amongst those 5 to 9"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg10to14"
+description="number of tb deaths amongst hiv-negative individuals amongst those 10 to 14"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg15to19"
+description="number of tb deaths amongst hiv-negative individuals amongst those 15 to 19"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg20to24"
+description="number of tb deaths amongst hiv-negative individuals amongst those 20 to 24"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg25to29"
+description="number of tb deaths amongst hiv-negative individuals amongst those 25 to 29"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg30to34"
+description="number of tb deaths amongst hiv-negative individuals amongst those 30 to 34"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg35to39"
+description="number of tb deaths amongst hiv-negative individuals amongst those 35 to 39"
+type="count"
+
+[[TB.indicator]]
+name="deathshivneg40to44"
+description="number of tb deaths amongst hiv-negative individuals amongst those 40 to 44"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg45to49"
+description="number of tb deaths amongst hiv-negative individuals amongst those 45 to 49"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg50to54"
+description="number of tb deaths amongst hiv-negative individuals amongst those 50 to 54"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg55to59"
+description="number of tb deaths amongst hiv-negative individuals amongst those 55 to 59"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg60to64"
+description="number of tb deaths amongst hiv-negative individuals amongst those 60 to 64"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg65to69"
+description="number of tb deaths amongst hiv-negative individuals amongst those 65 to 69"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg70to74"
+description="number of tb deaths amongst hiv-negative individuals amongst those 70 to 74"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg75to79"
+description="number of tb deaths amongst hiv-negative individuals amongst those 75 to 79"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="deathshivneg80"
+description="number of tb deaths amongst hiv-negative individuals amongst those 80 plus"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population0to4"
+description="total population aged 0 to 4"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population5to9"
+description="total population aged 5 to 9"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population10to14"
+description="total population aged 10 to 14"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population15to19"
+description="total population aged 15 to 19"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population20to24"
+description="total population aged 20 to 24"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population25to29"
+description="total population aged 25 to 29"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population30to34"
+description="total population aged 30 to 34"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population35to39"
+description="total population aged 35 to 39"
+type="count"
+
+[[TB.indicator]]
+name="population40to44"
+description="total population aged 40 to 44"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population45to49"
+description="total population aged 45 to 49"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population50to54"
+description="total population aged 50 to 54"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population55to59"
+description="total population aged 55 to 59"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population60to64"
+description="total population aged 60 to 64"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population65to69"
+description="total population aged 65 to 69"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population70to74"
+description="total population aged 70 to 74"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population75to79"
+description="total population aged 75 to 79"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="population80"
+description="total population aged 80 plus"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="yld"
+description="number of yld"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
+name="yldhivneg"
+description="number of yld hiv neg"
+type="count"
+use_scaling=false
+
+[[TB.indicator]]
 name="plhiv"
 description="number of plhiv"
 type="count"
