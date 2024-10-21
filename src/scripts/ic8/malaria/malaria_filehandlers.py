@@ -243,8 +243,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # Get costs without vaccine
         df['TotalCost'] = df["total_cost"]
         df['total_cost'] = df["TotalCost"] - df["cost_vaccine"]
-
-        # Only keep columns of immediate interest:
         cols_needed = [
                 "iso3",
                 "year",
@@ -283,7 +281,22 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "cost_private",
                 "cost_vaccine",
                 "vaccine_compete",
+                "cases_0_4",
+                "cases_5_14",
+                "cases_15_plus",
+                "deaths_0_4",
+                "deaths_5_14",
+                "deaths_15_plus",
+                "par_0_4",
+                "par_5_14",
+                "par_15_plus",
+                "yld",
+                "yld_lb",
+                "yld_ub",
+
         ]
+
+        # Only keep columns of immediate interest:
         df = df[cols_needed]
 
         # TODO: If we want to switch back to smoothed cases/deaths uncomment below and above smoothed cases/deaths
@@ -325,6 +338,18 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "total_cost",
             "cost_private",
             "cost_vaccine",
+            "cases_0_4",
+            "cases_5_14",
+            "cases_15_plus",
+            "deaths_0_4",
+            "deaths_5_14",
+            "deaths_15_plus",
+            "par_0_4",
+            "par_5_14",
+            "par_15_plus",
+            "yld",
+            "yld_lb",
+            "yld_ub",
         ]] = df_gp[[
             "net_n",
             "irs_people_protected",
@@ -346,6 +371,18 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "total_cost",
             "cost_private",
             "cost_vaccine",
+            "cases_0_4",
+            "cases_5_14",
+            "cases_15_plus",
+            "deaths_0_4",
+            "deaths_5_14",
+            "deaths_15_plus",
+            "par_0_4",
+            "par_5_14",
+            "par_15_plus",
+            "yld",
+            "yld_lb",
+            "yld_ub",
             ]].fillna(0)
 
         # Then put GP back into df
@@ -369,6 +406,10 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "deaths": "deaths_central",
                 "deaths_lb": "deaths_low",
                 "deaths_ub": "deaths_high",
+                "yld": "yld_central",
+                "yld_lb": "yld_low",
+                "yld_ub": "yld_high",
+
             }
         )
 
@@ -385,6 +426,51 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df["par_central"] = df["par"]
         df["par_high"] = df["par"]
         df = df.drop(columns=["par"])
+
+        df["par0to4_low"] = df["par_0_4"]
+        df["par0to4_central"] = df["par_0_4"]
+        df["par0to4_high"] = df["par_0_4"]
+        df = df.drop(columns=["par_0_4"])
+
+        df["par5to14_low"] = df["par_5_14"]
+        df["par5to14_central"] = df["par_5_14"]
+        df["par5to14_high"] = df["par_5_14"]
+        df = df.drop(columns=["par_5_14"])
+
+        df["par15plus_low"] = df["par_15_plus"]
+        df["par15plus_central"] = df["par_15_plus"]
+        df["par15plus_high"] = df["par_15_plus"]
+        df = df.drop(columns=["par_15_plus"])
+
+        df["cases0to4_low"] = df["cases_0_4"]
+        df["cases0to4_central"] = df["cases_0_4"]
+        df["cases0to4_high"] = df["cases_0_4"]
+        df = df.drop(columns=["cases_0_4"])
+
+        df["cases5to14_low"] = df["cases_5_14"]
+        df["cases5to14_central"] = df["cases_5_14"]
+        df["cases5to14_high"] = df["cases_5_14"]
+        df = df.drop(columns=["cases_5_14"])
+
+        df["cases15plus_low"] = df["cases_15_plus"]
+        df["cases15plus_central"] = df["cases_15_plus"]
+        df["cases15plus_high"] = df["cases_15_plus"]
+        df = df.drop(columns=["cases_15_plus"])
+
+        df["deaths0to4_low"] = df["deaths_0_4"]
+        df["deaths0to4_central"] = df["deaths_0_4"]
+        df["deaths0to4_high"] = df["deaths_0_4"]
+        df = df.drop(columns=["deaths_0_4"])
+
+        df["deaths5to14_low"] = df["deaths_5_14"]
+        df["deaths5to14_central"] = df["deaths_5_14"]
+        df["deaths5to14_high"] = df["deaths_5_14"]
+        df = df.drop(columns=["deaths_5_14"])
+
+        df["deaths15plus_low"] = df["deaths_15_plus"]
+        df["deaths15plus_central"] = df["deaths_15_plus"]
+        df["deaths15plus_high"] = df["deaths_15_plus"]
+        df = df.drop(columns=["deaths_15_plus"])
 
         df["llins_low"] = df["net_n"]
         df["llins_central"] = df["net_n"]

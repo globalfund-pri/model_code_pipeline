@@ -659,7 +659,7 @@ PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', '
 # After debugging
 #MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'ZMB', 'ZWE']
 # Main analysis
-# Add BGD and VNm back in
+# Add BGD and VNM back in
 MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'ZMB', 'ZWE']
 #Resource need
 #MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
@@ -682,16 +682,70 @@ type="count"
 use_scaling=true
 
 [[MALARIA.indicator]]
+name="cases0to4"
+description="number of malaria cases amongst 0 to 4 year olds"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="cases5to14"
+description="number of malaria cases amongst 5 to 14 year olds"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="cases14plus"
+description="number of malaria cases amongst people 14 years old and over"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
 name="deaths"
 description="number of malaria related deaths"
 type="count"
 use_scaling=true
 
 [[MALARIA.indicator]]
+name="deaths0to4"
+description="number of malaria deaths amongst 0 to 4 year olds"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="deaths5to14"
+description="number of malaria deaths amongst 5 to 14 year olds"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="deaths14plus"
+description="number of malaria deaths amongst people 14 years old and over"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
 name="par"
 description="population at risk"
 type="count"
 use_scaling=true
+
+[[MALARIA.indicator]]
+name="pars0to4"
+description="population at risk aged 0 to 4 year olds"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="par5to14"
+description="population at risk aged 5 to 14 year olds"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="aged14plus"
+description="population at risk aged 14 years old and over"
+type="count"
+use_scaling=false
 
 [[MALARIA.indicator]]
 name="partargetedsmc"
@@ -715,6 +769,12 @@ use_scaling=false
 name="mortality"
 description="mortality rate related to malaria for a given year"
 type="rate"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="yld"
+description="years of healthy life lost due to disability or ill-health"
+type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]

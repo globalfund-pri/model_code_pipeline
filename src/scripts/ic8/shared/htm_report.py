@@ -86,7 +86,7 @@ class HTMReport(Report):
         hiv_mortality_reduction = (hiv_mortality_2029 / hiv_mortality_2023 - 1) * 100
 
         hiv_mortality_2021 = self.hiv.PARTNER["deaths"].at[2021] / \
-                             self.hiv.PARTNER["population"].at[2021]
+                             self.hiv.PARTNER["plhiv"].at[2021]
         hiv_mortality_2028 = self.hiv.IC.portfolio_results["deaths"].at[2028, "model_central"] / \
                              self.hiv.IC.portfolio_results["population"].at[2028, "model_central"]
         hiv_mortality_reduction_st = (hiv_mortality_2028 / hiv_mortality_2021 - 1) * 100
@@ -615,7 +615,7 @@ class HTMReport(Report):
         tb_deaths_partner = self.tb.PARTNER["deathshivneg"]
         malaria_deaths_partner = self.malaria.PARTNER["deaths"]
 
-        hiv_pop_partner = self.hiv.PARTNER["population"]
+        hiv_pop_partner = self.hiv.PARTNER["plhiv"]
         tb_pop_partner = self.tb.PARTNER["population"]
         malaria_pop_partner = self.malaria.PARTNER["par"]
 
@@ -822,7 +822,7 @@ class HTMReport(Report):
         reduction_cf = combined_mortality_cf.loc[2029, 0] - 100
 
         # Clean up so we can output the graphs
-        actual = combined_mortality.loc[combined_mortality.index <2024].iloc[:,0]
+        actual = combined_mortality.loc[combined_mortality.index <2023].iloc[:,0]
         gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2019].iloc[:,0]
         cf = combined_mortality_cf.loc[combined_mortality_cf.index >2022].iloc[:,0]
         ic = combined_mortality.loc[combined_mortality.index > 2022].iloc[:,0]
@@ -1065,7 +1065,7 @@ class HTMReport(Report):
         reduction_cf = combined_incidence_cf.loc[2029, 0] - 100
 
         # Clean up so we can output the graphs
-        actual = combined_incidence.loc[combined_incidence.index <2024].iloc[:,0]
+        actual = combined_incidence.loc[combined_incidence.index <2023].iloc[:,0]
         gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2019].iloc[:,0]
         cf = combined_incidence_cf.loc[combined_incidence_cf.index >2022].iloc[:,0]
         ic = combined_incidence.loc[combined_incidence.index > 2022].iloc[:,0]
