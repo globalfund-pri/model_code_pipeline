@@ -255,6 +255,312 @@ type="count"
 use_scaling=false
 
 [[HIV.indicator]]
+name="plhiv0to4"
+description="number of plhiv aged 0 to 4 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv5to9"
+description="number of plhiv aged 5 to 9 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv10to14"
+description="number of plhiv aged 10 to 14 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv15to19"
+description="number of plhiv aged 15 to 19 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv20to24"
+description="number of plhiv aged 20 to 24 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv25to29"
+description="number of plhiv aged 25 to 29 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv30to34"
+description="number of plhiv aged 30 to 34 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv35to39"
+description="number of plhiv aged 35 to 39 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv40to44"
+description="number of plhiv aged 40 to 44 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv45to49"
+description="number of plhiv aged 45 to 49 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv50to54"
+description="number of plhiv aged 50 to 54 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv55to59"
+description="number of plhiv aged 55 to 59 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv60to64"
+description="number of plhiv aged 60 to 64 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv65to69"
+description="number of plhiv aged 65 to 69 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv70to74"
+description="number of plhiv aged 70 to 74 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv75to79"
+description="number of plhiv aged 75 to 79 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="plhiv80"
+description="number of plhiv aged over 80 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population0to4"
+description="number of population aged 0 to 4 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population5to9"
+description="number of population aged 5 to 9 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population10to14"
+description="number of population aged 10 to 14 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population15to19"
+description="number of population aged 15 to 19 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population20to24"
+description="number of population aged 20 to 24 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population25to29"
+description="number of population aged 25 to 29 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population30to34"
+description="number of population aged 30 to 34 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population35to39"
+description="number of population aged 35 to 39 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population40to44"
+description="number of population aged 40 to 44 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population45to49"
+description="number of population aged 45 to 49 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population50to54"
+description="number of population aged 50 to 54 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population55to59"
+description="number of population aged 55 to 59 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population60to64"
+description="number of population aged 60 to 64 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population65to69"
+description="number of population aged 65 to 69 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population70to74"
+description="number of population aged 70 to 74 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population75to79"
+description="number of population aged 75 to 79 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="population80"
+description="number of population aged over 80 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases0to4"
+description="number of cases aged 0 to 4 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases5to9"
+description="number of cases aged 5 to 9 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases10to14"
+description="number of cases aged 10 to 14 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases15to19"
+description="number of cases aged 15 to 19 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases20to24"
+description="number of cases aged 20 to 24 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases25to29"
+description="number of cases aged 25 to 29 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases30to34"
+description="number of cases aged 30 to 34 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases35to39"
+description="number of cases aged 35 to 39 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases40to44"
+description="number of cases aged 40 to 44 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases45to49"
+description="number of cases aged 45 to 49 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases50to54"
+description="number of cases aged 50 to 54 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases55to59"
+description="number of cases aged 55 to 59 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases60to64"
+description="number of cases aged 60 to 64 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases65to69"
+description="number of cases aged 65 to 69 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases70to74"
+description="number of cases aged 70 to 74 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases75to79"
+description="number of cases aged 75 to 79 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="cases80"
+description="number of cases aged over 80 year olds"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="deaths0to4"
 description="number of HIV related deaths amongst 0 to 4 year olds"
 type="count"

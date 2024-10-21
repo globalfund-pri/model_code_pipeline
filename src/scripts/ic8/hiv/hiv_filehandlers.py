@@ -220,6 +220,57 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "ART_total_LB",
                 "ART_total_UB",
                 "ART_cov",
+                'PLHIV0_4',
+                'PLHIV5_9',
+                'PLHIV10_14',
+                'PLHIV15_19',
+                'PLHIV20_24',
+                'PLHIV25_29',
+                'PLHIV30_34',
+                'PLHIV35_39',
+                'PLHIV40_44',
+                'PLHIV45_49',
+                'PLHIV50_54',
+                'PLHIV55_59',
+                'PLHIV60_64',
+                'PLHIV65_69',
+                'PLHIV70_74',
+                'PLHIV75_79',
+                'PLHIV80',
+                'Population0_4',
+                'Population5_9',
+                'Population10_14',
+                'Population15_19',
+                'Population20_24',
+                'Population25_29',
+                'Population30_34',
+                'Population35_39',
+                'Population40_44',
+                'Population45_49',
+                'Population50_54',
+                'Population55_59',
+                'Population60_64',
+                'Population65_69',
+                'Population70_74',
+                'Population75_79',
+                'Population80',
+                'New_infections_0_4',
+                'New_infections_5_9',
+                'New_infections_10_14',
+                'New_infections_15_19',
+                'New_infections_20_24',
+                'New_infections_25_29',
+                'New_infections_30_34',
+                'New_infections_35_39',
+                'New_infections_40_44',
+                'New_infections_45_49',
+                'New_infections_50_54',
+                'New_infections_55_59',
+                'New_infections_60_64',
+                'New_infections_65_69',
+                'New_infections_70_74',
+                'New_infections_75_79',
+                'New_infections_80',
                 'Deaths_0_4',
                 'Deaths_5_9',
                 'Deaths_10_14',
@@ -316,6 +367,57 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # 2. Replace nan with zeros
         df_gp[[
             "ART_cov",
+            'PLHIV0_4',
+            'PLHIV5_9',
+            'PLHIV10_14',
+            'PLHIV15_19',
+            'PLHIV20_24',
+            'PLHIV25_29',
+            'PLHIV30_34',
+            'PLHIV35_39',
+            'PLHIV40_44',
+            'PLHIV45_49',
+            'PLHIV50_54',
+            'PLHIV55_59',
+            'PLHIV60_64',
+            'PLHIV65_69',
+            'PLHIV70_74',
+            'PLHIV75_79',
+            'PLHIV80',
+            'Population0_4',
+            'Population5_9',
+            'Population10_14',
+            'Population15_19',
+            'Population20_24',
+            'Population25_29',
+            'Population30_34',
+            'Population35_39',
+            'Population40_44',
+            'Population45_49',
+            'Population50_54',
+            'Population55_59',
+            'Population60_64',
+            'Population65_69',
+            'Population70_74',
+            'Population75_79',
+            'Population80',
+            'New_infections_0_4',
+            'New_infections_5_9',
+            'New_infections_10_14',
+            'New_infections_15_19',
+            'New_infections_20_24',
+            'New_infections_25_29',
+            'New_infections_30_34',
+            'New_infections_35_39',
+            'New_infections_40_44',
+            'New_infections_45_49',
+            'New_infections_50_54',
+            'New_infections_55_59',
+            'New_infections_60_64',
+            'New_infections_65_69',
+            'New_infections_70_74',
+            'New_infections_75_79',
+            'New_infections_80',
             'Deaths_0_4',
             'Deaths_5_9',
             'Deaths_10_14',
@@ -355,43 +457,94 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             'notx_less5_11_15',
             'notx_less5_5_10',
             'notx_less5_less5',
-                "PMTCT_num",
-                "PMTCT_num_LB",
-                "PMTCT_num_UB",
-                "PMTCT_need",
-                "PMTCT_need_LB",
-                "PMTCT_need_UB",
-                "PMTCT_cov",
-                "FSW_cov",
-                "MSM_cov",
-                "PWID_cov",
-                "PrEP",
-                "PrEP_LB",
-                "PrEP_UB",
-                "FSW_PrEP",
-                "FSW_PrEP_LB",
-                "FSW_PrEP_UB",
-                "MSM_PrEP",
-                "MSM_PrEP_LB",
-                "MSM_PrEP_UB",
-                "PWID_PrEP",
-                "PWID_PrEP_LB",
-                "PWID_PrEP_UB",
-                "OST",
-                "OST_LB",
-                "OST_UB",
-                "KOS",
-                "KOS_LB",
-                "KOS_UB",
-                "VS",
-                "VS_LB",
-                "VS_UB",
-                "VMMC_n",
-                "VMMC_n_LB",
-                "VMMC_n_UB",
-                "Total_cost",
+            "PMTCT_num",
+            "PMTCT_num_LB",
+            "PMTCT_num_UB",
+            "PMTCT_need",
+            "PMTCT_need_LB",
+            "PMTCT_need_UB",
+            "PMTCT_cov",
+            "FSW_cov",
+            "MSM_cov",
+            "PWID_cov",
+            "PrEP",
+            "PrEP_LB",
+            "PrEP_UB",
+            "FSW_PrEP",
+            "FSW_PrEP_LB",
+            "FSW_PrEP_UB",
+            "MSM_PrEP",
+            "MSM_PrEP_LB",
+            "MSM_PrEP_UB",
+            "PWID_PrEP",
+            "PWID_PrEP_LB",
+            "PWID_PrEP_UB",
+            "OST",
+            "OST_LB",
+            "OST_UB",
+            "KOS",
+            "KOS_LB",
+            "KOS_UB",
+            "VS",
+            "VS_LB",
+            "VS_UB",
+            "VMMC_n",
+            "VMMC_n_LB",
+            "VMMC_n_UB",
+            "Total_cost",
         ]] = df_gp[[
             "ART_cov",
+            'PLHIV0_4',
+            'PLHIV5_9',
+            'PLHIV10_14',
+            'PLHIV15_19',
+            'PLHIV20_24',
+            'PLHIV25_29',
+            'PLHIV30_34',
+            'PLHIV35_39',
+            'PLHIV40_44',
+            'PLHIV45_49',
+            'PLHIV50_54',
+            'PLHIV55_59',
+            'PLHIV60_64',
+            'PLHIV65_69',
+            'PLHIV70_74',
+            'PLHIV75_79',
+            'PLHIV80',
+            'Population0_4',
+            'Population5_9',
+            'Population10_14',
+            'Population15_19',
+            'Population20_24',
+            'Population25_29',
+            'Population30_34',
+            'Population35_39',
+            'Population40_44',
+            'Population45_49',
+            'Population50_54',
+            'Population55_59',
+            'Population60_64',
+            'Population65_69',
+            'Population70_74',
+            'Population75_79',
+            'Population80',
+            'New_infections_0_4',
+            'New_infections_5_9',
+            'New_infections_10_14',
+            'New_infections_15_19',
+            'New_infections_20_24',
+            'New_infections_25_29',
+            'New_infections_30_34',
+            'New_infections_35_39',
+            'New_infections_40_44',
+            'New_infections_45_49',
+            'New_infections_50_54',
+            'New_infections_55_59',
+            'New_infections_60_64',
+            'New_infections_65_69',
+            'New_infections_70_74',
+            'New_infections_75_79',
+            'New_infections_80',
             'Deaths_0_4',
             'Deaths_5_9',
             'Deaths_10_14',
@@ -546,6 +699,261 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["artcoverage_central"] = csv_df["ART_cov"]
         csv_df["artcoverage_high"] = csv_df["ART_cov"]
         csv_df = csv_df.drop(columns=["ART_cov"])
+
+        csv_df["plhiv0to4_low"] = csv_df["PLHIV0_4"]
+        csv_df["plhiv0to4_central"] = csv_df["PLHIV0_4"]
+        csv_df["plhiv0to4_high"] = csv_df["PLHIV0_4"]
+        csv_df = csv_df.drop(columns=["PLHIV0_4"])
+
+        csv_df["plhiv5to9_low"] = csv_df["PLHIV5_9"]
+        csv_df["plhiv5to9_central"] = csv_df["PLHIV5_9"]
+        csv_df["plhiv5to9_high"] = csv_df["PLHIV5_9"]
+        csv_df = csv_df.drop(columns=["PLHIV5_9"])
+
+        csv_df["plhiv10to14_low"] = csv_df["PLHIV10_14"]
+        csv_df["plhiv10to14_central"] = csv_df["PLHIV10_14"]
+        csv_df["plhiv10to14_high"] = csv_df["PLHIV10_14"]
+        csv_df = csv_df.drop(columns=["PLHIV10_14"])
+
+        csv_df["plhiv15to19_low"] = csv_df["PLHIV15_19"]
+        csv_df["plhiv15to19_central"] = csv_df["PLHIV15_19"]
+        csv_df["plhiv15to19_high"] = csv_df["PLHIV15_19"]
+        csv_df = csv_df.drop(columns=["PLHIV15_19"])
+
+        csv_df["plhiv20to24_low"] = csv_df["PLHIV20_24"]
+        csv_df["plhiv20to24_central"] = csv_df["PLHIV20_24"]
+        csv_df["plhiv20to24_high"] = csv_df["PLHIV20_24"]
+        csv_df = csv_df.drop(columns=["PLHIV20_24"])
+
+        csv_df["plhiv25to29_low"] = csv_df["PLHIV25_29"]
+        csv_df["plhiv25to29_central"] = csv_df["PLHIV25_29"]
+        csv_df["plhiv25to29_high"] = csv_df["PLHIV25_29"]
+        csv_df = csv_df.drop(columns=["PLHIV25_29"])
+
+        csv_df["plhiv30to34_low"] = csv_df["PLHIV30_34"]
+        csv_df["plhiv30to34_central"] = csv_df["PLHIV30_34"]
+        csv_df["plhiv30to34_high"] = csv_df["PLHIV30_34"]
+        csv_df = csv_df.drop(columns=["PLHIV30_34"])
+
+        csv_df["plhiv35to39_low"] = csv_df["PLHIV35_39"]
+        csv_df["plhiv35to39_central"] = csv_df["PLHIV35_39"]
+        csv_df["plhiv35to39_high"] = csv_df["PLHIV35_39"]
+        csv_df = csv_df.drop(columns=["PLHIV35_39"])
+
+        csv_df["plhiv40to44_low"] = csv_df["PLHIV40_44"]
+        csv_df["plhiv40to44_central"] = csv_df["PLHIV40_44"]
+        csv_df["plhiv40to44_high"] = csv_df["PLHIV40_44"]
+        csv_df = csv_df.drop(columns=["PLHIV40_44"])
+
+        csv_df["plhiv45to49_low"] = csv_df["PLHIV45_49"]
+        csv_df["plhiv45to49_central"] = csv_df["PLHIV45_49"]
+        csv_df["plhiv45to49_high"] = csv_df["PLHIV45_49"]
+        csv_df = csv_df.drop(columns=["PLHIV45_49"])
+
+        csv_df["plhiv50to54_low"] = csv_df["PLHIV50_54"]
+        csv_df["plhiv50to54_central"] = csv_df["PLHIV50_54"]
+        csv_df["plhiv50to54_high"] = csv_df["PLHIV50_54"]
+        csv_df = csv_df.drop(columns=["PLHIV50_54"])
+
+        csv_df["plhiv55to59_low"] = csv_df["PLHIV55_59"]
+        csv_df["plhiv55to59_central"] = csv_df["PLHIV55_59"]
+        csv_df["plhiv55to59_high"] = csv_df["PLHIV55_59"]
+        csv_df = csv_df.drop(columns=["PLHIV55_59"])
+
+        csv_df["plhiv60to64_low"] = csv_df["PLHIV60_64"]
+        csv_df["plhiv60to64_central"] = csv_df["PLHIV60_64"]
+        csv_df["plhiv60to64_high"] = csv_df["PLHIV60_64"]
+        csv_df = csv_df.drop(columns=["PLHIV60_64"])
+
+        csv_df["plhiv65to69_low"] = csv_df["PLHIV65_69"]
+        csv_df["plhiv65to69_central"] = csv_df["PLHIV65_69"]
+        csv_df["plhiv65to69_high"] = csv_df["PLHIV65_69"]
+        csv_df = csv_df.drop(columns=["PLHIV65_69"])
+
+        csv_df["plhiv70to74_low"] = csv_df["PLHIV70_74"]
+        csv_df["plhiv70to74_central"] = csv_df["PLHIV70_74"]
+        csv_df["plhiv70to74_high"] = csv_df["PLHIV70_74"]
+        csv_df = csv_df.drop(columns=["PLHIV70_74"])
+
+        csv_df["plhiv75to79_low"] = csv_df["PLHIV75_79"]
+        csv_df["plhiv75to79_central"] = csv_df["PLHIV75_79"]
+        csv_df["plhiv75to79_high"] = csv_df["PLHIV75_79"]
+        csv_df = csv_df.drop(columns=["PLHIV75_79"])
+
+        csv_df["plhiv80_low"] = csv_df["PLHIV80"]
+        csv_df["plhiv80_central"] = csv_df["PLHIV80"]
+        csv_df["plhiv80_high"] = csv_df["PLHIV80"]
+        csv_df = csv_df.drop(columns=["PLHIV80"])
+
+        csv_df["population0to4_low"] = csv_df["Population0_4"]
+        csv_df["population0to4_central"] = csv_df["Population0_4"]
+        csv_df["population0to4_high"] = csv_df["Population0_4"]
+        csv_df = csv_df.drop(columns=["Population0_4"])
+
+        csv_df["population5to9_low"] = csv_df["Population5_9"]
+        csv_df["population5to9_central"] = csv_df["Population5_9"]
+        csv_df["population5to9_high"] = csv_df["Population5_9"]
+        csv_df = csv_df.drop(columns=["Population5_9"])
+
+        csv_df["population10to14_low"] = csv_df["Population10_14"]
+        csv_df["population10to14_central"] = csv_df["Population10_14"]
+        csv_df["population10to14_high"] = csv_df["Population10_14"]
+        csv_df = csv_df.drop(columns=["Population10_14"])
+
+        csv_df["population15to19_low"] = csv_df["Population15_19"]
+        csv_df["population15to19_central"] = csv_df["Population15_19"]
+        csv_df["population15to19_high"] = csv_df["Population15_19"]
+        csv_df = csv_df.drop(columns=["Population15_19"])
+
+        csv_df["population20to24_low"] = csv_df["Population20_24"]
+        csv_df["population20to24_central"] = csv_df["Population20_24"]
+        csv_df["population20to24_high"] = csv_df["Population20_24"]
+        csv_df = csv_df.drop(columns=["Population20_24"])
+
+        csv_df["population25to29_low"] = csv_df["Population25_29"]
+        csv_df["population25to29_central"] = csv_df["Population25_29"]
+        csv_df["population25to29_high"] = csv_df["Population25_29"]
+        csv_df = csv_df.drop(columns=["Population25_29"])
+
+        csv_df["population30to34_low"] = csv_df["Population30_34"]
+        csv_df["population30to34_central"] = csv_df["Population30_34"]
+        csv_df["population30to34_high"] = csv_df["Population30_34"]
+        csv_df = csv_df.drop(columns=["Population30_34"])
+
+        csv_df["population35to39_low"] = csv_df["Population35_39"]
+        csv_df["population35to39_central"] = csv_df["Population35_39"]
+        csv_df["population35to39_high"] = csv_df["Population35_39"]
+        csv_df = csv_df.drop(columns=["Population35_39"])
+
+        csv_df["population40to44_low"] = csv_df["Population40_44"]
+        csv_df["population40to44_central"] = csv_df["Population40_44"]
+        csv_df["population40to44_high"] = csv_df["Population40_44"]
+        csv_df = csv_df.drop(columns=["Population40_44"])
+
+        csv_df["population45to49_low"] = csv_df["Population45_49"]
+        csv_df["population45to49_central"] = csv_df["Population45_49"]
+        csv_df["population45to49_high"] = csv_df["Population45_49"]
+        csv_df = csv_df.drop(columns=["Population45_49"])
+
+        csv_df["population50to54_low"] = csv_df["Population50_54"]
+        csv_df["population50to54_central"] = csv_df["Population50_54"]
+        csv_df["population50to54_high"] = csv_df["Population50_54"]
+        csv_df = csv_df.drop(columns=["Population50_54"])
+
+        csv_df["population55to59_low"] = csv_df["Population55_59"]
+        csv_df["population55to59_central"] = csv_df["Population55_59"]
+        csv_df["population55to59_high"] = csv_df["Population55_59"]
+        csv_df = csv_df.drop(columns=["Population55_59"])
+
+        csv_df["population60to64_low"] = csv_df["Population60_64"]
+        csv_df["population60to64_central"] = csv_df["Population60_64"]
+        csv_df["population60to64_high"] = csv_df["Population60_64"]
+        csv_df = csv_df.drop(columns=["Population60_64"])
+
+        csv_df["population65to69_low"] = csv_df["Population65_69"]
+        csv_df["population65to69_central"] = csv_df["Population65_69"]
+        csv_df["population65to69_high"] = csv_df["Population65_69"]
+        csv_df = csv_df.drop(columns=["Population65_69"])
+
+        csv_df["population70to74_low"] = csv_df["Population70_74"]
+        csv_df["population70to74_central"] = csv_df["Population70_74"]
+        csv_df["population70to74_high"] = csv_df["Population70_74"]
+        csv_df = csv_df.drop(columns=["Population70_74"])
+
+        csv_df["population75to79_low"] = csv_df["Population75_79"]
+        csv_df["population75to79_central"] = csv_df["Population75_79"]
+        csv_df["population75to79_high"] = csv_df["Population75_79"]
+        csv_df = csv_df.drop(columns=["Population75_79"])
+
+        csv_df["population80_low"] = csv_df["Population80"]
+        csv_df["population80_central"] = csv_df["Population80"]
+        csv_df["population80_high"] = csv_df["Population80"]
+        csv_df = csv_df.drop(columns=["Population80"])
+
+        csv_df["cases0to4_low"] = csv_df["New_infections_0_4"]
+        csv_df["cases0to4_central"] = csv_df["New_infections_0_4"]
+        csv_df["cases0to4_high"] = csv_df["New_infections_0_4"]
+        csv_df = csv_df.drop(columns=["New_infections_0_4"])
+
+        csv_df["cases5to9_low"] = csv_df["New_infections_5_9"]
+        csv_df["cases5to9_central"] = csv_df["New_infections_5_9"]
+        csv_df["cases5to9_high"] = csv_df["New_infections_5_9"]
+        csv_df = csv_df.drop(columns=["New_infections_5_9"])
+
+        csv_df["cases10to14_low"] = csv_df["New_infections_10_14"]
+        csv_df["cases10to14_central"] = csv_df["New_infections_10_14"]
+        csv_df["cases10to14_high"] = csv_df["New_infections_10_14"]
+        csv_df = csv_df.drop(columns=["New_infections_10_14"])
+
+        csv_df["cases15to19_low"] = csv_df["New_infections_15_19"]
+        csv_df["cases15to19_central"] = csv_df["New_infections_15_19"]
+        csv_df["cases15to19_high"] = csv_df["New_infections_15_19"]
+        csv_df = csv_df.drop(columns=["New_infections_15_19"])
+
+        csv_df["cases20to24_low"] = csv_df["New_infections_20_24"]
+        csv_df["cases20to24_central"] = csv_df["New_infections_20_24"]
+        csv_df["cases20to24_high"] = csv_df["New_infections_20_24"]
+        csv_df = csv_df.drop(columns=["New_infections_20_24"])
+
+        csv_df["cases25to29_low"] = csv_df["New_infections_25_29"]
+        csv_df["cases25to29_central"] = csv_df["New_infections_25_29"]
+        csv_df["cases25to29_high"] = csv_df["New_infections_25_29"]
+        csv_df = csv_df.drop(columns=["New_infections_25_29"])
+
+        csv_df["cases30to34_low"] = csv_df["New_infections_30_34"]
+        csv_df["cases30to34_central"] = csv_df["New_infections_30_34"]
+        csv_df["cases30to34_high"] = csv_df["New_infections_30_34"]
+        csv_df = csv_df.drop(columns=["New_infections_30_34"])
+
+        csv_df["cases35to39_low"] = csv_df["New_infections_35_39"]
+        csv_df["cases35to39_central"] = csv_df["New_infections_35_39"]
+        csv_df["cases35to39_high"] = csv_df["New_infections_35_39"]
+        csv_df = csv_df.drop(columns=["New_infections_35_39"])
+
+        csv_df["cases40to44_low"] = csv_df["New_infections_40_44"]
+        csv_df["cases40to44_central"] = csv_df["New_infections_40_44"]
+        csv_df["cases40to44_high"] = csv_df["New_infections_40_44"]
+        csv_df = csv_df.drop(columns=["New_infections_40_44"])
+
+        csv_df["cases45to49_low"] = csv_df["New_infections_45_49"]
+        csv_df["cases45to49_central"] = csv_df["New_infections_45_49"]
+        csv_df["cases45to49_high"] = csv_df["New_infections_45_49"]
+        csv_df = csv_df.drop(columns=["New_infections_45_49"])
+
+        csv_df["cases50to54_low"] = csv_df["New_infections_50_54"]
+        csv_df["cases50to54_central"] = csv_df["New_infections_50_54"]
+        csv_df["cases50to54_high"] = csv_df["New_infections_50_54"]
+        csv_df = csv_df.drop(columns=["New_infections_50_54"])
+
+        csv_df["cases55to59_low"] = csv_df["New_infections_55_59"]
+        csv_df["cases55to59_central"] = csv_df["New_infections_55_59"]
+        csv_df["cases55to59_high"] = csv_df["New_infections_55_59"]
+        csv_df = csv_df.drop(columns=["New_infections_55_59"])
+
+        csv_df["cases60to64_low"] = csv_df["New_infections_60_64"]
+        csv_df["cases60to64_central"] = csv_df["New_infections_60_64"]
+        csv_df["cases60to64_high"] = csv_df["New_infections_60_64"]
+        csv_df = csv_df.drop(columns=["New_infections_60_64"])
+
+        csv_df["cases65to69_low"] = csv_df["New_infections_65_69"]
+        csv_df["cases65to69_central"] = csv_df["New_infections_65_69"]
+        csv_df["cases65to69_high"] = csv_df["New_infections_65_69"]
+        csv_df = csv_df.drop(columns=["New_infections_65_69"])
+
+        csv_df["cases70to74_low"] = csv_df["New_infections_70_74"]
+        csv_df["cases70to74_central"] = csv_df["New_infections_70_74"]
+        csv_df["cases70to74_high"] = csv_df["New_infections_70_74"]
+        csv_df = csv_df.drop(columns=["New_infections_70_74"])
+
+        csv_df["cases75to79_low"] = csv_df["New_infections_75_79"]
+        csv_df["cases75to79_central"] = csv_df["New_infections_75_79"]
+        csv_df["cases75to79_high"] = csv_df["New_infections_75_79"]
+        csv_df = csv_df.drop(columns=["New_infections_75_79"])
+
+        csv_df["cases80_low"] = csv_df["New_infections_80"]
+        csv_df["cases80_central"] = csv_df["New_infections_80"]
+        csv_df["cases80_high"] = csv_df["New_infections_80"]
+        csv_df = csv_df.drop(columns=["New_infections_80"])
 
         csv_df["deaths0to4_low"] = csv_df["Deaths_0_4"]
         csv_df["deaths0to4_central"] = csv_df["Deaths_0_4"]
