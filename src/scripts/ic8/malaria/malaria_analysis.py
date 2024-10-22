@@ -93,7 +93,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
 
 
 def get_malaria_analysis(
-        load_data_from_raw_files: bool = False,
+        load_data_from_raw_files: bool = True,
         do_checks: bool = False,
 ) -> Analysis:
     """Return the Analysis object for Malaria."""
@@ -152,7 +152,7 @@ def get_malaria_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = False
+    LOAD_DATA_FROM_RAW_FILES = True
     DO_CHECKS = False
 
     # Create the Analysis object
