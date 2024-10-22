@@ -1416,8 +1416,8 @@ type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="cases14plus"
-description="number of malaria cases amongst people 14 years old and over"
+name="cases15plus"
+description="number of malaria cases amongst people 15 years old and over"
 type="count"
 use_scaling=false
 
@@ -1440,7 +1440,7 @@ type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="deaths14plus"
+name="deaths15plus"
 description="number of malaria deaths amongst people 14 years old and over"
 type="count"
 use_scaling=false
@@ -1452,7 +1452,7 @@ type="count"
 use_scaling=true
 
 [[MALARIA.indicator]]
-name="pars0to4"
+name="par0to4"
 description="population at risk aged 0 to 4 year olds"
 type="count"
 use_scaling=false
@@ -1464,7 +1464,7 @@ type="count"
 use_scaling=false
 
 [[MALARIA.indicator]]
-name="aged14plus"
+name="par15plus"
 description="population at risk aged 14 years old and over"
 type="count"
 use_scaling=false

@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsHiv(
-        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_09_25",
+        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_10_15",
         parameters=parameters,
     )
 
@@ -47,42 +47,28 @@ if __name__ == "__main__":
     )
 
     # Save output for Nick Menzies
+    list_of_hh_scenarios = ["HH", "NULL_2000", "CC_2000"]
+    list_of_fw_scenarios = ["NULL_2022", "CC_2022"]
     fuc_mainscenario_df = model_results.df.loc[
         ("PF", 1, slice(None), slice(None), slice(None))
     ]
     fuc_mainscenario_df = fuc_mainscenario_df.reset_index()
     fuc_mainscenario_df['scenario_descriptor'] = "PF_100"
 
-    fuc_cc2022_df = model_results.df.loc[
-        ("CC_2022", 1, slice(None), slice(None), slice(None))
+    fuc_cf_fw_df = model_results.df.loc[
+        (list_of_fw_scenarios, 1, slice(None), slice(None), slice(None))
     ]
-    fuc_cc2022_df = fuc_cc2022_df.reset_index()
-    fuc_cc2022_df['scenario_descriptor'] = "CC_2022"
+    fuc_cf_fw_df = fuc_cf_fw_df.reset_index()
 
-    fuc_null2022_df = model_results.df.loc[
-        ("NULL_2022", 1, slice(None), slice(None), slice(None))
+    fuc_cf_hh_df = model_results.df.loc[
+        (list_of_hh_scenarios, 1, slice(None), slice(None), slice(None))
     ]
-    fuc_null2022_df = fuc_null2022_df.reset_index()
-    fuc_null2022_df['scenario_descriptor'] = "NULL_2022"
-
-    fuc_cc2000_df = model_results.df.loc[
-        ("CC_2000", 1, slice(None), slice(None), slice(None))
-    ]
-    fuc_cc2000_df = fuc_cc2000_df.reset_index()
-    fuc_cc2000_df['scenario_descriptor'] = "CC_2000"
-
-    fuc_null2000_df = model_results.df.loc[
-        ("NULL_2000", 1, slice(None), slice(None), slice(None))
-    ]
-    fuc_null2000_df = fuc_null2000_df.reset_index()
-    fuc_null2000_df['scenario_descriptor'] = "NULL_2000"
-
-    fuc_2000_df = pandas.concat(
-        [fuc_cc2000_df, fuc_null2000_df], axis=0)
-    fuc_2000_df.to_csv('df_freed_up_capacity_cf2000_hiv.csv')
+    fuc_cf_hh_df = fuc_cf_hh_df.reset_index()
 
     fuc_df = pandas.concat(
-        [fuc_mainscenario_df, fuc_cc2022_df, fuc_null2022_df], axis=0)
+        [fuc_mainscenario_df, fuc_cf_fw_df, fuc_cf_hh_df], axis=0)
+
+    fuc_df = fuc_df.drop(columns=["funding_fraction"])
 
     # Save output
-    fuc_df.to_csv('df_freed_up_capacity_hiv.csv')
+    fuc_df.to_csv('df_ic_data_hiv.csv')

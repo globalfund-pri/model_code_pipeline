@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsTb(
-        path_to_data_folder / "IC8/modelling_outputs/tb/2024_09_04",
+        path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_15",
         parameters=parameters,
     )
 
@@ -48,26 +48,22 @@ if __name__ == "__main__":
     )
 
     # Save output for Nick Menzies
+    list_of_scenarios = ["HH", "NULL_2000", "CC_2000", "NULL_2022", "CC_2022"]
     fuc_mainscenario_df = model_results.df.loc[
         ("PF", 1, slice(None), slice(None), slice(None))
     ]
     fuc_mainscenario_df = fuc_mainscenario_df.reset_index()
     fuc_mainscenario_df['scenario_descriptor'] = "PF_100"
 
-    fuc_cc2022_df = model_results.df.loc[
-        ("CC_2022", 1, slice(None), slice(None), slice(None))
+    fuc_cf_df = model_results.df.loc[
+        (list_of_scenarios, 1, slice(None), slice(None), slice(None))
     ]
-    fuc_cc2022_df = fuc_cc2022_df.reset_index()
-    fuc_cc2022_df['scenario_descriptor'] = "CC_2022"
-
-    fuc_null2022_df = model_results.df.loc[
-        ("NULL_2022", 1, slice(None), slice(None), slice(None))
-    ]
-    fuc_null2022_df = fuc_null2022_df.reset_index()
-    fuc_null2022_df['scenario_descriptor'] = "NULL_2022"
+    fuc_cf_df = fuc_cf_df.reset_index()
 
     fuc_df = pandas.concat(
-        [fuc_mainscenario_df, fuc_cc2022_df, fuc_null2022_df], axis=0)
+        [fuc_mainscenario_df, fuc_cf_df], axis=0)
+
+    fuc_df = fuc_df.drop(columns=["funding_fraction"])
 
     # Save output
-    fuc_df.to_csv('df_freed_up_capacity_tb.csv')
+    fuc_df.to_csv('df_ic_data_tb.csv')
