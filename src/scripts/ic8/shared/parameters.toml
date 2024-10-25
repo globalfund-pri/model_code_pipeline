@@ -1360,7 +1360,7 @@ use_scaling=false
 
 [[TB.indicator]]
 name="cost"
-description="total cost for this scenario"
+description="total cost for this scenario minus vaccine costs"
 type="count"
 use_scaling=false
 
@@ -1585,7 +1585,7 @@ use_scaling=false
 
 [[MALARIA.indicator]]
 name="cost"
-description="total cost for this scenario"
+description="total cost for this scenario minus vaccine but including private sector treatment"
 type="count"
 use_scaling= false
 

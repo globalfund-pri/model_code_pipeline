@@ -106,5 +106,46 @@ if __name__ == "__main__":
 
     # Merge all into one and save the output
     df_resource_need = pandas.concat([cost_by_year, cost_vx_by_year, cost_priv_by_year, incidence_by_year, mortality_by_year], axis=1)
-    df_resource_need.to_csv('df_resource_need_malaria_pf100.csv')
+    df_resource_need.to_csv('df_pf_100_malaria.csv')
+
+
+    # Get data from partner data
+    elig_countries = parameters.get_portfolio_countries_for('MALARIA')
+    cases_df_hh = partner_data.df.loc[
+        (slice(None), elig_countries, slice(None), 'cases')
+    ]
+    deaths_df_hh = partner_data.df.loc[
+        (slice(None), elig_countries, slice(None), 'deaths')
+    ]
+
+    par_df_hh = partner_data.df.loc[
+        (slice(None), elig_countries, slice(None), 'par')
+    ]
+
+    cases_df_hh = cases_df_hh.reset_index()
+    cases_hh_by_year = cases_df_hh.groupby(['year'], as_index=True).sum()
+    columns_to_drop = ['country', 'scenario_descriptor', 'indicator']
+    cases_hh_by_year = cases_hh_by_year.drop(columns=columns_to_drop, axis=1)
+
+    deaths_df_hh = deaths_df_hh.reset_index()
+    deaths_hh_by_year = deaths_df_hh.groupby(['year'], as_index=True).sum()
+    deaths_hh_by_year = deaths_hh_by_year.drop(columns=columns_to_drop, axis=1)
+
+    par_df_hh = par_df_hh.reset_index()
+    par_hh_by_year = par_df_hh.groupby(['year'], as_index=True).sum()
+    par_hh_by_year = par_hh_by_year.drop(columns=columns_to_drop, axis=1)
+
+    incidence_hh_by_year = cases_hh_by_year / par_hh_by_year
+    mortality_hh_by_year = deaths_hh_by_year / par_hh_by_year
+
+    incidence_hh_by_year = incidence_hh_by_year.rename(
+        columns={'central': 'incidence', 'high': 'incidence_ub', 'low': 'incidence_lb'})
+    mortality_hh_by_year = mortality_hh_by_year.rename(
+        columns={'central': 'mortality', 'high': 'mortality_ub', 'low': 'mortality_lb'})
+
+    # Merge all into one and save the output
+    df_resource_need = pandas.concat(
+        [incidence_hh_by_year, mortality_hh_by_year], axis=1)
+    df_resource_need.to_csv('df_partner_malaria.csv')
+
 

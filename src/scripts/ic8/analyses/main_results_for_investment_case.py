@@ -37,7 +37,12 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
             # methods = ['local_start_at_random'],
             # methods=None,
             methods=['ga_backwards', 'ga_forwards', ],
-            # methods=['ga_forwards', ],
+            # methods=["ga_forwards",
+            #             "ga_backwards",
+            #             "global_start_at_a",
+            #             "global_start_at_random",
+            #             "local_start_at_a",
+            #             "local_start_at_random",],
             optimisation_params={
                 'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
                 'force_monotonic_decreasing': True,
