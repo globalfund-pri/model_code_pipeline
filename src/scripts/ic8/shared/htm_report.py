@@ -86,7 +86,7 @@ class HTMReport(Report):
         hiv_mortality_reduction = (hiv_mortality_2029 / hiv_mortality_2023 - 1) * 100
 
         hiv_mortality_2021 = self.hiv.PARTNER["deaths"].at[2021] / \
-                             self.hiv.PARTNER["plhiv"].at[2021]
+                             self.hiv.PARTNER["population"].at[2021]
         hiv_mortality_2028 = self.hiv.IC.portfolio_results["deaths"].at[2028, "model_central"] / \
                              self.hiv.IC.portfolio_results["population"].at[2028, "model_central"]
         hiv_mortality_reduction_st = (hiv_mortality_2028 / hiv_mortality_2021 - 1) * 100
@@ -408,6 +408,10 @@ class HTMReport(Report):
                 'IC': self.hiv.IC.portfolio_results['cases']['model_central'],
                 'IC_LB': self.hiv.IC.portfolio_results['cases']['model_low'],
                 'IC_UB': self.hiv.IC.portfolio_results['cases']['model_high'],
+                'hivneg_actual': self.hiv.PARTNER['hivneg'],
+                'hivneg_gp': self.hiv.CF_forgraphs['hivneg'],
+                'hivneg_cf': self.hiv.CF_InfAve.portfolio_results['hivneg']['model_central'],
+                'hivneg_ic': self.hiv.IC.portfolio_results['hivneg']['model_central'],
             }
         )
 
@@ -422,6 +426,10 @@ class HTMReport(Report):
                 'IC': self.hiv.IC.portfolio_results['deaths']['model_central'],
                 'IC_LB': self.hiv.IC.portfolio_results['deaths']['model_low'],
                 'IC_UB': self.hiv.IC.portfolio_results['deaths']['model_high'],
+                'pop_actual': self.hiv.PARTNER['population'],
+                'pop_gp': self.hiv.CF_forgraphs['population'],
+                'pop_cf': self.hiv.CF_InfAve.portfolio_results['population']['model_central'],
+                'pop_ic': self.hiv.IC.portfolio_results['population']['model_central'],
             }
         )
 
@@ -436,6 +444,10 @@ class HTMReport(Report):
                 'IC': self.tb.IC.portfolio_results['cases']['model_central'],
                 'IC_LB': self.tb.IC.portfolio_results['cases']['model_low'],
                 'IC_UB': self.tb.IC.portfolio_results['cases']['model_high'],
+                'pop_actual': self.tb.PARTNER['population'],
+                'incidence_gp': self.tb.CF_forgraphs['incidence'],
+                'pop_cf': self.tb.CF_InfAve.portfolio_results['population']['model_central'],
+                'pop_ic': self.tb.IC.portfolio_results['population']['model_central'],
             }
         )
 
@@ -450,6 +462,10 @@ class HTMReport(Report):
                 'IC': self.tb.IC.portfolio_results['deaths']['model_central'],
                 'IC_LB': self.tb.IC.portfolio_results['deaths']['model_low'],
                 'IC_UB': self.tb.IC.portfolio_results['deaths']['model_high'],
+                'pop_actual': self.tb.PARTNER['population'],
+                'mortality_gp': self.tb.CF_forgraphs['mortality'],
+                'pop_cf': self.tb.CF_InfAve.portfolio_results['population']['model_central'],
+                'pop_ic': self.tb.IC.portfolio_results['population']['model_central'],
             }
         )
 
@@ -464,6 +480,10 @@ class HTMReport(Report):
                 'IC': self.malaria.IC.portfolio_results['cases']['model_central'],
                 'IC_LB': self.malaria.IC.portfolio_results['cases']['model_low'],
                 'IC_UB': self.malaria.IC.portfolio_results['cases']['model_high'],
+                'par_actual': self.malaria.PARTNER['par'],
+                'gp_incidence': self.malaria.CF_forgraphs["incidence"],
+                'par_cf': self.malaria.CF_InfAve.portfolio_results['par']['model_central'],
+                'par_ic': self.malaria.IC.portfolio_results['par']['model_central'],
             }
         )
 
@@ -478,6 +498,10 @@ class HTMReport(Report):
                 'IC': self.malaria.IC.portfolio_results['deaths']['model_central'],
                 'IC_LB': self.malaria.IC.portfolio_results['deaths']['model_low'],
                 'IC_UB': self.malaria.IC.portfolio_results['deaths']['model_high'],
+                'par_actual': self.malaria.PARTNER['par'],
+                'gp_mortality': self.malaria.CF_forgraphs["mortality"],
+                'par_cf': self.malaria.CF_InfAve.portfolio_results['par']['model_central'],
+                'par_ic': self.malaria.IC.portfolio_results['par']['model_central'],
             }
         )
 
@@ -615,7 +639,7 @@ class HTMReport(Report):
         tb_deaths_partner = self.tb.PARTNER["deathshivneg"]
         malaria_deaths_partner = self.malaria.PARTNER["deaths"]
 
-        hiv_pop_partner = self.hiv.PARTNER["plhiv"]
+        hiv_pop_partner = self.hiv.PARTNER["population"]
         tb_pop_partner = self.tb.PARTNER["population"]
         malaria_pop_partner = self.malaria.PARTNER["par"]
 

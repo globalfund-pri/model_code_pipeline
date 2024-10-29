@@ -123,7 +123,7 @@ def get_malaria_analysis(
             / "IC8"
             / "funding"
             / "2024_10_15"
-            / "malaria"
+            / "malaria copy"
             / "tgf"
             / "malaria_fung_inc_unalc_bs17.csv"
         )
@@ -134,7 +134,7 @@ def get_malaria_analysis(
             / "IC8"
             / "funding"
             / "2024_10_15"
-            / "malaria"
+            / "malaria copy"
             / "non_tgf"
             / "malaria_nonfung_base_c.csv"
         )
@@ -152,7 +152,7 @@ def get_malaria_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object

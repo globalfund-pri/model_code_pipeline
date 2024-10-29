@@ -184,7 +184,7 @@ class Analysis:
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
-                scenario='none',
+                name='none',
             ),
         )
 
@@ -631,8 +631,7 @@ class Analysis:
         # Define years and parameters we need
         p = self.parameters
         first_year = p.get("START_YEAR")
-        if name == ('GP'):
-            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
+        if name == ('GP'):            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
         last_year = p.get("END_YEAR")
         z_value = p.get("Z_VALUE")
         rho_btw_countries = p.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")
@@ -677,7 +676,7 @@ class Analysis:
         """Returns data-frame of the partner data that are needed for reporting."""
 
         if self.disease_name == 'HIV':
-            indicator_partner = ['cases', 'deaths', 'hivneg', 'plhiv']
+            indicator_partner = ['cases', 'deaths', 'hivneg', 'population']
         if self.disease_name == 'TB':
             indicator_partner = ['cases', 'deaths', 'deathshivneg', 'population']
         if self.disease_name == 'MALARIA':
