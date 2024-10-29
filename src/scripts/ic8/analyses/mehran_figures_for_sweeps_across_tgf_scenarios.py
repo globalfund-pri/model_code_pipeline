@@ -33,7 +33,7 @@ path_to_data_folder = get_data_path()
 # %% Flag to indicate whether the script should reload model results from raw files and re-run all the analysis, or
 # instead to re-load locally-cached versions of `ModelResults` binaries and locally-cached version of the analysis
 # results.
-DO_RUN = True
+DO_RUN = False
 
 # %% Find scenarios defined for GF Funding
 funding_path = path_to_data_folder / 'IC8' / 'funding' / '2024_10_29'
@@ -276,59 +276,51 @@ def make_graph(df: pd.Series, title: str):
         label='Approach A',
     )
     ax.plot(
-        black_dots.at['$11Bn', 'x_pos'],
-        df['$11Bn: With Innovation'],
+        black_dots.at['$inc_unalc_12', 'x_pos'],
+        df['fung_inc_unalc_12'],
         color='red',
         marker='.',
         markersize=10,
         linestyle='none',
-        label='With Innovation'
+        label='$12Biln'
     )
     ax.plot(
-        black_dots.at['$11Bn', 'x_pos'],
-        df['$11Bn: Approach B'],
+        black_dots.at['$inc_unalc_14', 'x_pos'],
+        df['fung_inc_unalc_14'],
         color='green',
         marker='.',
         markersize=10,
         linestyle='none',
-        label='Approach B'
+        label='$14Bn'
     )
     ax.plot(
-        black_dots.at['$11Bn', 'x_pos'],
-        df['$11Bn: Incl. Unalloc'],
+        black_dots.at['$inc_unalc_16', 'x_pos'],
+        df['fung_inc_unalc_16'],
         color='orange',
         marker='.',
         markersize=10,
         linestyle='none',
-        label='Including Unallocated Amounts'
+        label='$16Bn'
     )
     ax.plot(
-        black_dots.at['$11Bn', 'x_pos'],
-        df['$11Bn: Approach B & Incl. Unalloc'],
+        black_dots.at['$inc_unalc_18', 'x_pos'],
+        df['fung_inc_unalc_18'],
         color='purple',
         marker='.',
         markersize=10,
         linestyle='none',
-        label='Approach B, Including Unallocated Amounts'
+        label='$18Bns'
     )
     ax.plot(
-        black_dots.at['$11Bn', 'x_pos'],
-        df['$11Bn: Approach B & With Innovation'],
+        black_dots.at['$inc_unalc_20', 'x_pos'],
+        df['fung_inc_unalc_20'],
         color='yellow',
         marker='.',
         markersize=10,
         linestyle='none',
-        label='Approach B, With Innovation'
+        label='$20Bn'
     )
-    ax.plot(
-        black_dots.at['$11Bn', 'x_pos'],
-        df['$11Bn: Approach B & Incl. Unalloc & With Innovation'],
-        color='magenta',
-        marker='.',
-        markersize=10,
-        linestyle='none',
-        label='Approach B,  Including Unallocated Amounts & With Innovation'
-    )
+
     ax.set_ylabel('%')
     ax.set_xlabel('TGF Replenishment Scenario')
     ax.set_xticks(black_dots.x_pos)
@@ -360,7 +352,7 @@ for stat in stats:
 for disease in ('hiv', 'tb', 'malaria'):
     for indicator in ('cases', 'deaths'):
         time_trend = pd.DataFrame({scenario: Results_LHS[scenario][disease][indicator]['model_central'] for scenario in Results_LHS})
-        time_trend[['GP', 'Fubgible_gf_11b', '$11Bn: With Innovation', 'Fubgible_gf_20b', ]].plot()
+        time_trend[['fung_inc_unalc_12', 'fung_inc_unalc_14', 'fung_inc_unalc_16', 'fung_inc_unalc_18', 'fung_inc_unalc_20', '$12Bn: ', '$14Bn: ', '$16Bn: ', '$18Bn: ', '$20Bn: ', 'GP']].plot()
         plt.title(f'{disease}: {indicator}')
         plt.show()
 
@@ -383,12 +375,12 @@ def make_tgf_funding_scenario(total: int, based_on: TgfFunding) -> TgfFunding:
 # For each disease, work out what amount of TGF funding will lead to full-funding
 slice_yrs_for_funding = slice(parameters.get('YEARS_FOR_FUNDING')[0], parameters.get('YEARS_FOR_FUNDING')[-1])
 gp_amt = {
-    'hiv': hiv_db.model_results.df.loc[('GP_GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
+    'hiv': hiv_db.model_results.df.loc[('GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
         'country').sum(),
-    'tb': tb_db.model_results.df.loc[('GP_GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
+    'tb': tb_db.model_results.df.loc[('GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
         'country').sum(),
     'malaria': malaria_db.model_results.df.loc[
-        ('GP_GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby('country').sum(),
+        ('GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby('country').sum(),
 }
 non_tgf_funding_amt = {
     'hiv': NonTgfFunding(funding_path / 'hiv' / 'non_tgf' / f'hiv{NON_TGF_FUNDING}').df['value'],
@@ -413,7 +405,7 @@ num_new_scenarios = 5  # increase this for more points
 tgf_scenarios_for_rhs_plot = {
     disease: {
         (None, round((x + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum(), 3)):
-            make_tgf_funding_scenario(int(x), based_on=gf_scenarios['Fubgible_gf_11b'][disease])
+            make_tgf_funding_scenario(int(x), based_on=gf_scenarios['fung_inc_unalc_12'][disease])
         for x in np.linspace(100e6, unfunded_amount[disease], num_new_scenarios)
     }
     for disease in ('hiv', 'tb', 'malaria')
