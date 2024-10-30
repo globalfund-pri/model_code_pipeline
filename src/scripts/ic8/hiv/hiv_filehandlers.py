@@ -144,7 +144,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # Make funding numbers into fractions
         concatenated_dfs = concatenated_dfs.reset_index()
-        concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2
+        concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2 # Remove 2 as Step 1 and Step 2 were NULL and CC
         concatenated_dfs.loc[concatenated_dfs.funding_fraction == -1, 'funding_fraction'] = 1 # Because now 1s will be -1s
 
         concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[

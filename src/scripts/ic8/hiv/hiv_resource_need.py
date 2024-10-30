@@ -67,7 +67,7 @@ if __name__ == "__main__":
         ("PF", 1, slice(None), slice(None), 'deaths')
     ]
     plhiv_df = model_results.df.loc[
-        ("PF", 1, slice(None), slice(None), 'plhiv')
+        ("PF", 1, slice(None), slice(None), 'population')
     ]
     hivneg_df = model_results.df.loc[
         ("PF", 1, slice(None), slice(None), 'hivneg')
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         ("GP", 1, slice(None), slice(None), 'deaths')
     ]
     plhiv_df = model_results.df.loc[
-        ("GP", 1, slice(None), slice(None), 'plhiv')
+        ("GP", 1, slice(None), slice(None), 'population')
     ]
     hivneg_df = model_results.df.loc[
         ("GP", 1, slice(None), slice(None), 'hivneg')
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         (slice(None), elig_countries, slice(None), 'deaths')
     ]
     plhiv_df_hh = partner_data.df.loc[
-        (slice(None), elig_countries, slice(None), 'plhiv')
+        (slice(None), elig_countries, slice(None), 'population')
     ]
     hivneg_df_hh = partner_data.df.loc[
         (slice(None), elig_countries, slice(None), 'hivneg')
@@ -176,7 +176,7 @@ if __name__ == "__main__":
     plhiv_by_year_hh = plhiv_by_year_hh.drop(columns=columns_to_drop, axis=1)
 
     hivneg_df_hh = hivneg_df_hh.reset_index()
-    hivneg_by_year_hh = hivneg_df.groupby(['year'], as_index=True).sum()
+    hivneg_by_year_hh = hivneg_df_hh.groupby(['year'], as_index=True).sum()
     hivneg_by_year_hh = hivneg_by_year_hh.drop(columns=columns_to_drop, axis=1)
 
     incidence_by_year_hh = cases_by_year_hh / hivneg_by_year_hh

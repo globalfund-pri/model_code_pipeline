@@ -33,7 +33,7 @@ path_to_data_folder = get_data_path()
 # %% Flag to indicate whether the script should reload model results from raw files and re-run all the analysis, or
 # instead to re-load locally-cached versions of `ModelResults` binaries and locally-cached version of the analysis
 # results.
-DO_RUN = False
+DO_RUN = True
 
 # %% Find scenarios defined for GF Funding
 funding_path = path_to_data_folder / 'IC8' / 'funding' / '2024_10_29'

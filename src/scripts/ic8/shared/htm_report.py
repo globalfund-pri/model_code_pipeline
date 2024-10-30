@@ -848,10 +848,10 @@ class HTMReport(Report):
         # Clean up so we can output the graphs
         actual = combined_mortality.loc[combined_mortality.index <2023].iloc[:,0]
         gp = combined_mortality_gp.loc[combined_mortality_gp.index > 2019].iloc[:,0]
-        cf = combined_mortality_cf.loc[combined_mortality_cf.index >2022].iloc[:,0]
-        ic = combined_mortality.loc[combined_mortality.index > 2022].iloc[:,0]
-        ic_lb = combined_lb.loc[combined_lb.index > 2022].iloc[:,0]
-        ic_ub = combined_ub.loc[combined_ub.index > 2022].iloc[:,0]
+        cf = combined_mortality_cf.loc[combined_mortality_cf.index >2021].iloc[:,0]
+        ic = combined_mortality.loc[combined_mortality.index > 2021].iloc[:,0]
+        ic_lb = combined_lb.loc[combined_lb.index > 2021].iloc[:,0]
+        ic_ub = combined_ub.loc[combined_ub.index > 2021].iloc[:,0]
 
         comb_mort_df = pd.DataFrame(
             index=pd.Index(list(range(2010, 2031)), name='Year'),
@@ -1091,10 +1091,10 @@ class HTMReport(Report):
         # Clean up so we can output the graphs
         actual = combined_incidence.loc[combined_incidence.index <2023].iloc[:,0]
         gp = combined_incidence_gp.loc[combined_incidence_gp.index > 2019].iloc[:,0]
-        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2022].iloc[:,0]
-        ic = combined_incidence.loc[combined_incidence.index > 2022].iloc[:,0]
-        ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2022].iloc[:,0]
-        ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2022].iloc[:,0]
+        cf = combined_incidence_cf.loc[combined_incidence_cf.index >2021].iloc[:,0]
+        ic = combined_incidence.loc[combined_incidence.index > 2021].iloc[:,0]
+        ic_lb = combined_incidence_lb.loc[combined_incidence_lb.index > 2021].iloc[:,0]
+        ic_ub = combined_incidence_ub.loc[combined_incidence_ub.index > 2021].iloc[:,0]
 
         comb_inc_df = pd.DataFrame(
             index=pd.Index(list(range(2010, 2031)), name='Year'),
