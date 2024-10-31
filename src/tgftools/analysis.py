@@ -796,3 +796,25 @@ class Analysis:
         adjusted_incidence_total.index = adjusted_incidence_total.index.astype(int)
 
         return adjusted_incidence_total
+
+    def make_diagnostic_report(
+            self,
+            plt_show: Optional[bool] = False,
+            filename: Optional[Path] = None,
+            optimisation_params: Optional[Dict] = None,
+            **kwargs):
+        """
+        Create a report that compares the results from Approach A and B (and alternative optimisation methods for
+        Approach B if these are specified).
+        :param plt_show: determines whether to show the plot
+        :param filename: filename to save the report to
+        :param optimisation_params: dictionary with parameters to pass to the optimisation method
+        Other parameters are passed through as those that would be passed to `Analysis.portfolio_projection_approach_b()`
+        This is done by passing through to the `ApproachB.run()` method.
+        """
+        # Create the approach_b object using the specified optimisation parameters
+        approach_b_object = self._approach_b(optimisation_params if optimisation_params else {})
+
+        # Run the report, specifying whether to plot graphs, the filename, and passing through any other kwargs
+        # Suppress the returned results as the purpose of this function is generating the report.
+        _ = approach_b_object.run(plt_show=plt_show, filename=filename, **kwargs)
