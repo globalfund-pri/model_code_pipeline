@@ -184,14 +184,14 @@ if DO_RUN:
     Results_LHS['$16Bn: '] = get_projections(approach='b', innovation_on=False,
                                                        tgf_funding_scenario='fung_inc_unalc_16')
 
-    Results_LHS['$18Bn: '] = get_projections(approach='b', innovation_on=False,
-                                                                       tgf_funding_scenario='fung_inc_unalc_18')
+    # Results_LHS['$18Bn: '] = get_projections(approach='b', innovation_on=False,
+    #                                                                    tgf_funding_scenario='fung_inc_unalc_18')
+    #
+    # Results_LHS['$20Bn: '] = get_projections(approach='b', innovation_on=False,
+    #                                                                      tgf_funding_scenario='fung_inc_unalc_20')
+    #
 
-    Results_LHS['$20Bn: '] = get_projections(approach='b', innovation_on=False,
-                                                                         tgf_funding_scenario='fung_inc_unalc_20')
-
-
-    Results_LHS['GP'] = get_projections(gp=True, approach='a', innovation_on=False, tgf_funding_scenario='fung_inc_unalc_20')
+    Results_LHS['GP'] = get_projections(gp=True, approach='a', innovation_on=False, tgf_funding_scenario='fung_inc_unalc_12')
 
     save_var(Results_LHS, get_root_path() / "sessions" / "Results_LHS.pkl")
 else:
@@ -302,24 +302,6 @@ def make_graph(df: pd.Series, title: str):
         linestyle='none',
         label='$16Bn'
     )
-    ax.plot(
-        black_dots.at['$inc_unalc_18', 'x_pos'],
-        df['fung_inc_unalc_18'],
-        color='purple',
-        marker='.',
-        markersize=10,
-        linestyle='none',
-        label='$18Bns'
-    )
-    ax.plot(
-        black_dots.at['$inc_unalc_20', 'x_pos'],
-        df['fung_inc_unalc_20'],
-        color='yellow',
-        marker='.',
-        markersize=10,
-        linestyle='none',
-        label='$20Bn'
-    )
 
     ax.set_ylabel('%')
     ax.set_xlabel('TGF Replenishment Scenario')
@@ -352,7 +334,7 @@ for stat in stats:
 for disease in ('hiv', 'tb', 'malaria'):
     for indicator in ('cases', 'deaths'):
         time_trend = pd.DataFrame({scenario: Results_LHS[scenario][disease][indicator]['model_central'] for scenario in Results_LHS})
-        time_trend[['fung_inc_unalc_12', 'fung_inc_unalc_14', 'fung_inc_unalc_16', 'fung_inc_unalc_18', 'fung_inc_unalc_20', '$12Bn: ', '$14Bn: ', '$16Bn: ', '$18Bn: ', '$20Bn: ', 'GP']].plot()
+        time_trend[['fung_inc_unalc_12', 'fung_inc_unalc_14', 'fung_inc_unalc_16', '$12Bn: ', '$14Bn: ', '$16Bn: ', 'GP']].plot()
         plt.title(f'{disease}: {indicator}')
         plt.show()
 
@@ -439,7 +421,7 @@ def get_approach_b_projection(tgf_funding_scenario: TgfFunding, disease: str) ->
         non_tgf_funding=NonTgfFunding(funding_path / disease / 'non_tgf' / f'{disease}{NON_TGF_FUNDING}'),
         parameters=parameters,
         handle_out_of_bounds_costs=True,
-        innovation_on=True,
+        innovation_on=False,
     )
     return analysis.portfolio_projection_approach_b(
         methods=['ga_backwards'],
