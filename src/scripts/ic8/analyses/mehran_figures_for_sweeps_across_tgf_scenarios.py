@@ -57,7 +57,7 @@ gf_scenarios = {
 
 # Create dict that maps these scenario names to "pretty names" (for use when plotting)
 mapper_to_pretty_names = {
-    n: f"${n.removeprefix('fung_').replace('fung', 'fungible').replace('_inc_unalc', '+')}"
+    n: f"${n.removeprefix('fung_').replace('inc_unalc', '').replace('_','')}Bn"
     for n in sorted(list(gf_scenarios.keys()))
 }
 
@@ -68,15 +68,10 @@ tot_tgf_funding = pd.Series({
 }, name='TGF Funding').sort_index()
 
 # "Thin-out" these scenarios to make the initial run go faster and to not use any unnecessary scenarios
-# - Drop all 'incUnalloc' amounts
-scenarios_to_run = {
-    k: v for k, v in gf_scenarios.items()
-    if not k.endswith('_incUnalloc')
-}
 # - Don't run every scenario
 thinning_factor = 1  # 1 implies no thinning
 scenarios_to_run = {
-    k: v for i, (k, v) in enumerate(scenarios_to_run.items()) if i % thinning_factor == 0
+    k: v for i, (k, v) in enumerate(gf_scenarios.items()) if i % thinning_factor == 0
 }
 
 #%% Declare assumptions that are not going to change in the analysis
