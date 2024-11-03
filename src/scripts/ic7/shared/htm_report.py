@@ -543,7 +543,7 @@ class HTMReport(Report):
         tb_deaths_partner = self.tb.PARTNER["deathshivneg"]
         malaria_deaths_partner = self.malaria.PARTNER["deaths"]
 
-        hiv_pop_partner = self.hiv.PARTNER["plhiv"]
+        hiv_pop_partner = self.hiv.PARTNER["population"]
         tb_pop_partner = self.tb.PARTNER["population"]
         malaria_pop_partner = self.malaria.PARTNER["par"]
 

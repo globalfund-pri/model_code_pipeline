@@ -14,7 +14,7 @@ from tgftools.filehandler import (
     PartnerData,
 )
 from tgftools.utils import (
-    get_files_with_extension,
+    get_files_with_extension, get_data_path,
 )
 
 """ START HERE FOR HIV: This file sets up everything needed to run HIV related code, including reading in the 
@@ -361,8 +361,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         df_gp['PLHIV_UB'] = df_gp['PLHIV']
         df_gp['Population_LB'] = df_gp['Population']
         df_gp['Population_UB'] = df_gp['Population']
-        df_gp['ART_total_LB'] = df_gp['ART_total']
-        df_gp['ART_total_UB'] = df_gp['ART_total']
 
         # 2. Replace nan with zeros
         df_gp[[
@@ -1184,9 +1182,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["incidence_central"] = csv_df["cases_central"] / csv_df["hivneg_central"]
         csv_df["incidence_high"] = csv_df["cases_high"] / csv_df["hivneg_central"]
 
-        csv_df["mortality_low"] = csv_df["deaths_low"] / csv_df["plhiv_central"]
-        csv_df["mortality_central"] = csv_df["deaths_central"] / csv_df["plhiv_central"]
-        csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["plhiv_central"]
+        csv_df["mortality_low"] = csv_df["deaths_low"] / csv_df["population_central"]
+        csv_df["mortality_central"] = csv_df["deaths_central"] / csv_df["population_central"]
+        csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["population_central"]
+
+        # Remove ContinuedDisruption from first file, second file is corrected model output for this scenario
+        if file == Path(
+                get_data_path()
+                / "IC8/modelling_outputs/hiv/2024_10_15/HIV historical scenarios 17aug24.csv"
+        ):
+            csv_df = csv_df.drop(
+                csv_df[
+                    csv_df["scenario_descriptor"]
+                    == "GP"
+                    ].index
+            )
 
         # Pivot to long format
         melted = csv_df.melt(
