@@ -1186,7 +1186,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["mortality_central"] = csv_df["deaths_central"] / csv_df["population_central"]
         csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["population_central"]
 
-        # Remove ContinuedDisruption from first file, second file is corrected model output for this scenario
+        # Remove GP from first file, second file is corrected model output for this scenario
         if file == Path(
                 get_data_path()
                 / "IC8/modelling_outputs/hiv/2024_10_15/HIV historical scenarios 17aug24.csv"
