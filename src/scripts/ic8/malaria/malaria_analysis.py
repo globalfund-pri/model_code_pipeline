@@ -52,7 +52,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsMalaria(
-            path_to_data_folder / "IC8/modelling_outputs/malaria/2024_08_30",
+            path_to_data_folder / "IC8/modelling_outputs/malaria/2024_11_04",
             parameters=parameters
         )
         # Save the model_results object
@@ -128,6 +128,10 @@ def get_malaria_analysis(
             / "malaria_fung_inc_unalc_bs17.csv"
         )
     )
+
+    list = parameters.get_modelled_countries_for('MALARIA')
+    tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
+
     non_tgf_funding = (
         NonTgfFunding(
             path_to_data_folder
@@ -139,6 +143,8 @@ def get_malaria_analysis(
             / "malaria_nonfung_base_c.csv"
         )
     )
+
+    non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(
         database=db,

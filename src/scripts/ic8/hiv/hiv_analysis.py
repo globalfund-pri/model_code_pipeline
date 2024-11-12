@@ -51,7 +51,7 @@ def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsHiv(
-            path_to_data_folder / "IC8/modelling_outputs/hiv/2024_10_15",
+            path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_07",
             parameters=parameters,
         )
         # Save the model_results object
@@ -130,6 +130,11 @@ def get_hiv_analysis(
             / "hiv_fung_inc_unalc_bs17.csv"
         )
     )
+
+    # Filter our countries we do not use
+    list = parameters.get_modelled_countries_for('HIV')
+    tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
+
     non_tgf_funding = (
         NonTgfFunding(
             path_to_data_folder
@@ -141,6 +146,8 @@ def get_hiv_analysis(
             / "hiv_nonfung_base_c.csv"
         )
     )
+
+    non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(
         database=db,

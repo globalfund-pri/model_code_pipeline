@@ -675,9 +675,9 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             }
         )
 
-        # Clean up scenario names
-        csv_df = csv_df.replace('Step1', 'NULL_2022')
-        csv_df = csv_df.replace('Step2', 'CC_2022')
+        # Clean up scenario remove Step 1 and Step 2 which are CC from end of PF period
+        csv_df = csv_df[csv_df.scenario_descriptor != "Step1"]
+        csv_df = csv_df[csv_df.scenario_descriptor != "Step2"]
 
 
 
@@ -1189,7 +1189,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Remove GP from first file, second file is corrected model output for this scenario
         if file == Path(
                 get_data_path()
-                / "IC8/modelling_outputs/hiv/2024_10_15/HIV historical scenarios 17aug24.csv"
+                / "IC8/modelling_outputs/hiv/2024_11_07/HIV historical scenarios 17aug24.csv"
         ):
             csv_df = csv_df.drop(
                 csv_df[
@@ -1207,6 +1207,15 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         melted["indicator"] = melted["variable"].apply(lambda s: s.split("_")[0])
         melted["variant"] = melted["variable"].apply(lambda s: s.split("_")[1])
         melted = melted.drop(columns=["variable"])
+
+        # First remove duplicates (some diplicates have slightly different values
+        melted = melted.drop_duplicates()
+        melted = melted.drop_duplicates(subset=melted.columns.difference(['value']))
+
+        # filtered_df = melted2.query('year == 2022')
+        # filtered_df = filtered_df.query('funding_fraction == 13.0')
+        # filtered_df2 = filtered_df[filtered_df['indicator'] == 'artcoverage']
+        # filtered_df2 = filtered_df2[filtered_df2['country'] == 'MOZ']
 
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(

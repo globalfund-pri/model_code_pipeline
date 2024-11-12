@@ -126,6 +126,10 @@ def get_tb_analysis(
             / "tb_fung_inc_unalc_bs_INDdp5017.csv"
         )
     )
+
+    list = parameters.get_modelled_countries_for('TB')
+    tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
+
     non_tgf_funding = (
         NonTgfFunding(
             path_to_data_folder
@@ -137,6 +141,8 @@ def get_tb_analysis(
             / "tb_nonfung_base_INDdp50_c.csv"
         )
     )
+
+    non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(
         database=db,

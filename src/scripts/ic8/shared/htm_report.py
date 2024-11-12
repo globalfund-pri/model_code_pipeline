@@ -293,6 +293,31 @@ class HTMReport(Report):
         tx_publicsector_2024_2029 = self.malaria.IC.portfolio_results["txpublic"].loc[
             slice(2024, 2029), "model_central"].sum()
 
+        vaccines_2024_2029 = self.malaria.IC.portfolio_results["vaccine"].loc[
+            slice(2024, 2029), "model_central"].sum()
+
+        vaccines_doses_2024_2029 = self.malaria.IC.portfolio_results["vaccinedoses"].loc[
+            slice(2024, 2029), "model_central"].sum()
+
+        par_vaccines_2024_2029 = self.malaria.IC.portfolio_results["parvx"].loc[
+            slice(2024, 2029), "model_central"].sum()
+
+        vaccines_cost_2024_2029 = self.malaria.IC.portfolio_results["costvx"].loc[
+            slice(2024, 2029), "model_central"].sum()
+
+        vaccines_2027_2029 = self.malaria.IC.portfolio_results["vaccine"].loc[
+            slice(2027, 2029), "model_central"].sum()
+
+        vaccines_doses_2027_2029 = self.malaria.IC.portfolio_results["vaccinedoses"].loc[
+            slice(2027, 2029), "model_central"].sum()
+
+        par_vaccines_2027_2029 = self.malaria.IC.portfolio_results["parvx"].loc[
+            slice(2027, 2029), "model_central"].sum()
+
+        vaccines_cost_2027_2029 = self.malaria.IC.portfolio_results["costvx"].loc[
+            slice(2027, 2029), "model_central"].sum()
+
+
         return {
             "Number of malaria cases in the year 2023": malaria_cases_2023,
             "Number of malaria cases in the year 2029": malaria_cases_2029,
@@ -321,6 +346,16 @@ class HTMReport(Report):
             "Number of bed nets distributed between 2027 and 2029": malaria_llins_2027_2029,
             "Number of bed nets distributed between 2024 and 2029": malaria_llins_2024_2029,
             "Number of people treated in the public sector between 2023 and 2029": tx_publicsector_2024_2029,
+
+            "Number of people vaccinated between 2024 and 2029": vaccines_2024_2029,
+            "Number of vaccine doses distributed between 2024 and 2029": vaccines_doses_2024_2029,
+            "Vaccine coverage between 2024 and 2029": vaccines_2024_2029/par_vaccines_2024_2029,
+            "Vaccine cost between 2024 and 2029": vaccines_cost_2024_2029,
+
+            "Number of people vaccinated between 2027 and 2029": vaccines_2027_2029,
+            "Number of vaccine doses distributed between 2027 and 2029": vaccines_doses_2027_2029,
+            "Vaccine coverage between 2027 and 2029": vaccines_2027_2029/par_vaccines_2027_2029,
+            "Vaccine cost between 2027 and 2029": vaccines_cost_2027_2029,
         }
 
     def get_lives_saved(self) -> Dict[str, float]:

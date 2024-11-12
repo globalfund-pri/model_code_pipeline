@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsHiv(
-        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_10_15",
+        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_07",
         parameters=parameters,
     )
 
