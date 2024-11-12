@@ -1176,6 +1176,11 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["hivneg_central"] = csv_df["population_central"] - csv_df["plhiv_central"]
         csv_df["hivneg_high"] = csv_df["population_central"] - csv_df["plhiv_low"]
 
+        # Turn cases from objectives to floats
+        csv_df["cases_central"] = pd.to_numeric(csv_df["cases_central"], errors='coerce', downcast="float")
+        csv_df["cases_low"] = pd.to_numeric(csv_df["cases_low"], errors='coerce', downcast="float")
+        csv_df["cases_high"] = pd.to_numeric(csv_df["cases_high"], errors='coerce', downcast="float")
+
         csv_df["incidence_low"] = csv_df["cases_low"] / csv_df["hivneg_central"]
         csv_df["incidence_central"] = csv_df["cases_central"] / csv_df["hivneg_central"]
         csv_df["incidence_high"] = csv_df["cases_high"] / csv_df["hivneg_central"]
@@ -1187,7 +1192,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Remove GP from first file, second file is corrected model output for this scenario
         if file == Path(
                 get_data_path()
-                / "IC8/modelling_outputs/hiv/2024_11_07/HIV historical scenarios 17aug24.csv"
+                / "IC8/modelling_outputs/hiv/2024_11_12/HIV historical scenarios 17aug24.csv"
         ):
             csv_df = csv_df.drop(
                 csv_df[
