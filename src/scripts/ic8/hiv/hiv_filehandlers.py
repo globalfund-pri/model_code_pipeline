@@ -170,7 +170,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
         )
 
-        # Make IC scenario
+        # Make GP scenario
         funding_fraction = 1
         ic_df = concatenated_dfs.loc[
             ("PF", funding_fraction, slice(None), slice(None), slice(None))
@@ -678,8 +678,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Clean up scenario remove Step 1 and Step 2 which are CC from end of PF period
         csv_df = csv_df[csv_df.scenario_descriptor != "Step1"]
         csv_df = csv_df[csv_df.scenario_descriptor != "Step2"]
-
-
 
         # Clean up funding fraction and PF scenario
         csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('Step(\d+)$').fillna('') # Puts the funding scenario number in a new column called funding fraction
