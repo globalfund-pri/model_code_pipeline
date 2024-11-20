@@ -172,11 +172,12 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
                 'funding_fraction'].transform('min')
             concatenated_dfs.loc[(concatenated_dfs['new_column'] == concatenated_dfs['funding_fraction']), 'funding_fraction'] = 0
+            concatenated_dfs.loc[(concatenated_dfs['scenario_descriptor'] != 'PF'), 'funding_fraction'] = 1
             concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
-            concatenated_dfs.funding_fraction = concatenated_dfs.funding_fraction.round(2)
-            concatenated_dfs.loc[(concatenated_dfs['funding_fraction']==0.0) & (concatenated_dfs['indicator'].str.contains('cost')), 'central'] = 0
+            concatenated_dfs.funding_fraction = concatenated_dfs.funding_fraction.round(4)
+            concatenated_dfs.loc[(concatenated_dfs['funding_fraction'] == 0.0) & (concatenated_dfs['indicator'].str.contains('cost')), 'central'] = 0
 
-        df_duplicates = concatenated_dfs[concatenated_dfs.duplicated()]
+        concatenated_dfs = concatenated_dfs.drop_duplicates(subset=["scenario_descriptor","country", "funding_fraction", "year", "indicator"], keep="last")
 
         # Re-pack the df
         concatenated_dfs = concatenated_dfs.set_index(
@@ -200,6 +201,10 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # Add ic_ic scenario to model output
         concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
+
+        # Remove duplicates
+        concatenated_dfs = concatenated_dfs.drop_duplicates()
+        # concatenated_dfs = concatenated_dfs.groupby(concatenated_dfs.index).first()
 
         return concatenated_dfs
 
@@ -380,6 +385,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # 2. Replace nan with zeros
         df_gp[[
+            "ART_total",
             "ART_cov",
             'PLHIV0_4',
             'PLHIV5_9',
@@ -507,6 +513,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             "VMMC_n_UB",
             "Total_cost",
         ]] = df_gp[[
+            "ART_total",
             "ART_cov",
             'PLHIV0_4',
             'PLHIV5_9',
