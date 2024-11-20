@@ -125,6 +125,9 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         """Reads in the data and return a pd.DataFrame with multi-index (scenario, funding_fraction, country, year,
         indicator) and columns containing model output (low, central, high)."""
 
+        # If running checks set the below to 1
+        check = 0
+
         # Read in each file and concatenate the results
         all_csv_file_at_the_path = get_files_with_extension(path, "csv")
         list_of_df = [
@@ -143,25 +146,35 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         ]
 
         # Make funding numbers into fractions
-        concatenated_dfs = concatenated_dfs.reset_index()
-        concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2 # Remove 2 as Step 1 and Step 2 were NULL and CC
-        concatenated_dfs.loc[concatenated_dfs.funding_fraction == -1, 'funding_fraction'] = 1 # Because now 1s will be -1s
+        if check == 1:
+            concatenated_dfs = concatenated_dfs.reset_index()
+            concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2 # Remove 2 as Step 1 and Step 2 were NULL and CC
+            concatenated_dfs.loc[concatenated_dfs.funding_fraction == -1, 'funding_fraction'] = 1 # Because now 1s will be -1s
 
-        concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
-            'funding_fraction'].transform('max')
-        concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
-        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 3})
-        concatenated_dfs.loc[
-            concatenated_dfs.funding_fraction == 0.091, 'funding_fraction'] = 0.0  # otherwise we have duplicates of the 0.5 funding fraction
-        concatenated_dfs.loc[
-            concatenated_dfs.funding_fraction == 0.182, 'funding_fraction'] = 0.1  # otherwise we have duplicates of the 0.5 funding fraction
-        concatenated_dfs.loc[
-            concatenated_dfs.funding_fraction == 0.273, 'funding_fraction'] = 0.2  # otherwise we have duplicates of the 0.5 funding fraction
-        concatenated_dfs.loc[
-            concatenated_dfs.funding_fraction == 0.364, 'funding_fraction'] = 0.3  # otherwise we have duplicates of the 0.5 funding fraction
-        concatenated_dfs.loc[concatenated_dfs.funding_fraction == 0.455, 'funding_fraction'] = 0.4  # otherwise we have duplicates of the 0.5 funding fraction
-        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 1})
-        concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
+            concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
+                'funding_fraction'].transform('max')
+            concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
+            concatenated_dfs = concatenated_dfs.round({'funding_fraction': 3})
+            concatenated_dfs.loc[
+                concatenated_dfs.funding_fraction == 0.091, 'funding_fraction'] = 0.0  # otherwise we have duplicates of the 0.5 funding fraction
+            concatenated_dfs.loc[
+                concatenated_dfs.funding_fraction == 0.182, 'funding_fraction'] = 0.1  # otherwise we have duplicates of the 0.5 funding fraction
+            concatenated_dfs.loc[
+                concatenated_dfs.funding_fraction == 0.273, 'funding_fraction'] = 0.2  # otherwise we have duplicates of the 0.5 funding fraction
+            concatenated_dfs.loc[
+                concatenated_dfs.funding_fraction == 0.364, 'funding_fraction'] = 0.3  # otherwise we have duplicates of the 0.5 funding fraction
+            concatenated_dfs.loc[concatenated_dfs.funding_fraction == 0.455, 'funding_fraction'] = 0.4  # otherwise we have duplicates of the 0.5 funding fraction
+            concatenated_dfs = concatenated_dfs.round({'funding_fraction': 1})
+            concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
+
+        if check == 0:
+            concatenated_dfs = concatenated_dfs.reset_index()
+            concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
+                'funding_fraction'].transform('min')
+            concatenated_dfs.loc[(concatenated_dfs['new_column'] == concatenated_dfs['funding_fraction']), 'funding_fraction'] = 0
+            concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
+            concatenated_dfs.funding_fraction = concatenated_dfs.funding_fraction.round(2)
+            concatenated_dfs.loc[(concatenated_dfs['funding_fraction']==0.0) & (concatenated_dfs['indicator'].str.contains('cost')), 'central'] = 0
 
         df_duplicates = concatenated_dfs[concatenated_dfs.duplicated()]
 
@@ -197,6 +210,9 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # Load 'Sheet1' from the Excel workbook
         csv_df = self._load_sheet(file)
+
+        # If we are running checks set the below to 1
+        check = 0
 
         # Only keep columns of immediate interest:
         csv_df = csv_df[
@@ -680,12 +696,44 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df = csv_df[csv_df.scenario_descriptor != "Step2"]
 
         # Clean up funding fraction and PF scenario
-        csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('Step(\d+)$').fillna('') # Puts the funding scenario number in a new column called funding fraction
-        csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('', 1) # Where there is no funding fraction, set it to 1
-        csv_df.loc[csv_df['scenario_descriptor'].str.contains('Step'), 'scenario_descriptor'] = 'PF' # removes "_"
+        if check == 1:
+            csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('Step(\d+)$').fillna('') # Puts the funding scenario number in a new column called funding fraction
+            csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('', 1) # Where there is no funding fraction, set it to 1
+            csv_df.loc[csv_df['scenario_descriptor'].str.contains('Step'), 'scenario_descriptor'] = 'PF' # removes "_"
+
+        # First get the sum over 2027, 2028 and 2029 of cost by scenario
+        if check == 0:
+            csv_df['new_column'] = \
+                csv_df[(csv_df['year'] < 2030) & (csv_df['year'] > 2026)].groupby(['scenario_descriptor', 'country'])[
+                    'Total_cost'].transform('sum')
+            csv_df['new_column'] = csv_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
+                lambda v: v.ffill())  # forwardfill
+            csv_df['new_column'] = csv_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
+                lambda v: v.bfill())  # backfill
+
+            # Clean up PF scenario
+            csv_df.loc[csv_df['scenario_descriptor'].str.contains('Step'), 'scenario_descriptor'] = 'PF'  # removes "_"
+
+            # Remove cost for non-PF scenarios
+            csv_df.loc[(csv_df['scenario_descriptor'] != 'PF'), 'new_column'] = 0
+
+            # Get max from PF scenario
+            csv_df['max_cost'] = csv_df.groupby(['scenario_descriptor', 'country'])[
+                'new_column'].transform('max')
+            csv_df['funding_fraction'] = csv_df['new_column'] / csv_df['max_cost']
+
+            # Drop temporary columns
+            csv_df = csv_df.drop(columns=['new_column', 'max_cost'])
+
+            # Now replace missing funding fractions with 1
+            csv_df['funding_fraction'] = csv_df['funding_fraction'].fillna(
+                1)  # Where there is no funding fraction, set it to 1
 
         # Remove rows without funding fraction results
         csv_df = csv_df[csv_df['plhiv_central'].notna()]
+
+        # Finally remove duplicates
+        csv_df = csv_df.drop_duplicates()
 
         # Convert funding fraction to number
         csv_df['funding_fraction'] = csv_df['funding_fraction'].astype('float')
@@ -1192,7 +1240,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Remove GP from first file, second file is corrected model output for this scenario
         if file == Path(
                 get_data_path()
-                / "IC8/modelling_outputs/hiv/2024_11_12/HIV historical scenarios 17aug24.csv"
+                / "IC8/modelling_outputs/hiv/2024_11_07/HIV historical scenarios 17aug24.csv"
         ):
             csv_df = csv_df.drop(
                 csv_df[

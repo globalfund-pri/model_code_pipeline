@@ -124,7 +124,7 @@ def get_hiv_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_10_15"
+            / "2024_11_08"
             / "hiv"
             / "tgf"
             / "hiv_fung_inc_unalc_bs17.csv"
@@ -140,7 +140,7 @@ def get_hiv_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_10_15"
+            / "2024_11_08"
             / "hiv"
             / "non_tgf"
             / "hiv_nonfung_base_c.csv"

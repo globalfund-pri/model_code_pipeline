@@ -120,10 +120,10 @@ def get_tb_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_10_15"
+            / "2024_11_08"
             / "tb"
             / "tgf"
-            / "tb_fung_inc_unalc_bs_INDdp5017.csv"
+            / "tb_fung_inc_unalc_bs17.csv"
         )
     )
 
@@ -135,10 +135,10 @@ def get_tb_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_10_15"
+            / "2024_11_08"
             / "tb"
             / "non_tgf"
-            / "tb_nonfung_base_INDdp50_c.csv"
+            / "tb_nonfung_base_c.csv"
         )
     )
 
@@ -173,4 +173,5 @@ if __name__ == "__main__":
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
+    a = 3
 
