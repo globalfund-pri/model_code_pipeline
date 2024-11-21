@@ -125,7 +125,7 @@ def get_malaria_analysis(
             / "2024_11_08"
             / "malaria"
             / "tgf"
-            / "malaria_fung_inc_unalc_inc_bs17.csv"
+            / "malaria_fung_inc_unalc_bs17.csv"
         )
     )
 

@@ -181,6 +181,9 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Load 'Sheet1' from the Excel workbook
         xlsx_df = self._load_sheet(file)
 
+        # If we are running checks set the below to 1
+        check = 0
+
         # Get costs without vaccine
         xlsx_df['TotalCost'] = xlsx_df["Costs"]
         xlsx_df['Costs'] = xlsx_df["TotalCost"] - xlsx_df["vacc_costs"]
@@ -571,28 +574,30 @@ class ModelResultsTb(TBMixin, ModelResults):
         xlsx_df = xlsx_df.drop(xlsx_df[xlsx_df.scenario_descriptor =="PF_05a"].index)
 
         # Clean up funding fraction and PF scenario
-        # xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
-        #     '')  # Puts the funding scenario number in a new column called funding fraction
-        # xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
-        #                                                         1)  # Where there is no funding fraction, set it to 1
-        # xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+        if check==1:
+            xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+                '')  # Puts the funding scenario number in a new column called funding fraction
+            xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
+                                                                    1)  # Where there is no funding fraction, set it to 1
+            xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
 
         # First get the sum over 2027, 2028 and 2029 of cost by scenario
-        xlsx_df['new_column'] = \
-        xlsx_df[(xlsx_df['year'] < 2030) & (xlsx_df['year'] > 2026)].groupby(['scenario_descriptor', 'country'])[
-            'cost_central'].transform('sum')
-        xlsx_df['new_column'] = xlsx_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
-            lambda v: v.ffill()) # forwardfill
-        xlsx_df['new_column'] = xlsx_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
-            lambda v: v.bfill()) # backfill
+        if check ==0:
+            xlsx_df['new_column'] = \
+            xlsx_df[(xlsx_df['year'] < 2030) & (xlsx_df['year'] > 2026)].groupby(['scenario_descriptor', 'country'])[
+                'cost_central'].transform('sum')
+            xlsx_df['new_column'] = xlsx_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
+                lambda v: v.ffill()) # forwardfill
+            xlsx_df['new_column'] = xlsx_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
+                lambda v: v.bfill()) # backfill
 
-        # Clean up PF scenario
-        xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
-            '')  # Puts the funding scenario number in a new column called funding fraction
-        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
-                                                                1)  # Where there is no funding fraction, set it to 1
-        xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+            # Clean up PF scenario
+            xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+                '')  # Puts the funding scenario number in a new column called funding fraction
+            xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
+                                                                    1)  # Where there is no funding fraction, set it to 1
+            xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
         # Remove cost for non-PF scenarios
         xlsx_df.loc[(xlsx_df['scenario_descriptor'] != 'PF'), 'new_column'] = 0

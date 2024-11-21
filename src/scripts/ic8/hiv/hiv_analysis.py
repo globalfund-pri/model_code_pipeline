@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from scripts.ic8.hiv.hiv_checks import DatabaseChecksHiv
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv, PFInputDataHIV, PartnerDataHIV, GpHiv
+from scripts.ic8.shared.create_frontier import filter_for_frontier
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -86,6 +89,7 @@ def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
 
     # Create and return the database
     return Database(
+        # model_results=filter_for_frontier(model_results),
         model_results=model_results,
         gp=gp,
         pf_input_data=pf_input_data,
@@ -161,7 +165,7 @@ def get_hiv_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object
@@ -169,6 +173,11 @@ if __name__ == "__main__":
         load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
         do_checks=DO_CHECKS
     )
+
+    analysis.make_diagnostic_report(optimisation_params={
+                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
+                'force_monotonic_decreasing': True,
+            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False, filename=Path("diagnostic_report_hiv.pdf"))
 
     # To examine results from approach A / B....
     # analysis.portfolio_projection_approach_a()

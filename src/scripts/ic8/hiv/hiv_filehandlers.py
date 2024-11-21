@@ -168,16 +168,20 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
 
         if check == 0:
+            # Find the smallest funding fraction, set this one to zero and make cost zero so we have full range
+            # This is done in analysis.py in line 368 but as we no longer automatically have 0.1 funding (which
+            # gets copied to zero funding fraction and zero funding in original
             concatenated_dfs = concatenated_dfs.reset_index()
             concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
                 'funding_fraction'].transform('min')
             concatenated_dfs.loc[(concatenated_dfs['new_column'] == concatenated_dfs['funding_fraction']), 'funding_fraction'] = 0
             concatenated_dfs.loc[(concatenated_dfs['scenario_descriptor'] != 'PF'), 'funding_fraction'] = 1
             concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
-            concatenated_dfs.funding_fraction = concatenated_dfs.funding_fraction.round(4)
+            concatenated_dfs.funding_fraction = concatenated_dfs.funding_fraction.round(5)
             concatenated_dfs.loc[(concatenated_dfs['funding_fraction'] == 0.0) & (concatenated_dfs['indicator'].str.contains('cost')), 'central'] = 0
 
-        concatenated_dfs = concatenated_dfs.drop_duplicates(subset=["scenario_descriptor","country", "funding_fraction", "year", "indicator"], keep="last")
+        # Check for duplicates
+        # concatenated_dfs = concatenated_dfs.drop_duplicates(subset=["scenario_descriptor","country", "funding_fraction", "year", "indicator"], keep="last")
 
         # Re-pack the df
         concatenated_dfs = concatenated_dfs.set_index(
@@ -201,10 +205,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # Add ic_ic scenario to model output
         concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
-
-        # Remove duplicates
-        concatenated_dfs = concatenated_dfs.drop_duplicates()
-        # concatenated_dfs = concatenated_dfs.groupby(concatenated_dfs.index).first()
 
         return concatenated_dfs
 
@@ -701,6 +701,8 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Clean up scenario remove Step 1 and Step 2 which are CC from end of PF period
         csv_df = csv_df[csv_df.scenario_descriptor != "Step1"]
         csv_df = csv_df[csv_df.scenario_descriptor != "Step2"]
+        csv_df = csv_df[csv_df.scenario_descriptor != "Step13"]
+
 
         # Clean up funding fraction and PF scenario
         if check == 1:
