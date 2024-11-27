@@ -48,6 +48,31 @@ def find_cost_effective_frontier(points: np.array, upper_edge: bool = True) -> n
     else:
         frontier = get_lower(points[hull.vertices])
 
+    # # PLots for checking
+    # lfrontier = get_lower(points[hull.vertices])
+    # ufrontier = get_upper(points[hull.vertices])
+    # import matplotlib.pyplot as plt
+    # pts_on_the_hull = points[hull.vertices]
+    # fig, ax = plt.subplots(ncols=1, figsize=(4, 4))
+    # ax.set_title('Frontier')
+    # ax.plot(points[:, 0], points[:, 1], '.', color='black', label='points')
+    # ax.plot(pts_on_the_hull[:, 0], pts_on_the_hull[:, 1],
+    #         'o', linestyle='-', mec='b', lw=1, markersize=10, color='none', label='hull')
+    # ax.plot(pts_on_the_hull[:, 0], pts_on_the_hull[:, 1],
+    #         linestyle='-', color='b')
+    # ax.plot(lfrontier[:, 0], lfrontier[:, 1],
+    #         '*', linestyle='-', mec='r', lw=1, markersize=10, color='none', label='lower frontier')
+    # ax.plot(lfrontier[:, 0], lfrontier[:, 1],
+    #         linestyle='-', color='r')
+    # ax.plot(ufrontier[:, 0], ufrontier[:, 1],
+    #         '*', linestyle='-', mec='g', lw=1, markersize=10, color='none', label='upper frontier')
+    # ax.plot(ufrontier[:, 0], ufrontier[:, 1],
+    #         linestyle='-', color='g')
+    # ax.set_xlabel('Cost')
+    # ax.set_ylabel('Value')
+    # ax.legend()
+    # fig.tight_layout()
+    # fig.show()
 
     return frontier
 
