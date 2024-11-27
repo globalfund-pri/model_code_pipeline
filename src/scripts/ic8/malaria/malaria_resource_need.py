@@ -105,7 +105,8 @@ if __name__ == "__main__":
         columns={'central': 'mortality', 'high': 'mortality_ub', 'low': 'mortality_lb'})
 
     # Merge all into one and save the output
-    df_resource_need = pandas.concat([cost_by_year, cost_vx_by_year, cost_priv_by_year, incidence_by_year, mortality_by_year], axis=1)
+    df_resource_need = pandas.concat(
+        [cost_by_year, cost_vx_by_year, cost_priv_by_year, incidence_by_year, mortality_by_year, cases_by_year, deaths_by_year, par_by_year], axis=1)
     df_resource_need.to_csv('df_pf_100_malaria.csv')
 
 

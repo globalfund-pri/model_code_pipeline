@@ -1,6 +1,9 @@
+from pathlib import Path
+
 from scripts.ic8.malaria.malaria_checks import DatabaseChecksMalaria
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria, \
     GpMalaria
+from scripts.ic8.shared.create_frontier import filter_for_frontier
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -52,7 +55,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsMalaria(
-            path_to_data_folder / "IC8/modelling_outputs/malaria/2024_11_04",
+            path_to_data_folder / "IC8/modelling_outputs/malaria/2024_11_12",
             parameters=parameters
         )
         # Save the model_results object
@@ -86,6 +89,7 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
     # Create and return the database
     return Database(
         model_results=model_results,
+        # model_results=filter_for_frontier(model_results),
         gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
@@ -122,7 +126,7 @@ def get_malaria_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_11_08"
+            / "2024_11_24"
             / "malaria"
             / "tgf"
             / "malaria_fung_inc_unalc_bs17.csv"
@@ -137,7 +141,7 @@ def get_malaria_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_11_08"
+            / "2024_11_24"
             / "malaria"
             / "non_tgf"
             / "malaria_nonfung_base_c.csv"
@@ -166,6 +170,11 @@ if __name__ == "__main__":
         load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
         do_checks=DO_CHECKS
     )
+
+    analysis.make_diagnostic_report(optimisation_params={
+                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
+                'force_monotonic_decreasing': True,
+            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False, filename=Path("diagnostic_report_malaria.pdf"))
 
     # To examine results from approach A / B....
     # analysis.portfolio_projection_approach_a()

@@ -177,7 +177,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             concatenated_dfs.loc[(concatenated_dfs['new_column'] == concatenated_dfs['funding_fraction']), 'funding_fraction'] = 0
             concatenated_dfs.loc[(concatenated_dfs['scenario_descriptor'] != 'PF'), 'funding_fraction'] = 1
             concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
-            concatenated_dfs.funding_fraction = concatenated_dfs.funding_fraction.round(5)
+            concatenated_dfs.funding_fraction = concatenated_dfs.funding_fraction.round(7)
             concatenated_dfs.loc[(concatenated_dfs['funding_fraction'] == 0.0) & (concatenated_dfs['indicator'].str.contains('cost')), 'central'] = 0
 
         # Check for duplicates
@@ -701,8 +701,63 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Clean up scenario remove Step 1 and Step 2 which are CC from end of PF period
         csv_df = csv_df[csv_df.scenario_descriptor != "Step1"]
         csv_df = csv_df[csv_df.scenario_descriptor != "Step2"]
-        csv_df = csv_df[csv_df.scenario_descriptor != "Step13"]
+        # csv_df = csv_df[csv_df.scenario_descriptor != "Step13"]
 
+        # Fix Step 13 in 2022
+        filename = "HIV cost impact"
+        if filename in str(file.name):
+            print('hello')
+            # Get the names of all the columns
+            column_names = csv_df.columns.tolist()
+            column_names = column_names[3:]
+
+            # Step 1: Remove duplicates for Step13 in 2022 directly in df, keeping the last occurrence
+            mask_step13_2022 = (csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'] == 2022)
+            csv_df.loc[mask_step13_2022, :] = csv_df.loc[mask_step13_2022].drop_duplicates(
+                subset=['country', 'year', 'scenario_descriptor'], keep='last'
+            )
+
+            # Remove rows containing NaN after reassignment (caused by unmatched rows during deduplication)
+            csv_df = csv_df.dropna()
+
+            # Step 2: Replace Step13 values for 2022 with corresponding Step4 values
+            # Extract Step4 values for 2022
+            step4_2022 = csv_df[(csv_df['scenario_descriptor'] == 'Step4') & (csv_df['year'] == 2022)]
+
+            # Merge Step4 values with Step13 rows
+            df_step13_updated = csv_df[mask_step13_2022].merge(
+                step4_2022[['country'] + column_names],
+                on='country',
+                suffixes=('', '_step4')
+            )
+
+            # Find the original indices for rows in df_step13_updated
+            indices_to_update = csv_df[
+                (csv_df['country'].isin(df_step13_updated['country'])) &
+                (csv_df['scenario_descriptor'] == 'Step13') &
+                (csv_df['year'] == 2022)
+                ].index
+
+            # Replace values in the original DataFrame at these indices
+            csv_df.loc[indices_to_update, column_names] = df_step13_updated[[col + '_step4' for col in column_names]].values
+
+            # Step 3: Replace values in Step1 and Step2 for 2022 and 2023 with values from Step13
+            # Extract Step13 values for 2022 and 2023
+            step13_2022_2023 = csv_df[(csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'].isin([2023, 2024, 2025, 2026]))]
+
+            # Create a mapping for Step13 values (x, y, z) by country and year
+            step13_mapping = step13_2022_2023.set_index(['country', 'year'])[column_names]
+
+            # Replace Step1 and Step2 values for 2022 and 2023 with corresponding Step13 values
+            mask_step1_step2_2022_2023 = (csv_df['year'].isin([2023, 2024, 2025, 2026])) & (csv_df['scenario_descriptor'].isin(['Step3', 'Step4', 'Step5', 'Step6', 'Step7', 'Step8', 'Step9', 'Step10', 'Step11', 'Step12']))
+            csv_df.loc[mask_step1_step2_2022_2023, column_names] = csv_df.loc[mask_step1_step2_2022_2023].apply(
+                lambda row: step13_mapping.loc[(row['country'], row['year'])] if (row['country'], row[
+                    'year']) in step13_mapping.index else row[column_names],
+                axis=1
+            )
+
+        # Remove rows without funding fraction results
+        csv_df = csv_df[csv_df['plhiv_central'].notna()]
 
         # Clean up funding fraction and PF scenario
         if check == 1:
@@ -739,7 +794,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 1)  # Where there is no funding fraction, set it to 1
 
         # Remove rows without funding fraction results
-        csv_df = csv_df[csv_df['plhiv_central'].notna()]
+        # csv_df = csv_df[csv_df['plhiv_central'].notna()]
 
         # Finally remove duplicates
         csv_df = csv_df.drop_duplicates()
@@ -1249,7 +1304,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Remove GP from first file, second file is corrected model output for this scenario
         if file == Path(
                 get_data_path()
-                / "IC8/modelling_outputs/hiv/2024_11_07/HIV historical scenarios 17aug24.csv"
+                / "IC8/modelling_outputs/hiv/2024_11_24/HIV historical scenarios 17aug24.csv"
         ):
             csv_df = csv_df.drop(
                 csv_df[

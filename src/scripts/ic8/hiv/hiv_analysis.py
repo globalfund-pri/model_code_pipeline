@@ -54,7 +54,7 @@ def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsHiv(
-            path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_07",
+            path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_24",
             parameters=parameters,
         )
         # Save the model_results object
@@ -89,8 +89,8 @@ def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
 
     # Create and return the database
     return Database(
-        # model_results=filter_for_frontier(model_results),
-        model_results=model_results,
+        model_results=filter_for_frontier(model_results),
+        # model_results=model_results,
         gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
@@ -128,7 +128,7 @@ def get_hiv_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_11_08"
+            / "2024_11_24"
             / "hiv"
             / "tgf"
             / "hiv_fung_inc_unalc_bs17.csv"
@@ -144,7 +144,7 @@ def get_hiv_analysis(
             path_to_data_folder
             / "IC8"
             / "funding"
-            / "2024_11_08"
+            / "2024_11_24"
             / "hiv"
             / "non_tgf"
             / "hiv_nonfung_base_c.csv"
@@ -165,7 +165,7 @@ def get_hiv_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = False
+    LOAD_DATA_FROM_RAW_FILES = True
     DO_CHECKS = False
 
     # Create the Analysis object

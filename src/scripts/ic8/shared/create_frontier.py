@@ -1,7 +1,9 @@
-from array import array
-
-from tgftools.filehandler import ModelResults
+from tgftools.filehandler import ModelResults, Parameters
 from tgftools.find_cost_effective_frontier import which_points_on_frontier
+from tgftools.utils import get_root_path, open_file
+
+project_root = get_root_path()
+parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
 
 
 def filter_for_frontier(model_results: ModelResults):
@@ -9,8 +11,8 @@ def filter_for_frontier(model_results: ModelResults):
     a frontier-based cost impact curve"""
 
     print("hello")
-    years_for_obj_func = [2027, 2028, 2029, 2030]
-    years_for_funding = [2027, 2028, 2029]
+    years_for_obj_func = parameters.get("YEARS_FOR_OBJ_FUNC")
+    years_for_funding = parameters.get("YEARS_FOR_FUNDING")
     scenario_descriptor = "PF"
     # ---------------
 

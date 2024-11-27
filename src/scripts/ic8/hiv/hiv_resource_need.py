@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsHiv(
-        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_12",
+        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_24",
         parameters=parameters,
     )
 
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     # Merge all into one and save the output
     df_resource_need = pandas.concat(
-        [cost_by_year, incidence_by_year, mortality_by_year], axis=1)
+        [cost_by_year, incidence_by_year, mortality_by_year, cases_by_year, deaths_by_year, plhiv_by_year, hivneg_by_year], axis=1)
     df_resource_need.to_csv('df_pf_100_hiv.csv')
 
 

@@ -863,12 +863,12 @@ class HTMReport(Report):
 
         combined_tb_mortality_gp = tb_mortality_gp
         combined_tb_mortality_gp = pd.DataFrame(combined_tb_mortality_gp)
-        combined_tb_mortality_gp = 100 * (combined_tb_mortality_gp / combined_tb_mortality_gp.iloc[5, :])
+        combined_tb_mortality_gp = 100 * (combined_tb_mortality_gp / combined_tb_mortality_gp.iloc[0, :])
         combined_tb_mortality_gp.columns = ['mortality']
 
         combined_malaria_mortality_gp = malaria_mortality_gp
         combined_malaria_mortality_gp = pd.DataFrame(combined_malaria_mortality_gp)
-        combined_malaria_mortality_gp = 100 * (combined_malaria_mortality_gp / combined_malaria_mortality_gp.iloc[5, :])
+        combined_malaria_mortality_gp = 100 * (combined_malaria_mortality_gp / combined_malaria_mortality_gp.iloc[0, :])
         combined_malaria_mortality_gp.columns = ['mortality']
 
         # Step 4. Combine the three normalised incidence rates by doing simple average
@@ -1103,13 +1103,13 @@ class HTMReport(Report):
         combined_tb_incidence_gp = tb_incidence_gp
         combined_tb_incidence_gp = combined_tb_incidence_gp.bfill(axis=1).iloc[:, 0]
         combined_tb_incidence_gp = pd.DataFrame(combined_tb_incidence_gp)
-        combined_tb_incidence_gp = 100 * (combined_tb_incidence_gp / combined_tb_incidence_gp.iloc[5, :])
+        combined_tb_incidence_gp = 100 * (combined_tb_incidence_gp / combined_tb_incidence_gp.iloc[0, :])
         combined_tb_incidence_gp.columns = ['incidence']
 
         combined_malaria_incidence_gp = malaria_incidence_gp
         combined_malaria_incidence_gp = combined_malaria_incidence_gp.bfill(axis=1).iloc[:, 0]
         combined_malaria_incidence_gp = pd.DataFrame(combined_malaria_incidence_gp)
-        combined_malaria_incidence_gp = 100 * (combined_malaria_incidence_gp / combined_malaria_incidence_gp.iloc[5, :])
+        combined_malaria_incidence_gp = 100 * (combined_malaria_incidence_gp / combined_malaria_incidence_gp.iloc[0, :])
         combined_malaria_incidence_gp.columns = ['incidence']
 
         # Step 4. Combine the three normalised incidence rates by doing simple average

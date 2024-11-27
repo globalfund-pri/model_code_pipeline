@@ -145,7 +145,7 @@ class ModelResultsTb(TBMixin, ModelResults):
         concatenated_dfs = concatenated_dfs.reset_index()
         concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])['funding_fraction'].transform('max')
         concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
-        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 2})
+        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 7})
         concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
 
         # Re-pack the df
@@ -599,16 +599,16 @@ class ModelResultsTb(TBMixin, ModelResults):
                                                                     1)  # Where there is no funding fraction, set it to 1
             xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
-        # Remove cost for non-PF scenarios
-        xlsx_df.loc[(xlsx_df['scenario_descriptor'] != 'PF'), 'new_column'] = 0
+            # Remove cost for non-PF scenarios
+            xlsx_df.loc[(xlsx_df['scenario_descriptor'] != 'PF'), 'new_column'] = 0
 
-        # Get max from PF scenario
-        xlsx_df['max_cost'] = xlsx_df.groupby(['scenario_descriptor', 'country'])[
-            'new_column'].transform('max')
-        xlsx_df['funding_fraction'] = xlsx_df['new_column'] / xlsx_df['max_cost']
+            # Get max from PF scenario
+            xlsx_df['max_cost'] = xlsx_df.groupby(['scenario_descriptor', 'country'])[
+                'new_column'].transform('max')
+            xlsx_df['funding_fraction'] = xlsx_df['new_column'] / xlsx_df['max_cost']
 
-        # Drop temporary columns
-        xlsx_df = xlsx_df.drop(columns=['new_column', 'max_cost'])
+            # Drop temporary columns
+            xlsx_df = xlsx_df.drop(columns=['new_column', 'max_cost'])
 
         # Now replace missing funding fractions with 1
         xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].fillna(1)  # Where there is no funding fraction, set it to 1

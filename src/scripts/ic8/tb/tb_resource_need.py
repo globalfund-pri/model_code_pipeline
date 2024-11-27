@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     # Merge all into one and save the output
     df_resource_need = pandas.concat(
-        [cost_by_year, incidence_by_year, mortality_by_year, mortalityhivneg_by_year], axis=1)
+        [cost_by_year, incidence_by_year, mortality_by_year, mortalityhivneg_by_year, cases_by_year, deaths_by_year, deathshivneg_by_year, pop_by_year], axis=1)
     df_resource_need.to_csv('df_pf100_tb.csv')
 
 
