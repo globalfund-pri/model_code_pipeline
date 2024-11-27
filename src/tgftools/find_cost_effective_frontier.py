@@ -1,29 +1,61 @@
-import pandas as pd
 from scipy.spatial import ConvexHull
 import numpy as np
 
 
-def find_cost_effective_frontier(points: np.array) -> np.array:
+def find_cost_effective_frontier(points: np.array, upper_edge: bool = True) -> np.array:
     """Return the points on the cost-effectiveness frontier.
-    Accepts points in `np.array` of the form [(cost, impact), ..., ], and return `np.array` of the same form but only
-    including the non-dominated points on the frontier, and sorted in ascending cost order. The frontier includes the
-    points that give the GREATEST impact for the cost.
+    Accepts points in `np.array` of the form [(cost, value), ..., ], and returns `np.array` of the same form but only
+    including the non-dominated points on the frontier, and sorted in ascending cost order.
+     * If `upper_edge=True`, then frontier includes the points that give the GREATEST value for the cost.
+     * If `upper_edge=False`, then frontier includes the points that give the SMALLEST value for the cost.
     """
 
     # Start by efficiently computing the Convex Hull (polygon of the outside edge of all the points)
     hull = ConvexHull(points)
 
-    # Get dataframe of the points on the hull and sort by ascending cost
-    df = pd.DataFrame(points[hull.vertices]).sort_values(by=0, ascending=True)
+    def get_lower(polygon):
+        """Find the lower edge of the convex hull, between the lowest cost point and the lowest value point.
+        From https://stackoverflow.com/a/76839030
+        This relies on the fact that the vertices are given in anti-clockwise order, so, as we read from the point with
+        the lowest cost to the point with the lowest value, we get the lower part of the hull."""
+        minx = np.argmin(polygon[:, 0])  # index of lowest cost point
+        maxx = np.argmin(polygon[:, 1]) + 1  # index of lowest value point
+        if minx >= maxx:
+            lower_curve = np.concatenate([polygon[minx:], polygon[:maxx]])
+        else:
+            lower_curve = polygon[minx:maxx]
+        return lower_curve
 
-    # Remove those points that don't trace the upper edge of the polygon
-    return df.loc[df[1] >= df[1].cummax()].values
+    def get_upper(polygon):
+        """Find the upper edge of the convex hull, between the lowest cost point and the highest value point.
+        Based on the solution for `get_lower()`. We reverse the order of points so that they are in clockwise order,
+        and then read from the lowest cost point to the highest value point.."""
+
+        # Reverse order of points in polygon so that it's going clockwise
+        polygon = np.flip(polygon, axis=0)
+
+        minx = np.argmin(polygon[:, 0])  # index of lowest cost point
+        maxx = np.argmax(polygon[:, 1]) + 1  # index of highest value point
+
+        if minx >= maxx:
+            lower_curve = np.concatenate([polygon[minx:], polygon[:maxx]])
+        else:
+            lower_curve = polygon[minx:maxx]
+        return lower_curve
+
+    if upper_edge:
+        frontier = get_upper(points[hull.vertices])
+    else:
+        frontier = get_lower(points[hull.vertices])
 
 
-def which_points_on_frontier(points: np.array) -> np.array:
+    return frontier
+
+
+def which_points_on_frontier(points: np.array, **kwargs) -> np.array:
     """Returns the indices of the points that are the cost-effective frontier"""
 
-    pts_on_frontier = find_cost_effective_frontier(points)
+    pts_on_frontier = find_cost_effective_frontier(points, **kwargs)
 
     # Return the index of the points on the frontier
     index_of_points_on_frontier = list()
