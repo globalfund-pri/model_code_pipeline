@@ -90,6 +90,8 @@ def which_points_on_frontier(points: np.array, **kwargs) -> np.array:
                 index_of_points_on_frontier.append(ix)
                 continue
 
+    print(index_of_points_on_frontier)
+
     return index_of_points_on_frontier
 
 

@@ -54,9 +54,9 @@ def filter_for_frontier(model_results: ModelResults):
     for country in cost_impact_points.country.unique():
         print(country)
         df = cost_impact_points.loc[cost_impact_points.country == country].copy().reset_index()
-        df['obj_col'] = -(df.cases/df.cases.max() + df.deaths/df.deaths.max())
+        df['obj_col'] = (df.cases/df.cases.max() + df.deaths/df.deaths.max())
         pts_on_curve = df[['cost', 'obj_col']].to_numpy()
-        a = which_points_on_frontier(pts_on_curve)
+        a = which_points_on_frontier(pts_on_curve, upper_edge=False)
         fundingfractions_nondominated = df.loc[a,'funding_fraction'].values
         print(fundingfractions_nondominated)
         fundingfractions_dominated = set(df['funding_fraction'].unique()) - set(fundingfractions_nondominated)
