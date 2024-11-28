@@ -447,6 +447,12 @@ class HTMReport(Report):
                 'hivneg_gp': self.hiv.CF_forgraphs['hivneg'],
                 'hivneg_cf': self.hiv.CF_InfAve.portfolio_results['hivneg']['model_central'],
                 'hivneg_ic': self.hiv.IC.portfolio_results['hivneg']['model_central'],
+                'Actual_inc': self.hiv.PARTNER['cases']/self.hiv.PARTNER["hivneg"],
+                'GP_inc': self.hiv.CF_forgraphs['cases']/self.hiv.CF_forgraphs['hivneg'],
+                'CF_inc': self.hiv.CF_InfAve.portfolio_results['cases']['model_central']/self.hiv.CF_InfAve.portfolio_results['hivneg']['model_central'],
+                'IC_inc': self.hiv.IC.portfolio_results['cases']['model_central']/self.hiv.IC.portfolio_results['hivneg']['model_central'],
+                'IC_LB_inc': self.hiv.IC.portfolio_results['incidence']['model_low'],
+                'IC_UB_inc': self.hiv.IC.portfolio_results['incidence']['model_high'],
             }
         )
 
