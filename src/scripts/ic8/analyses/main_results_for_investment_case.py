@@ -1,4 +1,8 @@
 """Do the analysis for all three diseases and produce the report"""
+from pathlib import Path
+from typing import Optional
+
+import pandas as pd
 
 from scripts.ic8.hiv.hiv_analysis import get_hiv_analysis
 from scripts.ic8.malaria.malaria_analysis import get_malaria_analysis
@@ -85,6 +89,7 @@ def get_report(
                 do_checks=do_checks
             )
         )
+
         save_var(hiv_projections, project_root / "sessions" / "hiv_analysis_ic8.pkl")
 
         tb_projections = get_set_of_portfolio_projections(
@@ -118,21 +123,104 @@ def get_report(
 
     return report
 
+def dump_projection_to_file(proj, filename):
+    """Write the contents of this projection to a csv file."""
+    dict_of_country_results = proj.IC.country_results
+
+    countries = dict_of_country_results.keys()
+
+    list_of_dfs = list()  # list of mini dataframes for each indicator for each country
+
+    for country in countries:
+        y = dict_of_country_results[country].model_projection
+        indicators = y.keys()
+
+        for indicator in indicators:
+            df = y[indicator]
+
+
+    whole_df = pd.concat(list_of_dfs, axis=0)
+
+    # save to csv
+    whole_df.to_csv(filename)
+
+
+def dump_ic_scenario_to_file(
+        load_data_from_raw_files: bool = False,
+        run_analysis: bool = False,
+        filename_stub: Optional[Path] = None,
+) -> None:
+    project_root = get_root_path()
+
+    if filename_stub is None:
+        print('We need a filename!!')
+        return
+
+    if run_analysis:
+        # Run the analyses
+        hiv_projections = get_set_of_portfolio_projections(
+            get_hiv_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=False,
+            )
+        )
+        save_var(hiv_projections, project_root / "sessions" / "hiv_analysis_ic8.pkl")
+
+        tb_projections = get_set_of_portfolio_projections(
+            get_tb_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=False,
+            )
+        )
+        save_var(tb_projections, project_root / "sessions" / "tb_analysis_ic8.pkl")
+
+        malaria_projections = get_set_of_portfolio_projections(
+            get_malaria_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=False,
+            )
+        )
+        save_var(malaria_projections, project_root / "sessions" / "malaria_analysis_ic8.pkl")
+
+    else:
+        # Load the projections
+        hiv_projections = load_var(project_root / "sessions" / "hiv_analysis_ic8.pkl")
+        tb_projections = load_var(project_root / "sessions" / "tb_analysis_ic8.pkl")
+        malaria_projections = load_var(project_root / "sessions" / "malaria_analysis_ic8.pkl")
+
+
+    # Dump to file
+    for (disease, proj) in zip(
+            ('hiv', 'tb', 'malaria'),
+            (hiv_projections, tb_projections, malaria_projections)
+    ):
+        dump_projection_to_file(proj=proj, filename=f"{filename_stub}_{disease}.csv")
+
 
 if __name__ == "__main__":
-    # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = True
-    DO_CHECKS = False
-    RUN_ANALYSIS = True
+
     outputpath = get_root_path() / 'outputs'
 
-    r = get_report(
-        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-        do_checks=DO_CHECKS,
-        run_analysis=RUN_ANALYSIS,
+    dump_ic_scenario_to_file(
+        load_data_from_raw_files=False,
+        run_analysis=False,
+        filename_stub=Path(str(outputpath) + "/dump_ic")
     )
 
-    # Generate report
-    filename = get_root_path() / 'outputs' / 'final_report_ic8.xlsx'
-    r.report(filename)
-    open_file(filename)
+
+
+    # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
+    # LOAD_DATA_FROM_RAW_FILES = True
+    # DO_CHECKS = False
+    # RUN_ANALYSIS = True
+    #
+    # r = get_report(
+    #     load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
+    #     do_checks=DO_CHECKS,
+    #     run_analysis=RUN_ANALYSIS,
+    # )
+    #
+    # # Generate report
+    # filename = get_root_path() / 'outputs' / 'final_report_ic8.xlsx'
+    # r.report(filename)
+    # open_file(filename)
