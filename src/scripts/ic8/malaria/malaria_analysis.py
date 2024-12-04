@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pandas as pd
+
 from scripts.ic8.malaria.malaria_checks import DatabaseChecksMalaria
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria, \
     GpMalaria
@@ -88,8 +90,10 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
 
     # Create and return the database
     return Database(
-        model_results=model_results,
-        # model_results=filter_for_frontier(model_results),
+        # These model results take the full cost impact curve as is
+        # model_results=model_results,
+        # These model results are limited to the points of the cost-impact curve that are on the frontier
+        model_results=filter_for_frontier(model_results),
         gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
@@ -162,7 +166,7 @@ def get_malaria_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object
@@ -171,10 +175,13 @@ if __name__ == "__main__":
         do_checks=DO_CHECKS
     )
 
-    analysis.make_diagnostic_report(optimisation_params={
+    analysis.make_diagnostic_report(
+        optimisation_params={
                 'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
                 'force_monotonic_decreasing': True,
-            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False, filename=Path("diagnostic_report_malaria.pdf"))
+            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False,
+        filename=get_root_path() / "outputs" / "diagnostic_report_malaria.pdf"
+    )
 
     # To examine results from approach A / B....
     # analysis.portfolio_projection_approach_a()
@@ -184,3 +191,19 @@ if __name__ == "__main__":
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
+
+    # Portfolio Projection Approach B: to find optimal allocation of TGF
+    results_from_approach_b = analysis.portfolio_projection_approach_b(
+        optimisation_params={
+            'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
+            'force_monotonic_decreasing': True,
+        }, methods=['ga_backwards', 'ga_forwards', ]
+    )
+
+    (
+            pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
+        results_from_approach_b.non_tgf_funding_by_country)
+    ).to_csv(
+        get_root_path() / 'outputs' / 'malaria_tgf_optimal_allocation.csv',
+        header=False
+    )
