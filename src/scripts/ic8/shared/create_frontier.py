@@ -10,7 +10,6 @@ def filter_for_frontier(model_results: ModelResults):
     """ This will convert the cost impact curves in the raw model output file to
     a frontier-based cost impact curve"""
 
-    print("hello")
     years_for_obj_func = parameters.get("YEARS_FOR_OBJ_FUNC")
     years_for_funding = parameters.get("YEARS_FOR_FUNDING")
     scenario_descriptor = "PF"
