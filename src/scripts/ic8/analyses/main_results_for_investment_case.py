@@ -133,12 +133,10 @@ def dump_projection_to_file(proj, filename):
         [proj.IC.country_results, proj.CF_InfAve.country_results, proj.CF_LivesSaved.country_results, ]
     ):
         for country in country_results.keys():
-            print(f"{scenario_descriptor=} {country=}")
             y = country_results[country].model_projection
             indicators = y.keys()
             years = range(2022, 2031)
             for indicator in indicators:
-                print(f"{indicator=}")
                 df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
                 df['indicator'] = indicator
                 df['country'] = country
