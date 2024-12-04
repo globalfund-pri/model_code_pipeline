@@ -173,10 +173,14 @@ if __name__ == "__main__":
         do_checks=DO_CHECKS
     )
 
-    analysis.make_diagnostic_report(optimisation_params={
+    # Make diagnostic report
+    analysis.make_diagnostic_report(
+        optimisation_params={
                 'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
                 'force_monotonic_decreasing': True,
-            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False, filename=Path("diagnostic_report_tb.pdf"))
+            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False,
+        filename=get_root_path() / "outputs" / "diagnostic_report_tb.pdf"
+    )
 
     # To examine results from approach A / B....
     # analysis.portfolio_projection_approach_a()
