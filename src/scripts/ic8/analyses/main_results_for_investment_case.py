@@ -214,20 +214,18 @@ if __name__ == "__main__":
         filename_stub=Path(str(outputpath) + "/dump_ic")
     )
 
+    # This is the entry point for running Reports for the HIV, TB and MALARIA combined.
+    LOAD_DATA_FROM_RAW_FILES = True
+    DO_CHECKS = False
+    RUN_ANALYSIS = True
 
+    r = get_report(
+        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
+        do_checks=DO_CHECKS,
+        run_analysis=RUN_ANALYSIS,
+    )
 
-    # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
-    # LOAD_DATA_FROM_RAW_FILES = True
-    # DO_CHECKS = False
-    # RUN_ANALYSIS = True
-    #
-    # r = get_report(
-    #     load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-    #     do_checks=DO_CHECKS,
-    #     run_analysis=RUN_ANALYSIS,
-    # )
-    #
-    # # Generate report
-    # filename = get_root_path() / 'outputs' / 'final_report_ic8.xlsx'
-    # r.report(filename)
-    # open_file(filename)
+    # Generate report
+    filename = get_root_path() / 'outputs' / 'final_report_ic8.xlsx'
+    r.report(filename)
+    open_file(filename)
