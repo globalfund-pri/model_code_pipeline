@@ -30,313 +30,316 @@ from tgftools.utils import (
 project_root = get_root_path()
 path_to_data_folder = get_data_path()
 
-# %% Flag to indicate whether the script should reload model results from raw files and re-run all the analysis, or
+# %% Flag to indicate whether the script should reload model results from raw files and/or re-run all the analysis, or
 # instead to re-load locally-cached versions of `ModelResults` binaries and locally-cached version of the analysis
 # results.
+LOAD_DATA = False
 DO_RUN = True
 
 # %% Find scenarios defined for GF Funding
-funding_path = path_to_data_folder / 'IC8' / 'funding' / '2024_10_29'
+# funding_path = path_to_data_folder / 'IC8' / 'funding' / '2024_11_24'
+#
+# # Get all the files that have been provided with TGF funding scenarios (using HIV as the tracer)
+# files_pattern = sorted([
+#     file.name.removeprefix('hiv_').removesuffix('.csv')
+#     for file in get_files_with_extension(
+#         funding_path / 'hiv' / 'tgf', 'csv'
+#     )
+# ])
+#
+# # Find the GF funding scenarios for HIV, TB, Malaria
+# gf_scenarios = {
+#     name: {
+#         disease: TgfFunding(funding_path / disease / 'tgf' / f'{disease}_{name}.csv')
+#         for disease in ['hiv', 'tb', 'malaria']
+#     }
+#     for name in files_pattern
+# }
+#
+# # Create dict that maps these scenario names to "pretty names" (for use when plotting)
+# mapper_to_pretty_names = {
+#     n: f"${n.removeprefix('fung_').replace('fung', 'fungible').replace('_inc_unalc', '+')}"
+#     for n in sorted(list(gf_scenarios.keys()))
+# }
 
-# Get all the files that have been provided with TGF funding scenarios (using HIV as the tracer)
-files_pattern = sorted([
-    file.name.removeprefix('hiv_').removesuffix('.csv')
-    for file in get_files_with_extension(
-        funding_path / 'hiv' / 'tgf', 'csv'
-    )
-])
+# # Record the total amount of funding in the TGF scenario (across diseases and countries)
+# tot_tgf_funding = pd.Series({
+#     mapper_to_pretty_names[scenario_name]: sum(list(map(lambda x: x.df['value'].sum(), scenario_obj.values())))
+#     for scenario_name, scenario_obj in gf_scenarios.items()
+# }, name='TGF Funding').sort_index()
 
-# Find the GF funding scenarios for HIV, TB, Malaria
-gf_scenarios = {
-    name: {
-        disease: TgfFunding(funding_path / disease / 'tgf' / f'{disease}_{name}.csv')
-        for disease in ['hiv', 'tb', 'malaria']
-    }
-    for name in files_pattern
-}
+# # "Thin-out" these scenarios to make the initial run go faster and to not use any unnecessary scenarios
+# # - Drop all 'incUnalloc' amounts
+# scenarios_to_run = {
+#     k: v for k, v in gf_scenarios.items()
+#     if not k.endswith('_incUnalloc')
+# # }
+# # - Don't run every scenario
+# thinning_factor = 1  # 1 implies no thinning
+# scenarios_to_run = {
+#     k: v for i, (k, v) in enumerate(scenarios_to_run.items()) if i % thinning_factor == 0
+# }
 
-# Create dict that maps these scenario names to "pretty names" (for use when plotting)
-mapper_to_pretty_names = {
-    n: f"${n.removeprefix('fung_').replace('fung', 'fungible').replace('_inc_unalc', '+')}"
-    for n in sorted(list(gf_scenarios.keys()))
-}
-
-# Record the total amount of funding in the TGF scenario (across diseases and countries)
-tot_tgf_funding = pd.Series({
-    mapper_to_pretty_names[scenario_name]: sum(list(map(lambda x: x.df['value'].sum(), scenario_obj.values())))
-    for scenario_name, scenario_obj in gf_scenarios.items()
-}, name='TGF Funding').sort_index()
-
-# "Thin-out" these scenarios to make the initial run go faster and to not use any unnecessary scenarios
-# - Drop all 'incUnalloc' amounts
-scenarios_to_run = {
-    k: v for k, v in gf_scenarios.items()
-    if not k.endswith('_incUnalloc')
-}
-# - Don't run every scenario
-thinning_factor = 1  # 1 implies no thinning
-scenarios_to_run = {
-    k: v for i, (k, v) in enumerate(scenarios_to_run.items()) if i % thinning_factor == 0
-}
 
 #%% Declare assumptions that are not going to change in the analysis
-NON_TGF_FUNDING = '_nonfung_base.csv'
 SCENARIO_DESCRIPTOR = 'PF'
 parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+funding_path = path_to_data_folder / 'IC8' / 'funding' / '2024_11_24'
+
 
 #%% Load the databases for HIV, Tb and Malaria
-hiv_db = get_hiv_database(load_data_from_raw_files=DO_RUN)
-tb_db = get_tb_database(load_data_from_raw_files=DO_RUN)
-malaria_db = get_malaria_database(load_data_from_raw_files=DO_RUN)
+hiv_db = get_hiv_database(load_data_from_raw_files=LOAD_DATA)
+tb_db = get_tb_database(load_data_from_raw_files=LOAD_DATA)
+malaria_db = get_malaria_database(load_data_from_raw_files=LOAD_DATA)
 
-# %% Function for running batch of analyses for all the funding scenarios for the LHS figure
-
-def get_projections(
-        approach: Literal['a', 'b'] = 'b',
-        tgf_funding_scenario: str = '',
-        innovation_on: bool = False,
-        gp: bool = False
-) -> Dict[str, Dict[str, pd.DataFrame]]:
-    """Returns Dict of portfolio results (itself a dict of the form {indicator: dataframe of results}, keyed by disease.
-     As this must work for GP and model results, we only return the portfolio results (GP is not defined at the country
-     level here)."""
-
-    # Create Analysis objects for this funding scenario
-    analysis_hiv = Analysis(
-        database=hiv_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
-        tgf_funding=gf_scenarios[tgf_funding_scenario]['hiv'],
-        non_tgf_funding=NonTgfFunding(funding_path / 'hiv' / 'non_tgf' / f'hiv{NON_TGF_FUNDING}'),
-        parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=innovation_on,
-    )
-    analysis_tb = Analysis(
-        database=tb_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
-        tgf_funding=gf_scenarios[tgf_funding_scenario]['tb'],
-        non_tgf_funding=NonTgfFunding(funding_path / 'tb' / 'non_tgf' / f'tb{NON_TGF_FUNDING}'),
-        parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=innovation_on,
-    )
-    analysis_malaria = Analysis(
-        database=malaria_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
-        tgf_funding=gf_scenarios[tgf_funding_scenario]['malaria'],
-        non_tgf_funding=NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / f'malaria{NON_TGF_FUNDING}'),
-        parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=innovation_on,
-    )
-
-    if not gp:
-        if approach == 'a':
-            return dict(
-                hiv=analysis_hiv.portfolio_projection_approach_a().portfolio_results,
-                tb=analysis_tb.portfolio_projection_approach_a().portfolio_results,
-                malaria=analysis_malaria.portfolio_projection_approach_a().portfolio_results,
-            )
-        elif approach == 'b':
-            optimisation_params = {
-                'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True
-            }
-            return dict(
-                hiv=analysis_hiv.portfolio_projection_approach_b(methods=['ga_backwards'],
-                                                                 optimisation_params=optimisation_params).portfolio_results,
-                tb=analysis_tb.portfolio_projection_approach_b(methods=['ga_backwards'],
-                                                               optimisation_params=optimisation_params).portfolio_results,
-                malaria=analysis_malaria.portfolio_projection_approach_b(methods=['ga_backwards'],
-                                                               optimisation_params=optimisation_params).portfolio_results
-            )
-    else:
-        # Return the GP
-        def convert_format(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
-            """Convert the GP into the same format as `PortfolioProjection.portfolio_results` (i.e. dict and dfs, keyed
-            by indicator), with columns for model_central/low/high."""
-            return {
-                c: pd.DataFrame({col_name: df[c] for col_name in ('model_central', 'model_low', 'model_high')})
-                for c in df.columns
-            }
-
-        return dict(
-            hiv=convert_format(analysis_hiv.get_gp()),
-            tb=convert_format(analysis_tb.get_gp()),
-            malaria=convert_format(analysis_malaria.get_gp()),
-        )
-
-
-# %% Analysis for LEFT-HAND-SIDE Plot
-if DO_RUN:
-    Results_LHS = dict()
-    for scenario_label in scenarios_to_run:
-        Results_LHS[scenario_label] = get_projections(approach='a', innovation_on=False,
-                                                      tgf_funding_scenario=scenario_label)
-
-    # Now produce the variations on this that are required.
-    Results_LHS['$12Bn: '] = get_projections(approach='b', innovation_on=False,
-                                                            tgf_funding_scenario='fung_inc_unalc_12')
-
-    Results_LHS['$14Bn: '] = get_projections(approach='b', innovation_on=False,
-                                                          tgf_funding_scenario='fung_inc_unalc_14')
-
-    Results_LHS['$16Bn: '] = get_projections(approach='b', innovation_on=False,
-                                                       tgf_funding_scenario='fung_inc_unalc_16')
-
-    # Results_LHS['$18Bn: '] = get_projections(approach='b', innovation_on=False,
-    #                                                                    tgf_funding_scenario='fung_inc_unalc_18')
-    #
-    # Results_LHS['$20Bn: '] = get_projections(approach='b', innovation_on=False,
-    #                                                                      tgf_funding_scenario='fung_inc_unalc_20')
-    #
-
-    Results_LHS['GP'] = get_projections(gp=True, approach='a', innovation_on=False, tgf_funding_scenario='fung_inc_unalc_12')
-
-    save_var(Results_LHS, get_root_path() / "sessions" / "Results_LHS.pkl")
-else:
-    Results_LHS = load_var(get_root_path() / "sessions" / "Results_LHS.pkl")
-
-
-# %% Construct statistics for LHS plot
-
-def get_percent_reduction_from_2022_to_2030(_results, indicator: str) -> pd.DataFrame:
-    """Find the percentage reduction in the indicator from 2022 to 2030.
-    :param: `indicator` might be 'cases' or 'deaths' or another indicator."""
-    s = defaultdict(dict)
-    for disease in ('hiv', 'tb', 'malaria'):
-        for scenario in _results:
-            s[disease][scenario] = 100 * (1.0 - (
-                    _results[scenario][disease][indicator].at[2030, 'model_central'] /
-                    _results[scenario][disease][indicator].at[2022, 'model_central']
-            ))
-    return pd.DataFrame(s)
+# # %% Function for running batch of analyses for all the funding scenarios for the LHS figure
+#
+# def get_projections(
+#         approach: Literal['a', 'b'] = 'b',
+#         tgf_funding_scenario: str = '',
+#         innovation_on: bool = False,
+#         gp: bool = False
+# ) -> Dict[str, Dict[str, pd.DataFrame]]:
+#     """Returns Dict of portfolio results (itself a dict of the form {indicator: dataframe of results}, keyed by disease.
+#      As this must work for GP and model results, we only return the portfolio results (GP is not defined at the country
+#      level here)."""
+#
+#     # Create Analysis objects for this funding scenario
+#     analysis_hiv = Analysis(
+#         database=hiv_db,
+#         scenario_descriptor=SCENARIO_DESCRIPTOR,
+#         tgf_funding=gf_scenarios[tgf_funding_scenario]['hiv'],
+#         non_tgf_funding=NonTgfFunding(funding_path / 'hiv' / 'non_tgf' / f'hiv{NON_TGF_FUNDING}'),
+#         parameters=parameters,
+#         handle_out_of_bounds_costs=True,
+#         innovation_on=innovation_on,
+#     )
+#     analysis_tb = Analysis(
+#         database=tb_db,
+#         scenario_descriptor=SCENARIO_DESCRIPTOR,
+#         tgf_funding=gf_scenarios[tgf_funding_scenario]['tb'],
+#         non_tgf_funding=NonTgfFunding(funding_path / 'tb' / 'non_tgf' / f'tb{NON_TGF_FUNDING}'),
+#         parameters=parameters,
+#         handle_out_of_bounds_costs=True,
+#         innovation_on=innovation_on,
+#     )
+#     analysis_malaria = Analysis(
+#         database=malaria_db,
+#         scenario_descriptor=SCENARIO_DESCRIPTOR,
+#         tgf_funding=gf_scenarios[tgf_funding_scenario]['malaria'],
+#         non_tgf_funding=NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / f'malaria{NON_TGF_FUNDING}'),
+#         parameters=parameters,
+#         handle_out_of_bounds_costs=True,
+#         innovation_on=innovation_on,
+#     )
+#
+#     if not gp:
+#         if approach == 'a':
+#             return dict(
+#                 hiv=analysis_hiv.portfolio_projection_approach_a().portfolio_results,
+#                 tb=analysis_tb.portfolio_projection_approach_a().portfolio_results,
+#                 malaria=analysis_malaria.portfolio_projection_approach_a().portfolio_results,
+#             )
+#         elif approach == 'b':
+#             optimisation_params = {
+#                 'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
+#                 'force_monotonic_decreasing': True
+#             }
+#             return dict(
+#                 hiv=analysis_hiv.portfolio_projection_approach_b(methods=['ga_backwards'],
+#                                                                  optimisation_params=optimisation_params).portfolio_results,
+#                 tb=analysis_tb.portfolio_projection_approach_b(methods=['ga_backwards'],
+#                                                                optimisation_params=optimisation_params).portfolio_results,
+#                 malaria=analysis_malaria.portfolio_projection_approach_b(methods=['ga_backwards'],
+#                                                                optimisation_params=optimisation_params).portfolio_results
+#             )
+#     else:
+#         # Return the GP
+#         def convert_format(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+#             """Convert the GP into the same format as `PortfolioProjection.portfolio_results` (i.e. dict and dfs, keyed
+#             by indicator), with columns for model_central/low/high."""
+#             return {
+#                 c: pd.DataFrame({col_name: df[c] for col_name in ('model_central', 'model_low', 'model_high')})
+#                 for c in df.columns
+#             }
+#
+#         return dict(
+#             hiv=convert_format(analysis_hiv.get_gp()),
+#             tb=convert_format(analysis_tb.get_gp()),
+#             malaria=convert_format(analysis_malaria.get_gp()),
+#         )
+#
+#
+# # %% Analysis for LEFT-HAND-SIDE Plot
+# if DO_RUN:
+#     Results_LHS = dict()
+#     for scenario_label in scenarios_to_run:
+#         Results_LHS[scenario_label] = get_projections(approach='a', innovation_on=False,
+#                                                       tgf_funding_scenario=scenario_label)
+#
+#     # Now produce the variations on this that are required.
+#     Results_LHS['$12Bn: '] = get_projections(approach='b', innovation_on=False,
+#                                                             tgf_funding_scenario='fung_inc_unalc_12')
+#
+#     Results_LHS['$14Bn: '] = get_projections(approach='b', innovation_on=False,
+#                                                           tgf_funding_scenario='fung_inc_unalc_14')
+#
+#     Results_LHS['$16Bn: '] = get_projections(approach='b', innovation_on=False,
+#                                                        tgf_funding_scenario='fung_inc_unalc_16')
+#
+#     # Results_LHS['$18Bn: '] = get_projections(approach='b', innovation_on=False,
+#     #                                                                    tgf_funding_scenario='fung_inc_unalc_18')
+#     #
+#     # Results_LHS['$20Bn: '] = get_projections(approach='b', innovation_on=False,
+#     #                                                                      tgf_funding_scenario='fung_inc_unalc_20')
+#     #
+#
+#     Results_LHS['GP'] = get_projections(gp=True, approach='a', innovation_on=False, tgf_funding_scenario='fung_inc_unalc_12')
+#
+#     save_var(Results_LHS, get_root_path() / "sessions" / "Results_LHS.pkl")
+# else:
+#     Results_LHS = load_var(get_root_path() / "sessions" / "Results_LHS.pkl")
 
 
-def get_sum_of_indicator_during_2022_to_2030_as_percent_of_gp(_results, indicator: str) -> pd.DataFrame:
-    """Find the value of the indicator, summed in the period 2022-2030, relative to the value in GP.
-    :param: `indicator` might be 'cases' or 'deaths' or another indicator."""
-    s = defaultdict(dict)
-    for disease in ('hiv', 'tb', 'malaria'):
-        gp_total = _results['GP'][disease][indicator].loc[slice(2022, 2030)]['model_central'].sum()
-        for scenario in _results:
-            scenario_total = _results[scenario][disease][indicator].loc[slice(2022, 2030)]['model_central'].sum()
-            s[disease][scenario] = 100 * (scenario_total / gp_total)
-    return pd.DataFrame(s)
-
-
-def get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(r, indicator: str) -> pd.DataFrame:
-    """Find the percentage of the reduction that is achieved in each result, relative to GP.
-    e.g., if GP reduces cases by 80% from 2022 to 2030, and the scenario reduces cases by 40%: the result is 50%
-    :param: `indicator` might be 'cases' or 'deaths' or another indicator.
-    """
-    s = defaultdict(dict)
-    for disease in ('hiv', 'tb', 'malaria'):
-        gp_reduction = 1.0 - (
-                r['GP'][disease][indicator].at[2030, 'model_central'] / r['GP'][disease][indicator].at[2022, 'model_central']
-        )
-        for scenario in r:
-            scenario_reduction = 1.0 - (
-                        r[scenario][disease][indicator].at[2030, 'model_central'] / r['GP'][disease][indicator].at[2022, 'model_central']
-            )
-            s[disease][scenario] = 100 * scenario_reduction / gp_reduction
-    return pd.DataFrame(s)
-
-
-stats = {
-    'cases_percent_reduction_2022_to_2030': get_percent_reduction_from_2022_to_2030(Results_LHS, indicator='cases'),
-    'deaths_percent_reduction_2022_to_2030': get_percent_reduction_from_2022_to_2030(Results_LHS, indicator='deaths'),
-    'cases_relative_to_gp': get_sum_of_indicator_during_2022_to_2030_as_percent_of_gp(Results_LHS, indicator='cases'),
-    'deaths_relative_to_gp': get_sum_of_indicator_during_2022_to_2030_as_percent_of_gp(Results_LHS, indicator='deaths'),
-    'cases_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(Results_LHS, indicator='cases'),
-    'deaths_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(Results_LHS, indicator='deaths'),
-}
-
-# Add the combination one: across cases and deaths and all disease
-stats['cases_and_deaths_reduction_vs_gp'] = (stats['cases_reduction_vs_gp'] + stats['deaths_reduction_vs_gp']) / 2  # Gives equal weighting to reduction in cases and deaths
-stats['cases_and_deaths_reduction_vs_gp']['all'] = stats['cases_and_deaths_reduction_vs_gp'].mean(axis=1)  # Gives equal weighting to all diseases
-
-# %% Make the LHS-type figures
-
-def make_graph(df: pd.Series, title: str):
-    # plot the black dots: approach A across all budget levels
-    black_dots = pd.DataFrame(df.copy())
-    black_dots.index = black_dots.index.map(mapper_to_pretty_names)
-    black_dots = black_dots.loc[black_dots.index.notna()]
-    black_dots['x_pos'] = black_dots.index.map(tot_tgf_funding.to_dict())
-
-    fig, ax = plt.subplots()
-    ax.plot(
-        black_dots['x_pos'],
-        black_dots[black_dots.columns[0]],
-        color='black',
-        marker='.',
-        markersize=10,
-        linestyle='none',
-        label='Approach A',
-    )
-    ax.plot(
-        black_dots.at['$inc_unalc_12', 'x_pos'],
-        df['fung_inc_unalc_12'],
-        color='red',
-        marker='.',
-        markersize=10,
-        linestyle='none',
-        label='$12Biln'
-    )
-    ax.plot(
-        black_dots.at['$inc_unalc_14', 'x_pos'],
-        df['fung_inc_unalc_14'],
-        color='green',
-        marker='.',
-        markersize=10,
-        linestyle='none',
-        label='$14Bn'
-    )
-    ax.plot(
-        black_dots.at['$inc_unalc_16', 'x_pos'],
-        df['fung_inc_unalc_16'],
-        color='orange',
-        marker='.',
-        markersize=10,
-        linestyle='none',
-        label='$16Bn'
-    )
-
-    ax.set_ylabel('%')
-    ax.set_xlabel('TGF Replenishment Scenario')
-    ax.set_xticks(black_dots.x_pos)
-    ax.set_xticklabels(black_dots.index)
-    ax.set_title(title)
-    ax.legend()
-    fig.savefig(project_root / 'outputs' / f"mehran_lhs_fig_{title}.png")
-    fig.tight_layout()
-    fig.show()
-    plt.close(fig)
-
-
-# Make graphs for LHS-type figures
-# Headline graph of the combined reduction in cases and deaths across all diseases
-make_graph(
-    stats['cases_and_deaths_reduction_vs_gp']['all'],
-    title='Percent of GP Reduction in Cases and Deaths- All Diseases',
-)
-
-# Graph for each permutation of statistic and disease.
-for stat in stats:
-    for disease in ('hiv', 'tb', 'malaria'):
-        make_graph(
-            stats[stat][disease],
-            title=f'{stat}- {disease}',
-        )
-
-# Explore time-trend
-for disease in ('hiv', 'tb', 'malaria'):
-    for indicator in ('cases', 'deaths'):
-        time_trend = pd.DataFrame({scenario: Results_LHS[scenario][disease][indicator]['model_central'] for scenario in Results_LHS})
-        time_trend[['fung_inc_unalc_12', 'fung_inc_unalc_14', 'fung_inc_unalc_16', '$12Bn: ', '$14Bn: ', '$16Bn: ', 'GP']].plot()
-        plt.title(f'{disease}: {indicator}')
-        plt.show()
+# # %% Construct statistics for LHS plot
+#
+# def get_percent_reduction_from_2022_to_2030(_results, indicator: str) -> pd.DataFrame:
+#     """Find the percentage reduction in the indicator from 2022 to 2030.
+#     :param: `indicator` might be 'cases' or 'deaths' or another indicator."""
+#     s = defaultdict(dict)
+#     for disease in ('hiv', 'tb', 'malaria'):
+#         for scenario in _results:
+#             s[disease][scenario] = 100 * (1.0 - (
+#                     _results[scenario][disease][indicator].at[2030, 'model_central'] /
+#                     _results[scenario][disease][indicator].at[2022, 'model_central']
+#             ))
+#     return pd.DataFrame(s)
+#
+#
+# def get_sum_of_indicator_during_2022_to_2030_as_percent_of_gp(_results, indicator: str) -> pd.DataFrame:
+#     """Find the value of the indicator, summed in the period 2022-2030, relative to the value in GP.
+#     :param: `indicator` might be 'cases' or 'deaths' or another indicator."""
+#     s = defaultdict(dict)
+#     for disease in ('hiv', 'tb', 'malaria'):
+#         gp_total = _results['GP'][disease][indicator].loc[slice(2022, 2030)]['model_central'].sum()
+#         for scenario in _results:
+#             scenario_total = _results[scenario][disease][indicator].loc[slice(2022, 2030)]['model_central'].sum()
+#             s[disease][scenario] = 100 * (scenario_total / gp_total)
+#     return pd.DataFrame(s)
+#
+#
+# def get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(r, indicator: str) -> pd.DataFrame:
+#     """Find the percentage of the reduction that is achieved in each result, relative to GP.
+#     e.g., if GP reduces cases by 80% from 2022 to 2030, and the scenario reduces cases by 40%: the result is 50%
+#     :param: `indicator` might be 'cases' or 'deaths' or another indicator.
+#     """
+#     s = defaultdict(dict)
+#     for disease in ('hiv', 'tb', 'malaria'):
+#         gp_reduction = 1.0 - (
+#                 r['GP'][disease][indicator].at[2030, 'model_central'] / r['GP'][disease][indicator].at[2022, 'model_central']
+#         )
+#         for scenario in r:
+#             scenario_reduction = 1.0 - (
+#                         r[scenario][disease][indicator].at[2030, 'model_central'] / r['GP'][disease][indicator].at[2022, 'model_central']
+#             )
+#             s[disease][scenario] = 100 * scenario_reduction / gp_reduction
+#     return pd.DataFrame(s)
+#
+#
+# stats = {
+#     'cases_percent_reduction_2022_to_2030': get_percent_reduction_from_2022_to_2030(Results_LHS, indicator='cases'),
+#     'deaths_percent_reduction_2022_to_2030': get_percent_reduction_from_2022_to_2030(Results_LHS, indicator='deaths'),
+#     'cases_relative_to_gp': get_sum_of_indicator_during_2022_to_2030_as_percent_of_gp(Results_LHS, indicator='cases'),
+#     'deaths_relative_to_gp': get_sum_of_indicator_during_2022_to_2030_as_percent_of_gp(Results_LHS, indicator='deaths'),
+#     'cases_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(Results_LHS, indicator='cases'),
+#     'deaths_reduction_vs_gp': get_percent_reduction_in_indicator_from_2030_vs_2022_relative_to_gp(Results_LHS, indicator='deaths'),
+# }
+#
+# # Add the combination one: across cases and deaths and all disease
+# stats['cases_and_deaths_reduction_vs_gp'] = (stats['cases_reduction_vs_gp'] + stats['deaths_reduction_vs_gp']) / 2  # Gives equal weighting to reduction in cases and deaths
+# stats['cases_and_deaths_reduction_vs_gp']['all'] = stats['cases_and_deaths_reduction_vs_gp'].mean(axis=1)  # Gives equal weighting to all diseases
+#
+# # %% Make the LHS-type figures
+#
+# def make_graph(df: pd.Series, title: str):
+#     # plot the black dots: approach A across all budget levels
+#     black_dots = pd.DataFrame(df.copy())
+#     black_dots.index = black_dots.index.map(mapper_to_pretty_names)
+#     black_dots = black_dots.loc[black_dots.index.notna()]
+#     black_dots['x_pos'] = black_dots.index.map(tot_tgf_funding.to_dict())
+#
+#     fig, ax = plt.subplots()
+#     ax.plot(
+#         black_dots['x_pos'],
+#         black_dots[black_dots.columns[0]],
+#         color='black',
+#         marker='.',
+#         markersize=10,
+#         linestyle='none',
+#         label='Approach A',
+#     )
+#     ax.plot(
+#         black_dots.at['$inc_unalc_12', 'x_pos'],
+#         df['fung_inc_unalc_12'],
+#         color='red',
+#         marker='.',
+#         markersize=10,
+#         linestyle='none',
+#         label='$12Biln'
+#     )
+#     ax.plot(
+#         black_dots.at['$inc_unalc_14', 'x_pos'],
+#         df['fung_inc_unalc_14'],
+#         color='green',
+#         marker='.',
+#         markersize=10,
+#         linestyle='none',
+#         label='$14Bn'
+#     )
+#     ax.plot(
+#         black_dots.at['$inc_unalc_16', 'x_pos'],
+#         df['fung_inc_unalc_16'],
+#         color='orange',
+#         marker='.',
+#         markersize=10,
+#         linestyle='none',
+#         label='$16Bn'
+#     )
+#
+#     ax.set_ylabel('%')
+#     ax.set_xlabel('TGF Replenishment Scenario')
+#     ax.set_xticks(black_dots.x_pos)
+#     ax.set_xticklabels(black_dots.index)
+#     ax.set_title(title)
+#     ax.legend()
+#     fig.savefig(project_root / 'outputs' / f"mehran_lhs_fig_{title}.png")
+#     fig.tight_layout()
+#     fig.show()
+#     plt.close(fig)
+#
+#
+# # Make graphs for LHS-type figures
+# # Headline graph of the combined reduction in cases and deaths across all diseases
+# make_graph(
+#     stats['cases_and_deaths_reduction_vs_gp']['all'],
+#     title='Percent of GP Reduction in Cases and Deaths- All Diseases',
+# )
+#
+# # Graph for each permutation of statistic and disease.
+# for stat in stats:
+#     for disease in ('hiv', 'tb', 'malaria'):
+#         make_graph(
+#             stats[stat][disease],
+#             title=f'{stat}- {disease}',
+#         )
+#
+# # Explore time-trend
+# for disease in ('hiv', 'tb', 'malaria'):
+#     for indicator in ('cases', 'deaths'):
+#         time_trend = pd.DataFrame({scenario: Results_LHS[scenario][disease][indicator]['model_central'] for scenario in Results_LHS})
+#         time_trend[['fung_inc_unalc_12', 'fung_inc_unalc_14', 'fung_inc_unalc_16', '$12Bn: ', '$14Bn: ', '$16Bn: ', 'GP']].plot()
+#         plt.title(f'{disease}: {indicator}')
+#         plt.show()
 
 
 # %% RHS figure
@@ -353,22 +356,39 @@ def make_tgf_funding_scenario(total: int, based_on: TgfFunding) -> TgfFunding:
     assert df['value'].sum() == total
     return TgfFunding.from_df(df)
 
+# Load TGF Funding Scenarios
+gf_scenarios = {
+    '$17bn Scenario': {
+        'hiv': TgfFunding(funding_path / 'hiv' / 'tgf' / 'hiv_fung_inc_unalc_bs17.csv'),
+        'tb': TgfFunding(funding_path / 'tb' / 'tgf' / 'tb_fung_inc_unalc_bs17.csv'),
+        'malaria': TgfFunding(funding_path / 'malaria' / 'tgf' / 'malaria_fung_inc_unalc_bs17.csv'),
+    }
+}
+
+# todo reorganise these dicts so that TGF and non-TGF scenarios associate
 
 # For each disease, work out what amount of TGF funding will lead to full-funding
 slice_yrs_for_funding = slice(parameters.get('YEARS_FOR_FUNDING')[0], parameters.get('YEARS_FOR_FUNDING')[-1])
+
+def get_cost_for_highest_cost_scenario_for_each_country(df: pd.DataFrame) -> pd.Series:
+    """Returns the cost for the highest cost scenario for each country as pd.Series."""
+    dfx = df.loc[(SCENARIO_DESCRIPTOR, slice(None), slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
+        by=['country', 'funding_fraction']).sum()
+    return dfx.loc[dfx.groupby(level=0).idxmax()]
+
 gp_amt = {
-    'hiv': hiv_db.model_results.df.loc[('GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
-        'country').sum(),
-    'tb': tb_db.model_results.df.loc[('GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
-        'country').sum(),
-    'malaria': malaria_db.model_results.df.loc[
-        ('GP', 1.0, slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby('country').sum(),
+    'hiv': get_cost_for_highest_cost_scenario_for_each_country(hiv_db.model_results.df),
+    'tb': get_cost_for_highest_cost_scenario_for_each_country(tb_db.model_results.df),
+    'malaria': get_cost_for_highest_cost_scenario_for_each_country(malaria_db.model_results.df),
 }
+
+#for 17bn
 non_tgf_funding_amt = {
-    'hiv': NonTgfFunding(funding_path / 'hiv' / 'non_tgf' / f'hiv{NON_TGF_FUNDING}').df['value'],
-    'tb': NonTgfFunding(funding_path / 'tb' / 'non_tgf' / f'tb{NON_TGF_FUNDING}').df['value'],
-    'malaria': NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / f'malaria{NON_TGF_FUNDING}').df['value'],
+    'hiv': NonTgfFunding(funding_path / 'hiv' / 'non_tgf' /'hiv_nonfung_base_c.csv').df['value'],
+    'tb': NonTgfFunding(funding_path / 'tb' / 'non_tgf' / 'tb_nonfung_base_c.csv').df['value'],
+    'malaria': NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / 'malaria_nonfung_base_c.csv').df['value'],
 }
+
 unfunded_amount = {
     # Gap for each disease between Non_TGF sources and the GP scenario (summed across country)
     'hiv': (gp_amt['hiv'] - non_tgf_funding_amt['hiv']).clip(lower=0).sum(),
@@ -383,12 +403,14 @@ unfunded_amount = {
 #       Funding Fraction
 #   )
 
+non_tgf_funding_amt['hiv'].sum() - non_tgf_funding_amt['hiv'].sum()
+
 num_new_scenarios = 5  # increase this for more points
 tgf_scenarios_for_rhs_plot = {
     disease: {
         (None, round((x + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum(), 3)):
-            make_tgf_funding_scenario(int(x), based_on=gf_scenarios['fung_inc_unalc_12'][disease])
-        for x in np.linspace(100e6, unfunded_amount[disease], num_new_scenarios)
+            make_tgf_funding_scenario(int(x), based_on=gf_scenarios['$17bn Scenario'][disease])
+        for x in np.linspace(0, unfunded_amount[disease], num_new_scenarios)
     }
     for disease in ('hiv', 'tb', 'malaria')
 }
@@ -397,9 +419,9 @@ tgf_scenarios_for_rhs_plot = {
 for disease in ('hiv', 'tb', 'malaria'):
     tgf_scenarios_for_rhs_plot[disease].update(
         {
-            (mapper_to_pretty_names[b],
-             (scenarios_to_run[b][disease].df['value'].sum() + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum()): scenarios_to_run[b][disease]
-            for b in scenarios_to_run.keys()
+            (b,
+             (gf_scenarios[b][disease].df['value'].sum() + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum()): gf_scenarios[b][disease]
+            for b in gf_scenarios.keys()
         }
     )
 
