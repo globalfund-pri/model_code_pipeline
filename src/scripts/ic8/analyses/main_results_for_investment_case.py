@@ -125,24 +125,31 @@ def get_report(
 
 def dump_projection_to_file(proj, filename):
     """Write the contents of this projection to a csv file."""
-    dict_of_country_results = proj.IC.country_results
-
-    countries = dict_of_country_results.keys()
-
     list_of_dfs = list()  # list of mini dataframes for each indicator for each country
 
-    for country in countries:
-        y = dict_of_country_results[country].model_projection
-        indicators = y.keys()
 
-        for indicator in indicators:
-            df = y[indicator]
+    for scenario_descriptor, country_results in zip(
+        ['IC', 'CC_2022', 'NULL_2022', ],
+        [proj.IC.country_results, proj.CF_InfAve.country_results, proj.CF_LivesSaved.country_results, ]
+    ):
+        for country in country_results.keys():
+            print(f"{scenario_descriptor=} {country=}")
+            y = country_results[country].model_projection
+            indicators = y.keys()
+            years = range(2022, 2031)
+            for indicator in indicators:
+                print(f"{indicator=}")
+                df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
+                df['indicator'] = indicator
+                df['country'] = country
+                df['scenario_descriptor'] = scenario_descriptor
+                list_of_dfs.append(df)
 
+        # build whole df for export
+        whole_df = pd.concat(list_of_dfs, axis=0)
 
-    whole_df = pd.concat(list_of_dfs, axis=0)
-
-    # save to csv
-    whole_df.to_csv(filename)
+        # save to csv
+        whole_df.to_csv(filename, index=False)
 
 
 def dump_ic_scenario_to_file(
@@ -202,8 +209,8 @@ if __name__ == "__main__":
     outputpath = get_root_path() / 'outputs'
 
     dump_ic_scenario_to_file(
-        load_data_from_raw_files=False,
-        run_analysis=False,
+        load_data_from_raw_files=True,
+        run_analysis=True,
         filename_stub=Path(str(outputpath) + "/dump_ic")
     )
 

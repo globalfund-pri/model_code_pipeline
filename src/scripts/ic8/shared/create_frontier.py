@@ -62,7 +62,9 @@ def filter_for_frontier(model_results: ModelResults):
         fundingfractions_dominated = set(df['funding_fraction'].unique()) - set(fundingfractions_nondominated)
         model_results.df = model_results.df.drop(
             model_results.df.loc[
-                (model_results.df.index.get_level_values('country') == country) & (model_results.df.index.get_level_values('funding_fraction').isin(fundingfractions_dominated))
+                (model_results.df.index.get_level_values('country') == country)
+                & (model_results.df.index.get_level_values('funding_fraction').isin(fundingfractions_dominated))
+                & (model_results.df.index.get_level_values('scenario_descriptor') == scenario_descriptor)
             ].index
         )
 
