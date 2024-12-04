@@ -159,7 +159,7 @@ def get_hiv_analysis(
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
+        handle_out_of_bounds_costs=False,
         innovation_on=False,
     )
 

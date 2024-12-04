@@ -707,6 +707,11 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         filename = "HIV cost impact"
         if filename in str(file.name):
             print('hello')
+
+            # Remove Step 12 for SDN
+            csv_df = csv_df.drop(
+                csv_df[(csv_df["scenario_descriptor"].str.contains(pat="Step12")) & (csv_df["country"] == 'SDN')].index)
+
             # Get the names of all the columns
             column_names = csv_df.columns.tolist()
             column_names = column_names[3:]
@@ -759,14 +764,16 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Remove rows without funding fraction results
         csv_df = csv_df[csv_df['plhiv_central'].notna()]
 
-        # Clean up funding fraction and PF scenario
+        # Clean up funding fraction and PF scenario for checks
         if check == 1:
             csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('Step(\d+)$').fillna('') # Puts the funding scenario number in a new column called funding fraction
             csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('', 1) # Where there is no funding fraction, set it to 1
             csv_df.loc[csv_df['scenario_descriptor'].str.contains('Step'), 'scenario_descriptor'] = 'PF' # removes "_"
 
-        # First get the sum over 2027, 2028 and 2029 of cost by scenario
+        # Clean up funding fraction for optimization
         if check == 0:
+
+            # Get the sum over 2027, 2028 and 2029 of cost by scenario
             csv_df['new_column'] = \
                 csv_df[(csv_df['year'] < 2030) & (csv_df['year'] > 2026)].groupby(['scenario_descriptor', 'country'])[
                     'Total_cost'].transform('sum')
