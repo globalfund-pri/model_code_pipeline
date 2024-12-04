@@ -5,12 +5,13 @@
 # Overall specification of the analysis
 START_YEAR = 2020  # The first year of the model results (and the last year for which data available). This is the year upon which calibrating adjustments are made for the model results.
 END_YEAR = 2030  # The final year of the model results
+GRAPH_FIRST_YEAR = 2020 # Year for which we want data in the report
 YEARS_FOR_FUNDING = [2024, 2025, 2026]  # These are the years for which the funding data corrrespond
 YEARS_FOR_OBJ_FUNC = [2024, 2025, 2026, 2027, 2028, 2029, 2030]  # These are the years for which cases/deathhs are minimised
 RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE = 1.0
 RHO_BETWEEN_DISEASES = 1.0
 Z_VALUE = 1.282
-SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'GP_GP'
+SCENARIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'GP_GP'
 
 # --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------
@@ -20,43 +21,53 @@ SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'GP_GP'
 [[counterfactual]]
 name="GP_GP"
 description="Follow GP and revert to GP"
+is_gp=true
 
 [[counterfactual]]
 name="CC_CC"
 description="constant coverage and constant coverage"
+is_gp=false
 
 [[counterfactual]]
 name="NULL_NULL"
 description="null and null"
+is_gp=false
 
 # Definition of the Scenarios defined the model results
 [[scenario]]
 name="PF_MC"
 description="follow PF targets and maintain coverage"
+is_gp=false
 
 [[scenario]]
 name="PF_GP"
 description="follow PF targets and revert to GP"
+is_gp=false
 
 [[scenario]]
 name="PP_MC"
 description="follow past performance (adjusted PFs) and maintain coverage"
+is_gp=false
 
 [[scenario]]
 name="PP_GP"
 description="follow past performance (adjusted PFs) and revert to GP"
+is_gp=false
 
 [[scenario]]
 name="CD_MC"
 description="continued disruption (e.g. COVID_19 disruption) and maintain coverage"
+is_gp=false
 
 [[scenario]]
 name="CD_GP"
 description="continued disruption (e.g. COVID_19 disruption) and revert to GP"
+is_gp=false
 
 [[scenario]]
 name="IC_IC"
 description="This is a hybrid scenario and is constructed as follows: 2021 is CD, 2022 is mean of CD and PF and after that is PF_MC"
+is_gp=false
 
 
 # --------------------------------------------------------------------------------------------------

@@ -1,15 +1,13 @@
 import pandas
 
 from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV, PartnerDataHIV
-from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv
-from tgftools.checks import DatabaseChecks
 from tgftools.database import Database
 from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path
 
 
-class DatabaseChecksHiv(HIVMixin, CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks, DatabaseChecks):
+class DatabaseChecksHiv(HIVMixin,):
     """This is the class for DatabaseChecks to do with the HIV data."""
 
     def __init__(self, *args, **kwargs):
@@ -26,7 +24,7 @@ if __name__ == "__main__":
 
     # Load the files
     model_results = ModelResultsHiv(
-        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_24",
+        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_10_15",
         parameters=parameters,
     )
 
@@ -41,24 +39,36 @@ if __name__ == "__main__":
         parameters=parameters,
     )
 
-    # fixed_gp = FixedGp(
-    #     get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
-    #     parameters=parameters,
-    # )
-
     # Create the database
     db = Database(
         model_results=model_results,
-        # gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
     )
 
-    # Run the checks
-    DatabaseChecksHiv(
-        db=db,
-        parameters=parameters,
-    ).run(
-        suppress_error=True,
-        filename=project_root / "outputs" / "hiv_report_of_checks.pdf"
-    )
+    # Save output for Nick Menzies
+    list_of_hh_scenarios = ["HH", "NULL_2000", "CC_2000"]
+    list_of_fw_scenarios = ["NULL_2022", "CC_2022"]
+    fuc_mainscenario_df = model_results.df.loc[
+        ("PF", 1, slice(None), slice(None), slice(None))
+    ]
+    fuc_mainscenario_df = fuc_mainscenario_df.reset_index()
+    fuc_mainscenario_df['scenario_descriptor'] = "PF_100"
+
+    fuc_cf_fw_df = model_results.df.loc[
+        (list_of_fw_scenarios, 1, slice(None), slice(None), slice(None))
+    ]
+    fuc_cf_fw_df = fuc_cf_fw_df.reset_index()
+
+    fuc_cf_hh_df = model_results.df.loc[
+        (list_of_hh_scenarios, 1, slice(None), slice(None), slice(None))
+    ]
+    fuc_cf_hh_df = fuc_cf_hh_df.reset_index()
+
+    fuc_df = pandas.concat(
+        [fuc_mainscenario_df, fuc_cf_fw_df, fuc_cf_hh_df], axis=0)
+
+    fuc_df = fuc_df.drop(columns=["funding_fraction"])
+
+    # Save output
+    fuc_df.to_csv('df_ic_data_hiv.csv')

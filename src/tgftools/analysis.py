@@ -152,6 +152,7 @@ class Analysis:
         self.years_for_funding = self.parameters.get('YEARS_FOR_FUNDING')
         self.indicators_for_adj_for_innovations = self.parameters.get(self.disease_name).get(
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
+        self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
 
         # Create emulators for each country so that results can be created for any cost (within the range of actual
         # results).
@@ -182,7 +183,8 @@ class Analysis:
             country_results=country_results,
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
-                adjust_for_unmodelled_innovation=self.innovation_on
+                adjust_for_unmodelled_innovation=self.innovation_on,
+                name='none',
             ),
         )
 
@@ -217,7 +219,8 @@ class Analysis:
             country_results=country_results,
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
-                adjust_for_unmodelled_innovation=self.innovation_on
+                adjust_for_unmodelled_innovation=self.innovation_on,
+                name='none',
             )
         )
 
@@ -232,7 +235,8 @@ class Analysis:
             country_results=country_results,
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
-                adjust_for_unmodelled_innovation=self.innovation_on
+                adjust_for_unmodelled_innovation=self.innovation_on,
+                name='none',
             ),
         )
 
@@ -268,7 +272,7 @@ class Analysis:
             tgf_funding_by_country={k: float('nan') for k in self.countries},
             non_tgf_funding_by_country={k: float('nan') for k in self.countries},
             country_results=country_results,
-            portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False),
+            portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False, name=name),
         )
 
     def dump_everything_to_xlsx(
@@ -488,13 +492,14 @@ class Analysis:
             self,
             country_results: Dict[str, CountryProjection],
             adjust_for_unmodelled_innovation: bool,
+            name: str,
     ) -> Dict[str, pd.DataFrame]:
         """ This function generates portfolio level results. This included summing up variables across countries,
         scaling up for non-modelled countries, and doing the adjustment for GP-related innovation. """
 
         actual_without_innovation = (
             self._scale_up_for_non_modelled_countries(
-                self._summing_up_countries(country_results)
+                self._summing_up_countries(country_results, name), name
             )
         )
 
@@ -503,7 +508,7 @@ class Analysis:
 
         else:
             # Get the fully funded version of the model output
-            scenario_that_represents_full_impact_including_innovation = self.parameters.get('SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION')
+            scenario_that_represents_full_impact_including_innovation = self.parameters.get('SCENARIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION')
             full_funding_without_innovation = self.portfolio_projection_counterfactual(scenario_that_represents_full_impact_including_innovation)
 
             return (
@@ -514,11 +519,13 @@ class Analysis:
                 )
             )
 
-    def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection]) -> Dict[str, pd.DataFrame]:
+    def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
         # Get the first year of the model and list of epi indicators
         first_year = self.parameters.get("START_YEAR")
+        if name == ('GP'):
+            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
 
         # Get the indicators that should be scaled
         indicator_list = self.parameters.get_indicators_for(self.disease_name).use_scaling
@@ -596,7 +603,7 @@ class Analysis:
 
         return adj_country_results
 
-    def _summing_up_countries(self, country_results: Dict[str, CountryProjection]) -> Dict[str, pd.DataFrame]:
+    def _summing_up_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
         """ This will sum up all the country results to get the portolfio-level results. This will use the adjusted
         country results and be used to generate uncertainty. """
 
@@ -624,6 +631,7 @@ class Analysis:
         # Define years and parameters we need
         p = self.parameters
         first_year = p.get("START_YEAR")
+        if name == ('GP'):            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
         last_year = p.get("END_YEAR")
         z_value = p.get("Z_VALUE")
         rho_btw_countries = p.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")
@@ -674,9 +682,11 @@ class Analysis:
         if self.disease_name == 'MALARIA':
             indicator_partner = ['cases', 'deaths', 'par']
 
+        expected_first_year = self.parameters.get("GRAPH_FIRST_YEAR") - 5
+        expected_last_year = self.parameters.get("START_YEAR") + 1
+
         partner_data = self.database.partner_data.df.loc[
-            # TODO: remove hard coding
-            (self.scenario_descriptor, slice(None), range(2015, 2021), indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
+            (self.scenario_descriptor, slice(None), range(expected_first_year, expected_last_year), indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
 
         return partner_data
 
@@ -687,7 +697,7 @@ class Analysis:
             gp_data = self.database.gp.df['central'].unstack()
         else:
             # Get GP for HIV
-            gp_data = self.portfolio_projection_counterfactual('GP_GP')  # todo softcode
+            gp_data = self.portfolio_projection_counterfactual(self.EXPECTED_GP_SCENARIO[0])
 
             # Convert to the same format as other diseases
             gp_data = gp_data.portfolio_results
@@ -701,13 +711,13 @@ class Analysis:
         """ Return the CF time series to compute lives saved for malaria"""
 
         if self.disease_name != "MALARIA":
-
             return pd.DataFrame()
 
         # Get partner mortality data
         mortality_partner_data = self.database.partner_data.df.loc[
             (self.scenario_descriptor, slice(None), 2000, "mortality"), "central"
         ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
+        # 2000 is hard-coded as the year as that is intrinsic to the analysis.
 
         # TODO: make mean of funding fractions?
         # Set years of model output

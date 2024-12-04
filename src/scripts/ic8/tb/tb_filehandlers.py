@@ -7,10 +7,10 @@ import pandas as pd
 import regex
 
 from tgftools.filehandler import (
-    # FixedGp,
-    # Gp,
+    FixedGp,
+    Gp,
     ModelResults,
-    # Parameters,
+    Parameters,
     PFInputData,
     PartnerData,
 )
@@ -145,13 +145,31 @@ class ModelResultsTb(TBMixin, ModelResults):
         concatenated_dfs = concatenated_dfs.reset_index()
         concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])['funding_fraction'].transform('max')
         concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
-        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 2})
+        concatenated_dfs = concatenated_dfs.round({'funding_fraction': 7})
         concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
 
         # Re-pack the df
         concatenated_dfs = concatenated_dfs.set_index(
             ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
         )
+
+        # Make IC scenario
+        funding_fraction = 1
+        ic_df = concatenated_dfs.loc[
+            ("PF", funding_fraction, slice(None), slice(None), slice(None))
+        ]
+        ic_df = ic_df.reset_index()
+        ic_df["scenario_descriptor"] = "FULL_FUNDING"
+        ic_df["funding_fraction"] = funding_fraction
+        ic_df = ic_df.set_index(
+            ["scenario_descriptor", "funding_fraction", "country", "year", "indicator"]
+        )  # repack the index
+
+        # Sort the ic_df
+        ic_df.sort_index(level="country")
+
+        # Add ic_ic scenario to model output
+        concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
 
         return concatenated_dfs
 
@@ -163,11 +181,13 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Load 'Sheet1' from the Excel workbook
         xlsx_df = self._load_sheet(file)
 
-        # TODO: remove later
-        if file.name == "tb_ic_reference_BGD.xlsx":
-            xlsx_df['iso3'] = 'BGD'
+        # If we are running checks set the below to 1
+        check = 0
 
-        # Only keep columns of immediate interest:
+        # Get costs without vaccine
+        xlsx_df['TotalCost'] = xlsx_df["Costs"]
+        xlsx_df['Costs'] = xlsx_df["TotalCost"] - xlsx_df["vacc_costs"]
+
         xlsx_df = xlsx_df[
             [
                 "iso3",
@@ -186,6 +206,76 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "TBDeaths_HIVneg_NoTx_LB",
                 "TBDeaths_HIVneg_NoTx_UB",
                 "Population",
+                "NewCases_0_4",
+                "NewCases_5_9",
+                "NewCases_10_14",
+                "NewCases_15_19",
+                "NewCases_20_24",
+                "NewCases_25_29",
+                "NewCases_30_34",
+                "NewCases_35_39",
+                "NewCases_40_44",
+                "NewCases_45_49",
+                "NewCases_50_54",
+                "NewCases_55_59",
+                "NewCases_60_64",
+                "NewCases_65_69",
+                "NewCases_70_74",
+                "NewCases_75_79",
+                "NewCases_80",
+                "TBDeathsAll_0_4",
+                "TBDeathsAll_5_9",
+                "TBDeathsAll_10_14",
+                "TBDeathsAll_15_19",
+                "TBDeathsAll_20_24",
+                "TBDeathsAll_25_29",
+                "TBDeathsAll_30_34",
+                "TBDeathsAll_35_39",
+                "TBDeathsAll_40_44",
+                "TBDeathsAll_45_49",
+                "TBDeathsAll_50_54",
+                "TBDeathsAll_55_59",
+                "TBDeathsAll_60_64",
+                "TBDeathsAll_65_69",
+                "TBDeathsAll_70_74",
+                "TBDeathsAll_75_79",
+                "TBDeathsAll_80",
+                "TBDeathsHIVneg_0_4",
+                "TBDeathsHIVneg_5_9",
+                "TBDeathsHIVneg_10_14",
+                "TBDeathsHIVneg_15_19",
+                "TBDeathsHIVneg_20_24",
+                "TBDeathsHIVneg_25_29",
+                "TBDeathsHIVneg_30_34",
+                "TBDeathsHIVneg_35_39",
+                "TBDeathsHIVneg_40_44",
+                "TBDeathsHIVneg_45_49",
+                "TBDeathsHIVneg_50_54",
+                "TBDeathsHIVneg_55_59",
+                "TBDeathsHIVneg_60_64",
+                "TBDeathsHIVneg_65_69",
+                "TBDeathsHIVneg_70_74",
+                "TBDeathsHIVneg_75_79",
+                "TBDeathsHIVneg_80",
+                "Population_all_0_4",
+                "Population_all_5_9",
+                "Population_all_10_14",
+                "Population_all_15_19",
+                "Population_all_20_24",
+                "Population_all_25_29",
+                "Population_all_30_34",
+                "Population_all_35_39",
+                "Population_all_40_44",
+                "Population_all_45_49",
+                "Population_all_50_54",
+                "Population_all_55_59",
+                "Population_all_60_64",
+                "Population_all_65_69",
+                "Population_all_70_74",
+                "Population_all_75_79",
+                "Population_all_80",
+                "YLDs",
+                "YLDs_HIVn",
                 "Notified_n",
                 "Notified_n_LB",
                 "Notified_n_UB",
@@ -211,8 +301,11 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_p",
                 "hiv_pos",
                 "Costs",
+                "vacc_number",
+                "vacc_costs",
             ]
         ]
+        # Only keep columns of immediate interest:
 
         # Before going to the rest of the code need to do some cleaning to GP scenario, to prevent errors in this script
         df_gp = xlsx_df[xlsx_df.Scenario == "GP"]
@@ -229,56 +322,201 @@ class ModelResultsTb(TBMixin, ModelResults):
         # 2. Replace nan with zeros
         df_gp[[
              "Notified_n",
-                "Notified_n_LB",
-                "Notified_n_UB",
-                "Notified_p",
-                "Notified_p_LB",
-                "Notified_p_UB",
-                "TxSR",
-                "mdr_notified_n",
-                "mdr_notified_n_LB",
-                "mdr_notified_n_UB",
-                "mdr_notified_p",
-                "mdr_notified_p_LB",
-                "mdr_notified_p_UB",
-                "TxSR_MDR",
-                "mdr_estnew_n",
-                "mdr_estretx_n",
-                "mdr_Tx",
-                "mdr_Tx_LB",
-                "mdr_Tx_UB",
-                "tb_art_n",
-                "tb_art_n_LB",
-                "tb_art_n_UB",
-                "tb_art_p",
-                "hiv_pos",
-                "Costs",
+            "Notified_n_LB",
+            "Notified_n_UB",
+            "Notified_p",
+            "Notified_p_LB",
+            "Notified_p_UB",
+            "TxSR",
+            "mdr_notified_n",
+            "mdr_notified_n_LB",
+            "mdr_notified_n_UB",
+            "mdr_notified_p",
+            "mdr_notified_p_LB",
+            "mdr_notified_p_UB",
+            "TxSR_MDR",
+            "mdr_estnew_n",
+            "mdr_estretx_n",
+            "mdr_Tx",
+            "mdr_Tx_LB",
+            "mdr_Tx_UB",
+            "tb_art_n",
+            "tb_art_n_LB",
+            "tb_art_n_UB",
+            "tb_art_p",
+            "hiv_pos",
+            "Costs",
+            "vacc_number",
+            "vacc_costs",
+            "NewCases_0_4",
+            "NewCases_5_9",
+            "NewCases_10_14",
+            "NewCases_15_19",
+            "NewCases_20_24",
+            "NewCases_25_29",
+            "NewCases_30_34",
+            "NewCases_35_39",
+            "NewCases_40_44",
+            "NewCases_45_49",
+            "NewCases_50_54",
+            "NewCases_55_59",
+            "NewCases_60_64",
+            "NewCases_65_69",
+            "NewCases_70_74",
+            "NewCases_75_79",
+            "NewCases_80",
+            "TBDeathsAll_0_4",
+            "TBDeathsAll_5_9",
+            "TBDeathsAll_10_14",
+            "TBDeathsAll_15_19",
+            "TBDeathsAll_20_24",
+            "TBDeathsAll_25_29",
+            "TBDeathsAll_30_34",
+            "TBDeathsAll_35_39",
+            "TBDeathsAll_40_44",
+            "TBDeathsAll_45_49",
+            "TBDeathsAll_50_54",
+            "TBDeathsAll_55_59",
+            "TBDeathsAll_60_64",
+            "TBDeathsAll_65_69",
+            "TBDeathsAll_70_74",
+            "TBDeathsAll_75_79",
+            "TBDeathsAll_80",
+            "TBDeathsHIVneg_0_4",
+            "TBDeathsHIVneg_5_9",
+            "TBDeathsHIVneg_10_14",
+            "TBDeathsHIVneg_15_19",
+            "TBDeathsHIVneg_20_24",
+            "TBDeathsHIVneg_25_29",
+            "TBDeathsHIVneg_30_34",
+            "TBDeathsHIVneg_35_39",
+            "TBDeathsHIVneg_40_44",
+            "TBDeathsHIVneg_45_49",
+            "TBDeathsHIVneg_50_54",
+            "TBDeathsHIVneg_55_59",
+            "TBDeathsHIVneg_60_64",
+            "TBDeathsHIVneg_65_69",
+            "TBDeathsHIVneg_70_74",
+            "TBDeathsHIVneg_75_79",
+            "TBDeathsHIVneg_80",
+            "Population_all_0_4",
+            "Population_all_5_9",
+            "Population_all_10_14",
+            "Population_all_15_19",
+            "Population_all_20_24",
+            "Population_all_25_29",
+            "Population_all_30_34",
+            "Population_all_35_39",
+            "Population_all_40_44",
+            "Population_all_45_49",
+            "Population_all_50_54",
+            "Population_all_55_59",
+            "Population_all_60_64",
+            "Population_all_65_69",
+            "Population_all_70_74",
+            "Population_all_75_79",
+            "Population_all_80",
+            "YLDs",
+            "YLDs_HIVn",
         ]] = df_gp[[
-             "Notified_n",
-                "Notified_n_LB",
-                "Notified_n_UB",
-                "Notified_p",
-                "Notified_p_LB",
-                "Notified_p_UB",
-                "TxSR",
-                "mdr_notified_n",
-                "mdr_notified_n_LB",
-                "mdr_notified_n_UB",
-                "mdr_notified_p",
-                "mdr_notified_p_LB",
-                "mdr_notified_p_UB",
-                "TxSR_MDR",
-                "mdr_estnew_n",
-                "mdr_estretx_n",
-                "mdr_Tx",
-                "mdr_Tx_LB",
-                "mdr_Tx_UB",
-                "tb_art_n",
-                "tb_art_n_LB",
-                "tb_art_n_UB",
-                "tb_art_p",
-                "hiv_pos",
-                "Costs",
+            "Notified_n",
+            "Notified_n_LB",
+            "Notified_n_UB",
+            "Notified_p",
+            "Notified_p_LB",
+            "Notified_p_UB",
+            "TxSR",
+            "mdr_notified_n",
+            "mdr_notified_n_LB",
+            "mdr_notified_n_UB",
+            "mdr_notified_p",
+            "mdr_notified_p_LB",
+            "mdr_notified_p_UB",
+            "TxSR_MDR",
+            "mdr_estnew_n",
+            "mdr_estretx_n",
+            "mdr_Tx",
+            "mdr_Tx_LB",
+            "mdr_Tx_UB",
+            "tb_art_n",
+            "tb_art_n_LB",
+            "tb_art_n_UB",
+            "tb_art_p",
+            "hiv_pos",
+            "Costs",
+            "vacc_number",
+            "vacc_costs",
+            "NewCases_0_4",
+            "NewCases_5_9",
+            "NewCases_10_14",
+            "NewCases_15_19",
+            "NewCases_20_24",
+            "NewCases_25_29",
+            "NewCases_30_34",
+            "NewCases_35_39",
+            "NewCases_40_44",
+            "NewCases_45_49",
+            "NewCases_50_54",
+            "NewCases_55_59",
+            "NewCases_60_64",
+            "NewCases_65_69",
+            "NewCases_70_74",
+            "NewCases_75_79",
+            "NewCases_80",
+            "TBDeathsAll_0_4",
+            "TBDeathsAll_5_9",
+            "TBDeathsAll_10_14",
+            "TBDeathsAll_15_19",
+            "TBDeathsAll_20_24",
+            "TBDeathsAll_25_29",
+            "TBDeathsAll_30_34",
+            "TBDeathsAll_35_39",
+            "TBDeathsAll_40_44",
+            "TBDeathsAll_45_49",
+            "TBDeathsAll_50_54",
+            "TBDeathsAll_55_59",
+            "TBDeathsAll_60_64",
+            "TBDeathsAll_65_69",
+            "TBDeathsAll_70_74",
+            "TBDeathsAll_75_79",
+            "TBDeathsAll_80",
+            "TBDeathsHIVneg_0_4",
+            "TBDeathsHIVneg_5_9",
+            "TBDeathsHIVneg_10_14",
+            "TBDeathsHIVneg_15_19",
+            "TBDeathsHIVneg_20_24",
+            "TBDeathsHIVneg_25_29",
+            "TBDeathsHIVneg_30_34",
+            "TBDeathsHIVneg_35_39",
+            "TBDeathsHIVneg_40_44",
+            "TBDeathsHIVneg_45_49",
+            "TBDeathsHIVneg_50_54",
+            "TBDeathsHIVneg_55_59",
+            "TBDeathsHIVneg_60_64",
+            "TBDeathsHIVneg_65_69",
+            "TBDeathsHIVneg_70_74",
+            "TBDeathsHIVneg_75_79",
+            "TBDeathsHIVneg_80",
+            "Population_all_0_4",
+            "Population_all_5_9",
+            "Population_all_10_14",
+            "Population_all_15_19",
+            "Population_all_20_24",
+            "Population_all_25_29",
+            "Population_all_30_34",
+            "Population_all_35_39",
+            "Population_all_40_44",
+            "Population_all_45_49",
+            "Population_all_50_54",
+            "Population_all_55_59",
+            "Population_all_60_64",
+            "Population_all_65_69",
+            "Population_all_70_74",
+            "Population_all_75_79",
+            "Population_all_80",
+            "YLDs",
+            "YLDs_HIVn",
+
         ]].fillna(0)
 
         # Then put GP back into df
@@ -323,22 +561,416 @@ class ModelResultsTb(TBMixin, ModelResults):
                 "tb_art_n_UB": "tbart_high",
                 "tb_art_p": "tbartcoverage_central",
                 "hiv_pos": "plhiv_central",
+                "vacc_number": "vaccine_central",
+                "vacc_costs": "costvx_central",
                 "Costs": "cost_central",
             }
         )
 
+        # Remove rows with NAN for country
+        xlsx_df = xlsx_df[xlsx_df['country'].notna()]
+
+        # Remove PF_05a scenario
+        xlsx_df = xlsx_df.drop(xlsx_df[xlsx_df.scenario_descriptor =="PF_05a"].index)
+
         # Clean up funding fraction and PF scenario
-        xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
-            '')  # Puts the funding scenario number in a new column called funding fraction
-        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
-                                                                        1)  # Where there is no funding fraction, set it to 1
-        xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+        if check==1:
+            xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+                '')  # Puts the funding scenario number in a new column called funding fraction
+            xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
+                                                                    1)  # Where there is no funding fraction, set it to 1
+            xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+
+
+        # First get the sum over 2027, 2028 and 2029 of cost by scenario
+        if check ==0:
+            xlsx_df['new_column'] = \
+            xlsx_df[(xlsx_df['year'] < 2030) & (xlsx_df['year'] > 2026)].groupby(['scenario_descriptor', 'country'])[
+                'cost_central'].transform('sum')
+            xlsx_df['new_column'] = xlsx_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
+                lambda v: v.ffill()) # forwardfill
+            xlsx_df['new_column'] = xlsx_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
+                lambda v: v.bfill()) # backfill
+
+            # Clean up PF scenario
+            xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
+                '')  # Puts the funding scenario number in a new column called funding fraction
+            xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
+                                                                    1)  # Where there is no funding fraction, set it to 1
+            xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
+
+            # Remove cost for non-PF scenarios
+            xlsx_df.loc[(xlsx_df['scenario_descriptor'] != 'PF'), 'new_column'] = 0
+
+            # Get max from PF scenario
+            xlsx_df['max_cost'] = xlsx_df.groupby(['scenario_descriptor', 'country'])[
+                'new_column'].transform('max')
+            xlsx_df['funding_fraction'] = xlsx_df['new_column'] / xlsx_df['max_cost']
+
+            # Drop temporary columns
+            xlsx_df = xlsx_df.drop(columns=['new_column', 'max_cost'])
+
+        # Now replace missing funding fractions with 1
+        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].fillna(1)  # Where there is no funding fraction, set it to 1
+
+        # Finally remove duplicates
+        xlsx_df = xlsx_df.drop_duplicates()
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates
         xlsx_df["population_low"] = xlsx_df["Population"]
         xlsx_df["population_central"] = xlsx_df["Population"]
         xlsx_df["population_high"] = xlsx_df["Population"]
         xlsx_df = xlsx_df.drop(columns=["Population"])
+
+        xlsx_df["cases0to4_low"] = xlsx_df["NewCases_0_4"]
+        xlsx_df["cases0to4_central"] = xlsx_df["NewCases_0_4"]
+        xlsx_df["cases0to4_high"] = xlsx_df["NewCases_0_4"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_0_4"])
+
+        xlsx_df["cases5to9_low"] = xlsx_df["NewCases_5_9"]
+        xlsx_df["cases5to9_central"] = xlsx_df["NewCases_5_9"]
+        xlsx_df["cases5to9_high"] = xlsx_df["NewCases_5_9"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_5_9"])
+
+        xlsx_df["cases10to14_low"] = xlsx_df["NewCases_10_14"]
+        xlsx_df["cases10to14_central"] = xlsx_df["NewCases_10_14"]
+        xlsx_df["cases10to14_high"] = xlsx_df["NewCases_10_14"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_10_14"])
+
+        xlsx_df["cases15to19_low"] = xlsx_df["NewCases_15_19"]
+        xlsx_df["cases15to19_central"] = xlsx_df["NewCases_15_19"]
+        xlsx_df["cases15to19_high"] = xlsx_df["NewCases_15_19"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_15_19"])
+
+        xlsx_df["cases20to24_low"] = xlsx_df["NewCases_20_24"]
+        xlsx_df["cases20to24_central"] = xlsx_df["NewCases_20_24"]
+        xlsx_df["cases20to24_high"] = xlsx_df["NewCases_20_24"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_20_24"])
+
+        xlsx_df["cases25to29_low"] = xlsx_df["NewCases_25_29"]
+        xlsx_df["cases25to29_central"] = xlsx_df["NewCases_25_29"]
+        xlsx_df["cases25to29_high"] = xlsx_df["NewCases_25_29"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_25_29"])
+
+        xlsx_df["cases30to34_low"] = xlsx_df["NewCases_30_34"]
+        xlsx_df["cases30to34_central"] = xlsx_df["NewCases_30_34"]
+        xlsx_df["cases30to34_high"] = xlsx_df["NewCases_30_34"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_30_34"])
+
+        xlsx_df["cases35to39_low"] = xlsx_df["NewCases_35_39"]
+        xlsx_df["cases35to39_central"] = xlsx_df["NewCases_35_39"]
+        xlsx_df["cases35to39_high"] = xlsx_df["NewCases_35_39"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_35_39"])
+
+        xlsx_df["cases40to44_low"] = xlsx_df["NewCases_40_44"]
+        xlsx_df["cases40to44_central"] = xlsx_df["NewCases_40_44"]
+        xlsx_df["cases40to44_high"] = xlsx_df["NewCases_40_44"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_40_44"])
+
+        xlsx_df["cases45to49_low"] = xlsx_df["NewCases_45_49"]
+        xlsx_df["cases45to49_central"] = xlsx_df["NewCases_45_49"]
+        xlsx_df["cases45to49_high"] = xlsx_df["NewCases_45_49"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_45_49"])
+
+        xlsx_df["cases50to54_low"] = xlsx_df["NewCases_50_54"]
+        xlsx_df["cases50to54_central"] = xlsx_df["NewCases_50_54"]
+        xlsx_df["cases50to54_high"] = xlsx_df["NewCases_50_54"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_50_54"])
+
+        xlsx_df["cases55to59_low"] = xlsx_df["NewCases_55_59"]
+        xlsx_df["cases55to59_central"] = xlsx_df["NewCases_55_59"]
+        xlsx_df["cases55to59_high"] = xlsx_df["NewCases_55_59"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_55_59"])
+
+        xlsx_df["cases60to64_low"] = xlsx_df["NewCases_60_64"]
+        xlsx_df["cases60to64_central"] = xlsx_df["NewCases_60_64"]
+        xlsx_df["cases60to64_high"] = xlsx_df["NewCases_60_64"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_60_64"])
+
+        xlsx_df["cases65to69_low"] = xlsx_df["NewCases_65_69"]
+        xlsx_df["cases65to69_central"] = xlsx_df["NewCases_65_69"]
+        xlsx_df["cases65to69_high"] = xlsx_df["NewCases_65_69"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_65_69"])
+
+        xlsx_df["cases70to74_low"] = xlsx_df["NewCases_70_74"]
+        xlsx_df["cases70to74_central"] = xlsx_df["NewCases_70_74"]
+        xlsx_df["cases70to74_high"] = xlsx_df["NewCases_70_74"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_70_74"])
+
+        xlsx_df["cases75to79_low"] = xlsx_df["NewCases_75_79"]
+        xlsx_df["cases75to79_central"] = xlsx_df["NewCases_75_79"]
+        xlsx_df["cases75to79_high"] = xlsx_df["NewCases_75_79"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_75_79"])
+
+        xlsx_df["cases80_low"] = xlsx_df["NewCases_80"]
+        xlsx_df["cases80_central"] = xlsx_df["NewCases_80"]
+        xlsx_df["cases80_high"] = xlsx_df["NewCases_80"]
+        xlsx_df = xlsx_df.drop(columns=["NewCases_80"])
+
+        xlsx_df["deaths0to4_low"] = xlsx_df["TBDeathsAll_0_4"]
+        xlsx_df["deaths0to4_central"] = xlsx_df["TBDeathsAll_0_4"]
+        xlsx_df["deaths0to4_high"] = xlsx_df["TBDeathsAll_0_4"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_0_4"])
+
+        xlsx_df["deaths5to9_low"] = xlsx_df["TBDeathsAll_5_9"]
+        xlsx_df["deaths5to9_central"] = xlsx_df["TBDeathsAll_5_9"]
+        xlsx_df["deaths5to9_high"] = xlsx_df["TBDeathsAll_5_9"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_5_9"])
+
+        xlsx_df["deaths10to14_low"] = xlsx_df["TBDeathsAll_10_14"]
+        xlsx_df["deaths10to14_central"] = xlsx_df["TBDeathsAll_10_14"]
+        xlsx_df["deaths10to14_high"] = xlsx_df["TBDeathsAll_10_14"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_10_14"])
+
+        xlsx_df["deaths15to19_low"] = xlsx_df["TBDeathsAll_15_19"]
+        xlsx_df["deaths15to19_central"] = xlsx_df["TBDeathsAll_15_19"]
+        xlsx_df["deaths15to19_high"] = xlsx_df["TBDeathsAll_15_19"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_15_19"])
+
+        xlsx_df["deaths20to24_low"] = xlsx_df["TBDeathsAll_20_24"]
+        xlsx_df["deaths20to24_central"] = xlsx_df["TBDeathsAll_20_24"]
+        xlsx_df["deaths20to24_high"] = xlsx_df["TBDeathsAll_20_24"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_20_24"])
+
+        xlsx_df["deaths25to29_low"] = xlsx_df["TBDeathsAll_25_29"]
+        xlsx_df["deaths25to29_central"] = xlsx_df["TBDeathsAll_25_29"]
+        xlsx_df["deaths25to29_high"] = xlsx_df["TBDeathsAll_25_29"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_25_29"])
+
+        xlsx_df["deaths30to34_low"] = xlsx_df["TBDeathsAll_30_34"]
+        xlsx_df["deaths30to34_central"] = xlsx_df["TBDeathsAll_30_34"]
+        xlsx_df["deaths30to34_high"] = xlsx_df["TBDeathsAll_30_34"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_30_34"])
+
+        xlsx_df["deaths35to39_low"] = xlsx_df["TBDeathsAll_35_39"]
+        xlsx_df["deaths35to39_central"] = xlsx_df["TBDeathsAll_35_39"]
+        xlsx_df["deaths35to39_high"] = xlsx_df["TBDeathsAll_35_39"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_35_39"])
+
+        xlsx_df["deaths40to44_low"] = xlsx_df["TBDeathsAll_40_44"]
+        xlsx_df["deaths40to44_central"] = xlsx_df["TBDeathsAll_40_44"]
+        xlsx_df["deaths40to44_high"] = xlsx_df["TBDeathsAll_40_44"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_40_44"])
+
+        xlsx_df["deaths45to49_low"] = xlsx_df["TBDeathsAll_45_49"]
+        xlsx_df["deaths45to49_central"] = xlsx_df["TBDeathsAll_45_49"]
+        xlsx_df["deaths45to49_high"] = xlsx_df["TBDeathsAll_45_49"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_45_49"])
+
+        xlsx_df["deaths50to54_low"] = xlsx_df["TBDeathsAll_50_54"]
+        xlsx_df["deaths50to54_central"] = xlsx_df["TBDeathsAll_50_54"]
+        xlsx_df["deaths50to54_high"] = xlsx_df["TBDeathsAll_50_54"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_50_54"])
+
+        xlsx_df["deaths55to59_low"] = xlsx_df["TBDeathsAll_55_59"]
+        xlsx_df["deaths55to59_central"] = xlsx_df["TBDeathsAll_55_59"]
+        xlsx_df["deaths55to59_high"] = xlsx_df["TBDeathsAll_55_59"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_55_59"])
+
+        xlsx_df["deaths60to64_low"] = xlsx_df["TBDeathsAll_60_64"]
+        xlsx_df["deaths60to64_central"] = xlsx_df["TBDeathsAll_60_64"]
+        xlsx_df["deaths60to64_high"] = xlsx_df["TBDeathsAll_60_64"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_60_64"])
+
+        xlsx_df["deaths65to69_low"] = xlsx_df["TBDeathsAll_65_69"]
+        xlsx_df["deaths65to69_central"] = xlsx_df["TBDeathsAll_65_69"]
+        xlsx_df["deaths65to69_high"] = xlsx_df["TBDeathsAll_65_69"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_65_69"])
+
+        xlsx_df["deaths70to74_low"] = xlsx_df["TBDeathsAll_70_74"]
+        xlsx_df["deaths70to74_central"] = xlsx_df["TBDeathsAll_70_74"]
+        xlsx_df["deaths70to74_high"] = xlsx_df["TBDeathsAll_70_74"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_70_74"])
+
+        xlsx_df["deaths75to79_low"] = xlsx_df["TBDeathsAll_75_79"]
+        xlsx_df["deaths75to79_central"] = xlsx_df["TBDeathsAll_75_79"]
+        xlsx_df["deaths75to79_high"] = xlsx_df["TBDeathsAll_75_79"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_75_79"])
+
+        xlsx_df["deaths80_low"] = xlsx_df["TBDeathsAll_80"]
+        xlsx_df["deaths80_central"] = xlsx_df["TBDeathsAll_80"]
+        xlsx_df["deaths80_high"] = xlsx_df["TBDeathsAll_80"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsAll_80"])
+
+        xlsx_df["deathshivneg0to4_low"] = xlsx_df["TBDeathsHIVneg_0_4"]
+        xlsx_df["deathshivneg0to4_central"] = xlsx_df["TBDeathsHIVneg_0_4"]
+        xlsx_df["deathshivneg0to4_high"] = xlsx_df["TBDeathsHIVneg_0_4"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_0_4"])
+
+        xlsx_df["deathshivneg5to9_low"] = xlsx_df["TBDeathsHIVneg_5_9"]
+        xlsx_df["deathshivneg5to9_central"] = xlsx_df["TBDeathsHIVneg_5_9"]
+        xlsx_df["deathshivneg5to9_high"] = xlsx_df["TBDeathsHIVneg_5_9"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_5_9"])
+
+        xlsx_df["deathshivneg10to14_low"] = xlsx_df["TBDeathsHIVneg_10_14"]
+        xlsx_df["deathshivneg10to14_central"] = xlsx_df["TBDeathsHIVneg_10_14"]
+        xlsx_df["deathshivneg10to14_high"] = xlsx_df["TBDeathsHIVneg_10_14"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_10_14"])
+
+        xlsx_df["deathshivneg15to19_low"] = xlsx_df["TBDeathsHIVneg_15_19"]
+        xlsx_df["deathshivneg15to19_central"] = xlsx_df["TBDeathsHIVneg_15_19"]
+        xlsx_df["deathshivneg15to19_high"] = xlsx_df["TBDeathsHIVneg_15_19"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_15_19"])
+
+        xlsx_df["deathshivneg20to24_low"] = xlsx_df["TBDeathsHIVneg_20_24"]
+        xlsx_df["deathshivneg20to24_central"] = xlsx_df["TBDeathsHIVneg_20_24"]
+        xlsx_df["deathshivneg20to24_high"] = xlsx_df["TBDeathsHIVneg_20_24"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_20_24"])
+
+        xlsx_df["deathshivneg25to29_low"] = xlsx_df["TBDeathsHIVneg_25_29"]
+        xlsx_df["deathshivneg25to29_central"] = xlsx_df["TBDeathsHIVneg_25_29"]
+        xlsx_df["deathshivneg25to29_high"] = xlsx_df["TBDeathsHIVneg_25_29"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_25_29"])
+
+        xlsx_df["deathshivneg30to34_low"] = xlsx_df["TBDeathsHIVneg_30_34"]
+        xlsx_df["deathshivneg30to34_central"] = xlsx_df["TBDeathsHIVneg_30_34"]
+        xlsx_df["deathshivneg30to34_high"] = xlsx_df["TBDeathsHIVneg_30_34"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_30_34"])
+
+        xlsx_df["deathshivneg35to39_low"] = xlsx_df["TBDeathsHIVneg_35_39"]
+        xlsx_df["deathshivneg35to39_central"] = xlsx_df["TBDeathsHIVneg_35_39"]
+        xlsx_df["deathshivneg35to39_high"] = xlsx_df["TBDeathsHIVneg_35_39"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_35_39"])
+
+        xlsx_df["deathshivneg40to44_low"] = xlsx_df["TBDeathsHIVneg_40_44"]
+        xlsx_df["deathshivneg40to44_central"] = xlsx_df["TBDeathsHIVneg_40_44"]
+        xlsx_df["deathshivneg40to44_high"] = xlsx_df["TBDeathsHIVneg_40_44"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_40_44"])
+
+        xlsx_df["deathshivneg45to49_low"] = xlsx_df["TBDeathsHIVneg_45_49"]
+        xlsx_df["deathshivneg45to49_central"] = xlsx_df["TBDeathsHIVneg_45_49"]
+        xlsx_df["deathshivneg45to49_high"] = xlsx_df["TBDeathsHIVneg_45_49"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_45_49"])
+
+        xlsx_df["deathshivneg50to54_low"] = xlsx_df["TBDeathsHIVneg_50_54"]
+        xlsx_df["deathshivneg50to54_central"] = xlsx_df["TBDeathsHIVneg_50_54"]
+        xlsx_df["deathshivneg50to54_high"] = xlsx_df["TBDeathsHIVneg_50_54"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_50_54"])
+
+        xlsx_df["deathshivneg55to59_low"] = xlsx_df["TBDeathsHIVneg_55_59"]
+        xlsx_df["deathshivneg55to59_central"] = xlsx_df["TBDeathsHIVneg_55_59"]
+        xlsx_df["deathshivneg55to59_high"] = xlsx_df["TBDeathsHIVneg_55_59"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_55_59"])
+
+        xlsx_df["deathshivneg60to64_low"] = xlsx_df["TBDeathsHIVneg_60_64"]
+        xlsx_df["deathshivneg60to64_central"] = xlsx_df["TBDeathsHIVneg_60_64"]
+        xlsx_df["deathshivneg60to64_high"] = xlsx_df["TBDeathsHIVneg_60_64"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_60_64"])
+
+        xlsx_df["deathshivneg65to69_low"] = xlsx_df["TBDeathsHIVneg_65_69"]
+        xlsx_df["deathshivneg65to69_central"] = xlsx_df["TBDeathsHIVneg_65_69"]
+        xlsx_df["deathshivneg65to69_high"] = xlsx_df["TBDeathsHIVneg_65_69"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_65_69"])
+
+        xlsx_df["deathshivneg70to74_low"] = xlsx_df["TBDeathsHIVneg_70_74"]
+        xlsx_df["deathshivneg70to74_central"] = xlsx_df["TBDeathsHIVneg_70_74"]
+        xlsx_df["deathshivneg70to74_high"] = xlsx_df["TBDeathsHIVneg_70_74"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_70_74"])
+
+        xlsx_df["deathshivneg75to79_low"] = xlsx_df["TBDeathsHIVneg_75_79"]
+        xlsx_df["deathshivneg75to79_central"] = xlsx_df["TBDeathsHIVneg_75_79"]
+        xlsx_df["deathshivneg75to79_high"] = xlsx_df["TBDeathsHIVneg_75_79"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_75_79"])
+
+        xlsx_df["deathshivneg80_low"] = xlsx_df["TBDeathsHIVneg_80"]
+        xlsx_df["deathshivneg80_central"] = xlsx_df["TBDeathsHIVneg_80"]
+        xlsx_df["deathshivneg80_high"] = xlsx_df["TBDeathsHIVneg_80"]
+        xlsx_df = xlsx_df.drop(columns=["TBDeathsHIVneg_80"])
+
+        xlsx_df["population0to4_low"] = xlsx_df["Population_all_0_4"]
+        xlsx_df["population0to4_central"] = xlsx_df["Population_all_0_4"]
+        xlsx_df["population0to4_high"] = xlsx_df["Population_all_0_4"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_0_4"])
+
+        xlsx_df["population5to9_low"] = xlsx_df["Population_all_5_9"]
+        xlsx_df["population5to9_central"] = xlsx_df["Population_all_5_9"]
+        xlsx_df["population5to9_high"] = xlsx_df["Population_all_5_9"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_5_9"])
+
+        xlsx_df["population10to14_low"] = xlsx_df["Population_all_10_14"]
+        xlsx_df["population10to14_central"] = xlsx_df["Population_all_10_14"]
+        xlsx_df["population10to14_high"] = xlsx_df["Population_all_10_14"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_10_14"])
+
+        xlsx_df["population15to19_low"] = xlsx_df["Population_all_15_19"]
+        xlsx_df["population15to19_central"] = xlsx_df["Population_all_15_19"]
+        xlsx_df["population15to19_high"] = xlsx_df["Population_all_15_19"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_15_19"])
+
+        xlsx_df["population20to24_low"] = xlsx_df["Population_all_20_24"]
+        xlsx_df["population20to24_central"] = xlsx_df["Population_all_20_24"]
+        xlsx_df["population20to24_high"] = xlsx_df["Population_all_20_24"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_20_24"])
+
+        xlsx_df["population25to29_low"] = xlsx_df["Population_all_25_29"]
+        xlsx_df["population25to29_central"] = xlsx_df["Population_all_25_29"]
+        xlsx_df["population25to29_high"] = xlsx_df["Population_all_25_29"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_25_29"])
+
+        xlsx_df["population30to34_low"] = xlsx_df["Population_all_30_34"]
+        xlsx_df["population30to34_central"] = xlsx_df["Population_all_30_34"]
+        xlsx_df["population30to34_high"] = xlsx_df["Population_all_30_34"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_30_34"])
+
+        xlsx_df["population35to39_low"] = xlsx_df["Population_all_35_39"]
+        xlsx_df["population35to39_central"] = xlsx_df["Population_all_35_39"]
+        xlsx_df["population35to39_high"] = xlsx_df["Population_all_35_39"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_35_39"])
+
+        xlsx_df["population40to44_low"] = xlsx_df["Population_all_40_44"]
+        xlsx_df["population40to44_central"] = xlsx_df["Population_all_40_44"]
+        xlsx_df["population40to44_high"] = xlsx_df["Population_all_40_44"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_40_44"])
+
+        xlsx_df["population45to49_low"] = xlsx_df["Population_all_45_49"]
+        xlsx_df["population45to49_central"] = xlsx_df["Population_all_45_49"]
+        xlsx_df["population45to49_high"] = xlsx_df["Population_all_45_49"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_45_49"])
+
+        xlsx_df["population50to54_low"] = xlsx_df["Population_all_50_54"]
+        xlsx_df["population50to54_central"] = xlsx_df["Population_all_50_54"]
+        xlsx_df["population50to54_high"] = xlsx_df["Population_all_50_54"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_50_54"])
+
+        xlsx_df["population55to59_low"] = xlsx_df["Population_all_55_59"]
+        xlsx_df["population55to59_central"] = xlsx_df["Population_all_55_59"]
+        xlsx_df["population55to59_high"] = xlsx_df["Population_all_55_59"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_55_59"])
+
+        xlsx_df["population60to64_low"] = xlsx_df["Population_all_60_64"]
+        xlsx_df["population60to64_central"] = xlsx_df["Population_all_60_64"]
+        xlsx_df["population60to64_high"] = xlsx_df["Population_all_60_64"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_60_64"])
+
+        xlsx_df["population65to69_low"] = xlsx_df["Population_all_65_69"]
+        xlsx_df["population65to69_central"] = xlsx_df["Population_all_65_69"]
+        xlsx_df["population65to69_high"] = xlsx_df["Population_all_65_69"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_65_69"])
+
+        xlsx_df["population70to74_low"] = xlsx_df["Population_all_70_74"]
+        xlsx_df["population70to74_central"] = xlsx_df["Population_all_70_74"]
+        xlsx_df["population70to74_high"] = xlsx_df["Population_all_70_74"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_70_74"])
+
+        xlsx_df["population75to79_low"] = xlsx_df["Population_all_75_79"]
+        xlsx_df["population75to79_central"] = xlsx_df["Population_all_75_79"]
+        xlsx_df["population75to79_high"] = xlsx_df["Population_all_75_79"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_75_79"])
+
+        xlsx_df["population80_low"] = xlsx_df["Population_all_80"]
+        xlsx_df["population80_central"] = xlsx_df["Population_all_80"]
+        xlsx_df["population80_high"] = xlsx_df["Population_all_80"]
+        xlsx_df = xlsx_df.drop(columns=["Population_all_80"])
+
+        xlsx_df["yld_low"] = xlsx_df["YLDs"]
+        xlsx_df["yld_central"] = xlsx_df["YLDs"]
+        xlsx_df["yld_high"] = xlsx_df["YLDs"]
+        xlsx_df = xlsx_df.drop(columns=["YLDs"])
+
+        xlsx_df["yldhivneg_low"] = xlsx_df["YLDs_HIVn"]
+        xlsx_df["yldhivneg_central"] = xlsx_df["YLDs_HIVn"]
+        xlsx_df["yldhivneg_high"] = xlsx_df["YLDs_HIVn"]
+        xlsx_df = xlsx_df.drop(columns=["YLDs_HIVn"])
 
         xlsx_df["TxSR_low"] = xlsx_df["TxSR"]
         xlsx_df["TxSR_central"] = xlsx_df["TxSR"]
@@ -364,6 +996,12 @@ class ModelResultsTb(TBMixin, ModelResults):
 
         xlsx_df["cost_low"] = xlsx_df["cost_central"]
         xlsx_df["cost_high"] = xlsx_df["cost_central"]
+
+        xlsx_df["costvx_low"] = xlsx_df["costvx_central"]
+        xlsx_df["costvx_high"] = xlsx_df["costvx_central"]
+
+        xlsx_df["vaccine_low"] = xlsx_df["vaccine_central"]
+        xlsx_df["vaccine_high"] = xlsx_df["vaccine_central"]
 
         # Generate incidence and mortality
         xlsx_df["incidence_low"] = xlsx_df["cases_low"] / xlsx_df["population_low"]
@@ -395,9 +1033,9 @@ class ModelResultsTb(TBMixin, ModelResults):
         melted = melted.dropna()
 
         # Convert funding_fraction to float
-        melted["funding_fraction"] = melted["funding_fraction"].astype(float)
+        melted = melted[melted['funding_fraction'].notnull()].copy()
+        melted['funding_fraction'] = melted['funding_fraction'].astype(float)
 
-        # TODO: any NANs or NAs should be replaced. By zero? Do that for all diseases
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(
             [
@@ -548,7 +1186,7 @@ class PartnerDataTb(TBMixin, PartnerData):
 
         # Only keep indicators and years of immediate interest:
         countries = self.parameters.get_portfolio_countries_for(self.disease_name)
-        start_year = self.parameters.get("PARTNER_START_YEAR")
+        start_year = self.parameters.get("HISTORIC_FIRST_YEAR")
         f = concatenated_dfs.reset_index()
         f = f.loc[f["country"].isin(countries)]
         f = f.loc[f["year"] >= start_year]
@@ -617,114 +1255,116 @@ class PartnerDataTb(TBMixin, PartnerData):
         return pd.read_csv(file, encoding="ISO-8859-1")
 
 
+class GpTb(TBMixin, Gp):
+    """Hold the GP for TB. It has to construct it from a file (fixed_gp) that shows the trend over time and
+    the partner data and some model results."""
 
-# class GpTb(TBMixin, Gp):
-#     """Hold the GP for TB. It has to construct it from a file (fixed_gp) that shows the trend over time and
-#     the partner data and some model results."""
-#
-#     def _build_df(
-#         self,
-#         fixed_gp: FixedGp,
-#         model_results: ModelResults,
-#         partner_data: PartnerData,
-#         parameters: Parameters,
-#     ) -> pd.DataFrame:
-#
-#         # Gather the parameters for this function
-#         gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
-#         first_year = parameters.get("START_YEAR")
-#         last_year = parameters.get("END_YEAR")
-#
-#         tb_countries = RegionInformation().tb_countries
-#         tb_m_countries = parameters.get_modelled_countries_for(self.disease_name)
-#
-#         # Extract relevant partner and model data
-#         pop_model = (
-#             model_results.df.loc[
-#                 ("GP_GP", slice(None), tb_m_countries, slice(None), "population")
-#             ]["central"]
-#             .groupby(axis=0, level=3)
-#             .sum()
-#         )
-#         pop_partner = (
-#             partner_data.df.loc[("CD_GP", tb_countries, slice(None), "population")][
-#                 "central"
-#             ]
-#             .groupby(axis=0, level=2)
-#             .sum()
-#         )
-#
-#         # Get population estimates from first model year to generate ratio
-#         pop_m_firstyear = (
-#             model_results.df.loc[
-#                 ("GP_GP", slice(None), tb_m_countries, first_year, "population")
-#             ]["central"]
-#             .groupby(axis=0, level=3)
-#             .sum()
-#         )
-#         pop_firstyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, first_year, "population")
-#         ].sum()["central"]
-#         ratio = pop_m_firstyear / pop_firstyear
-#
-#         # Use GP baseline year partner data to get the cases/deaths/incidence/mortality estimates at baseline
-#         cases_baseyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, gp_start_year, "cases")
-#         ].sum()["central"]
-#         deaths_baseyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, gp_start_year, "deaths")
-#         ].sum()["central"]
-#         deathshivneg_baseyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, gp_start_year, "deathshivneg")
-#         ].sum()["central"]
-#         pop_baseyear = partner_data.df.loc[
-#             ("CD_GP", tb_countries, gp_start_year, "population")
-#         ].sum()["central"]
-#         incidence_baseyear = cases_baseyear / pop_baseyear
-#         mortality_rate_2015 = deaths_baseyear / pop_baseyear
-#
-#         # Make a time series of population estimates
-#         pop_glued = pd.concat(
-#             [
-#                 pop_partner.loc[
-#                     pop_partner.index.isin(
-#                         [
-#                             gp_start_year,
-#                             gp_start_year + 1,
-#                             gp_start_year + 2,
-#                             gp_start_year + 3,
-#                             gp_start_year + 4,
-#                         ]
-#                     )
-#                 ],
-#                 pop_model.loc[pop_model.index.isin(range(first_year, last_year + 1))]
-#                 / ratio.values,
-#             ]
-#         )
-#
-#         # Convert reduction and get gp time series
-#         relative_incidence = 1.0 - fixed_gp.df["incidence_reduction"]
-#         gp_incidence = relative_incidence * incidence_baseyear
-#         gp_cases = gp_incidence * pop_glued
-#         relative_deaths = 1.0 - fixed_gp.df["death_rate_reduction"]
-#         gp_deaths = relative_deaths * deaths_baseyear
-#         gp_deathshivneg = relative_deaths * deathshivneg_baseyear
-#         gp_mortality_rate = gp_deaths / pop_glued
-#         gp_mortality_rate_hivneg = gp_deathshivneg / pop_glued
-#
-#         # Put it all together into a df
-#         df = pd.DataFrame(
-#             {
-#                 "incidence": gp_incidence,
-#                 "mortality": gp_mortality_rate,
-#                 "mortalityhivneg": gp_mortality_rate_hivneg,
-#                 "cases": gp_cases,
-#                 "deaths": gp_deaths,
-#                 "deathshivneg": gp_deathshivneg,
-#             }
-#         )
-#
-#         # Return in expected format
-#         df.columns.name = "indicator"
-#         df.index.name = "year"
-#         return pd.DataFrame({"central": df.stack()})
+    def _build_df(
+        self,
+        fixed_gp: FixedGp,
+        model_results: ModelResults,
+        partner_data: PartnerData,
+        parameters: Parameters,
+    ) -> pd.DataFrame:
+
+        # Gather the parameters for this function
+        gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
+        first_year = parameters.get("START_YEAR")
+        last_year = parameters.get("END_YEAR")
+
+        tb_countries = parameters.get_portfolio_countries_for(self.disease_name)
+        tb_m_countries = parameters.get_modelled_countries_for(self.disease_name)
+
+        # Extract relevant partner and model data
+        pop_model = (
+            model_results.df.loc[
+                ("GP", slice(None), tb_m_countries, slice(None), "population")
+            ]["central"]
+            .groupby(axis=0, level=3)
+            .sum()
+        )
+        pop_partner = (
+            partner_data.df.loc[("PF", tb_countries, slice(None), "population")][
+                "central"
+            ]
+            .groupby(axis=0, level=2)
+            .sum()
+        )
+
+        # Get population estimates from first model year to generate ratio
+        pop_m_firstyear = (
+            model_results.df.loc[
+                ("GP", slice(None), tb_m_countries, first_year+1, "population")
+            ]["central"]
+            .groupby(axis=0, level=3)
+            .sum()
+        )
+        pop_firstyear = partner_data.df.loc[
+            ("PF", tb_countries, first_year, "population")
+        ].sum()["central"]
+        ratio = pop_m_firstyear / pop_firstyear
+
+        # Use GP baseline year partner data to get the cases/deaths/incidence/mortality estimates at baseline
+        cases_baseyear = partner_data.df.loc[
+            ("PF", tb_countries, gp_start_year, "cases")
+        ].sum()["central"]
+        deaths_baseyear = partner_data.df.loc[
+            ("PF", tb_countries, gp_start_year, "deaths")
+        ].sum()["central"]
+        deathshivneg_baseyear = partner_data.df.loc[
+            ("PF", tb_countries, gp_start_year, "deathshivneg")
+        ].sum()["central"]
+        pop_baseyear = partner_data.df.loc[
+            ("PF", tb_countries, gp_start_year, "population")
+        ].sum()["central"]
+        incidence_baseyear = cases_baseyear / pop_baseyear
+        mortality_rate_2015 = deaths_baseyear / pop_baseyear
+
+        # Make a time series of population estimates
+        pop_glued = pd.concat(
+            [
+                pop_partner.loc[
+                    pop_partner.index.isin(
+                        [
+                            gp_start_year,
+                            gp_start_year + 1,
+                            gp_start_year + 2,
+                            gp_start_year + 3,
+                            gp_start_year + 4,
+                            gp_start_year + 5,
+                            gp_start_year + 6,
+                            gp_start_year + 7,
+                        ]
+                    )
+                ],
+                pop_model.loc[pop_model.index.isin(range(first_year, last_year + 1))]
+                / ratio.values,
+            ]
+        )
+
+        # Convert reduction and get gp time series
+        relative_incidence = 1.0 - fixed_gp.df["incidence_reduction"]
+        gp_incidence = relative_incidence * incidence_baseyear
+        gp_cases = gp_incidence * pop_glued
+        relative_deaths = 1.0 - fixed_gp.df["death_rate_reduction"]
+        gp_deaths = relative_deaths * deaths_baseyear
+        gp_deathshivneg = relative_deaths * deathshivneg_baseyear
+        gp_mortality_rate = gp_deaths / pop_glued
+        gp_mortality_rate_hivneg = gp_deathshivneg / pop_glued
+
+        # Put it all together into a df
+        df = pd.DataFrame(
+            {
+                "incidence": gp_incidence,
+                "mortality": gp_mortality_rate,
+                "mortalityhivneg": gp_mortality_rate_hivneg,
+                "cases": gp_cases,
+                "deaths": gp_deaths,
+                "deathshivneg": gp_deathshivneg,
+            }
+        )
+
+        # Return in expected format
+        df.columns.name = "indicator"
+        df.index.name = "year"
+        return pd.DataFrame({"central": df.stack()})

@@ -119,7 +119,7 @@ class ModelResults(FileHandler):
             "indicator",
         ] == list(_df.index.names)
         assert {"low", "central", "high"} == set(_df.columns)
-        assert all_numeric(_df)
+        assert all_numeric(_df, skipna=True)  # na's in some places is OK
         assert not _df.index.has_duplicates
 
     def _sort_df(self):
@@ -355,6 +355,17 @@ class Parameters:
         try:
             df = pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')
             return df.loc[df['is_cc'], 'description']
+        except:
+            return pd.Series()
+
+    def get_gpscenario(self) -> pd.Series:
+        """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario).
+        If there is no flag for gp, return empty pd.DataFrame(provided for backward
+        compatibility).
+        """
+        try:
+            df = pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')
+            return df.loc[df['is_gp'], 'description']
         except:
             return pd.Series()
 
