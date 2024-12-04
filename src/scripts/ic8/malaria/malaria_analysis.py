@@ -91,9 +91,9 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
     # Create and return the database
     return Database(
         # These model results take the full cost impact curve as is
-        model_results=model_results,
+        # model_results=model_results,
         # These model results are limited to the points of the cost-impact curve that are on the frontier
-        # model_results=filter_for_frontier(model_results),
+        model_results=filter_for_frontier(model_results),
         gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,
@@ -175,10 +175,13 @@ if __name__ == "__main__":
         do_checks=DO_CHECKS
     )
 
-    analysis.make_diagnostic_report(optimisation_params={
+    analysis.make_diagnostic_report(
+        optimisation_params={
                 'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
                 'force_monotonic_decreasing': True,
-            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False, filename=Path("diagnostic_report_malaria.pdf"))
+            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False,
+        filename=get_root_path() / "outputs" / "diagnostic_report_malaria.pdf"
+    )
 
     # To examine results from approach A / B....
     # analysis.portfolio_projection_approach_a()
