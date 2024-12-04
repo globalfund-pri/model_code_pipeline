@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pandas as pd
+
 from scripts.ic8.shared.create_frontier import filter_for_frontier
 from scripts.ic8.tb.tb_checks import DatabaseChecksTb
 from scripts.ic8.tb.tb_filehandlers import PartnerDataTb, PFInputDataTb, ModelResultsTb, GpTb
@@ -87,7 +89,9 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
 
     # Create and return the database
     return Database(
+        # These model results take the full cost impact curve as is
         # model_results=model_results,
+        # These model results are limited to the points of the cost-impact curve that are on the frontier
         model_results=filter_for_frontier(model_results),
         gp=gp,
         pf_input_data=pf_input_data,
@@ -182,5 +186,20 @@ if __name__ == "__main__":
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
-    a = 3
+
+    # Portfolio Projection Approach B: to find optimal allocation of TGF
+    results_from_approach_b = analysis.portfolio_projection_approach_b(
+        optimisation_params={
+            'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
+            'force_monotonic_decreasing': True,
+        }, methods=['ga_backwards', 'ga_forwards', ]
+    )
+
+    (
+            pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
+        results_from_approach_b.non_tgf_funding_by_country)
+    ).to_csv(
+        get_root_path() / 'outputs' / 'tb_tgf_optimal_allocation.csv',
+        header=False
+    )
 
