@@ -67,20 +67,9 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
         model_results = load_var(project_root / "sessions" / "tb_model_data_2035_ic8.pkl")
 
     # Load the files
-    pf_input_data = PFInputDataTb(
-        filepaths.get('tb', 'pf-input-data'),
-        parameters=parameters
-    )
-
-    partner_data = PartnerDataTb(
-        filepaths.get('tb', 'partner-data'),
-        parameters=parameters,
-    )
-
-    fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "ic8" / "shared" / "fixed_gps" / "tb_gp.csv",
-        parameters=parameters,
-    )
+    pf_input_data = PFInputDataTb(filepaths.get('tb', 'pf-input-data'), parameters=parameters)
+    partner_data = PartnerDataTb(filepaths.get('tb', 'partner-data'), parameters=parameters)
+    fixed_gp = FixedGp(filepaths.get('malaria', 'gp-data'), parameters=parameters)
 
     gp = GpTb(
         fixed_gp=fixed_gp,
