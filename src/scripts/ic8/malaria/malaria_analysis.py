@@ -66,20 +66,9 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
         # Load the model results
         model_results = load_var(project_root / "sessions" / "malaria_model_data_ic8.pkl")
 
-    pf_input_data = PFInputDataMalaria(
-        filepaths.get('malaria', 'pf-input-data'),
-        parameters=parameters
-    )
-
-    partner_data = PartnerDataMalaria(
-        filepaths.get('malaria', 'partner-data'),
-        parameters=parameters
-    )
-
-    fixed_gp = FixedGp(
-        filepaths.get('malaria', 'gp-data'),
-        parameters=parameters
-    )
+    pf_input_data = PFInputDataMalaria(filepaths.get('malaria', 'pf-input-data'), parameters=parameters)
+    partner_data = PartnerDataMalaria(filepaths.get('malaria', 'partner-data'), parameters=parameters)
+    fixed_gp = FixedGp(filepaths.get('malaria', 'gp-data'), parameters=parameters)
 
     gp = GpMalaria(
         fixed_gp=fixed_gp,

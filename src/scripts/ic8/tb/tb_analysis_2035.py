@@ -47,10 +47,12 @@ analysis class directly.
 
 def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
 
-    # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
+
+    # Change end year
+    parameters.int_store['END_YEAR'] = 2035
 
     if load_data_from_raw_files:
         # Load the files
@@ -59,15 +61,15 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
             parameters=parameters,
         )
         # Save the model_results object
-        save_var(model_results, project_root / "sessions" / "tb_model_data_ic8.pkl")
+        save_var(model_results, project_root / "sessions" / "tb_model_data_2035_ic8.pkl")
     else:
         # Load the model results
-        model_results = load_var(project_root / "sessions" / "tb_model_data_ic8.pkl")
+        model_results = load_var(project_root / "sessions" / "tb_model_data_2035_ic8.pkl")
 
     # Load the files
     pf_input_data = PFInputDataTb(filepaths.get('tb', 'pf-input-data'), parameters=parameters)
     partner_data = PartnerDataTb(filepaths.get('tb', 'partner-data'), parameters=parameters)
-    fixed_gp = FixedGp(filepaths.get('tb', 'gp-data'), parameters=parameters)
+    fixed_gp = FixedGp(filepaths.get('malaria', 'gp-data'), parameters=parameters)
 
     gp = GpTb(
         fixed_gp=fixed_gp,
@@ -121,14 +123,14 @@ def get_tb_analysis(
     non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(
-        database=db,
-        scenario_descriptor='PF',
-        tgf_funding=tgf_funding,
-        non_tgf_funding=non_tgf_funding,
-        parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=False,
-    )
+            database=db,
+            scenario_descriptor='PF',
+            tgf_funding=tgf_funding,
+            non_tgf_funding=non_tgf_funding,
+            parameters=parameters,
+            handle_out_of_bounds_costs=True,
+            innovation_on=False,
+        )
 
 
 if __name__ == "__main__":
@@ -141,37 +143,28 @@ if __name__ == "__main__":
         do_checks=DO_CHECKS
     )
 
-    # Make diagnostic report
-    analysis.make_diagnostic_report(
-        optimisation_params={
-                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True,
-            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False,
-        filename=get_root_path() / "outputs" / "diagnostic_report_tb.pdf"
-    )
-
-    # To examine results from approach A / B....
-    # analysis.portfolio_projection_approach_a()
-    # analysis.portfolio_projection_approach_b()
-    # analysis.portfolio_projection_counterfactual('CC_CC')
-
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
 
-    # Portfolio Projection Approach B: to find optimal allocation of TGF
-    results_from_approach_b = analysis.portfolio_projection_approach_b(
-        optimisation_params={
-            'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-            'force_monotonic_decreasing': True,
-        }, methods=['ga_backwards', 'ga_forwards', ]
-    )
+    # Get results out from this set for the graph
+    filename = 'tb_results_2035.csv'
+    list_of_dfs = list()  # list of mini dataframes for each indicator for each country
+    indicators = ['cases', 'deaths', 'deathshivneg', 'population']
 
-    (
-            pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
-        results_from_approach_b.non_tgf_funding_by_country)
-    ).to_csv(
-        get_root_path() / 'outputs' / 'tb_tgf_optimal_allocation.csv',
-        header=False
-    )
+    for country in pps.IC.country_results.keys():
+        y = pps.IC.country_results[country].model_projection
+        years = range(2022, 2036)
+        for indicator in indicators:
+            df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
+            df['indicator'] = indicator
+            df['country'] = country
+            list_of_dfs.append(df)
+
+        # build whole df for export
+    whole_df = pd.concat(list_of_dfs, axis=0)
+
+    # save to csv
+    whole_df.to_csv(filename, index=False)
+
 
