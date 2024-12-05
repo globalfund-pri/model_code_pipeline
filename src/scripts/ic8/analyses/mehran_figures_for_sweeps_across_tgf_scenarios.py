@@ -4,6 +4,7 @@ Approach B. (aka. RHS-version of Mehran's Figures)
 """
 
 from collections import defaultdict
+from copy import copy
 from typing import Dict
 
 import numpy as np
@@ -50,88 +51,20 @@ malaria_db = get_malaria_database(load_data_from_raw_files=LOAD_DATA)
 
 
 #%% Load Finance Scenario Files
-# N.B. This uses the paths of the currrent sharepoint files, but the sharepoint could be reorganised to make this easier.
+# N.B. This uses the paths of the currrent sharepoint files, but the sharepoint could be reorganised to make this (a lot!!) easier.
 
 funding_path = path_to_data_folder / 'IC8' / 'funding'
 
-Scenarios = {
-    '$17bn Scenario': {
-        'tgf': {
-            'hiv': TgfFunding(funding_path / '2024_11_24' / 'hiv' / 'tgf' / 'hiv_fung_inc_unalc_bs17.csv'),
-            'tb': TgfFunding(funding_path / '2024_11_24' / 'tb' / 'tgf' / 'tb_fung_inc_unalc_bs17.csv'),
-            'malaria': TgfFunding(funding_path / '2024_11_24' / 'malaria' / 'tgf' / 'malaria_fung_inc_unalc_bs17.csv'),
-        },
-        'non_tgf': {
-            'hiv': NonTgfFunding(funding_path / '2024_11_24' / 'hiv' / 'non_tgf' / 'hiv_nonfung_base_c.csv'),
-            'tb': NonTgfFunding(funding_path / '2024_11_24' / 'tb' / 'non_tgf' / 'tb_nonfung_base_c.csv'),
-            'malaria': NonTgfFunding(funding_path / '2024_11_24' / 'malaria' / 'non_tgf' / 'malaria_nonfung_base_c.csv'),
-        },
-    },
-    '$15bn Scenario': {
-        'tgf': {
-            'hiv': TgfFunding(funding_path / '2024_11_24_15bn' /  'hiv' / 'tgf' / 'hiv_fung_inc_unalc_bs15.csv'),
-            'tb': TgfFunding(funding_path / '2024_11_24_15bn' / 'tb' / 'tgf' / 'tb_fung_inc_unalc_bs15.csv'),
-            'malaria': TgfFunding(funding_path / '2024_11_24_15bn' / 'malaria' / 'tgf' / 'malaria_fung_inc_unalc_bs15.csv'),
-        },
-        'non_tgf': {
-            'hiv': NonTgfFunding(funding_path / '2024_11_24_15bn' / 'hiv' / 'non_tgf' / 'hiv_nonfung_base_c.csv'),
-            'tb': NonTgfFunding(funding_path / '2024_11_24_15bn' / 'tb' / 'non_tgf' / 'tb_nonfung_base_c.csv'),
-            'malaria': NonTgfFunding(funding_path / '2024_11_24_15bn' / 'malaria' / 'non_tgf' / 'malaria_nonfung_base_c.csv'),
-        },
-    }
-}
 
-# Check if the non-tgf values for both scenarios are the same
-# todo - different countries in each!
-Scenarios['$17bn Scenario']['tgf']['hiv'].df['value'] - Scenarios['$15bn Scenario']['tgf']['hiv'].df['value']
+def filter_funding_data_for_non_modelled_countries(funding_data_object: TgfFunding | NonTgfFunding, disease_name: str) -> TgfFunding | NonTgfFunding:
+    """Returns a funding data object that has been filtered for countries that are not declared as the modelled
+    countries for that disease."""
+    list_of_modelled_countries = parameters.get_modelled_countries_for(disease_name.upper())
+    funding_data_object = copy(funding_data_object)
+    funding_data_object.df = funding_data_object.df[funding_data_object.df.index.isin(list_of_modelled_countries)]
+    return funding_data_object
 
-
-
-#%% Construct the scenarios to run - including new 'ficticious' scenarios Load TGF Funding Scenarios
-gf_scenarios = {
-    '$17bn Scenario': {
-        'hiv': TgfFunding(funding_path / 'hiv' / 'tgf' / 'hiv_fung_inc_unalc_bs17.csv'),
-        'tb': TgfFunding(funding_path / 'tb' / 'tgf' / 'tb_fung_inc_unalc_bs17.csv'),
-        'malaria': TgfFunding(funding_path / 'malaria' / 'tgf' / 'malaria_fung_inc_unalc_bs17.csv'),
-    }
-}
-
-
-#for 17bn
-non_tgf_funding = {
-    'hiv': NonTgfFunding(funding_path / 'hiv' / 'non_tgf' /'hiv_nonfung_base_c.csv'),
-    'tb': NonTgfFunding(funding_path / 'tb' / 'non_tgf' / 'tb_nonfung_base_c.csv'),
-    'malaria': NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / 'malaria_nonfung_base_c.csv'),
-}
-
-non_tgf_funding_amt = {k: v.df['value'] for k, v in non_tgf_funding.items()}
-
-# For each disease, work out what amount of TGF funding will lead to full-funding
-slice_yrs_for_funding = slice(parameters.get('YEARS_FOR_FUNDING')[0], parameters.get('YEARS_FOR_FUNDING')[-1])
-
-def get_cost_for_highest_cost_scenario_for_each_country(df: pd.DataFrame) -> pd.Series:
-    """Returns the cost for the highest cost scenario for each country as pd.Series."""
-    dfx = df.loc[(SCENARIO_DESCRIPTOR, slice(None), slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
-        by=['country', 'funding_fraction']).sum()
-    return dfx.loc[dfx.groupby(level=0).idxmax()]
-
-gp_amt = {
-    'hiv': get_cost_for_highest_cost_scenario_for_each_country(hiv_db.model_results.df),
-    'tb': get_cost_for_highest_cost_scenario_for_each_country(tb_db.model_results.df),
-    'malaria': get_cost_for_highest_cost_scenario_for_each_country(malaria_db.model_results.df),
-}
-
-
-unfunded_amount = {
-    # Gap for each disease between Non_TGF sources and the GP scenario (summed across country)
-    'hiv': (gp_amt['hiv'] - non_tgf_funding_amt['hiv']).clip(lower=0).sum(),
-    'tb': (gp_amt['tb'] - non_tgf_funding_amt['tb']).clip(lower=0).sum(),
-    'malaria': (gp_amt['malaria'] - non_tgf_funding_amt['malaria']).clip(lower=0).sum(),
-}
-
-
-# - Define some additional scenarios to run for the TGF Ask from $0 up to enough that the full GP can be funded.
-def make_tgf_funding_scenario(total: int, based_on: TgfFunding) -> TgfFunding:
+def make_tgf_funding_scenario(based_on: TgfFunding, total: int) -> TgfFunding:
     """Make a TGF funding object that resembles the one provided in `based_on`, but which is edited so that the
     total funding amount totals `total` and is distributed evenly across the countries."""
     assert isinstance(total, int)
@@ -142,40 +75,146 @@ def make_tgf_funding_scenario(total: int, based_on: TgfFunding) -> TgfFunding:
     assert df['value'].sum() == total
     return TgfFunding.from_df(df)
 
-# Create a range of scenarios that, for each disease, span TGF Funding from $0 to the amount required to give full funding
-# key for the scenario name is:
-#   (
-#       Pretty-name-of-scenario if it's an actual defined scenario (None otherwise),
-#       Funding Fraction
-#   )
 
-num_new_scenarios = 5  # increase this for more points
-tgf_scenarios_for_rhs_plot = {
-    disease: {
-        (None, round((x + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum(), 3)):
-            make_tgf_funding_scenario(int(x), based_on=gf_scenarios['$17bn Scenario'][disease])
-        for x in np.linspace(100e6, unfunded_amount[disease], num_new_scenarios)
-    }
-    for disease in ('hiv', 'tb', 'malaria')
+Scenarios = {
+    '$13bn Scenario': {
+        'tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '05-12-2024' / '13bn' / 'hiv' / 'budget_scenarios' / 'hiv_fung_inc_unalc_bs13.csv'), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '05-12-2024' / '13bn' / 'tb' / 'budget_scenarios' / 'tb_fung_inc_unalc_bs13.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '05-12-2024' / '13bn' / 'malaria' / 'budget_scenarios' / 'malaria_fung_inc_unalc_bs13.csv'), 'malaria'),
+        },
+        'non_tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '05-12-2024' / '13bn' / 'hiv' / 'budget_scenarios' / 'hiv_nonfung_base_c.csv'), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '05-12-2024' / '13bn' / 'tb' / 'budget_scenarios' / 'tb_nonfung_base_c.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '05-12-2024' / '13bn' / 'malaria' / 'budget_scenarios' / 'malaria_nonfung_base_c.csv'), 'malaria'),
+        },
+    },
+    '$15bn Scenario': {
+        'tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '2024_11_24_15bn' / 'hiv' / 'tgf' / 'hiv_fung_inc_unalc_bs15.csv'), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '2024_11_24_15bn' / 'tb' / 'tgf' / 'tb_fung_inc_unalc_bs15.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '2024_11_24_15bn' / 'malaria' / 'tgf' / 'malaria_fung_inc_unalc_bs15.csv'), 'malaria'),
+        },
+        'non_tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '2024_11_24_15bn' / 'hiv' / 'non_tgf' / 'hiv_nonfung_base_c.csv'), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '2024_11_24_15bn' / 'tb' / 'non_tgf' / 'tb_nonfung_base_c.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '2024_11_24_15bn' / 'malaria' / 'non_tgf' / 'malaria_nonfung_base_c.csv'), 'malaria'),
+        },
+    },
+    '$17bn Scenario': {
+        'tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '2024_11_24' / 'hiv' / 'tgf' / 'hiv_fung_inc_unalc_bs17.csv'), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '2024_11_24' / 'tb' / 'tgf' / 'tb_fung_inc_unalc_bs17.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '2024_11_24' / 'malaria' / 'tgf' / 'malaria_fung_inc_unalc_bs17.csv'), 'malaria'),
+        },
+        'non_tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '2024_11_24' / 'hiv' / 'non_tgf' / 'hiv_nonfung_base_c.csv'), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '2024_11_24' / 'tb' / 'non_tgf' / 'tb_nonfung_base_c.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '2024_11_24' / 'malaria' / 'non_tgf' / 'malaria_nonfung_base_c.csv'), 'malaria'),
+        },
+    },
+    '$20bn Scenario': {
+        'tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '05-12-2024' / '20bn' / 'hiv' / 'budget_scenarios' / 'hiv_fung_inc_unalc_bs20.csv'), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '05-12-2024' / '20bn' / 'tb' / 'budget_scenarios' / 'tb_fung_inc_unalc_bs20.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                TgfFunding(funding_path / '05-12-2024' / '20bn' / 'malaria' / 'budget_scenarios' / 'malaria_fung_inc_unalc_bs20.csv'), 'malaria'),
+        },
+        'non_tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '05-12-2024' / '20bn' / 'hiv' / 'budget_scenarios' / 'hiv_nonfung_base_c.csv'), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '05-12-2024' / '20bn' / 'tb' / 'budget_scenarios' / 'tb_nonfung_base_c.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(funding_path / '05-12-2024' / '20bn' / 'malaria' / 'budget_scenarios' / 'malaria_nonfung_base_c.csv'), 'malaria'),
+        },
+    },
+    'GP': {
+        # This is based on a TGF ask amount that is enormous so that full-funding is met.
+        'tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                make_tgf_funding_scenario(
+                    TgfFunding(funding_path / '05-12-2024' / '20bn' / 'hiv' / 'budget_scenarios' / 'hiv_fung_inc_unalc_bs20.csv'), int(100e9)), 'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                make_tgf_funding_scenario(
+                    TgfFunding(
+                        funding_path / '05-12-2024' / '20bn' / 'tb' / 'budget_scenarios' / 'tb_fung_inc_unalc_bs20.csv'), int(100e9)), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                make_tgf_funding_scenario(
+                    TgfFunding(
+                        funding_path / '05-12-2024' / '20bn' / 'malaria' / 'budget_scenarios' / 'malaria_fung_inc_unalc_bs20.csv'), int(100e9)), 'malaria'),
+        },
+        'non_tgf': {
+            'hiv': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(
+                    funding_path / '05-12-2024' / '20bn' / 'hiv' / 'budget_scenarios' / 'hiv_nonfung_base_c.csv'),
+                'hiv'),
+            'tb': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(
+                    funding_path / '05-12-2024' / '20bn' / 'tb' / 'budget_scenarios' / 'tb_nonfung_base_c.csv'), 'tb'),
+            'malaria': filter_funding_data_for_non_modelled_countries(
+                NonTgfFunding(
+                    funding_path / '05-12-2024' / '20bn' / 'malaria' / 'budget_scenarios' / 'malaria_nonfung_base_c.csv'),
+                'malaria'),
+        },
+    },
 }
 
-# add in the defined tgf scenarios (the ones specified in the files)
-for disease in ('hiv', 'tb', 'malaria'):
-    tgf_scenarios_for_rhs_plot[disease].update(
-        {
-            (b,
-             (gf_scenarios[b][disease].df['value'].sum() + non_tgf_funding_amt[disease].sum()) / gp_amt[disease].sum()
-             ): gf_scenarios[b][disease]
-            for b in gf_scenarios.keys()
-        }
-    )
+
+#%% For each scenario, and for each disease, work out the extent to which the GP need is met across whole portfolio
+
+def get_cost_for_highest_cost_scenario_for_each_country(df: pd.DataFrame) -> pd.Series:
+    """Returns the cost for the highest cost scenario for each country as pd.Series."""
+    # For each disease, work out what amount of TGF funding will lead to full-funding
+    slice_yrs_for_funding = slice(parameters.get('YEARS_FOR_FUNDING')[0], parameters.get('YEARS_FOR_FUNDING')[-1])
+    dfx = df.loc[(SCENARIO_DESCRIPTOR, slice(None), slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
+        by=['country', 'funding_fraction']).sum()
+    return dfx.loc[dfx.groupby(level=0).idxmax()]
+
+gp_amt = {
+    'hiv': get_cost_for_highest_cost_scenario_for_each_country(hiv_db.model_results.df).sum(),
+    'tb': get_cost_for_highest_cost_scenario_for_each_country(tb_db.model_results.df).sum(),
+    'malaria': get_cost_for_highest_cost_scenario_for_each_country(malaria_db.model_results.df).sum(),
+}
+
+fraction_funded = defaultdict(dict)
+for scenario_name in Scenarios.keys():
+    for disease in ('hiv', 'tb', 'malaria'):
+        total_funding = (Scenarios[scenario_name]['tgf'][disease].df['value'] + Scenarios[scenario_name]['non_tgf'][disease].df['value']).sum()
+        fraction_funded[disease][scenario_name] = min(total_funding / gp_amt[disease], 1.0)
+
 
 #%% Running the analyses
 
 
 if DO_RUN:
 
-    def get_approach_b_projection(tgf_funding_scenario: TgfFunding, disease: str) -> Dict[str, pd.DataFrame]:
+    def get_approach_b_projection(
+            tgf_funding_scenario: TgfFunding,
+            non_tgf_funding_scenario: NonTgfFunding,
+            disease: str,
+    ) -> Dict[str, pd.DataFrame]:
+
         if disease == 'hiv':
             db = hiv_db
         elif disease == 'tb':
@@ -189,7 +228,7 @@ if DO_RUN:
             database=db,
             scenario_descriptor=SCENARIO_DESCRIPTOR,
             tgf_funding=tgf_funding_scenario,
-            non_tgf_funding=non_tgf_funding[disease],
+            non_tgf_funding=non_tgf_funding_scenario,
             parameters=parameters,
             handle_out_of_bounds_costs=True,
             innovation_on=False,
@@ -204,128 +243,66 @@ if DO_RUN:
 
     # Run all these scenarios under Approach B for each disease
     Results_RHS = defaultdict(dict)
-    for disease in (
-            'hiv',
-            # 'tb',
-            # 'malaria',
-    ):
-        for fraction_of_gp_total_funding, tgf_funding_scenario in tgf_scenarios_for_rhs_plot[disease].items():
-            Results_RHS[disease][fraction_of_gp_total_funding] = get_approach_b_projection(
-                tgf_funding_scenario=tgf_funding_scenario, disease=disease)
 
+    for scenario_name in Scenarios.keys():
+        for disease in ('hiv',
+                        # 'tb',
+                        # 'malaria'
+                        ):
+            Results_RHS[disease][scenario_name] = get_approach_b_projection(
+                tgf_funding_scenario=Scenarios[scenario_name]['tgf'][disease],
+                non_tgf_funding_scenario=Scenarios[scenario_name]['non_tgf'][disease],
+                disease=disease)
     save_var(Results_RHS, get_root_path() / "sessions" / "Results_RHS.pkl")
 else:
     Results_RHS = load_var(get_root_path() / "sessions" / "Results_RHS.pkl")
 
 
-# %% Produce graphic
-
-# - Fraction of the GP reduction achieved in cases and deaths
-# NB. Sometimes the results undershoot/overshoot the GP because neither the model results under Approach B nor the GP is trying to maximise this metric.
+#%% Produce Graphic
 for disease in ('hiv', 'tb', 'malaria'):
-    to_plot = list()
 
-    reduc_in_cases_under_gp = (1.0 - Results_LHS['GP'][disease]['cases'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['cases'].at[2022, 'model_central'])
-    reduc_in_deaths_under_gp = (1.0 - Results_LHS['GP'][disease]['deaths'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['deaths'].at[2022, 'model_central'])
+    cases_gp = Results_RHS[disease]['GP']['cases'].loc[slice(2023, 2030), 'model_central'].sum()
+    deaths_gp = Results_RHS[disease]['GP']['deaths'].loc[slice(2023, 2030), 'model_central'].sum()
 
-    for (scenario_name, funding_fraction), _res in Results_RHS[disease].items():
+    cases_vs_gp = dict()
+    deaths_vs_gp = dict()
+    cases_and_deaths_vs_gp = dict()
 
-        reduction_in_cases_vs_gp = (1.0 - (_res['cases'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['cases'].at[2022, 'model_central'])) / reduc_in_cases_under_gp
-        reduction_in_deaths_vs_gp = (1.0 - (_res['deaths'].at[2030, 'model_central'] / Results_LHS['GP'][disease]['deaths'].at[2022, 'model_central'])) / reduc_in_cases_under_gp
-        average_reduction_in_cases_and_deaths_vs_gp = (reduction_in_cases_vs_gp + reduction_in_deaths_vs_gp) / 2.  # Equal weighting to cases and deaths
+    for scenario in (sc for sc in Scenarios.keys() if sc != 'GP'):
+        cases = Results_RHS[disease][scenario]['cases'].loc[slice(2023, 2030), 'model_central'].sum()
+        deaths = Results_RHS[disease][scenario]['deaths'].loc[slice(2023, 2030), 'model_central'].sum()
+        cases_vs_gp[scenario] = cases / cases_gp
+        deaths_vs_gp[scenario] = deaths / deaths_gp
+        cases_and_deaths_vs_gp[scenario] = ((cases / cases_gp) + (deaths / deaths_gp))/2
 
-        to_plot.extend([dict(
-            scenario_name=scenario_name if scenario_name is not None else '',
-            funding_fraction=100 * funding_fraction,
-            reduction_in_cases=100 * reduction_in_cases_vs_gp,
-            reduction_in_deaths=100 * reduction_in_deaths_vs_gp,
-            average_reduction_in_cases_and_deaths_vs_gp=100 * average_reduction_in_cases_and_deaths_vs_gp
-        )])
+    to_plot = pd.concat({
+        'funding_fraction': pd.Series({k: v for k, v in fraction_funded[disease].items() if k != 'GP'}),
+        'cases_vs_gp': pd.Series(cases_vs_gp),
+        'deaths_vs_gp': pd.Series(deaths_vs_gp),
+        'cases_and_deaths_vs_gp': pd.Series(cases_and_deaths_vs_gp),
+    }, axis=1).reset_index().set_index('funding_fraction').rename(columns={'index': 'scenario'})
 
-    to_plot = pd.DataFrame.from_records(to_plot).sort_values(by='funding_fraction', ascending=True)
-
-    fig, ax = plt.subplots(nrows=1, ncols=3, sharey=True, sharex=True)
-    real_points = to_plot.loc[to_plot['scenario_name'].str.len() > 0]
-
-    for _ax, _column, _title in zip(
+    fig, ax = plt.subplots(ncols=3, sharex=True, sharey=True)
+    for _ax, _indicator, _descriptor in zip(
             ax,
-            ['reduction_in_cases', 'reduction_in_deaths', 'average_reduction_in_cases_and_deaths_vs_gp'],
-            ['cases', 'deaths', 'both']
+            ('cases_vs_gp', 'deaths_vs_gp', 'cases_and_deaths_vs_gp'),
+            ('Cases', 'Deaths', 'Cases & Deaths')
     ):
-        _ax.plot(to_plot['funding_fraction'],
-                to_plot[_column],
-                label=None, marker='o', markersize=5, color='black', linestyle='--')
-        for _, _real_pt in real_points.iterrows():
-            _ax.plot(_real_pt['funding_fraction'],
-                    _real_pt[_column],
-                    label=_real_pt.scenario_name,
-                    marker='o', markersize=10, linestyle='')
+        _ax.plot(100 * to_plot.index, 100 * to_plot[_indicator],
+                marker='', linestyle='-', color='black')
+        for ff, vals in to_plot.iterrows():
+            _ax.plot(100 * ff, 100 * vals[_indicator],
+                     label=vals['scenario'],
+                     marker='o', markersize=10, linestyle='')
+        _ax.legend(loc='best')
         _ax.set_xlabel('Fraction of GP Funded (%)')
-        _ax.set_ylabel('Progress to GP 2030 target (%')
-        _ax.set_xlim(0, 120)
-        _ax.set_title(_title)
-        _ax.axhline(y=100, linestyle='--', color='grey')
-        _ax.set_ylim(bottom=0.)
-        _ax.legend(fontsize=8, loc='lower left')
-
-    fig.suptitle(f'Impact For Approach B: {disease}')
-    fig.tight_layout()
-    fig.show()
-    fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_cases_and_death_reduction_relative_to_gp_{disease}.png")
-    plt.close(fig)
-
-
-
-#%% - Cases and death in the period 2023-2030, divided by the number achieved in GP (lower is better).
-for disease in ('hiv', 'tb', 'malaria'):
-    to_plot = list()
-
-    # cases_2022_to_2030_gp = Results_LHS['GP'][disease]['cases'].loc[slice(2023, 2030), 'model_central'].sum()
-    # deaths_2022_to_2030_gp = Results_LHS['GP'][disease]['deaths'].loc[slice(2023, 2030), 'model_central'].sum()
-
-    for (scenario_name, funding_fraction), _res in Results_RHS[disease].items():
-
-        cases_2022_to_2030 = _res['cases'].loc[slice(2023, 2030), 'model_central'].sum() / cases_2022_to_2030_gp
-        deaths_2022_to_2030 = _res['deaths'].loc[slice(2023, 2030), 'model_central'].sum() / deaths_2022_to_2030_gp
-        average_reduction_in_cases_and_deaths_vs_gp = (cases_2022_to_2030 + deaths_2022_to_2030) / 2.
-
-        to_plot.extend([dict(
-            scenario_name=scenario_name if scenario_name is not None else '',
-            funding_fraction=100 * funding_fraction,
-            reduction_in_cases=100 * cases_2022_to_2030,
-            reduction_in_deaths=100 * deaths_2022_to_2030,
-            average_reduction_in_cases_and_deaths_vs_gp=100 * average_reduction_in_cases_and_deaths_vs_gp
-            )])
-
-    to_plot = pd.DataFrame.from_records(to_plot).sort_values(by='funding_fraction', ascending=True)
-
-    fig, ax = plt.subplots(nrows=1, ncols=3, sharey=True, sharex=True)
-    real_points = to_plot.loc[to_plot['scenario_name'].str.len() > 0]
-
-    for _ax, _column, _title in zip(
-            ax,
-            ['reduction_in_cases', 'reduction_in_deaths', 'average_reduction_in_cases_and_deaths_vs_gp'],
-            ['cases', 'deaths', 'both']
-    ):
-        _ax.plot(to_plot['funding_fraction'],
-                to_plot[_column],
-                label=None, marker='o', markersize=5, color='black', linestyle='--')
-        for _, _real_pt in real_points.iterrows():
-            _ax.plot(_real_pt['funding_fraction'],
-                    _real_pt[_column],
-                    label=_real_pt.scenario_name,
-                    marker='o', markersize=10, linestyle='')
-        _ax.set_xlabel('Fraction of GP Funded (%)')
-        _ax.set_ylabel('Cases and Deaths 2023-2030 / That in GP (%)')
+        _ax.set_ylabel(f'{_descriptor} / That in GP (%)')
         _ax.set_xlim(0, 105)
-        _ax.set_title(_title)
         _ax.axhline(y=100, linestyle='--', color='grey')
-        _ax.set_ylim(bottom=0.)
+        _ax.set_ylim(bottom=100, top=200)
         _ax.legend(fontsize=8, loc='lower left')
-
-    fig.suptitle(f'Impact For Approach B: {disease}')
     fig.tight_layout()
+    fig.suptitle(disease)
     fig.show()
+    fig.close()
     fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_cases_and_death_divided_by_gp_{disease}.png")
-    plt.close(fig)
-
