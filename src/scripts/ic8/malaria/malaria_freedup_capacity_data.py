@@ -2,6 +2,7 @@ import pandas
 
 from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin, PFInputDataMalaria, PartnerDataMalaria
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria
+from tgftools.FilePaths import FilePaths
 from tgftools.database import Database
 from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path, save_var, load_var
@@ -16,26 +17,25 @@ class DatabaseChecksMalaria(MALARIAMixin,):
 
 if __name__ == "__main__":
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     # Load the files
     model_results = ModelResultsMalaria(
-        path_to_data_folder / "IC8/modelling_outputs/malaria/2024_08_30",
+        filepaths.get('malaria', 'model-results'),
         parameters=parameters,
     )
 
     # Load the files
     pf_input_data = PFInputDataMalaria(
-        path_to_data_folder / "IC8/pf/malaria/2024_03_28",
+        filepaths.get('malaria', 'pf-input-data'),
         parameters=parameters,
     )
 
     partner_data = PartnerDataMalaria(
-        path_to_data_folder / "IC8/partner/malaria/2024_10_17",
+        filepaths.get('malaria', 'partner-data'),
         parameters=parameters,
     )
 

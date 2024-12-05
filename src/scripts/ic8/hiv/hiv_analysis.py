@@ -5,6 +5,7 @@ import pandas as pd
 from scripts.ic8.hiv.hiv_checks import DatabaseChecksHiv
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv, PFInputDataHIV, PartnerDataHIV, GpHiv
 from scripts.ic8.shared.create_frontier import filter_for_frontier
+from tgftools.FilePaths import FilePaths
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -47,18 +48,14 @@ analysis class directly.
 
 def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     if load_data_from_raw_files:
         # Load the files
-        model_results = ModelResultsHiv(
-            path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_24",
-            parameters=parameters,
-        )
+        model_results = ModelResultsHiv(filepaths.get('hiv', 'model-results'), parameters=parameters)
         # Save the model_results object
         save_var(model_results, project_root / "sessions" / "hiv_model_data_ic8.pkl")
 
@@ -67,20 +64,9 @@ def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
         model_results = load_var(project_root / "sessions" / "hiv_model_data_ic8.pkl")
 
     # Load the files
-    pf_input_data = PFInputDataHIV(
-        path_to_data_folder / "IC8/pf/hiv/2024_03_28",
-        parameters=parameters,
-    )
-
-    partner_data = PartnerDataHIV(
-        path_to_data_folder / "IC8/partner/hiv/2024_10_17",
-        parameters=parameters,
-    )
-
-    fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "IC8" / "shared" / "fixed_gps" / "hiv_gp.csv",
-        parameters=parameters,
-    )
+    pf_input_data = PFInputDataHIV(filepaths.get('hiv', 'pf-input-data'),parameters=parameters)
+    partner_data = PartnerDataHIV(filepaths.get('hiv', 'partner-data'), parameters=parameters)
+    fixed_gp = FixedGp(filepaths.get('hiv', 'gp-data'), parameters=parameters)
 
     gp = GpHiv(
         fixed_gp=fixed_gp,
@@ -107,11 +93,10 @@ def get_hiv_analysis(
 ) -> Analysis:
     """Returns the analysis for HIV."""
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths)
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     # Load the database
     db = get_hiv_database(load_data_from_raw_files=load_data_from_raw_files)
@@ -127,34 +112,13 @@ def get_hiv_analysis(
         )
 
     # Load assumption for budgets for this analysis
-    tgf_funding = (
-        TgfFunding(
-            path_to_data_folder
-            / "IC8"
-            / "funding"
-            / "2024_11_24"
-            / "hiv"
-            / "tgf"
-            / "hiv_fung_inc_unalc_bs17.csv"
-        )
-    )
+    tgf_funding = TgfFunding(filepaths.get('hiv', 'tgf-funding'))
 
     # Filter our countries we do not use
     list = parameters.get_modelled_countries_for('HIV')
     tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
 
-    non_tgf_funding = (
-        NonTgfFunding(
-            path_to_data_folder
-            / "IC8"
-            / "funding"
-            / "2024_11_24"
-            / "hiv"
-            / "non_tgf"
-            / "hiv_nonfung_base_c.csv"
-        )
-    )
-
+    non_tgf_funding = NonTgfFunding(filepaths.get('hiv', 'non-tgf-funding'))
     non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(

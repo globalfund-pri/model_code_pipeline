@@ -3,6 +3,7 @@ import pandas
 from scripts.ic8.tb.tb_filehandlers import TBMixin, PFInputDataTb, PartnerDataTb
 from scripts.ic8.shared.common_checks import CommonChecks_basicnumericalchecks, CommonChecks_allscenarios, CommonChecks_forwardchecks
 from scripts.ic8.tb.tb_filehandlers import ModelResultsTb
+from tgftools.FilePaths import FilePaths
 from tgftools.checks import DatabaseChecks
 from tgftools.database import Database
 from tgftools.filehandler import Parameters, GFYear
@@ -18,31 +19,30 @@ class DatabaseChecksTb(TBMixin, CommonChecks_basicnumericalchecks, CommonChecks_
 
 if __name__ == "__main__":
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     # Load the files
     model_results = ModelResultsTb(
-        path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_15",
+        filepaths.get('tb', 'model-results'),
         parameters=parameters,
     )
 
     # Load the files
     pf_input_data = PFInputDataTb(
-        path_to_data_folder / "IC8/pf/tb/2024_03_28",
+        filepaths.get('tb', 'pf-input-data'),
         parameters=parameters,
     )
 
     partner_data = PartnerDataTb(
-        path_to_data_folder / "IC8/partner/tb/2024_10_17",
+        filepaths.get('tb', 'partner-data'),
         parameters=parameters,
     )
 
     # fixed_gp = FixedGp(
-    #     get_root_path() / "src" / "scripts" / "IC7" / "shared" / "fixed_gps" / "hiv_gp.csv",
+    #     filepaths.get('tb', 'gp-data'),
     #     parameters=parameters,
     # )
 
