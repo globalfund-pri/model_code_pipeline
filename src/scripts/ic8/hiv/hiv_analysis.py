@@ -48,7 +48,7 @@ analysis class directly.
 
 def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
 
-    # Declare the parameters and filepaths)
+    # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
