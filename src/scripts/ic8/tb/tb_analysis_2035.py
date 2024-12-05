@@ -5,6 +5,7 @@ import pandas as pd
 from scripts.ic8.shared.create_frontier import filter_for_frontier
 from scripts.ic8.tb.tb_checks import DatabaseChecksTb
 from scripts.ic8.tb.tb_filehandlers import PartnerDataTb, PFInputDataTb, ModelResultsTb, GpTb
+from tgftools.FilePaths import FilePaths
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -46,11 +47,9 @@ analysis class directly.
 
 def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
 
-    path_to_data_folder = get_data_path()
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     # Change end year
     parameters.int_store['END_YEAR'] = 2035
@@ -58,7 +57,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsTb(
-            path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_15",
+            filepaths.get('tb', 'model-results'),
             parameters=parameters,
         )
         # Save the model_results object
@@ -69,12 +68,12 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
 
     # Load the files
     pf_input_data = PFInputDataTb(
-        path_to_data_folder / "IC8/pf/tb/2024_03_28",
+        filepaths.get('tb', 'pf-input-data'),
         parameters=parameters
     )
 
     partner_data = PartnerDataTb(
-        path_to_data_folder / "IC8/partner/tb/2024_10_17",
+        filepaths.get('tb', 'partner-data'),
         parameters=parameters,
     )
 
@@ -101,17 +100,17 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
         partner_data=partner_data,
     )
 
+
 def get_tb_analysis(
         load_data_from_raw_files: bool = True,
         do_checks: bool = False,
 ) -> Analysis:
     """Return the Analysis object for TB."""
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     db = get_tb_database(load_data_from_raw_files=load_data_from_raw_files)
 
@@ -126,44 +125,23 @@ def get_tb_analysis(
         )
 
     # Load assumption for budgets for this analysis
-    tgf_funding = (
-        TgfFunding(
-            path_to_data_folder
-            / "IC8"
-            / "funding"
-            / "2024_11_24"
-            / "tb"
-            / "tgf"
-            / "tb_fung_inc_unalc_bs17.csv"
-        )
-    )
+    tgf_funding = TgfFunding(filepaths.get('tb', 'tgf-funding'))
 
     list = parameters.get_modelled_countries_for('TB')
     tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
 
-    non_tgf_funding = (
-        NonTgfFunding(
-            path_to_data_folder
-            / "IC8"
-            / "funding"
-            / "2024_11_24"
-            / "tb"
-            / "non_tgf"
-            / "tb_nonfung_base_c.csv"
-        )
-    )
-
+    non_tgf_funding = NonTgfFunding(filepaths.get('tb', 'non-tgf-funding'))
     non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(
-        database=db,
-        scenario_descriptor='PF',
-        tgf_funding=tgf_funding,
-        non_tgf_funding=non_tgf_funding,
-        parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=False,
-    )
+            database=db,
+            scenario_descriptor='PF',
+            tgf_funding=tgf_funding,
+            non_tgf_funding=non_tgf_funding,
+            parameters=parameters,
+            handle_out_of_bounds_costs=True,
+            innovation_on=False,
+        )
 
 
 if __name__ == "__main__":
@@ -181,7 +159,6 @@ if __name__ == "__main__":
     pps = get_set_of_portfolio_projections(analysis)
 
     # Get results out from this set for the graph
-    print('hello')
     filename = 'tb_results_2035.csv'
     list_of_dfs = list()  # list of mini dataframes for each indicator for each country
     indicators = ['cases', 'deaths', 'deathshivneg', 'population']
