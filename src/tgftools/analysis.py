@@ -84,9 +84,6 @@ class CountryProjection(NamedTuple):
         str, pd.DataFrame
     ]  # dict of the form {<indicator>: <pd.DataFrame>}
     funding: float
-    model_projection_adj: Dict[
-        str, pd.DataFrame
-    ]  # dict of the form {<indicator>: <pd.DataFrame>}
     # model_projection_fully_funded: Dict[
     #     str, pd.DataFrame
     # ]  # dict of the form {<indicator>: <pd.DataFrame>} # TODO: remove if not needed
@@ -264,7 +261,6 @@ class Analysis:
 
             country_results[country] = CountryProjection(
                 model_projection=model_projection,
-                model_projection_adj=self._adjust_to_partner_data(model_projection),
                 funding=float('nan'),
             )
 
@@ -416,7 +412,6 @@ class Analysis:
 
             country_projection = CountryProjection(
                 model_projection=model_projection,
-                model_projection_adj=self._adjust_to_partner_data(model_projection),
                 funding=total_dollar_funding,
             )
             country_results[country] = country_projection
@@ -432,61 +427,10 @@ class Analysis:
             )
             country_projection = CountryProjection(
                 model_projection=model_projection,
-                model_projection_adj=self._adjust_to_partner_data(model_projection),
                 funding=None,  # could find this from self.emulators[country]._lookup_dollars_to_funding_fraction[1.0]
             )
             country_results[country] = country_projection
         return country_results
-
-    def _adjust_to_partner_data(self, model_projection: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
-        """ This will adjust the model output to the latest partner data for all indicators. Where there is no partner
-        data, no adjustments will be made. It will calculate the ratio between the partner data and model output for the
-        first year of model output and adjust the central, lower and upper bound values by that ratio from the first
-        year of model output until the last year that contains projections, so that the central value in the model
-        matches the partner data in the first year.
-        """
-
-        # Define a dictionary
-        model_projection_adj = dict()
-
-        # Keep hold of the disease
-        disease = self.disease_name
-
-        # Set first year of model output
-        expected_first_year = self.parameters.get("START_YEAR")
-
-        # Run through each country of the emulates projections for the set scenario and funding and adjust it them to
-        # baseline partner data, where baseline partner data is available
-        for indicator, df in model_projection.items():
-
-            df_adj = df.copy()
-
-            if not any(df.columns.map(lambda x: x.startswith('partner'))):
-                # do nothing if no partner data
-                pass
-            else:
-                # make adjustment if there are partner data
-                model_data = df.model_central.loc[expected_first_year]
-                partner_data = df.partner_central.loc[expected_first_year]
-                ratio = partner_data / model_data
-
-                if disease == "HIV":   # In 7th Replenishment HIV was not adjusted for baseline partner data
-                    ratio = 1
-                if disease == "TB":   # In 7th Replenishment HIV was not adjusted for baseline partner data
-                    ratio = 1
-                if disease == "MALARIA":   # In 7th Replenishment HIV was not adjusted for baseline partner data
-                    ratio = 1
-
-                if math.isinf(ratio): # Some values are zeros and ratio becomes inf, turn those into 1s
-                    ratio = 1
-
-                # Only adjust if ratio is not nan
-                if not pd.isnull(ratio):
-                    df_adj[['model_central', 'model_high', 'model_low']] *= ratio
-
-            model_projection_adj[indicator] = df_adj
-
-        return model_projection_adj
 
     def _make_portfolio_results(
             self,
@@ -639,7 +583,7 @@ class Analysis:
         portfolio_results = dict()
 
         # Defining the list of indicators and countries for the loop
-        indicators = country_results[list(country_results.keys())[0]].model_projection_adj.keys()
+        indicators = country_results[list(country_results.keys())[0]].model_projection.keys()
         types_lookup = self.indicators['type'].to_dict()
 
         countries = country_results.keys()
@@ -654,7 +598,7 @@ class Analysis:
             dfs = list()
             for country in countries:
                 dfs.append(
-                    country_results[country].model_projection_adj[indicator].loc[
+                    country_results[country].model_projection[indicator].loc[
                         slice(first_year, last_year),
                         ['model_central', 'model_high', 'model_low']
                     ]
