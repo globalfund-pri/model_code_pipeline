@@ -136,8 +136,8 @@ class Analysis:
         # Save arguments
         self.database = database
         self.scenario_descriptor = scenario_descriptor
-        self.tgf_funding = tgf_funding
-        self.non_tgf_funding = non_tgf_funding
+        self.tgf_funding = self.filter_funding_data_for_non_modelled_countries(tgf_funding)
+        self.non_tgf_funding = self.filter_funding_data_for_non_modelled_countries(non_tgf_funding)
         self.parameters = parameters
         self.handle_out_of_bounds_costs = handle_out_of_bounds_costs
         self.innovation_on = innovation_on
@@ -166,6 +166,16 @@ class Analysis:
             )
             for c in self.countries
         }
+
+    def filter_funding_data_for_non_modelled_countries(
+            self, funding_data_object: TgfFunding | NonTgfFunding
+    ) -> TgfFunding | NonTgfFunding:
+        """Returns a funding data object that has been filtered for countries that are not declared as the modelled
+        countries for that disease."""
+        list_of_modelled_countries = self.parameters.get_modelled_countries_for(self.disease_name)
+        funding_data_object = funding_data_object.copy()
+        funding_data_object.df = funding_data_object.df[funding_data_object.df.index.isin(list_of_modelled_countries)]
+        return funding_data_object
 
     def portfolio_projection_approach_a(self) -> PortfolioProjection:
         """Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding

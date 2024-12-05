@@ -123,12 +123,7 @@ def get_tb_analysis(
 
     # Load assumption for budgets for this analysis
     tgf_funding = TgfFunding(filepaths.get('tb', 'tgf-funding'))
-
-    list = parameters.get_modelled_countries_for('TB')
-    tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
-
     non_tgf_funding = NonTgfFunding(filepaths.get('tb', 'non-tgf-funding'))
-    non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(
         database=db,

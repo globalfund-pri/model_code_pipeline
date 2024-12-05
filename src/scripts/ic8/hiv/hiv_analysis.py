@@ -114,12 +114,7 @@ def get_hiv_analysis(
     # Load assumption for budgets for this analysis
     tgf_funding = TgfFunding(filepaths.get('hiv', 'tgf-funding'))
 
-    # Filter our countries we do not use
-    list = parameters.get_modelled_countries_for('HIV')
-    tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
-
     non_tgf_funding = NonTgfFunding(filepaths.get('hiv', 'non-tgf-funding'))
-    non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(
         database=db,
@@ -133,7 +128,7 @@ def get_hiv_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object
