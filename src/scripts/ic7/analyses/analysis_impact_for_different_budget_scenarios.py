@@ -80,30 +80,21 @@ for scenario_label, files in scenarios.items():
     # Create Analysis objects for this funding scenario
     analysis_hiv = Analysis(
         database=hiv_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=TgfFunding(files['hiv']),
         non_tgf_funding=NonTgfFunding(funding_path / 'hiv' / 'non_tgf' / f'hiv{NON_TGF_FUNDING}'),
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
     )
     analysis_tb = Analysis(
         database=tb_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=TgfFunding(files['tb']),
         non_tgf_funding=NonTgfFunding(funding_path / 'tb' / 'non_tgf' / f'tb{NON_TGF_FUNDING}'),
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
     )
     analysis_malaria = Analysis(
         database=tb_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=TgfFunding(files['malaria']),
         non_tgf_funding=NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / f'malaria{NON_TGF_FUNDING}'),
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
     )
 
     # Produce a report for this funding scenario under Approach A
