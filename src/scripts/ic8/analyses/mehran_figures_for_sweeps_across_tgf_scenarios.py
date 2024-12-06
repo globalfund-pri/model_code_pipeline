@@ -36,8 +36,7 @@ path_to_data_folder = get_data_path()
 # instead to re-load locally-cached versions of `ModelResults` binaries and locally-cached version of the analysis
 # results.
 LOAD_DATA = False
-DO_RUN = True
-
+DO_RUN = False
 
 #%% Declare assumptions that are not going to change in the analysis
 SCENARIO_DESCRIPTOR = 'PF'
@@ -245,10 +244,11 @@ if DO_RUN:
     Results_RHS = defaultdict(dict)
 
     for scenario_name in Scenarios.keys():
-        for disease in ('hiv',
-                        # 'tb',
-                        # 'malaria'
-                        ):
+        for disease in (
+                'hiv',
+                'tb',
+                'malaria'
+        ):
             Results_RHS[disease][scenario_name] = get_approach_b_projection(
                 tgf_funding_scenario=Scenarios[scenario_name]['tgf'][disease],
                 non_tgf_funding_scenario=Scenarios[scenario_name]['non_tgf'][disease],
@@ -259,18 +259,21 @@ else:
 
 
 #%% Produce Graphic
+
+YEARS_FOR_COMPARISON = slice(2027, 2029)
+
 for disease in ('hiv', 'tb', 'malaria'):
 
-    cases_gp = Results_RHS[disease]['GP']['cases'].loc[slice(2023, 2030), 'model_central'].sum()
-    deaths_gp = Results_RHS[disease]['GP']['deaths'].loc[slice(2023, 2030), 'model_central'].sum()
+    cases_gp = Results_RHS[disease]['GP']['cases'].loc[YEARS_FOR_COMPARISON, 'model_central'].sum()
+    deaths_gp = Results_RHS[disease]['GP']['deaths'].loc[YEARS_FOR_COMPARISON, 'model_central'].sum()
 
     cases_vs_gp = dict()
     deaths_vs_gp = dict()
     cases_and_deaths_vs_gp = dict()
 
     for scenario in (sc for sc in Scenarios.keys() if sc != 'GP'):
-        cases = Results_RHS[disease][scenario]['cases'].loc[slice(2023, 2030), 'model_central'].sum()
-        deaths = Results_RHS[disease][scenario]['deaths'].loc[slice(2023, 2030), 'model_central'].sum()
+        cases = Results_RHS[disease][scenario]['cases'].loc[YEARS_FOR_COMPARISON, 'model_central'].sum()
+        deaths = Results_RHS[disease][scenario]['deaths'].loc[YEARS_FOR_COMPARISON, 'model_central'].sum()
         cases_vs_gp[scenario] = cases / cases_gp
         deaths_vs_gp[scenario] = deaths / deaths_gp
         cases_and_deaths_vs_gp[scenario] = ((cases / cases_gp) + (deaths / deaths_gp))/2
@@ -297,12 +300,12 @@ for disease in ('hiv', 'tb', 'malaria'):
         _ax.legend(loc='best')
         _ax.set_xlabel('Fraction of GP Funded (%)')
         _ax.set_ylabel(f'{_descriptor} / That in GP (%)')
-        _ax.set_xlim(0, 105)
+        _ax.set_xlim(50, 105)
         _ax.axhline(y=100, linestyle='--', color='grey')
-        _ax.set_ylim(bottom=100, top=200)
-        _ax.legend(fontsize=8, loc='lower left')
-    fig.tight_layout()
+        _ax.set_ylim(bottom=99)
+        _ax.legend(fontsize=8, loc='upper right')
     fig.suptitle(disease)
+    fig.tight_layout()
     fig.show()
-    fig.close()
+    plt.close(fig)
     fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_cases_and_death_divided_by_gp_{disease}.png")
