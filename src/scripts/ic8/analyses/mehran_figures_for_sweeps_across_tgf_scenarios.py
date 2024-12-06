@@ -39,8 +39,8 @@ LOAD_DATA = False
 DO_RUN = False
 
 #%% Declare assumptions that are not going to change in the analysis
-SCENARIO_DESCRIPTOR = 'PF'
 parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+SCENARIO_DESCRIPTOR = parameters.get('SCENARIO_DESCRIPTOR_FOR_IC')
 
 
 #%% Load the databases for HIV, Tb and Malaria
@@ -225,20 +225,11 @@ if DO_RUN:
 
         analysis = Analysis(
             database=db,
-            scenario_descriptor=SCENARIO_DESCRIPTOR,
             tgf_funding=tgf_funding_scenario,
             non_tgf_funding=non_tgf_funding_scenario,
             parameters=parameters,
-            handle_out_of_bounds_costs=True,
-            innovation_on=False,
         )
-        return analysis.portfolio_projection_approach_b(
-            methods=['ga_backwards'],
-            optimisation_params={
-                'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True
-            }
-        ).portfolio_results
+        return analysis.portfolio_projection_approach_b().portfolio_results
 
     # Run all these scenarios under Approach B for each disease
     Results_RHS = defaultdict(dict)
@@ -302,7 +293,6 @@ for disease in ('hiv', 'tb', 'malaria'):
         _ax.set_ylabel(f'{_descriptor} / That in GP (%)')
         _ax.set_xlim(50, 105)
         _ax.axhline(y=100, linestyle='--', color='grey')
-        # _ax.set_ylim(bottom=99)
         _ax.legend(fontsize=8, loc='upper right')
     fig.suptitle(disease)
     fig.tight_layout()
