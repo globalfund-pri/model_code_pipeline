@@ -149,10 +149,10 @@ class Analysis:
         self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
 
         # If we should remove the dominated points, edit the model results accordingly:
-        if remove_dominated_points:
+        if self.parameters.get('REMOVE_DOMINATED_POINTS'):
             self.database.model_results = filter_for_frontier(
                 model_results=self.database.model_results,
-                scenario_descriptor=scenario_descriptor,
+                scenario_descriptor=self.scenario_descriptor,
                 years_for_obj_func=parameters.get("YEARS_FOR_OBJ_FUNC"),
                 years_for_funding=parameters.get("YEARS_FOR_FUNDING"),
             )
