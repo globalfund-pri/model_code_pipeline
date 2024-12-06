@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pandas as pd
+
 from scripts.ic8.hiv.hiv_checks import DatabaseChecksHiv
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv, PFInputDataHIV, PartnerDataHIV, GpHiv
 from scripts.ic8.shared.create_frontier import filter_for_frontier
@@ -165,7 +167,7 @@ def get_hiv_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object
@@ -188,3 +190,42 @@ if __name__ == "__main__":
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
     a = 3
+
+    # Portfolio Projection Approach B: to find optimal allocation of TGF
+    results_from_approach_b = analysis.portfolio_projection_approach_b(
+        optimisation_params={
+            'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
+            'force_monotonic_decreasing': True,
+        }, methods=['ga_backwards', 'ga_forwards', ]
+    )
+
+    (
+            pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
+        results_from_approach_b.non_tgf_funding_by_country)
+    ).to_csv(
+        get_root_path() / 'outputs' / 'hiv_tgf_optimal_allocation.csv',
+        header=False
+    )
+
+    # Get results out from this set for the graph
+    filename = 'hiv_results_17bn.csv'
+    list_of_dfs = list()  # list of mini dataframes for each indicator for each country
+    indicators = ['cases', 'deaths']
+
+    for country in pps.IC.country_results.keys():
+        y = pps.IC.country_results[country].model_projection
+        years = range(2027, 2031)
+        for indicator in indicators:
+            df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
+            df['indicator'] = indicator
+            df['country'] = country
+            list_of_dfs.append(df)
+
+        # build whole df for export
+    whole_df = pd.concat(list_of_dfs, axis=0)
+
+    # save to csv
+    whole_df.to_csv(filename, index=False)
+
+    for year in years:
+        print(year)
