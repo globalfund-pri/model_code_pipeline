@@ -79,9 +79,6 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
 
     # Create and return the database
     return Database(
-        # These model results take the full cost impact curve as is
-        # model_results=model_results,
-        # These model results are limited to the points of the cost-impact curve that are on the frontier
         model_results=filter_for_frontier(model_results),
         gp=gp,
         pf_input_data=pf_input_data,
@@ -114,12 +111,7 @@ def get_malaria_analysis(
 
     # Load assumption for budgets for this analysis
     tgf_funding = TgfFunding(filepaths.get('malaria', 'tgf-funding'))
-
-    list = parameters.get_modelled_countries_for('MALARIA')
-    tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
-
     non_tgf_funding = NonTgfFunding(filepaths.get('malaria', 'non-tgf-funding'))
-    non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     return Analysis(
         database=db,

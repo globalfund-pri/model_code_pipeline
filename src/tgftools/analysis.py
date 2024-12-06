@@ -1,4 +1,5 @@
 import math
+from copy import copy
 from typing import Dict, Iterable, NamedTuple, Optional, Union
 
 import pandas as pd
@@ -126,11 +127,11 @@ class Analysis:
         non_tgf_funding: NonTgfFunding,
         parameters: Parameters,
     ):
-        # Save arguments
+        # Save arguments (nb, funding data are updated again later in __init__)
         self.database = database
+        self.parameters = parameters
         self.tgf_funding = tgf_funding
         self.non_tgf_funding = non_tgf_funding
-        self.parameters = parameters
 
         # Save short-cuts to elements of the database.
         self.gp: Gp = database.gp
@@ -147,6 +148,10 @@ class Analysis:
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
         self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
 
+        # Filter funding assumptions for countries that are not modelled
+        self.tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.tgf_funding)
+        self.non_tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.non_tgf_funding)
+
         # Create emulators for each country so that results can be created for any cost (within the range of actual
         # results).
         self.emulators: dict = {
@@ -159,6 +164,16 @@ class Analysis:
             )
             for c in self.countries
         }
+
+    def filter_funding_data_for_non_modelled_countries(
+            self, funding_data_object: TgfFunding | NonTgfFunding
+    ) -> TgfFunding | NonTgfFunding:
+        """Returns a funding data object that has been filtered for countries that are not declared as the modelled
+        countries for that disease."""
+        list_of_modelled_countries = self.parameters.get_modelled_countries_for(self.disease_name)
+        funding_data_object = copy(funding_data_object)
+        funding_data_object.df = funding_data_object.df[funding_data_object.df.index.isin(list_of_modelled_countries)]
+        return funding_data_object
 
     def portfolio_projection_approach_a(self) -> PortfolioProjection:
         """Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding
