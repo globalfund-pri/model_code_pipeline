@@ -302,7 +302,7 @@ for disease in ('hiv', 'tb', 'malaria'):
         _ax.set_ylabel(f'{_descriptor} / That in GP (%)')
         _ax.set_xlim(50, 105)
         _ax.axhline(y=100, linestyle='--', color='grey')
-        _ax.set_ylim(bottom=99)
+        # _ax.set_ylim(bottom=99)
         _ax.legend(fontsize=8, loc='upper right')
     fig.suptitle(disease)
     fig.tight_layout()
