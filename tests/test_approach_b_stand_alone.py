@@ -53,7 +53,6 @@ def database():
 def analysis(database):
     return Analysis(
         database=database,
-        scenario_descriptor="default",
         tgf_funding=TgfFunding(path_to_data_for_tests / "tgf_funding.csv"),
         non_tgf_funding=NonTgfFunding(path_to_data_for_tests / "non_tgf_funding.csv"),
         parameters=Parameters(path_to_data_for_tests / "parameters.toml"),
@@ -64,14 +63,7 @@ def test_approach_b_direct_access(analysis, tmp_path):
     """Check the functions on `ApproachB`, picking up the object from the analysis class (which creates the appropriate
     data structures needed)."""
 
-    approach_b = analysis._approach_b(
-        optimisation_params={
-            "years_for_obj_func": Parameters(
-                path_to_data_for_tests / "parameters.toml"
-            ).get("YEARS_FOR_OBJ_FUNC"),
-            "force_monotonic_decreasing": False,
-        }
-    )
+    approach_b = analysis._approach_b()
 
     # Inspect the pre-processed model results
     filename = tmp_path / 'inspect_model_results.pdf'
@@ -102,23 +94,14 @@ def test_approach_b_direct_access(analysis, tmp_path):
 def test_force_monotonic(analysis):
     """Check that the option `force_monotonic_decreasing` option in ApproachB works."""
 
-    def shuffle_col(col):
-        return col[np.random.permutation(len(col))].reset_index(drop=True)
-
     # Make results _not_ monotonically decreasing by scrambling the data
     df = analysis.database.model_results.df
     df.index = df.index[np.random.permutation(len(df.index))]
     analysis.database.model_results.df = df.sort_index()
 
     # Construct data-frame WITHOUT `force_monotonic_decreasing`
-    data_frames_for_approach_b = analysis.get_data_frames_for_approach_b(
-        optimisation_params={
-            "years_for_obj_func": Parameters(
-                path_to_data_for_tests / "parameters.toml"
-            ).get("YEARS_FOR_OBJ_FUNC"),
-            "force_monotonic_decreasing": False,
-        }
-    )
+    analysis.parameters.int_store['FORCE_MONOTONIC_DECREASING'] = False
+    data_frames_for_approach_b = analysis.get_data_frames_for_approach_b()
 
     # Check that not monotonic when not using the option
     with pytest.warns(UserWarning) as record:
@@ -133,14 +116,8 @@ def test_force_monotonic(analysis):
 
     # Re-build the dataframes WITH force_monotonic_decreasing` and check they cases and deaths are now monotonically
     # decreasing with cases and deaths
-    data_frames_for_approach_b_with_forcing = analysis.get_data_frames_for_approach_b(
-        optimisation_params={
-            "years_for_obj_func": Parameters(
-                path_to_data_for_tests / "parameters.toml"
-            ).get("YEARS_FOR_OBJ_FUNC"),
-            "force_monotonic_decreasing": True,
-        }
-    )
+    analysis.parameters.int_store['FORCE_MONOTONIC_DECREASING'] = True
+    data_frames_for_approach_b_with_forcing = analysis.get_data_frames_for_approach_b()
 
     db = ApproachBDataSet(
         model_results=data_frames_for_approach_b_with_forcing["model_results"],

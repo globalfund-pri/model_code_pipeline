@@ -109,6 +109,7 @@ class ApproachB:
     def run(self, plt_show=False, filename=None, **kwargs) -> dict[str, ApproachBResult]:
         """Return results from running Approach A and Approach B. Any arguments provided are passed through to
         `do_approach_b`."""
+        # methods = methods, provide_best_only = True
         results = {"a": self.do_approach_a(), "b": self.do_approach_b(**kwargs)}
         self.do_report(results=results, plt_show=plt_show, filename=filename)
         return results
