@@ -35,23 +35,8 @@ The final report containing the key stats and key graphs are saved under the nam
 def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjections:
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
     Counterfactual projections,"""
-    approach = 'b'
     return SetOfPortfolioProjections(
-        IC=analysis.portfolio_projection_approach_b(
-            # methods = ['local_start_at_random'],
-            # methods=None,
-            methods=['ga_backwards', 'ga_forwards', ],
-            # methods=["ga_forwards",
-            #             "ga_backwards",
-            #             "global_start_at_a",
-            #             "global_start_at_random",
-            #             "local_start_at_a",
-            #             "local_start_at_random",],
-            optimisation_params={
-                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True,
-            },
-        ) if approach == 'b' else analysis.portfolio_projection_approach_a(),
+        IC=analysis.portfolio_projection_approach_b(),
         CF_InfAve=analysis.portfolio_projection_counterfactual('CC_2022'),
         CF_LivesSaved=analysis.portfolio_projection_counterfactual('NULL_2022'),
         CF_LivesSaved_Malaria=analysis.get_counterfactual_lives_saved_malaria(),
@@ -63,7 +48,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
             "Main scenario name: ": analysis.scenario_descriptor,
             "Adjustment for innovation was applied:": analysis.innovation_on,
             "Did we handle out of bounds costs: ": analysis.handle_out_of_bounds_costs,
-            "Which approach do we use: ": approach,
+            "Which approach do we use: ": 'b',
             "Files used for PF data: ": str(analysis.database.pf_input_data.path),
             "Files used for partner data: ": str(analysis.database.partner_data.path),
             "Files used for model output: ": str(analysis.database.model_results.path),
@@ -126,7 +111,6 @@ def get_report(
 def dump_projection_to_file(proj, filename):
     """Write the contents of this projection to a csv file."""
     list_of_dfs = list()  # list of mini dataframes for each indicator for each country
-
 
     for scenario_descriptor, country_results in zip(
         ['IC', 'CC_2022', 'NULL_2022', ],
