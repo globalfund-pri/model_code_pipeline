@@ -5,6 +5,7 @@ from typing import Dict, Iterable, NamedTuple, Optional, Union
 import pandas as pd
 from pathlib import Path
 
+from scripts.ic8.shared.create_frontier import filter_for_frontier
 from tgftools.approach_b import ApproachB
 from tgftools.database import Database
 from tgftools.dump_analysis_to_excel import DumpAnalysisToExcel
@@ -151,6 +152,15 @@ class Analysis:
         # Filter funding assumptions for countries that are not modelled
         self.tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.tgf_funding)
         self.non_tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.non_tgf_funding)
+
+        # If we should remove the dominated points, edit the model results accordingly:
+        if self.parameters.get('REMOVE_DOMINATED_POINTS'):
+            self.database.model_results = filter_for_frontier(
+                model_results=self.database.model_results,
+                scenario_descriptor=self.scenario_descriptor,
+                years_for_obj_func=parameters.get("YEARS_FOR_OBJ_FUNC"),
+                years_for_funding=parameters.get("YEARS_FOR_FUNDING"),
+            )
 
         # Create emulators for each country so that results can be created for any cost (within the range of actual
         # results).
