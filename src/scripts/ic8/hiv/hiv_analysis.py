@@ -123,12 +123,9 @@ def get_hiv_analysis(
 
     return Analysis(
         database=db,
-        scenario_descriptor='PF',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=False,
     )
 
 
@@ -144,10 +141,7 @@ if __name__ == "__main__":
 
     # Make diagnostic report
     analysis.make_diagnostic_report(
-        optimisation_params={
-                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True,
-            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False,
+        provide_best_only=False,
         filename=get_root_path() / "outputs" / "diagnostic_report_hiv.pdf"
     )
 
@@ -161,12 +155,7 @@ if __name__ == "__main__":
     pps = get_set_of_portfolio_projections(analysis)
 
     # Portfolio Projection Approach B: to find optimal allocation of TGF
-    results_from_approach_b = analysis.portfolio_projection_approach_b(
-        optimisation_params={
-            'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-            'force_monotonic_decreasing': True,
-        }, methods=['ga_backwards', 'ga_forwards', ]
-    )
+    results_from_approach_b = analysis.portfolio_projection_approach_b()
 
     (
         pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(results_from_approach_b.non_tgf_funding_by_country)
