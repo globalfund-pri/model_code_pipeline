@@ -6,6 +6,7 @@ from scripts.ic8.malaria.malaria_checks import DatabaseChecksMalaria
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria, PFInputDataMalaria, PartnerDataMalaria, \
     GpMalaria
 from scripts.ic8.shared.create_frontier import filter_for_frontier
+from tgftools.FilePaths import FilePaths
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -48,16 +49,15 @@ analysis class directly.
 
 def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsMalaria(
-            path_to_data_folder / "IC8/modelling_outputs/malaria/2024_11_12",
+            filepaths.get('malaria', 'model-results'),
             parameters=parameters
         )
         # Save the model_results object
@@ -66,20 +66,9 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
         # Load the model results
         model_results = load_var(project_root / "sessions" / "malaria_model_data_ic8.pkl")
 
-    pf_input_data = PFInputDataMalaria(
-        path_to_data_folder / "IC8/pf/malaria/2024_03_28",
-        parameters=parameters
-    )
-
-    partner_data = PartnerDataMalaria(
-        path_to_data_folder / "IC8/partner/malaria/2024_10_17",
-        parameters=parameters
-    )
-
-    fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "ic8" / "shared" / "fixed_gps" / "malaria_gp.csv",
-        parameters=parameters
-    )
+    pf_input_data = PFInputDataMalaria(filepaths.get('malaria', 'pf-input-data'), parameters=parameters)
+    partner_data = PartnerDataMalaria(filepaths.get('malaria', 'partner-data'), parameters=parameters)
+    fixed_gp = FixedGp(filepaths.get('malaria', 'gp-data'), parameters=parameters)
 
     gp = GpMalaria(
         fixed_gp=fixed_gp,
@@ -90,9 +79,6 @@ def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
 
     # Create and return the database
     return Database(
-        # These model results take the full cost impact curve as is
-        # model_results=model_results,
-        # These model results are limited to the points of the cost-impact curve that are on the frontier
         model_results=filter_for_frontier(model_results),
         gp=gp,
         pf_input_data=pf_input_data,
@@ -106,11 +92,10 @@ def get_malaria_analysis(
 ) -> Analysis:
     """Return the Analysis object for Malaria."""
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     db = get_malaria_database(load_data_from_raw_files=load_data_from_raw_files)
 
@@ -125,43 +110,14 @@ def get_malaria_analysis(
         )
 
     # Load assumption for budgets for this analysis
-    tgf_funding = (
-        TgfFunding(
-            path_to_data_folder
-            / "IC8"
-            / "funding"
-            / "2024_11_24"
-            / "malaria"
-            / "tgf"
-            / "malaria_fung_inc_unalc_bs17.csv"
-        )
-    )
-
-    list = parameters.get_modelled_countries_for('MALARIA')
-    tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
-
-    non_tgf_funding = (
-        NonTgfFunding(
-            path_to_data_folder
-            / "IC8"
-            / "funding"
-            / "2024_11_24"
-            / "malaria"
-            / "non_tgf"
-            / "malaria_nonfung_base_c.csv"
-        )
-    )
-
-    non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
+    tgf_funding = TgfFunding(filepaths.get('malaria', 'tgf-funding'))
+    non_tgf_funding = NonTgfFunding(filepaths.get('malaria', 'non-tgf-funding'))
 
     return Analysis(
         database=db,
-        scenario_descriptor='PF',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=False,
     )
 
 
@@ -176,10 +132,7 @@ if __name__ == "__main__":
     )
 
     analysis.make_diagnostic_report(
-        optimisation_params={
-                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True,
-            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False,
+        provide_best_only=False,
         filename=get_root_path() / "outputs" / "diagnostic_report_malaria.pdf"
     )
 
@@ -193,15 +146,10 @@ if __name__ == "__main__":
     pps = get_set_of_portfolio_projections(analysis)
 
     # Portfolio Projection Approach B: to find optimal allocation of TGF
-    results_from_approach_b = analysis.portfolio_projection_approach_b(
-        optimisation_params={
-            'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-            'force_monotonic_decreasing': True,
-        }, methods=['ga_backwards', 'ga_forwards', ]
-    )
+    results_from_approach_b = analysis.portfolio_projection_approach_b()
 
     (
-            pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
+        pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
         results_from_approach_b.non_tgf_funding_by_country)
     ).to_csv(
         get_root_path() / 'outputs' / 'malaria_tgf_optimal_allocation.csv',

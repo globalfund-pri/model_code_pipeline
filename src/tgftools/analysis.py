@@ -1,4 +1,5 @@
 import math
+from copy import copy
 from typing import Dict, Iterable, NamedTuple, Optional, Union
 
 import pandas as pd
@@ -122,22 +123,15 @@ class Analysis:
     def __init__(
         self,
         database: Database,
-        scenario_descriptor: str,
         tgf_funding: TgfFunding,
         non_tgf_funding: NonTgfFunding,
         parameters: Parameters,
-        handle_out_of_bounds_costs: Optional[bool] = False,
-        innovation_on: Optional[bool] = False,
-
     ):
-        # Save arguments
+        # Save arguments (nb, funding data are updated again later in __init__)
         self.database = database
-        self.scenario_descriptor = scenario_descriptor
+        self.parameters = parameters
         self.tgf_funding = tgf_funding
         self.non_tgf_funding = non_tgf_funding
-        self.parameters = parameters
-        self.handle_out_of_bounds_costs = handle_out_of_bounds_costs
-        self.innovation_on = innovation_on
 
         # Save short-cuts to elements of the database.
         self.gp: Gp = database.gp
@@ -146,10 +140,17 @@ class Analysis:
         # Store some parameters for easy access
         self.disease_name = self.database.disease_name
         self.indicators = self.parameters.get_indicators_for(self.disease_name)
+        self.scenario_descriptor = parameters.get('SCENARIO_DESCRIPTOR_FOR_IC')
+        self.handle_out_of_bounds_costs = parameters.get('HANDLE_OUT_OF_BOUNDS_COSTS')
+        self.innovation_on = parameters.get('INNOVATION_ON')
         self.years_for_funding = self.parameters.get('YEARS_FOR_FUNDING')
         self.indicators_for_adj_for_innovations = self.parameters.get(self.disease_name).get(
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
         self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
+
+        # Filter funding assumptions for countries that are not modelled
+        self.tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.tgf_funding)
+        self.non_tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.non_tgf_funding)
 
         # Create emulators for each country so that results can be created for any cost (within the range of actual
         # results).
@@ -159,10 +160,20 @@ class Analysis:
                 scenario_descriptor=self.scenario_descriptor,
                 country=c,
                 years_for_funding=self.years_for_funding,
-                handle_out_of_bounds_costs=handle_out_of_bounds_costs,
+                handle_out_of_bounds_costs=self.handle_out_of_bounds_costs,
             )
             for c in self.countries
         }
+
+    def filter_funding_data_for_non_modelled_countries(
+            self, funding_data_object: TgfFunding | NonTgfFunding
+    ) -> TgfFunding | NonTgfFunding:
+        """Returns a funding data object that has been filtered for countries that are not declared as the modelled
+        countries for that disease."""
+        list_of_modelled_countries = self.parameters.get_modelled_countries_for(self.disease_name)
+        funding_data_object = copy(funding_data_object)
+        funding_data_object.df = funding_data_object.df[funding_data_object.df.index.isin(list_of_modelled_countries)]
+        return funding_data_object
 
     def portfolio_projection_approach_a(self) -> PortfolioProjection:
         """Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding
@@ -187,8 +198,6 @@ class Analysis:
 
     def portfolio_projection_approach_b(
         self,
-        methods: Union[Iterable[str], None],
-        optimisation_params: Optional[Dict] = None,
     ) -> PortfolioProjection:
         """Returns the PortfolioProjection For Approach B: i.e., the projection for each country, given the funding
         to each country when the TGF funding allocated to a country _CAN_ be changed. Multiple methods for optimisation
@@ -199,7 +208,10 @@ class Analysis:
         """
         # Use the `ApproachB` class to get the TGF funding allocations from the optimisation, getting only the best
         # result.
-        results_from_approach_b = self._approach_b(optimisation_params).do_approach_b(
+
+        methods = self.parameters.get('APPROACH_B_METHODS')
+
+        results_from_approach_b = self._approach_b().do_approach_b(
             methods=methods, provide_best_only=True
         )
         tgf_funding_under_approach_b = results_from_approach_b.tgf_budget_by_country
@@ -278,39 +290,21 @@ class Analysis:
         """Dump everything into an Excel file."""
         DumpAnalysisToExcel(self, filename)
 
-    def _approach_b(self, optimisation_params: Optional[Dict] = None) -> ApproachB:
+    def _approach_b(self) -> ApproachB:
         """Returns the object `ApproachB` so that other features of it can be accessed conveniently."""
-        return ApproachB(**self.get_data_frames_for_approach_b(optimisation_params))
+        return ApproachB(**self.get_data_frames_for_approach_b())
 
     def get_data_frames_for_approach_b(
         self,
-        optimisation_params: Optional[Dict] = None,
     ) -> Dict[str, pd.DataFrame]:
         """Returns dict of dataframes needed for using the `ApproachB` class. This is where the quantities are
         computed that summarises the performance of each country under each funding_fraction and the GP, which forms
-        the basis of the optimisation.
-
-        Keys (all optional) within the `optimisation_params`:
-          * `years_for_obj_func`: These are the years for which the sum of cases, deaths are used as the objection
-        function for the optimisation of TGF shared.
-
-          * `force_monotonic_decreasing`: Whether the results for each country should be over-written such that
-         cases and deaths are strictly decreasing with increasing funding.
-
-        """
+        the basis of the optimisation."""
 
         # ---------------
         # Get parameters:
-        if optimisation_params is None:
-            optimisation_params = dict()
-        elif not isinstance(optimisation_params, dict):
-            raise TypeError(
-                f"Argument `optimisation_params` is not of the expected type (dict):"
-                f" {type(optimisation_params)=}"
-            )
-
-        force_monotonic_decreasing = optimisation_params.get("force_monotonic_decreasing", False)
-        years_for_obj_func = optimisation_params.get("years_for_obj_func", [])
+        force_monotonic_decreasing = self.parameters.get("FORCE_MONOTONIC_DECREASING")
+        years_for_obj_func = self.parameters.get("YEARS_FOR_OBJ_FUNC")
         # ---------------
 
         # get budgets as data-frames
@@ -744,20 +738,21 @@ class Analysis:
             self,
             plt_show: Optional[bool] = False,
             filename: Optional[Path] = None,
-            optimisation_params: Optional[Dict] = None,
-            **kwargs):
+    ):
         """
         Create a report that compares the results from Approach A and B (and alternative optimisation methods for
         Approach B if these are specified).
         :param plt_show: determines whether to show the plot
         :param filename: filename to save the report to
-        :param optimisation_params: dictionary with parameters to pass to the optimisation method
-        Other parameters are passed through as those that would be passed to `Analysis.portfolio_projection_approach_b()`
-        This is done by passing through to the `ApproachB.run()` method.
         """
-        # Create the approach_b object using the specified optimisation parameters
-        approach_b_object = self._approach_b(optimisation_params if optimisation_params else {})
+        # Create the approach_b object
+        approach_b_object = self._approach_b()
 
         # Run the report, specifying whether to plot graphs, the filename, and passing through any other kwargs
         # Suppress the returned results as the purpose of this function is generating the report.
-        _ = approach_b_object.run(plt_show=plt_show, filename=filename, **kwargs)
+        _ = approach_b_object.run(
+            plt_show=plt_show,
+            filename=filename,
+            methods=self.parameters.get('APPROACH_B_METHODS'),
+            provide_best_only=False,
+        )
