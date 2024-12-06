@@ -8,9 +8,14 @@ from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path
 
 
-""" When running the resource need make sure to go to the parameter.toml file and select the second modelled country "
- "list under each disease, where there is a second list. This list matches modelled countries to countries for which "
- "we have health finance data, so we can compute a comparable resource need estimate.  """
+""" 
+This is a simple piece of code that utilizes the Database check to extract data relating to the PF 100 scenario and the 
+GP scenario and partner data . This code is not part of the modular framework. 
+
+When running the resource need make sure to select the desired list of countries in the parameter.toml file. In this 
+file, for some diseases, there is a second list which contains all modelled countries. This gives the option to extract
+data for all modelled countries or those used in the IC. 
+"""
 
 
 class DatabaseChecksHiv(HIVMixin,):

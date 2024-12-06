@@ -21,27 +21,23 @@ from tgftools.utils import (
     save_var,
 )
 
-"""This file holds everything relating to processing the model output. 
-It contains information on: 
-- The location of the parameter file
-- The location to the raw model output file and the location the model output should be saved to
-- Alternatively, if if the options is set to not reloading the raw data, the location of the file containing the loaded
-  model output which has been processed in the filehandler
-- The location to pf, partner and gp data and where to save the output of the gp file
+"""
+This is a simple piece of code that utilizes the analysis class to generate the IC time series for TB up to 2035.  
+This code is not part of the modular framework. 
 
+This script holds everything relating to processing the model output. 
+It contains information on: 
+- The location of the parameter file, including aspects of the analysis such as objector function years, funding years, 
+  whether to handle out of bounds, which scenario to run, etc
+- The location of all the filepaths to be used, i.e.  which model data, pf data, partner data, and funding information
 
 It also sets the following options: 
 - Whether to load the model output from raw (see LOAD_DATA_FROM_RAW_FILES at the bottom of the file). 
   CAUTION: Updated to the filehandler relating to model output will not be reflected if this option is set to "False". 
 - Whether to run checks or not (see DO_CHECKS at the bottom of the file) and, if checks are to be run, where to save the
   report of the checks. 
-- Options to set the tgf and non-tgf funding amounts to be used in the analysis. This includes an option to include or 
-  exclude unallocated amounts. This information has to be computed outside the MCP (set in the disease-specific analysis 
-  scripts when loading the budget assumptions) (see tgf_funding and non_tgf_funding). 
-- Which scenario should be used to compute the main investment case scenario (see scenario_descriptor). 
 
-NOTE: Scenarios for the various counterfactuals are set in the HTM class, and disease-specific CFs are set within the
-analysis class directly. 
+NOTE: Scenarios for the various counterfactuals are set in the main results for IC script
 """
 
 
