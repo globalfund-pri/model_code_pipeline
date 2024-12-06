@@ -141,12 +141,9 @@ def get_hiv_analysis(
 
     return Analysis(
         database=db,
-        scenario_descriptor='IC_IC',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
     )
 
 

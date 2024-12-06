@@ -65,20 +65,9 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
         model_results = load_var(project_root / "sessions" / "tb_model_data_ic8.pkl")
 
     # Load the files
-    pf_input_data = PFInputDataTb(
-        filepaths.get('tb', 'pf-input-data'),
-        parameters=parameters
-    )
-
-    partner_data = PartnerDataTb(
-        filepaths.get('tb', 'partner-data'),
-        parameters=parameters,
-    )
-
-    fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "ic8" / "shared" / "fixed_gps" / "tb_gp.csv",
-        parameters=parameters,
-    )
+    pf_input_data = PFInputDataTb(filepaths.get('tb', 'pf-input-data'), parameters=parameters)
+    partner_data = PartnerDataTb(filepaths.get('tb', 'partner-data'), parameters=parameters)
+    fixed_gp = FixedGp(filepaths.get('tb', 'gp-data'), parameters=parameters)
 
     gp = GpTb(
         fixed_gp=fixed_gp,
@@ -97,6 +86,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
         pf_input_data=pf_input_data,
         partner_data=partner_data,
     )
+
 
 def get_tb_analysis(
         load_data_from_raw_files: bool = True,
@@ -127,12 +117,9 @@ def get_tb_analysis(
 
     return Analysis(
         database=db,
-        scenario_descriptor='PF',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=False,
     )
 
 
@@ -148,10 +135,7 @@ if __name__ == "__main__":
 
     # Make diagnostic report
     analysis.make_diagnostic_report(
-        optimisation_params={
-                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True,
-            }, methods=['ga_backwards', 'ga_forwards', ], provide_best_only=False,
+        provide_best_only=False,
         filename=get_root_path() / "outputs" / "diagnostic_report_tb.pdf"
     )
 
@@ -165,15 +149,10 @@ if __name__ == "__main__":
     pps = get_set_of_portfolio_projections(analysis)
 
     # Portfolio Projection Approach B: to find optimal allocation of TGF
-    results_from_approach_b = analysis.portfolio_projection_approach_b(
-        optimisation_params={
-            'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-            'force_monotonic_decreasing': True,
-        }, methods=['ga_backwards', 'ga_forwards', ]
-    )
+    results_from_approach_b = analysis.portfolio_projection_approach_b()
 
     (
-            pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
+        pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
         results_from_approach_b.non_tgf_funding_by_country)
     ).to_csv(
         get_root_path() / 'outputs' / 'tb_tgf_optimal_allocation.csv',

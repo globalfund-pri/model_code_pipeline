@@ -31,17 +31,8 @@ The final report containing the key stats and key graphs are saved under the nam
 def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjections:
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
     Counterfactual projections,"""
-    approach = 'b'
     return SetOfPortfolioProjections(
-        IC=analysis.portfolio_projection_approach_b(
-            # methods = ['local_start_at_random'],
-            # methods=None,
-            methods=['ga_backwards', 'ga_forwards', ],
-            optimisation_params={
-                'years_for_obj_func': analysis.parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True,
-            },
-        ) if approach == 'b' else analysis.portfolio_projection_approach_a(),
+        IC=analysis.portfolio_projection_approach_b(),
         CF_InfAve=analysis.portfolio_projection_counterfactual('CC_CC'),
         CF_LivesSaved=analysis.portfolio_projection_counterfactual('NULL_NULL'),
         CF_LivesSaved_Malaria=analysis.get_counterfactual_lives_saved_malaria(),
@@ -53,7 +44,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
             "Main scenario name: ": analysis.scenario_descriptor,
             "Adjustment for innovation was applied:": analysis.innovation_on,
             "Did we handle out of bounds costs: ": analysis.handle_out_of_bounds_costs,
-            "Which approach do we use: ": approach,
+            "Which approach do we use: ": 'b',
             "Files used for PF data: ": str(analysis.database.pf_input_data.path),
             "Files used for partner data: ": str(analysis.database.partner_data.path),
             "Files used for model output: ": str(analysis.database.model_results.path),

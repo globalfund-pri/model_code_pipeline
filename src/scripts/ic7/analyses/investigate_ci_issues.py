@@ -38,23 +38,18 @@ non_tgf_funding = (
 
 a_inn_on = Analysis(
         database=tb_db,
-        scenario_descriptor='IC_IC',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
     ).portfolio_projection_approach_a()
 
 a_inn_off = Analysis(
         database=tb_db,
-        scenario_descriptor='IC_IC',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=False,
     ).portfolio_projection_approach_a()
+a_inn_off.parameters.int_store["INNOVATION_ON"] = False  # turn innovation off in parameters
 
 
 df_inn_off = a_inn_off.portfolio_results['cases']
