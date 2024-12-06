@@ -4,7 +4,6 @@ import pandas as pd
 
 from scripts.ic8.hiv.hiv_checks import DatabaseChecksHiv
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv, PFInputDataHIV, PartnerDataHIV, GpHiv
-from scripts.ic8.shared.create_frontier import filter_for_frontier
 from tgftools.FilePaths import FilePaths
 from tgftools.analysis import Analysis
 from tgftools.database import Database
@@ -77,10 +76,7 @@ def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
 
     # Create and return the database
     return Database(
-        # These model results take the full cost impact curve as is
-        # model_results=model_results,
-        # These model results are limited to the points of the cost-impact curve that are on the frontier
-        model_results=filter_for_frontier(model_results),
+        model_results=model_results,
         gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,

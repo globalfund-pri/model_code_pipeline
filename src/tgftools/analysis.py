@@ -4,6 +4,7 @@ from typing import Dict, Iterable, NamedTuple, Optional, Union
 import pandas as pd
 from pathlib import Path
 
+from scripts.ic8.shared.create_frontier import filter_for_frontier
 from tgftools.approach_b import ApproachB
 from tgftools.database import Database
 from tgftools.dump_analysis_to_excel import DumpAnalysisToExcel
@@ -128,7 +129,7 @@ class Analysis:
         parameters: Parameters,
         handle_out_of_bounds_costs: Optional[bool] = False,
         innovation_on: Optional[bool] = False,
-
+        remove_dominated_points: Optional[bool] = True,
     ):
         # Save arguments
         self.database = database
@@ -150,6 +151,15 @@ class Analysis:
         self.indicators_for_adj_for_innovations = self.parameters.get(self.disease_name).get(
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
         self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
+
+        # If we should remove the dominated points, edit the model results accordingly:
+        if remove_dominated_points:
+            self.database.model_results = filter_for_frontier(
+                model_results=self.database.model_results,
+                scenario_descriptor=scenario_descriptor,
+                years_for_obj_func=parameters.get("YEARS_FOR_OBJ_FUNC"),
+                years_for_funding=parameters.get("YEARS_FOR_FUNDING"),
+            )
 
         # Create emulators for each country so that results can be created for any cost (within the range of actual
         # results).
