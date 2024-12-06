@@ -26,7 +26,6 @@ path_to_data_folder = get_data_path()
 
 #%% Declare assumptions that are not going to change in the analysis
 NON_TGF_FUNDING = '_nonFubgible_dipiBase.csv'
-SCENARIO_DESCRIPTOR = 'IC_IC'
 parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
 
 # Load the databases
@@ -47,12 +46,9 @@ def get_analysis(disease: str) -> Analysis:
 
     return Analysis(
         database=db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=None,
         non_tgf_funding=None,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
     )
 
 

@@ -42,7 +42,6 @@ db = {
 # Declare assumptions that are not going to change in the analysis
 TGF_FUNDING = 'Fubgible_gf_17b'
 NON_TGF_FUNDING = '_nonFubgible_dipiBase.csv'
-SCENARIO_DESCRIPTOR = 'IC_IC'
 
 #%% Gerrymander the analysis.
 
@@ -61,20 +60,13 @@ SCENARIO_DESCRIPTOR = 'IC_IC'
 # ApproachB optimisation analysis. We will then put them into one dataset all together, renaming the country to
 # signal which disease is implicitly being funded when using that production function.
 
-optimisation_params = {
-    'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
-    'force_monotonic_decreasing': True
-}
 approach_b_datasets = {
     disease: Analysis(
         database=db[disease],
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=TgfFunding(funding_path / disease / 'tgf' / f'{disease}_{TGF_FUNDING}.csv'),
         non_tgf_funding=NonTgfFunding(funding_path / disease / 'non_tgf' / f'{disease}{NON_TGF_FUNDING}'),
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
-    ).get_data_frames_for_approach_b(optimisation_params=optimisation_params)
+    ).get_data_frames_for_approach_b()
     for disease in ['hiv', 'tb', 'malaria']
 }
 
