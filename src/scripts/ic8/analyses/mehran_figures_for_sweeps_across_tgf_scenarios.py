@@ -35,8 +35,8 @@ path_to_data_folder = get_data_path()
 # %% Flag to indicate whether the script should reload model results from raw files and/or re-run all the analysis, or
 # instead to re-load locally-cached versions of `ModelResults` binaries and locally-cached version of the analysis
 # results.
-LOAD_DATA = False
-DO_RUN = False
+LOAD_DATA = True
+DO_RUN = True
 
 #%% Declare assumptions that are not going to change in the analysis
 SCENARIO_DESCRIPTOR = 'PF'

@@ -187,11 +187,6 @@ if __name__ == "__main__":
         filename=get_root_path() / "outputs" / "diagnostic_report_hiv.pdf"
     )
 
-    # To examine results from approach A / B....
-    # analysis.portfolio_projection_approach_a()
-    # analysis.portfolio_projection_approach_b()
-    # analysis.portfolio_projection_counterfactual('CC_CC')
-
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
@@ -210,4 +205,23 @@ if __name__ == "__main__":
         get_root_path() / 'outputs' / 'hiv_tgf_optimal_allocation.csv',
         header=False
     )
+
+    list_of_dfs = list()  # list of mini dataframes for each indicator for each country
+
+    for country in pps.IC.country_results.keys():
+        y = pps.IC.country_results[country].model_projection
+        indicators = ['cases', 'deaths']
+        years = range(2022, 2031)
+        for indicator in indicators:
+            df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
+            df['indicator'] = indicator
+            df['country'] = country
+            df['scenario_descriptor'] = "PF"
+            list_of_dfs.append(df)
+
+    # build whole df for export
+    whole_df = pd.concat(list_of_dfs, axis=0)
+
+    # save to csv
+    whole_df.to_csv("hiv_results_17bn_2.csv", index=False)
 

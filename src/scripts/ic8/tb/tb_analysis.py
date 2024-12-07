@@ -182,11 +182,6 @@ if __name__ == "__main__":
         filename=get_root_path() / "outputs" / "diagnostic_report_tb.pdf"
     )
 
-    # To examine results from approach A / B....
-    # analysis.portfolio_projection_approach_a()
-    # analysis.portfolio_projection_approach_b()
-    # analysis.portfolio_projection_counterfactual('CC_CC')
-
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
     pps = get_set_of_portfolio_projections(analysis)
