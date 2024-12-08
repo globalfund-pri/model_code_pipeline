@@ -2,14 +2,20 @@ import pandas
 
 from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV, PartnerDataHIV
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv
+from tgftools.FilePaths import FilePaths
 from tgftools.database import Database
 from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path
 
 
-""" When running the resource need make sure to go to the parameter.toml file and select the second modelled country "
- "list under each disease, where there is a second list. This list matches modelled countries to countries for which "
- "we have health finance data, so we can compute a comparable resource need estimate.  """
+""" 
+This is a simple piece of code that utilizes the Database check to extract data relating to the PF 100 scenario and the 
+GP scenario and partner data . This code is not part of the modular framework. 
+
+When running the resource need make sure to select the desired list of countries in the parameter.toml file. In this 
+file, for some diseases, there is a second list which contains all modelled countries. This gives the option to extract
+data for all modelled countries or those used in the IC. 
+"""
 
 
 class DatabaseChecksHiv(HIVMixin,):
@@ -21,26 +27,26 @@ class DatabaseChecksHiv(HIVMixin,):
 
 if __name__ == "__main__":
 
-    path_to_data_folder = get_data_path()
     project_root = get_root_path()
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
 
     # Load the files
     model_results = ModelResultsHiv(
-        path_to_data_folder / "IC8/modelling_outputs/hiv/2024_11_24",
+        filepaths.get('hiv', 'model-results'),
         parameters=parameters,
     )
 
     # Load the files
     pf_input_data = PFInputDataHIV(
-        path_to_data_folder / "IC8/pf/hiv/2024_03_28",
+        filepaths.get('hiv', 'pf-input-data'),
         parameters=parameters,
     )
 
     partner_data = PartnerDataHIV(
-        path_to_data_folder / "IC8/partner/hiv/2024_10_17",
+        filepaths.get('hiv', 'partner-data'),
         parameters=parameters,
     )
 

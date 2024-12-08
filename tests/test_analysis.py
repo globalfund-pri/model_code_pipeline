@@ -39,7 +39,6 @@ def database():
 def analysis(database):
     return Analysis(
         database=database,
-        scenario_descriptor="default",
         tgf_funding=TgfFunding(path_to_data_for_tests / "tgf_funding.csv"),
         non_tgf_funding=NonTgfFunding(path_to_data_for_tests / "non_tgf_funding.csv"),
         parameters=Parameters(path_to_data_for_tests / "parameters.toml")
@@ -52,26 +51,7 @@ def test_analysis_approach_a(analysis):
 
 
 def test_analysis_approach_b(analysis):
-    rtn = analysis.portfolio_projection_approach_b(
-        optimisation_params={
-            "force_monotonic_decreasing": False,
-            "years_for_obj_func": Parameters(
-                path_to_data_for_tests / "parameters.toml"
-            ).get("YEARS_FOR_OBJ_FUNC"),
-        },
-        methods=[
-            "ga_forwards",
-            "ga_backwards",
-            "global_start_at_a",
-            "global_start_at_random",
-            "global_start_at_random",  # <-- repeats so that different random starting points are used
-            "global_start_at_random",
-            "local_start_at_a",
-            "local_start_at_random",
-            "local_start_at_random",  # <-- repeats so that different random starting points are used
-            "local_start_at_random",
-        ],
-    )
+    rtn = analysis.portfolio_projection_approach_b()
     assert isinstance(rtn, PortfolioProjection)
 
 def test_analysis_diagnostic_report(analysis, tmp_path):
@@ -79,25 +59,6 @@ def test_analysis_diagnostic_report(analysis, tmp_path):
     filename_for_report = tmp_path / "diagnostic_report.pdf"
 
     analysis.make_diagnostic_report(
-        optimisation_params={
-            "force_monotonic_decreasing": False,
-            "years_for_obj_func": Parameters(
-                path_to_data_for_tests / "parameters.toml"
-            ).get("YEARS_FOR_OBJ_FUNC"),
-        },
-        methods=[
-            "ga_forwards",
-            "ga_backwards",
-            "global_start_at_a",
-            "global_start_at_random",
-            "global_start_at_random",  # <-- repeats so that different random starting points are used
-            "global_start_at_random",
-            "local_start_at_a",
-            "local_start_at_random",
-            "local_start_at_random",  # <-- repeats so that different random starting points are used
-            "local_start_at_random",
-        ],
-        provide_best_only=False,
         filename=filename_for_report,
         plt_show=False,
     )
