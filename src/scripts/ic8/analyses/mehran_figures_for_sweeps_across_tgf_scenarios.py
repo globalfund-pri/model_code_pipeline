@@ -262,6 +262,9 @@ else:
 
 YEARS_FOR_COMPARISON = slice(2027, 2029)
 
+cases_and_deaths_vs_gp_for_all_diseasea_and_scenarios = defaultdict(dict)
+
+# Disease specific graphic:
 for disease in ('hiv', 'tb', 'malaria'):
 
     cases_gp = Results_RHS[disease]['GP']['cases'].loc[YEARS_FOR_COMPARISON, 'model_central'].sum()
@@ -278,6 +281,10 @@ for disease in ('hiv', 'tb', 'malaria'):
         deaths_vs_gp[scenario] = deaths / deaths_gp
         cases_and_deaths_vs_gp[scenario] = ((cases / cases_gp) + (deaths / deaths_gp))/2
 
+        # save `cases_and_deaths_vs_gp` to be used in the plot combining all diseases
+        cases_and_deaths_vs_gp_for_all_diseasea_and_scenarios[scenario][disease] = cases_and_deaths_vs_gp[scenario]
+
+    # Plot:
     to_plot = pd.concat({
         'funding_fraction': pd.Series({k: v for k, v in fraction_funded[disease].items() if k != 'GP'}),
         'cases_vs_gp': pd.Series(cases_vs_gp),
@@ -309,3 +316,31 @@ for disease in ('hiv', 'tb', 'malaria'):
     fig.show()
     plt.close(fig)
     fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_cases_and_death_divided_by_gp_{disease}.png")
+
+
+
+# All-disease graphic:
+to_plot = pd.concat({
+    'funding_fraction': pd.Series({k: v for k, v in fraction_funded[disease].items() if k != 'GP'}),
+    'cases_and_deaths_vs_gp': pd.DataFrame(cases_and_deaths_vs_gp_for_all_diseasea_and_scenarios).mean(axis=1),
+                              # taking average over all diseases
+}, axis=1).reset_index().set_index('funding_fraction').rename(columns={'index': 'scenario'})
+
+fig, ax = plt.subplots()
+ax.plot(100 * to_plot.index, 100 * to_plot[cases_and_deaths_vs_gp],
+         marker='', linestyle='-', color='black')
+for ff, vals in to_plot.iterrows():
+    _ax.plot(100 * ff, 100 * vals[_indicator],
+             label=vals['scenario'],
+             marker='o', markersize=10, linestyle='')
+ax.legend(loc='best')
+ax.set_xlabel('Fraction of GP Funded (%)')
+ax.set_ylabel(f'Cases & Deaths / That in GP (%)')
+ax.set_xlim(50, 105)
+ax.axhline(y=100, linestyle='--', color='grey')
+ax.legend(fontsize=8, loc='upper right')
+ax.set_title('HIV, TB & Malaria Combined')
+fig.tight_layout()
+fig.show()
+plt.close(fig)
+fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_cases_and_death_divided_by_gp_HTM.png")
