@@ -7,8 +7,7 @@ parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "p
 
 
 def filter_for_frontier(model_results: ModelResults):
-    """ This will convert the cost impact curves in the raw model output file to
-    a frontier-based cost impact curve"""
+    """ This will remove from the Model Results, runs that will be dominated in the cost-impact analysis."""
 
     years_for_obj_func = parameters.get("YEARS_FOR_OBJ_FUNC")
     years_for_funding = parameters.get("YEARS_FOR_FUNDING")
