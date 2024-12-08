@@ -39,8 +39,8 @@ LOAD_DATA = True
 DO_RUN = True
 
 #%% Declare assumptions that are not going to change in the analysis
-SCENARIO_DESCRIPTOR = parameters.get('SCENARIO_DESCRIPTOR_FOR_IC')
 parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+SCENARIO_DESCRIPTOR = parameters.get('SCENARIO_DESCRIPTOR_FOR_IC')
 
 
 #%% Load the databases for HIV, Tb and Malaria
