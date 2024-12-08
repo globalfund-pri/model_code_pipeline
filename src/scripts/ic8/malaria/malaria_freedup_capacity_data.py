@@ -7,6 +7,11 @@ from tgftools.database import Database
 from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path, save_var, load_var
 
+"""
+This is a simple piece of code that utilizes the Database check to extract dummy data for the freed up capacity. 
+This code is not part of the modular framework. 
+"""
+
 
 class DatabaseChecksMalaria(MALARIAMixin,):
     """This is the class for DatabaseChecks to do with the Malaria data."""
