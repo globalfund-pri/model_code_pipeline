@@ -511,7 +511,7 @@ class HTMReport(Report):
             }
         )
 
-    def tb_deaths(self) -> pd.DataFrame:
+    def tbh_deaths(self) -> pd.DataFrame:
         """Produce graph for TB deaths"""
         return pd.DataFrame(
             index=pd.Index(list(range(2010, 2031)), name='Year'),
@@ -538,7 +538,7 @@ class HTMReport(Report):
             }
         )
 
-    def tbn_deaths(self) -> pd.DataFrame:
+    def tb_deaths(self) -> pd.DataFrame:
         """Produce graph for TB deaths"""
         return pd.DataFrame(
             index=pd.Index(list(range(2010, 2031)), name='Year'),
@@ -553,7 +553,7 @@ class HTMReport(Report):
                 'pop_cf': self.tb.CF_InfAve.portfolio_results['population']['model_central'],
                 'pop_ic': self.tb.IC.portfolio_results['population']['model_central'],
                 'Actual_mort': self.tb.PARTNER['deathshivneg'] / self.tb.PARTNER["population"],
-                'GP_mort': self.tb.CF_forgraphs['mortality'],
+                'GP_mort': self.tb.CF_forgraphs['mortalityhivneg'],
                 'CF_mort': self.tb.CF_InfAve.portfolio_results['deathshivneg']['model_central'] /
                           self.tb.CF_InfAve.portfolio_results['population']['model_central'],
                 'IC_mort': self.tb.IC.portfolio_results['deathshivneg']['model_central'] /
@@ -736,8 +736,8 @@ class HTMReport(Report):
             'hiv_cases',
             'hiv_deaths',
             'tb_cases',
+            'tbh_deaths',
             'tb_deaths',
-            'tbn_deaths',
             'mal_cases',
             'mal_deaths',
             'comb_mort',
