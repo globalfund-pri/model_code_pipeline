@@ -225,20 +225,12 @@ if DO_RUN:
 
         analysis = Analysis(
             database=db,
-            scenario_descriptor=SCENARIO_DESCRIPTOR,
             tgf_funding=tgf_funding_scenario,
             non_tgf_funding=non_tgf_funding_scenario,
             parameters=parameters,
-            handle_out_of_bounds_costs=True,
-            innovation_on=False,
         )
-        return analysis.portfolio_projection_approach_b(
-            methods=['ga_backwards'],
-            optimisation_params={
-                'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
-                'force_monotonic_decreasing': True
-            }
-        ).portfolio_results
+        analysis.parameters.int_store["APPROACH_B_METHODS"] = ['ga_backwards']
+        return analysis.portfolio_projection_approach_b().portfolio_results
 
     # Run all these scenarios under Approach B for each disease
     Results_RHS = defaultdict(dict)
@@ -322,15 +314,15 @@ for disease in ('hiv', 'tb', 'malaria'):
 # All-disease graphic:
 to_plot = pd.concat({
     'funding_fraction': pd.Series({k: v for k, v in fraction_funded[disease].items() if k != 'GP'}),
-    'cases_and_deaths_vs_gp': pd.DataFrame(cases_and_deaths_vs_gp_for_all_diseasea_and_scenarios).mean(axis=1),
+    'cases_and_deaths_vs_gp': pd.DataFrame(cases_and_deaths_vs_gp_for_all_diseasea_and_scenarios).mean(axis=0),
                               # taking average over all diseases
 }, axis=1).reset_index().set_index('funding_fraction').rename(columns={'index': 'scenario'})
 
 fig, ax = plt.subplots()
-ax.plot(100 * to_plot.index, 100 * to_plot[cases_and_deaths_vs_gp],
+ax.plot(100 * to_plot.index, 100 * to_plot['cases_and_deaths_vs_gp'],
          marker='', linestyle='-', color='black')
 for ff, vals in to_plot.iterrows():
-    _ax.plot(100 * ff, 100 * vals[_indicator],
+    ax.plot(100 * ff, 100 * vals[_indicator],
              label=vals['scenario'],
              marker='o', markersize=10, linestyle='')
 ax.legend(loc='best')
