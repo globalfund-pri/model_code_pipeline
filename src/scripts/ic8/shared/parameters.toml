@@ -156,7 +156,7 @@ use_scaling=false
 name="art"
 description="number of people on ART"
 type="count"
-use_scaling=false
+use_scaling=true
 
 [[HIV.indicator]]
 name="artcoverage"
@@ -1294,7 +1294,7 @@ use_scaling=false
 name="mdrnotified"
 description="number of people with confirmed RR-TB and/or MDR-TB that began second-line treatment"
 type="count"
-use_scaling=false
+use_scaling=true
 
 [[TB.indicator]]
 name="mdrtxcoverage"
@@ -1324,7 +1324,7 @@ use_scaling=false
 name="notified"
 description="number of patients with all forms of TB notified (i.e. bacteriologically confirmed + clinically diagnosed) includes only those with new and relapse TB"
 type="count"
-use_scaling=false
+use_scaling=true
 
 [[TB.indicator]]
 name="txcoverage"
@@ -1520,6 +1520,12 @@ use_scaling=false
 [[MALARIA.indicator]]
 name="llins"
 description="number of llins distributed through mass campaign and continuous distribution"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="llinsuse"
+description="number of people using llins"
 type="count"
 use_scaling=false
 

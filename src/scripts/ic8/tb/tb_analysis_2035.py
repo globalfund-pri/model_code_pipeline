@@ -47,9 +47,6 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
     # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
 
-    # Change end year
-    parameters.int_store['END_YEAR'] = 2035
-
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsTb(
@@ -151,6 +148,9 @@ def get_tb_analysis(
 
     non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
+    # Change end year
+    parameters.int_store['END_YEAR'] = 2035
+
     return Analysis(
                 database=db,
                 scenario_descriptor='PF',
@@ -177,8 +177,6 @@ if __name__ == "__main__":
     pps = get_set_of_portfolio_projections(analysis)
 
     # Get results out from this set for the graph
-    filename = 'tb_results_2035.csv'
-
     tb_cases = pd.DataFrame(
             index=pd.Index(list(range(2010, 2036)), name='Year'),
             data={
@@ -201,6 +199,8 @@ if __name__ == "__main__":
                              pps.IC.portfolio_results['population']['model_central'],
                 'IC_UB_inc': pps.IC.portfolio_results['cases']['model_high'] /
                              pps.IC.portfolio_results['population']['model_central'],
+                'IC_LB_adj': (pps.IC.portfolio_results['cases']['model_low'])*0.9,
+                'IC_UB_adj': (pps.IC.portfolio_results['cases']['model_high'])*1.1,
             }
         )
 
@@ -229,6 +229,8 @@ if __name__ == "__main__":
                          pps.IC.portfolio_results['population']['model_central'],
             'IC_UB_inc': pps.IC.portfolio_results['deaths']['model_high'] /
                          pps.IC.portfolio_results['population']['model_central'],
+            'IC_LB_adj': (pps.IC.portfolio_results['deaths']['model_low'])*0.9,
+            'IC_UB_adj': (pps.IC.portfolio_results['deaths']['model_high'])*1.1,
         }
     )
 
@@ -257,6 +259,8 @@ if __name__ == "__main__":
                          pps.IC.portfolio_results['population']['model_central'],
             'IC_UB_inc': pps.IC.portfolio_results['deathshivneg']['model_high'] /
                          pps.IC.portfolio_results['population']['model_central'],
+            'IC_LB_adj': (pps.IC.portfolio_results['deathshivneg']['model_low'])*0.9,
+            'IC_UB_adj': (pps.IC.portfolio_results['deathshivneg']['model_high'])*1.1,
         }
     )
 

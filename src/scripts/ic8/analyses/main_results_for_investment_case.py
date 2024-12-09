@@ -207,8 +207,8 @@ if __name__ == "__main__":
     outputpath = get_root_path() / 'outputs'
 
     dump_ic_scenario_to_file(
-        load_data_from_raw_files=True,
-        run_analysis=True,
+        load_data_from_raw_files=False,
+        run_analysis=False,
         filename_stub=Path(str(outputpath) + "/dump_ic")
     )
 

@@ -1215,6 +1215,8 @@ class PartnerDataTb(TBMixin, PartnerData):
                 "tb_deaths_n_pip",
                 "tb_deathsnohiv_n_pip",
                 "tb_pop_n_pip",
+                "tb_notified_n_pip",
+                "mdr_notified_n_pip",
             ]
         ]
 
@@ -1227,6 +1229,8 @@ class PartnerDataTb(TBMixin, PartnerData):
                 "tb_deathsnohiv_n_pip": "deathshivneg",
                 "tb_cases_n_pip": "cases",
                 "tb_pop_n_pip": "population",
+                "tb_notified_n_pip": "notified",
+                "mdr_notified_n_pip": "mdrnotified",
             }
         )
 

@@ -1512,6 +1512,7 @@ class PartnerDataHIV(HIVMixin, PartnerData):
                 "hiv_deaths_n_pip",
                 "HIVpos_n_pip",
                 "Population_n_pip",
+                'art_n_pip',
             ]
         ]
 
@@ -1524,6 +1525,7 @@ class PartnerDataHIV(HIVMixin, PartnerData):
                 "hiv_cases_n_pip": "cases",
                 "HIVpos_n_pip": "plhiv",
                 "Population_n_pip": 'population',
+                'art_n_pip': 'art',
             }
         )
 
