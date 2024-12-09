@@ -206,22 +206,3 @@ if __name__ == "__main__":
         header=False
     )
 
-    list_of_dfs = list()  # list of mini dataframes for each indicator for each country
-
-    for country in pps.IC.country_results.keys():
-        y = pps.IC.country_results[country].model_projection
-        indicators = ['cases', 'deaths']
-        years = range(2022, 2031)
-        for indicator in indicators:
-            df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
-            df['indicator'] = indicator
-            df['country'] = country
-            df['scenario_descriptor'] = "PF"
-            list_of_dfs.append(df)
-
-    # build whole df for export
-    whole_df = pd.concat(list_of_dfs, axis=0)
-
-    # save to csv
-    whole_df.to_csv("hiv_results_17bn_2.csv", index=False)
-

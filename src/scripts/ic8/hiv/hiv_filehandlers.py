@@ -145,7 +145,11 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
 
-        # Make funding numbers into fractions
+        # This piece of code makes funding fractions that the number of expected steps divided by the highest step
+        # provided by John. The reason the funding fraction are set to the Step fractions is so that when we run the
+        # checks we can pick up on any missing data. These fractions should NOT be used for the analysis.
+        # This is particular only to this IC data, and may not apply to the next round.
+
         if check == 1:
             concatenated_dfs = concatenated_dfs.reset_index()
             concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2 # Remove 2 as Step 1 and Step 2 were NULL and CC
@@ -167,6 +171,8 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             concatenated_dfs = concatenated_dfs.round({'funding_fraction': 1})
             concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
 
+        # This piece of code makes funding fractions the costs of each scenario and are the ones that should be used
+        # for the analysis. This is particular only to this IC data, and may not apply to the next round.
         if check == 0:
             # Find the smallest funding fraction, set this one to zero and make cost zero so we have full range
             # This is done in analysis.py in line 368 but as we no longer automatically have 0.1 funding (which
@@ -698,17 +704,17 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             }
         )
 
-        # Clean up scenario remove Step 1 and Step 2 which are CC from end of PF period
+        # This long section of code is cleaning up the data John provided and is particular to this IC only.
+        # First remove Step 1 and Step 2 which are CC and NULL respectively from end of PF period
         csv_df = csv_df[csv_df.scenario_descriptor != "Step1"]
         csv_df = csv_df[csv_df.scenario_descriptor != "Step2"]
         # csv_df = csv_df[csv_df.scenario_descriptor != "Step13"]
 
-        # Fix Step 13 in 2022
+        # Then we do some further cleaning, outlined in the text below and we do it for the cost impact data only
         filename = "HIV cost impact"
         if filename in str(file.name):
-            print('hello')
 
-            # Remove Step 12 for SDN
+            # Remove Step 12 for SDN which is completely off
             csv_df = csv_df.drop(
                 csv_df[(csv_df["scenario_descriptor"].str.contains(pat="Step12")) & (csv_df["country"] == 'SDN')].index)
 
@@ -716,6 +722,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             column_names = csv_df.columns.tolist()
             column_names = column_names[3:]
 
+            # In this part of the code we do some further cleaning, specific to this IC only
             # Step 1: Remove duplicates for Step13 in 2022 directly in df, keeping the last occurrence
             mask_step13_2022 = (csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'] == 2022)
             csv_df.loc[mask_step13_2022, :] = csv_df.loc[mask_step13_2022].drop_duplicates(
@@ -725,7 +732,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             # Remove rows containing NaN after reassignment (caused by unmatched rows during deduplication)
             csv_df = csv_df.dropna()
 
-            # Step 2: Replace Step13 values for 2022 with corresponding Step4 values
+            # Step 2: Replace all values for 2022 with corresponding 2022 Step4 values
             # Extract Step4 values for 2022
             step4_2022 = csv_df[(csv_df['scenario_descriptor'] == 'Step4') & (csv_df['year'] == 2022)]
 
@@ -740,7 +747,8 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 axis=1
             )
 
-            # Step 3: Replace values in Step3 to Step 12 for 2022 and 2026 with values from Step13
+            # Step 3: Replace values in Step3 to Step 12 for 2023 and 2026 with values from Step13, because data from
+            # Pre IC period are not correct except 2022.
             # Extract Step13 values for 2022 and 2026
             step13_2022_2026 = csv_df[(csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'].isin([2023, 2024, 2025, 2026]))]
 
