@@ -244,7 +244,7 @@ class HTMReport(Report):
             slice(2024, 2029), "model_central"].sum()
         # TODO; correct this
         mdrnotified_2027_2029 = self.tb.IC.portfolio_results["mdrnotified"].loc[
-            slice(2027, 2029), "model_central"].sum()
+            slice(2024, 2029), "model_central"].sum()
         mdrnotified_2024_2029 = self.tb.IC.portfolio_results["mdrnotified"].loc[
             slice(2027, 2029), "model_central"].sum()
         tb_txcoverage_2023 = self.tb.IC.portfolio_results["notified"].at[2023, "model_central"] / \
@@ -374,8 +374,8 @@ class HTMReport(Report):
         malaria_llins_2024_2029 = self.malaria.IC.portfolio_results["llins"].loc[
             slice(2024, 2029), "model_central"].sum()
 
-        tx_publicsector_2027_2029 = self.malaria.IC.portfolio_results["txpublic"].loc[
-            slice(2027, 2029), "model_central"].sum()
+        tx_publicsector_2024_2029 = self.malaria.IC.portfolio_results["txpublic"].loc[
+            slice(2024, 2029), "model_central"].sum()
 
         vaccines_2024_2029 = self.malaria.IC.portfolio_results["vaccine"].loc[
             slice(2024, 2029), "model_central"].sum()
@@ -431,7 +431,7 @@ class HTMReport(Report):
             "Number of bed nets distributed between 2024 and 2029": malaria_llins_2024_2029,
             "LLIN use in 2023 in SSA": llinuse_2023,
             "LLIN use in 2029 in SSA": llinuse_2029,
-            "Number of people treated in the public sector between 2027 and 2029": tx_publicsector_2027_2029,
+            "Number of people treated in the public sector between 2027 and 2029": tx_publicsector_2024_2029,
 
             "Number of people vaccinated between 2024 and 2029": vaccines_2024_2029,
             "Number of vaccine doses distributed between 2024 and 2029": vaccines_doses_2024_2029,
