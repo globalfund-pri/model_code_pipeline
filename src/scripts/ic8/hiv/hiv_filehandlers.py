@@ -728,33 +728,27 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             # Extract Step4 values for 2022
             step4_2022 = csv_df[(csv_df['scenario_descriptor'] == 'Step4') & (csv_df['year'] == 2022)]
 
-            # Merge Step4 values with Step13 rows
-            df_step13_updated = csv_df[mask_step13_2022].merge(
-                step4_2022[['country'] + column_names],
-                on='country',
-                suffixes=('', '_step4')
+            # Create a mapping for Step4 values (x, y, z) by country
+            step4_mapping = step4_2022.set_index('country')[column_names]
+
+            # Update all scenarios in 2022 with values from Step4
+            mask_year_2022 = (csv_df['year'] == 2022)
+            csv_df.loc[mask_year_2022, column_names] = csv_df.loc[mask_year_2022].apply(
+                lambda row: step4_mapping.loc[row['country']] if row['country'] in step4_mapping.index else row[
+                    column_names],
+                axis=1
             )
 
-            # Find the original indices for rows in df_step13_updated
-            indices_to_update = csv_df[
-                (csv_df['country'].isin(df_step13_updated['country'])) &
-                (csv_df['scenario_descriptor'] == 'Step13') &
-                (csv_df['year'] == 2022)
-                ].index
-
-            # Replace values in the original DataFrame at these indices
-            csv_df.loc[indices_to_update, column_names] = df_step13_updated[[col + '_step4' for col in column_names]].values
-
-            # Step 3: Replace values in Step1 and Step2 for 2022 and 2023 with values from Step13
-            # Extract Step13 values for 2022 and 2023
-            step13_2022_2023 = csv_df[(csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'].isin([2023, 2024, 2025, 2026]))]
+            # Step 3: Replace values in Step3 to Step 12 for 2022 and 2026 with values from Step13
+            # Extract Step13 values for 2022 and 2026
+            step13_2022_2026 = csv_df[(csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'].isin([2023, 2024, 2025, 2026]))]
 
             # Create a mapping for Step13 values (x, y, z) by country and year
-            step13_mapping = step13_2022_2023.set_index(['country', 'year'])[column_names]
+            step13_mapping = step13_2022_2026.set_index(['country', 'year'])[column_names]
 
             # Replace Step1 and Step2 values for 2022 and 2023 with corresponding Step13 values
-            mask_step1_step2_2022_2023 = (csv_df['year'].isin([2023, 2024, 2025, 2026])) & (csv_df['scenario_descriptor'].isin(['Step3', 'Step4', 'Step5', 'Step6', 'Step7', 'Step8', 'Step9', 'Step10', 'Step11', 'Step12']))
-            csv_df.loc[mask_step1_step2_2022_2023, column_names] = csv_df.loc[mask_step1_step2_2022_2023].apply(
+            mask_step1_step2_2022_2026 = (csv_df['year'].isin([2023, 2024, 2025, 2026])) & (csv_df['scenario_descriptor'].isin(['Step3', 'Step4', 'Step5', 'Step6', 'Step7', 'Step8', 'Step9', 'Step10', 'Step11', 'Step12']))
+            csv_df.loc[mask_step1_step2_2022_2026, column_names] = csv_df.loc[mask_step1_step2_2022_2026].apply(
                 lambda row: step13_mapping.loc[(row['country'], row['year'])] if (row['country'], row[
                     'year']) in step13_mapping.index else row[column_names],
                 axis=1
