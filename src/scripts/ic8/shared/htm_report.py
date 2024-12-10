@@ -342,13 +342,34 @@ class HTMReport(Report):
         malaria_llins_2027_2029 = self.malaria.IC.portfolio_results["llins"].loc[
             slice(2027, 2029), "model_central"].sum()
 
-        malaria_llinscov_2023 = (self.malaria.IC.portfolio_results["llinsuse"].loc[
-            slice(2023), "model_central"].sum() / self.malaria.IC.portfolio_results["par"].loc[
-            slice(2023), "model_central"].sum()) * 100
+        # Get llin use in 2023 limited to SSA only
+        # Need to filter by countries below
+        country_list = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
 
-        malaria_llinscov_2029 = (self.malaria.IC.portfolio_results["llinsuse"].loc[
-            slice(2029), "model_central"].sum() / self.malaria.IC.portfolio_results["par"].loc[
-            slice(2023), "model_central"].sum()) *100
+        list_of_dfs = list()  # list of mini dataframes for each indicator for each country
+
+        for country in country_list:
+            y = self.malaria.IC.country_results[country].model_projection
+            indicators = ['llinsuse', 'par']
+            years = range(2022, 2031)
+            for indicator in indicators:
+                df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
+                df['indicator'] = indicator
+                df['country'] = country
+                list_of_dfs.append(df)
+
+        # build whole df
+        df = pd.concat(list_of_dfs, axis=0)
+
+        # Compute llinuse for 2023
+        llinuse_n_2023 = df[(df['year'] == 2023) & (df['indicator'] == 'llinsuse')]['model_central'].sum()
+        par_2023 = df[(df['year'] == 2023) & (df['indicator'] == 'par')]['model_central'].sum()
+        llinuse_2023 = llinuse_n_2023 / par_2023 * 100
+
+        # Compute llinuse for 2029
+        llinuse_n_2029 = df[(df['year'] == 2029) & (df['indicator'] == 'llinsuse')]['model_central'].sum()
+        par_2029 = df[(df['year'] == 2029) & (df['indicator'] == 'par')]['model_central'].sum()
+        llinuse_2029 = llinuse_n_2029 / par_2029 * 100
 
         malaria_llins_2024_2029 = self.malaria.IC.portfolio_results["llins"].loc[
             slice(2024, 2029), "model_central"].sum()
@@ -408,8 +429,8 @@ class HTMReport(Report):
 
             "Number of bed nets distributed between 2027 and 2029": malaria_llins_2027_2029,
             "Number of bed nets distributed between 2024 and 2029": malaria_llins_2024_2029,
-            "LLIN coverage in 2023": malaria_llinscov_2023,
-            "LLIN coverage in 2029": malaria_llinscov_2029,
+            "LLIN use in 2023 in SSA": llinuse_2023,
+            "LLIN use in 2029 in SSA": llinuse_2029,
             "Number of people treated in the public sector between 2027 and 2029": tx_publicsector_2027_2029,
 
             "Number of people vaccinated between 2024 and 2029": vaccines_2024_2029,
