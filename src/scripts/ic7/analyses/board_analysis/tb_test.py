@@ -5,7 +5,6 @@ from matplotlib.ticker import FormatStrFormatter, StrMethodFormatter
 
 from scripts.ic7.tb.tb_filehandlers import ModelResultsTb, PFInputDataTb, PartnerDataTb, GpTb
 from tgftools.analysis import Analysis
-from tgftools.approach_b import explore_approach_b
 from tgftools.database import Database
 from tgftools.filehandler import (
     FixedGp,
@@ -116,25 +115,16 @@ for scenario_name, scenario_file in scenarios.items():
 
     a = Analysis(
         database=db,
-        scenario_descriptor='IC_IC',
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
     )
 
     # If you want to run Approach A
     # ApproachA = a.portfolio_projection_approach_a()
     # results[scenario_name] = ApproachA
 
-    ApproachB = a.portfolio_projection_approach_b(
-        methods=['ga_backwards', 'ga_forwards', ],
-        optimisation_params={
-            'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
-            'force_monotonic_decreasing': True,
-        },
-    )
+    ApproachB = a.portfolio_projection_approach_b()
 
     results[scenario_name] = ApproachB
 

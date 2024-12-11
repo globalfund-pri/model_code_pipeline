@@ -81,7 +81,6 @@ scenarios_to_run = {
 
 #%% Declare assumptions that are not going to change in the analysis
 NON_TGF_FUNDING = '_nonFubgible_dipiBase.csv'
-SCENARIO_DESCRIPTOR = 'IC_IC'
 parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
 
 #%% Load the databases for HIV, Tb and Malaria
@@ -104,30 +103,21 @@ def get_projections(
     # Create Analysis objects for this funding scenario
     analysis_hiv = Analysis(
         database=hiv_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=gf_scenarios[tgf_funding_scenario]['hiv'],
         non_tgf_funding=NonTgfFunding(funding_path / 'hiv' / 'non_tgf' / f'hiv{NON_TGF_FUNDING}'),
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=innovation_on,
     )
     analysis_tb = Analysis(
         database=tb_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=gf_scenarios[tgf_funding_scenario]['tb'],
         non_tgf_funding=NonTgfFunding(funding_path / 'tb' / 'non_tgf' / f'tb{NON_TGF_FUNDING}'),
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=innovation_on,
     )
     analysis_malaria = Analysis(
         database=malaria_db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=gf_scenarios[tgf_funding_scenario]['malaria'],
         non_tgf_funding=NonTgfFunding(funding_path / 'malaria' / 'non_tgf' / f'malaria{NON_TGF_FUNDING}'),
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=innovation_on,
     )
 
     if not gp:
@@ -143,12 +133,9 @@ def get_projections(
                 'force_monotonic_decreasing': True
             }
             return dict(
-                hiv=analysis_hiv.portfolio_projection_approach_b(methods=['ga_backwards'],
-                                                                 optimisation_params=optimisation_params).portfolio_results,
-                tb=analysis_tb.portfolio_projection_approach_b(methods=['ga_backwards'],
-                                                               optimisation_params=optimisation_params).portfolio_results,
-                malaria=analysis_malaria.portfolio_projection_approach_b(methods=['ga_backwards'],
-                                                               optimisation_params=optimisation_params).portfolio_results
+                hiv=analysis_hiv.portfolio_projection_approach_b().portfolio_results,
+                tb=analysis_tb.portfolio_projection_approach_b().portfolio_results,
+                malaria=analysis_malaria.portfolio_projection_approach_b().portfolio_results
             )
     else:
         # Return the GP
@@ -444,20 +431,11 @@ def get_approach_b_projection(tgf_funding_scenario: TgfFunding, disease: str) ->
 
     analysis = Analysis(
         database=db,
-        scenario_descriptor=SCENARIO_DESCRIPTOR,
         tgf_funding=tgf_funding_scenario,
         non_tgf_funding=NonTgfFunding(funding_path / disease / 'non_tgf' / f'{disease}{NON_TGF_FUNDING}'),
         parameters=parameters,
-        handle_out_of_bounds_costs=True,
-        innovation_on=True,
     )
-    return analysis.portfolio_projection_approach_b(
-        methods=['ga_backwards'],
-        optimisation_params={
-            'years_for_obj_func': parameters.get('YEARS_FOR_OBJ_FUNC'),
-            'force_monotonic_decreasing': True
-        }
-    ).portfolio_results
+    return analysis.portfolio_projection_approach_b().portfolio_results
 
 
 if DO_RUN:

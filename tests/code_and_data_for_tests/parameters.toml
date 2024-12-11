@@ -6,6 +6,21 @@ YEARS_FOR_OBJ_FUNC = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]  # These a
 Z_VALUE = 1.96
 RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE = 0.5
 SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'default'
+SCENARIO_DESCRIPTOR_FOR_IC = 'default'
+HANDLE_OUT_OF_BOUNDS_COSTS = true
+INNOVATION_ON = false
+FORCE_MONOTONIC_DECREASING = true  # Whether the results for each country should be over-written such that cases and deaths are strictly decreasing with increasing funding.
+APPROACH_B_METHODS = [              # Methods for optimisation, see ApproachB class for others
+            "ga_forwards",
+            "ga_backwards",
+            "global_start_at_a",
+            "global_start_at_random",
+            "global_start_at_random",  # <-- repeats so that different random starting points are used
+            "global_start_at_random",
+            "local_start_at_a",
+            "local_start_at_random",
+            "local_start_at_random",  # <-- repeats so that different random starting points are used
+            "local_start_at_random"]
 
 # Definition of the Scenarios defined the model results
 [[scenario]]

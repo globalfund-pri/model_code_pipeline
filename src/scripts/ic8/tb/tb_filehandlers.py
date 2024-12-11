@@ -25,8 +25,7 @@ variables that are not needed), puts them in the format defined for the database
 
 The database format is: 
 1) scenario_descriptor: contains a shorthand for scenario names. The parameters.toml file maps the short-hand to definition
-2) funding fraction: contains the funding fraction as expressed by the % of GP funding need. These need to be given as
-   a proportion (0-1) NOT as a percentage (0-100)
+2) funding fraction: contains the funding fraction and refer to % of GP funding need 
 3) country: holds iso3 code for a country
 4) year: contains year information
 5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition

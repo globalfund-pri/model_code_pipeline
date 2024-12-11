@@ -5,6 +5,7 @@ import pandas as pd
 from scripts.ic8.shared.create_frontier import filter_for_frontier
 from scripts.ic8.tb.tb_checks import DatabaseChecksTb
 from scripts.ic8.tb.tb_filehandlers import PartnerDataTb, PFInputDataTb, ModelResultsTb, GpTb
+from tgftools.FilePaths import FilePaths
 from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
@@ -41,39 +42,27 @@ NOTE: Scenarios for the various counterfactuals are set in the main results for 
 
 
 def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
-    path_to_data_folder = get_data_path()
-    project_root = get_root_path()
 
-    # Declare the parameters, indicators and scenarios
+    project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsTb(
-            path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_15",
+            filepaths.get('tb', 'model-results'),
             parameters=parameters,
         )
         # Save the model_results object
-        save_var(model_results, project_root / "sessions" / "tb_model_data_ic8.pkl")
+        save_var(model_results, project_root / "sessions" / "tb_model_data_2035_ic8.pkl")
     else:
         # Load the model results
-        model_results = load_var(project_root / "sessions" / "tb_model_data_ic8.pkl")
+        model_results = load_var(project_root / "sessions" / "tb_model_data_2035_ic8.pkl")
 
     # Load the files
-    pf_input_data = PFInputDataTb(
-        path_to_data_folder / "IC8/pf/tb/2024_03_28",
-        parameters=parameters
-    )
-
-    partner_data = PartnerDataTb(
-        path_to_data_folder / "IC8/partner/tb/2024_10_17",
-        parameters=parameters,
-    )
-
-    fixed_gp = FixedGp(
-        get_root_path() / "src" / "scripts" / "ic8" / "shared" / "fixed_gps" / "tb_gp.csv",
-        parameters=parameters,
-    )
+    pf_input_data = PFInputDataTb(filepaths.get('tb', 'pf-input-data'), parameters=parameters)
+    partner_data = PartnerDataTb(filepaths.get('tb', 'partner-data'), parameters=parameters)
+    fixed_gp = FixedGp(filepaths.get('malaria', 'gp-data'), parameters=parameters)
 
     gp = GpTb(
         fixed_gp=fixed_gp,
@@ -100,11 +89,10 @@ def get_tb_analysis(
 ) -> Analysis:
     """Return the Analysis object for TB."""
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     db = get_tb_database(load_data_from_raw_files=load_data_from_raw_files)
 
@@ -118,52 +106,31 @@ def get_tb_analysis(
             filename=project_root / "outputs" / "tb_report_of_checks_ic8.pdf"
         )
 
-        # Load assumption for budgets for this analysis
-    tgf_funding = (
-        TgfFunding(
-            path_to_data_folder
-            / "IC8"
-            / "funding"
-            / "2024_11_24"
-            / "tb"
-            / "tgf"
-            / "tb_fung_inc_unalc_bs17.csv"
-        )
-    )
+    # Load assumption for budgets for this analysis
+    tgf_funding = TgfFunding(filepaths.get('tb', 'tgf-funding'))
 
     list = parameters.get_modelled_countries_for('TB')
     tgf_funding.df = tgf_funding.df[tgf_funding.df.index.isin(list)]
 
-    non_tgf_funding = (
-        NonTgfFunding(
-            path_to_data_folder
-            / "IC8"
-            / "funding"
-            / "2024_11_24"
-            / "tb"
-            / "non_tgf"
-            / "tb_nonfung_base_c.csv"
-        )
-    )
-
+    non_tgf_funding = NonTgfFunding(filepaths.get('tb', 'non-tgf-funding'))
     non_tgf_funding.df = non_tgf_funding.df[non_tgf_funding.df.index.isin(list)]
 
     # Change end year
     parameters.int_store['END_YEAR'] = 2035
 
     return Analysis(
-                database=db,
-                scenario_descriptor='PF',
-                tgf_funding=tgf_funding,
-                non_tgf_funding=non_tgf_funding,
-                parameters=parameters,
-                handle_out_of_bounds_costs=True,
-                innovation_on=False,
-            )
+            database=db,
+            scenario_descriptor='PF',
+            tgf_funding=tgf_funding,
+            non_tgf_funding=non_tgf_funding,
+            parameters=parameters,
+            handle_out_of_bounds_costs=True,
+            innovation_on=False,
+        )
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = False
+    LOAD_DATA_FROM_RAW_FILES = True
     DO_CHECKS = False
 
     # Create the Analysis object

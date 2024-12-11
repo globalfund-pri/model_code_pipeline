@@ -24,8 +24,7 @@ the database format.
 
 The database format is: 
 1) scenario_descriptor: contains a shorthand for scenario names. The parameters.toml file maps the short-hand to definition
-2) funding fraction: contains the funding fraction as expressed by the numbers starting at "01". They do not refer to 
-   % of GP funding need but as increments of increasing services/availability of services. 
+2) funding fraction: contains the funding fraction and refer to % of GP funding need 
 3) country: holds iso3 code for a country
 4) year: contains year information
 5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition
@@ -145,11 +144,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
 
-        # This piece of code makes funding fractions that the number of expected steps divided by the highest step
-        # provided by John. The reason the funding fraction are set to the Step fractions is so that when we run the
-        # checks we can pick up on any missing data. These fractions should NOT be used for the analysis.
-        # This is particular only to this IC data, and may not apply to the next round.
-
+        # Make funding numbers into fractions
         if check == 1:
             concatenated_dfs = concatenated_dfs.reset_index()
             concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2 # Remove 2 as Step 1 and Step 2 were NULL and CC
@@ -171,8 +166,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             concatenated_dfs = concatenated_dfs.round({'funding_fraction': 1})
             concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
 
-        # This piece of code makes funding fractions the costs of each scenario and are the ones that should be used
-        # for the analysis. This is particular only to this IC data, and may not apply to the next round.
         if check == 0:
             # Find the smallest funding fraction, set this one to zero and make cost zero so we have full range
             # This is done in analysis.py in line 368 but as we no longer automatically have 0.1 funding (which
@@ -704,17 +697,17 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             }
         )
 
-        # This long section of code is cleaning up the data John provided and is particular to this IC only.
-        # First remove Step 1 and Step 2 which are CC and NULL respectively from end of PF period
+        # Clean up scenario remove Step 1 and Step 2 which are CC from end of PF period
         csv_df = csv_df[csv_df.scenario_descriptor != "Step1"]
         csv_df = csv_df[csv_df.scenario_descriptor != "Step2"]
         # csv_df = csv_df[csv_df.scenario_descriptor != "Step13"]
 
-        # Then we do some further cleaning, outlined in the text below and we do it for the cost impact data only
+        # Fix Step 13 in 2022
         filename = "HIV cost impact"
         if filename in str(file.name):
+            print('hello')
 
-            # Remove Step 12 for SDN which is completely off
+            # Remove Step 12 for SDN
             csv_df = csv_df.drop(
                 csv_df[(csv_df["scenario_descriptor"].str.contains(pat="Step12")) & (csv_df["country"] == 'SDN')].index)
 
@@ -722,7 +715,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             column_names = csv_df.columns.tolist()
             column_names = column_names[3:]
 
-            # In this part of the code we do some further cleaning, specific to this IC only
             # Step 1: Remove duplicates for Step13 in 2022 directly in df, keeping the last occurrence
             mask_step13_2022 = (csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'] == 2022)
             csv_df.loc[mask_step13_2022, :] = csv_df.loc[mask_step13_2022].drop_duplicates(

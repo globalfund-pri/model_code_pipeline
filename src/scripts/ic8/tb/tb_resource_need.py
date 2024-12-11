@@ -2,13 +2,19 @@ import pandas
 
 from scripts.ic8.tb.tb_filehandlers import TBMixin, PFInputDataTb, PartnerDataTb
 from scripts.ic8.tb.tb_filehandlers import ModelResultsTb
+from tgftools.FilePaths import FilePaths
 from tgftools.database import Database
 from tgftools.filehandler import Parameters, GFYear
 from tgftools.utils import get_data_path, get_root_path
 
-""" When running the resource need make sure to go to the parameter.toml file and select the second modelled country "
- "list under each disease, where there is a second list. This list matches modelled countries to countries for which "
- "we have health finance data, so we can compute a comparable resource need estimate.  """
+""" 
+This is a simple piece of code that utilizes the Database check to extract data relating to the PF 100 scenario and the 
+GP scenario and partner data . This code is not part of the modular framework. 
+
+When running the resource need make sure to select the desired list of countries in the parameter.toml file. In this 
+file, for some diseases, there is a second list which contains all modelled countries. This gives the option to extract
+data for all modelled countries or those used in the IC. 
+"""
 
 
 class DatabaseChecksTb(TBMixin,):
@@ -20,26 +26,25 @@ class DatabaseChecksTb(TBMixin,):
 
 if __name__ == "__main__":
 
-    path_to_data_folder = get_data_path()
+    # Declare the parameters and filepaths
     project_root = get_root_path()
-
-    # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     # Load the files
     model_results = ModelResultsTb(
-        path_to_data_folder / "IC8/modelling_outputs/tb/2024_10_15",
+        filepaths.get('tb', 'model-results'),
         parameters=parameters,
     )
 
     # Load the files
     pf_input_data = PFInputDataTb(
-        path_to_data_folder / "IC8/pf/tb/2024_03_28",
+        filepaths.get('tb', 'pf-input-data'),
         parameters=parameters,
     )
 
     partner_data = PartnerDataTb(
-        path_to_data_folder / "IC8/partner/tb/2024_10_17",
+        filepaths.get('tb', 'partner-data'),
         parameters=parameters,
     )
 
