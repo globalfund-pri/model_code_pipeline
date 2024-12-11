@@ -431,7 +431,7 @@ class HTMReport(Report):
             "Number of bed nets distributed between 2024 and 2029": malaria_llins_2024_2029,
             "LLIN use in 2023 in SSA": llinuse_2023,
             "LLIN use in 2029 in SSA": llinuse_2029,
-            "Number of people treated in the public sector between 2027 and 2029": tx_publicsector_2024_2029,
+            "Number of people treated in the public sector between 2024 and 2029": tx_publicsector_2024_2029,
 
             "Number of people vaccinated between 2024 and 2029": vaccines_2024_2029,
             "Number of vaccine doses distributed between 2024 and 2029": vaccines_doses_2024_2029,
