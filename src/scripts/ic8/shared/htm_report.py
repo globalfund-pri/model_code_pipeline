@@ -244,9 +244,9 @@ class HTMReport(Report):
             slice(2024, 2029), "model_central"].sum()
         # TODO; correct this
         mdrnotified_2027_2029 = self.tb.IC.portfolio_results["mdrnotified"].loc[
-            slice(2024, 2029), "model_central"].sum()
-        mdrnotified_2024_2029 = self.tb.IC.portfolio_results["mdrnotified"].loc[
             slice(2027, 2029), "model_central"].sum()
+        mdrnotified_2024_2029 = self.tb.IC.portfolio_results["mdrnotified"].loc[
+            slice(2024, 2029), "model_central"].sum()
         tb_txcoverage_2023 = self.tb.IC.portfolio_results["notified"].at[2023, "model_central"] / \
                              self.tb.IC.portfolio_results["cases"].at[2023, "model_central"] * 100
         tb_txcoverage_2029 = self.tb.IC.portfolio_results["notified"].at[2029, "model_central"] / \
