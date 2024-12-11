@@ -724,7 +724,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             # Remove rows containing NaN after reassignment (caused by unmatched rows during deduplication)
             csv_df = csv_df.dropna()
 
-            # Step 2: Replace Step13 values for 2022 with corresponding Step4 values
+            # Step 2: Replace all values for 2022 with corresponding 2022 Step4 values
             # Extract Step4 values for 2022
             step4_2022 = csv_df[(csv_df['scenario_descriptor'] == 'Step4') & (csv_df['year'] == 2022)]
 
@@ -739,7 +739,8 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 axis=1
             )
 
-            # Step 3: Replace values in Step3 to Step 12 for 2022 and 2026 with values from Step13
+            # Step 3: Replace values in Step3 to Step 12 for 2023 and 2026 with values from Step13, because data from
+            # Pre IC period are not correct except 2022.
             # Extract Step13 values for 2022 and 2026
             step13_2022_2026 = csv_df[(csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'].isin([2023, 2024, 2025, 2026]))]
 
@@ -1503,6 +1504,7 @@ class PartnerDataHIV(HIVMixin, PartnerData):
                 "hiv_deaths_n_pip",
                 "HIVpos_n_pip",
                 "Population_n_pip",
+                'art_n_pip',
             ]
         ]
 
@@ -1515,6 +1517,7 @@ class PartnerDataHIV(HIVMixin, PartnerData):
                 "hiv_cases_n_pip": "cases",
                 "HIVpos_n_pip": "plhiv",
                 "Population_n_pip": 'population',
+                'art_n_pip': 'art',
             }
         )
 
