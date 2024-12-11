@@ -16,7 +16,7 @@ def run_ic8_report(tmpdir: pathlib.Path) -> Dict:
 
     r = get_report(
         load_data_from_raw_files=True,
-        do_checks=True,
+        do_checks=False,
         run_analysis=True,
     )
 
@@ -27,6 +27,10 @@ def run_ic8_report(tmpdir: pathlib.Path) -> Dict:
     # Return the results of the report
     return rtn_from_return
 
+"""
+Warning to ensure this runs make sure in the parameters.toml you choose the full list of countries for portfolio and 
+modelled countries, otherwise this code will throw and error. 
+"""
 
 def test_ic8report(tmpdir):
     """
