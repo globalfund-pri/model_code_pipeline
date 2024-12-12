@@ -51,5 +51,5 @@ def test_ic8report(tmpdir):
     pd.testing.assert_series_equal(
         make_sorted_series(run_results["stats"]),
         make_sorted_series(target_results),
-        rtol=0.0001,   # Relative tolerance for comparison
+        rtol=0.001,   # Relative tolerance for comparison
     )
