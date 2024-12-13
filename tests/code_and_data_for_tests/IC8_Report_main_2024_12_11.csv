@@ -1,39 +1,39 @@
 Function,Key,Value
 get_combined_stats,Total number of deaths from 3 diseases in 2005 (from partner),4143321.245
 get_combined_stats,Total number of deaths from 3 diseases in 2020 (from partner),2310718.391
-get_combined_stats,Total number of deaths from 3 diseases in 2023 ,2310832.703
-get_combined_stats,Total number of deaths from 3 diseases in 2029 ,931724.8324
-get_combined_stats,Deaths averted (constant coverage) for HIV 2027 to 2029,10350006.41
-get_combined_stats,Deaths averted (constant coverage) for TB 2027 to 2029,4309551.054
+get_combined_stats,Total number of deaths from 3 diseases in 2023 ,2311719.171
+get_combined_stats,Total number of deaths from 3 diseases in 2029 ,942561.4841
+get_combined_stats,Deaths averted (constant coverage) for HIV 2027 to 2029,10302669.75
+get_combined_stats,Deaths averted (constant coverage) for TB 2027 to 2029,4288737.851
 get_combined_stats,Deaths averted (constant coverage) for malaria 2027 to 2029,3363925.454
-get_combined_stats,Total Deaths averted (constant coverage) for 2027 to 2029,18023482.92
-get_combined_stats,Reduction in mortality across three diseases from 2023 to 2029,-63.87723026
-get_combined_stats,Reduction in incidence across three diseases from 2023 to 2029,-53.72723476
-get_infections_averted,Infections averted relating to HIV from 2027 to 2029,2233933.435
-get_infections_averted,Infections averted relating to TB from 2027 to 2029,5501457.86
+get_combined_stats,Total Deaths averted (constant coverage) for 2027 to 2029,17955333.05
+get_combined_stats,Reduction in mortality across three diseases from 2023 to 2029,-63.57189817
+get_combined_stats,Reduction in incidence across three diseases from 2023 to 2029,-53.61739973
+get_infections_averted,Infections averted relating to HIV from 2027 to 2029,2231498.6
+get_infections_averted,Infections averted relating to TB from 2027 to 2029,5301030.869
 get_infections_averted,Infections averted relating to malaria from 2027 to 2029,423426125.1
-get_infections_averted,Infections averted across three diseases from 2027 to 2029,431161516.4
-get_key_stats_hiv,Number of new hiv infections in the year 2023,795433.9088
-get_key_stats_hiv,Number of new hiv infections  in the year 2029,273053.0236
-get_key_stats_hiv,Reduction in new hiv infections  between the year 2029 compared to 2023,-65.67244362
-get_key_stats_hiv,HIV incidence in the year 2023,0.000175231
-get_key_stats_hiv,HIV incidence in the year 2029,5.53E-05
-get_key_stats_hiv,Reduction in hiv incidence between the year 2029 compared to 2023,-68.44176324
+get_infections_averted,Infections averted across three diseases from 2027 to 2029,430958654.6
+get_key_stats_hiv,Number of new hiv infections in the year 2023,795944.804
+get_key_stats_hiv,Number of new hiv infections  in the year 2029,273326.4263
+get_key_stats_hiv,Reduction in new hiv infections  between the year 2029 compared to 2023,-65.66012807
+get_key_stats_hiv,HIV incidence in the year 2023,0.000175337
+get_key_stats_hiv,HIV incidence in the year 2029,5.53394E-05
+get_key_stats_hiv,Reduction in hiv incidence between the year 2029 compared to 2023,-68.4381837
 get_key_stats_hiv,HIV incidence in the year 2021,0.000243936
-get_key_stats_hiv,HIV incidence in the year 2028,5.65E-05
-get_key_stats_hiv,Reduction in hiv incidence between the year 2028 compared to 2021,-76.84227408
-get_key_stats_hiv,Number of hiv deaths in the year 2023,524183.3451
-get_key_stats_hiv,Number of  hiv deaths  in the year 2029,216021.0249
-get_key_stats_hiv,Reduction in of hiv deaths  between the year 2029 compared to 2023,-58.78903308
-get_key_stats_hiv,HIV mortality rate in the year 2023,0.000113275
-get_key_stats_hiv,HIV mortality rate in the year 2029,4.72E-05
-get_key_stats_hiv,Reduction in hiv mortality rate between the year 2029 compared to 2023,-62.08712419
+get_key_stats_hiv,HIV incidence in the year 2028,5.65361E-05
+get_key_stats_hiv,Reduction in hiv incidence between the year 2028 compared to 2021,-76.8233515
+get_key_stats_hiv,Number of hiv deaths in the year 2023,523988.4253
+get_key_stats_hiv,Number of  hiv deaths  in the year 2029,215664.5288
+get_key_stats_hiv,Reduction in of hiv deaths  between the year 2029 compared to 2023,-58.84173803
+get_key_stats_hiv,HIV mortality rate in the year 2023,0.000113228
+get_key_stats_hiv,HIV mortality rate in the year 2029,4.70752E-05
+get_key_stats_hiv,Reduction in hiv mortality rate between the year 2029 compared to 2023,-62.14503422
 get_key_stats_hiv,HIV mortality rate in the year 2021,0.000132117
-get_key_stats_hiv,Reduction in hiv mortality rate between the year 2028 compared to 2021,-64.30070584
-get_key_stats_hiv,Incidence reduction in AGYW in most affected countries from 2023 to 2029,22.45891272
-get_key_stats_hiv,ART coverage in the year 2023,80.19640494
-get_key_stats_hiv,ART coverage in the year 2029,91.81507778
-get_key_stats_hiv,Number of people on ART in the year 2029,29215857.2
+get_key_stats_hiv,Reduction in hiv mortality rate between the year 2028 compared to 2021,-64.36845346
+get_key_stats_hiv,Incidence reduction in AGYW in most affected countries from 2023 to 2029,22.45899107
+get_key_stats_hiv,ART coverage in the year 2023,80.19105879
+get_key_stats_hiv,ART coverage in the year 2029,91.87619872
+get_key_stats_hiv,Number of people on ART in the year 2029,29236264.38
 get_key_stats_malaria,Number of malaria cases in the year 2023,235299431.2
 get_key_stats_malaria,Number of malaria cases in the year 2029,100849536.6
 get_key_stats_malaria,Reduction in malaria cases between the year 2029 compared to 2023 ,-57.13991485
@@ -47,10 +47,10 @@ get_key_stats_malaria,Number of malaria deaths in the year 2023,564722.4844
 get_key_stats_malaria,Number of malaria deaths  in the year 2029,197899.1312
 get_key_stats_malaria,Reduction in malaria deaths between the year 2029 compared to 2023,-64.95639245
 get_key_stats_malaria,Malaria mortality rate in the year 2023,0.000171285
-get_key_stats_malaria,Malaria mortality rate in the year 2029,5.49E-05
+get_key_stats_malaria,Malaria mortality rate in the year 2029,5.48917E-05
 get_key_stats_malaria,Reduction in malaria mortality rate between the year 2029 compared to 2023,-67.95301942
 get_key_stats_malaria,Malaria mortality rate in the year 2021,0.000189177
-get_key_stats_malaria,Malaria mortality rate in the year 2028,9.05E-05
+get_key_stats_malaria,Malaria mortality rate in the year 2028,9.05253E-05
 get_key_stats_malaria,Reduction in malaria mortality rate between the year 2028 compared to 2021,-52.14791314
 get_key_stats_malaria,Number of bed nets distributed between 2027 and 2029,1981553119
 get_key_stats_malaria,Number of bed nets distributed between 2024 and 2029,3197619026
@@ -65,43 +65,43 @@ get_key_stats_malaria,Number of people vaccinated between 2027 and 2029,42855035
 get_key_stats_malaria,Number of vaccine doses distributed between 2027 and 2029,162849112
 get_key_stats_malaria,Vaccine coverage between 2027 and 2029,0.179631576
 get_key_stats_malaria,Vaccine cost between 2027 and 2029,1139943784
-get_key_stats_tb,Number of TB cases in the year 2023,9520005.045
-get_key_stats_tb,Number of TB cases in the year 2029,7015515.125
-get_key_stats_tb,Reduction in TB cases  between the year 2029 compared to 2023,-26.30765329
-get_key_stats_tb,TB incidence in the year 2023,0.002061719
-get_key_stats_tb,TB incidence in the year 2029,0.001403309
-get_key_stats_tb,Reduction in TB incidence between the year 2029 compared to 2023,-31.93500148
+get_key_stats_tb,Number of TB cases in the year 2023,9513746.391
+get_key_stats_tb,Number of TB cases in the year 2029,7045523.232
+get_key_stats_tb,Reduction in TB cases  between the year 2029 compared to 2023,-25.9437561
+get_key_stats_tb,TB incidence in the year 2023,0.002060312
+get_key_stats_tb,TB incidence in the year 2029,0.001409067
+get_key_stats_tb,Reduction in TB incidence between the year 2029 compared to 2023,-31.60907594
 get_key_stats_tb,TB incidence in the year 2021,0.00203756
-get_key_stats_tb,TB incidence in the year 2028,0.001635226
-get_key_stats_tb,Reduction in TB incidence between the year 2028 compared to 2021,-31.93500148
-get_key_stats_tb,Number of TB deaths in the year 2023,1221926.874
-get_key_stats_tb,Number of TB deaths in the year 2029,517804.6762
-get_key_stats_tb,Reduction in TB deaths between the year 2029 compared to 2023,-57.62392273
-get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2023,1067427.856
-get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2029,443878.2784
-get_key_stats_tb,Reduction in TB deaths amongst hiv-negative individuals between the year 2029 compared to 2023,-58.41608632
-get_key_stats_tb,TB mortality rate in the year 2023,0.000264629
-get_key_stats_tb,TB mortality rate in the year 2029,0.000103576
-get_key_stats_tb,Reduction in TB mortality rate between the year 2029 compared to 2023,-60.85987534
-get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2023,0.00023117
-get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2029,8.88E-05
-get_key_stats_tb,Reduction in TB mortality rate amongst hiv-negative individuals between the year 2029 compared to 2023,-61.59154716
+get_key_stats_tb,TB incidence in the year 2028,0.001636699
+get_key_stats_tb,Reduction in TB incidence between the year 2028 compared to 2021,-31.60907594
+get_key_stats_tb,Number of TB deaths in the year 2023,1223008.262
+get_key_stats_tb,Number of TB deaths in the year 2029,528997.8242
+get_key_stats_tb,Reduction in TB deaths between the year 2029 compared to 2023,-56.74617738
+get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2023,1068377.581
+get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2029,455606.2822
+get_key_stats_tb,Reduction in TB deaths amongst hiv-negative individuals between the year 2029 compared to 2023,-57.35531235
+get_key_stats_tb,TB mortality rate in the year 2023,0.000264857
+get_key_stats_tb,TB mortality rate in the year 2029,0.000105797
+get_key_stats_tb,Reduction in TB mortality rate between the year 2029 compared to 2023,-60.05510485
+get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2023,0.00023137
+get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2029,9.11188E-05
+get_key_stats_tb,Reduction in TB mortality rate amongst hiv-negative individuals between the year 2029 compared to 2023,-60.61764086
 get_key_stats_tb,TB mortality rate in the year 2021,0.000288465
-get_key_stats_tb,TB mortality rate in the year 2028,0.000132503
-get_key_stats_tb,Reduction in TB mortality rate between the year 2028 compared to 2021,-54.06607873
+get_key_stats_tb,TB mortality rate in the year 2028,0.000134502
+get_key_stats_tb,Reduction in TB mortality rate between the year 2028 compared to 2021,-53.37332972
 get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2021,0.000246896
-get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2028,0.000114663
-get_key_stats_tb,Reduction in TB mortality rate amongst hiv-negative individuals between the year 2028 compared to 2021,-53.55809231
-get_key_stats_tb,Number of TB notifications between 2027 and 2029,22486773.54
-get_key_stats_tb,Number of TB notifications between 2024 and 2029,43568184.41
-get_key_stats_tb,Number of MDRTB notifications between 2027 and 2029,627499.0458
-get_key_stats_tb,Number of MDRTB notifications between 2024 and 2029,1130582.032
-get_key_stats_tb,TB treatment coverage in 2023,71.15606726
-get_key_stats_tb,TB treatment coverage in 2029,96.02657976
-get_lives_saved,Number of lives saved relating to hiv from 2024 to 2029,21185366.55
-get_lives_saved,Number of lives saved relating to hiv from 2027 to 2029,10350006.41
-get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2024 to 2029,12570300.25
-get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2027 to 2029,6190577.435
+get_key_stats_tb,TB mortality rate amongst hiv-negative individuals in the year 2028,0.000116724
+get_key_stats_tb,Reduction in TB mortality rate amongst hiv-negative individuals between the year 2028 compared to 2021,-52.72350286
+get_key_stats_tb,Number of TB notifications between 2027 and 2029,22415295.63
+get_key_stats_tb,Number of TB notifications between 2024 and 2029,43555847.76
+get_key_stats_tb,Number of MDRTB notifications between 2027 and 2029,625846.6419
+get_key_stats_tb,Number of MDRTB notifications between 2024 and 2029,1133513.078
+get_key_stats_tb,TB treatment coverage in 2023,71.27434207
+get_key_stats_tb,TB treatment coverage in 2029,95.60263749
+get_lives_saved,Number of lives saved relating to hiv from 2024 to 2029,21089664.33
+get_lives_saved,Number of lives saved relating to hiv from 2027 to 2029,10302669.75
+get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2024 to 2029,14232927.59
+get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2027 to 2029,6956630.58
 get_lives_saved,Number of lives saved relating to malaria from 2024 to 2029,7882169.85
 get_lives_saved,Number of lives saved relating to malaria 2027 to 2029,4434458.956
-get_lives_saved,Number of lives saved across diseases 2027 to 2029,20975042.8
+get_lives_saved,Number of lives saved across diseases 2027 to 2029,21693759.28
