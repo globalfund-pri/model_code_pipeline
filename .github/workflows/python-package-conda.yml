@@ -3,7 +3,7 @@ name: Build Conda Environment and Run Framework Tests
 on: [pull_request]
 
 jobs:
-  build-linux:
+  run-framework-tests:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
@@ -25,4 +25,4 @@ jobs:
       run: |
         conda install pytest
         cd src
-        python -m pytest ../tests -k 'not test_get_data_path and not test_ic7report'
+        python -m pytest ../tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report'

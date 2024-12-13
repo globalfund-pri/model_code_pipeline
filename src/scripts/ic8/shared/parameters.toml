@@ -104,7 +104,7 @@ PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', '
 #For main analysis
 # Add ARM (no GP), DZA, MKD, MRT (no model) ERI, CUB, LBN, SYR (no funding), CRI, COM, GAB, GTM, GUY, MNE, MUS, SLV, SOM, MDV (frontier)
 # Missin data for SSD and BTN add back once John fixes
-MODELLED_COUNTRIES = ['AFG' ,'AGO', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'CPV', 'DJI', 'DOM', 'ECU', 'EGY', 'ETH', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNG', 'MOZ', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SRB', 'SSD', 'SUR', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'YEM', 'ZAF', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AFG' ,'AGO', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'DJI', 'DOM', 'ECU', 'EGY', 'ETH', 'GEO', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'SUR', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'YEM', 'ZAF', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
 GP_START_YEAR = 2020
 PARTNER_DATA_YEARS = [2022]
@@ -161,7 +161,7 @@ use_scaling=false
 name="art"
 description="number of people on ART"
 type="count"
-use_scaling=false
+use_scaling=true
 
 [[HIV.indicator]]
 name="artcoverage"
@@ -814,7 +814,7 @@ PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', '
 # PHL no frontier
 #PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BGD', 'CMR', 'COD', 'ETH', 'GHA', 'IDN', 'IND', 'KEN', 'KHM', 'MDG', 'MMR', 'MOZ', 'NGA', 'NPL', 'PAK', 'PER', 'PNG', 'THA', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
 # PHL no frontier
-MODELLED_COUNTRIES = ['AFG', 'AGO', 'BGD', 'CMR', 'COD', 'ETH', 'GHA', 'IDN', 'IND', 'KEN', 'KHM', 'MDG', 'MMR', 'MOZ', 'NGA', 'NPL', 'PAK', 'PER', 'PNG', 'THA', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AFG', 'AGO', 'BGD', 'CMR', 'COD', 'ETH', 'GHA', 'IDN', 'IND', 'KEN', 'KHM', 'MDG', 'MMR', 'MOZ', 'NGA', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'THA', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.11,0.22,0.33,0.44,0.56,0.67,0.78,0.89,1,]
 GP_START_YEAR = 2015
 PARTNER_DATA_YEARS = [2020,2021,2022]
@@ -1299,7 +1299,7 @@ use_scaling=false
 name="mdrnotified"
 description="number of people with confirmed RR-TB and/or MDR-TB that began second-line treatment"
 type="count"
-use_scaling=false
+use_scaling=true
 
 [[TB.indicator]]
 name="mdrtxcoverage"
@@ -1329,7 +1329,7 @@ use_scaling=false
 name="notified"
 description="number of patients with all forms of TB notified (i.e. bacteriologically confirmed + clinically diagnosed) includes only those with new and relapse TB"
 type="count"
-use_scaling=false
+use_scaling=true
 
 [[TB.indicator]]
 name="txcoverage"
@@ -1387,15 +1387,15 @@ use_scaling=false
 
 [MALARIA]
 #SSA only
-PORTFOLIO_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'STP', 'SWZ', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
-#PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV' 'DJI', 'ERI', 'ETH',  'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
+#PORTFOLIO_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'STP', 'SWZ', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH',  'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
 #Modelled countries only
 #PORTFOLIO_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
 # SSA countries only
 # DJI (frontier)
-MODELLED_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
-# Add BGD and VNM back in
-#MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BGD', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'DJI', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
+#MODELLED_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
+# DJI, NIC, VNM (frontier)
+MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BGD', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
 GP_START_YEAR = 2015
 PARTNER_DATA_YEARS = [2020, 2021, 2022]
@@ -1525,6 +1525,12 @@ use_scaling=false
 [[MALARIA.indicator]]
 name="llins"
 description="number of llins distributed through mass campaign and continuous distribution"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="llinsuse"
+description="number of people using llins"
 type="count"
 use_scaling=false
 
