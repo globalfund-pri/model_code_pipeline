@@ -24,8 +24,7 @@ variables that are not needed), puts them in the format defined for the database
 
 The database format is: 
 1) scenario_descriptor: contains a shorthand for scenario names
-2) funding fraction: contains the funding fraction as expressed by the % of GP funding need. These need to be given as
-   a proportion (0-1) NOT as a percentage (0-100)
+2) funding fraction: contains the funding fraction and refer to % of GP funding need 
 3) country: holds iso3 code for a country
 4) year: contains year information
 5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition
@@ -261,6 +260,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
                 "deaths_smooth_lb",
                 "deaths_smooth_ub",
                 "net_n",
+                "itn_use_n",
                 "irs_people_protected",
                 "irs_hh",
                 "treatments_given_public",
@@ -319,6 +319,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
 
         df_gp[[
             "net_n",
+            "itn_use_n",
             "irs_people_protected",
             'irs_hh',
             "treatments_given_public",
@@ -352,6 +353,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             "yld_ub",
         ]] = df_gp[[
             "net_n",
+            "itn_use_n",
             "irs_people_protected",
             'irs_hh',
             "treatments_given_public",
@@ -476,6 +478,11 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df["llins_central"] = df["net_n"]
         df["llins_high"] = df["net_n"]
         df = df.drop(columns=["net_n"])
+
+        df["llinsuse_low"] = df["itn_use_n"]
+        df["llinsuse_central"] = df["itn_use_n"]
+        df["llinsuse_high"] = df["itn_use_n"]
+        df = df.drop(columns=["itn_use_n"])
 
         df["irsppl_low"] = df["irs_people_protected"]
         df["irsppl_central"] = df["irs_people_protected"]

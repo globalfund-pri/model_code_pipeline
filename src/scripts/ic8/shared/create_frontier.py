@@ -34,7 +34,7 @@ def filter_for_frontier(
         .unstack("indicator")
     )
 
-    # Summarise cost for each funding_fraction
+    # Summarise cost for each funding_fraction: sums within `years_for_funding`
     costs = (
         model_results.df.loc[
             (
