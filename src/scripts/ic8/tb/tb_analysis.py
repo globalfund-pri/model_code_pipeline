@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.ic8.shared.create_frontier import filter_for_frontier
 from scripts.ic8.tb.tb_checks import DatabaseChecksTb
 from scripts.ic8.tb.tb_filehandlers import PartnerDataTb, PFInputDataTb, ModelResultsTb, GpTb
 from tgftools.FilePaths import FilePaths
@@ -73,7 +72,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
 
     # Create and return the database
     return Database(
-        model_results=filter_for_frontier(model_results),
+        model_results=model_results,
         gp=gp,
         pf_input_data=pf_input_data,
         partner_data=partner_data,

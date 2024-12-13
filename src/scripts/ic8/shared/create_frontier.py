@@ -1,18 +1,22 @@
+from typing import Iterable
+
 from tgftools.filehandler import ModelResults, Parameters
 from tgftools.find_cost_effective_frontier import which_points_on_frontier
 from tgftools.utils import get_root_path, open_file
 
-project_root = get_root_path()
-parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
 
-
-def filter_for_frontier(model_results: ModelResults):
-    """ This will remove from the Model Results, runs that will be dominated in the cost-impact analysis."""
-
-    years_for_obj_func = parameters.get("YEARS_FOR_OBJ_FUNC")
-    years_for_funding = parameters.get("YEARS_FOR_FUNDING")
-    scenario_descriptor = "PF"
-    # ---------------
+def filter_for_frontier(
+        model_results: ModelResults,
+        scenario_descriptor: str,
+        years_for_obj_func: Iterable[int],
+        years_for_funding: Iterable[int],
+) -> ModelResults:
+    """Returns instance of ModelResults from which have been filters points that are dominated.
+    This is done only for the `scenario_descriptor` specified.
+    The objective function used to determine domination is the same as used in Approach B, which requires specifying:
+     * 'years_for_obj_func': the years in which cases and deaths should be minimised
+     * 'years_for_funding': the years for which costs are summed as the 'cost' of the strategy'
+    """
 
     # Summarise cases/death for each funding_fraction: sums within  `years_for_obj_func`
     cases_and_deaths = (
@@ -30,7 +34,7 @@ def filter_for_frontier(model_results: ModelResults):
         .unstack("indicator")
     )
 
-    # Summarise cost for each funding_fraction: sums within `self.years_for_funding`
+    # Summarise cost for each funding_fraction: sums within `years_for_funding`
     costs = (
         model_results.df.loc[
             (

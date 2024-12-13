@@ -17,6 +17,7 @@ Z_VALUE = 1.282
 SCENARIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'FULL_FUNDING'
 SCENARIO_DESCRIPTOR_FOR_IC = 'PF'
 HANDLE_OUT_OF_BOUNDS_COSTS = true
+REMOVE_DOMINATED_POINTS = true
 INNOVATION_ON = false
 FORCE_MONOTONIC_DECREASING = true  # Whether the results for each country should be over-written such that cases and deaths are strictly decreasing with increasing funding.
 APPROACH_B_METHODS = ['ga_backwards', 'ga_forwards']  # Methods for optimisation, see ApproachB class for others
