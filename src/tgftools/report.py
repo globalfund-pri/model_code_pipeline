@@ -2,14 +2,12 @@ from pathlib import Path
 from pprint import pprint
 from typing import Optional, Dict
 
-import openpyxl.worksheet.worksheet
 import pandas as pd
-from openpyxl.chart import (
-    LineChart,
-    Reference,
-)
+
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.workbook import Workbook
+
+from tgftools.utils import current_date_and_time_as_string, get_commit_revision_number
 
 
 class Report:
@@ -69,8 +67,14 @@ class Report:
             # Write to Excel
             wb = Workbook()
 
+            # Write to 'info' sheet
+            work_sheet_info = wb.active
+            work_sheet_info.title = 'info'
+            work_sheet_info.append(['date-time stamp', current_date_and_time_as_string()])
+            work_sheet_info.append(['commit', get_commit_revision_number()])
+
             # Write to 'stats' worksheet:
-            work_sheet_stats = wb.active
+            work_sheet_stats = wb.create_sheet()
             work_sheet_stats.title = 'stats'
             for line in results_for_main:
                 work_sheet_stats.append(line)
