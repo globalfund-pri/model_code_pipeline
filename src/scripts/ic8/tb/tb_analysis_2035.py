@@ -120,12 +120,9 @@ def get_tb_analysis(
 
     return Analysis(
             database=db,
-            scenario_descriptor='PF',
             tgf_funding=tgf_funding,
             non_tgf_funding=non_tgf_funding,
             parameters=parameters,
-            handle_out_of_bounds_costs=True,
-            innovation_on=False,
         )
 
 
