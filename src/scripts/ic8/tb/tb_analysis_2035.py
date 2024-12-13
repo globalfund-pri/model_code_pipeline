@@ -39,9 +39,9 @@ It also sets the following options:
 
 NOTE: Scenarios for the various counterfactuals are set in the main results for IC script
 """
+r
 
-
-def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
+def get_tb_database_2035(load_data_from_raw_files: bool = True) -> Database:
 
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
@@ -83,7 +83,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
     )
 
 
-def get_tb_analysis(
+def get_tb_analysis_2035(
         load_data_from_raw_files: bool = True,
         do_checks: bool = False,
 ) -> Analysis:
@@ -94,7 +94,7 @@ def get_tb_analysis(
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
-    db = get_tb_database(load_data_from_raw_files=load_data_from_raw_files)
+    db = get_tb_database_2035(load_data_from_raw_files=load_data_from_raw_files)
 
     # Run the checks
     if do_checks:
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     DO_CHECKS = False
 
     # Create the Analysis object
-    analysis = get_tb_analysis(
+    analysis = get_tb_analysis_2035(
         load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
         do_checks=DO_CHECKS
     )
