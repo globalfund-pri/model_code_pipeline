@@ -69,7 +69,7 @@ class Report:
 
             # Write to 'info' sheet
             work_sheet_info = wb.active
-            work_sheet_info.title = 'info'
+            work_sheet_info.title = 'git'
             work_sheet_info.append(['date-time stamp', current_date_and_time_as_string()])
             work_sheet_info.append(['commit', get_commit_revision_number()])
 
