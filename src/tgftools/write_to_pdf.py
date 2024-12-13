@@ -14,6 +14,8 @@ from reportlab.platypus import (
     Table, SimpleDocTemplate, Spacer, HRFlowable,
 )
 
+from tgftools.utils import get_commit_revision_number, current_date_and_time_as_string
+
 
 def df2table(df):
     df.columns = df.columns.astype(str)  # Ensure that no columns have non-string types
@@ -49,6 +51,9 @@ def build_pdf(
     flowables = []
     spacer = Spacer(1, 0.25 * inch)
     hr = HRFlowable()
+
+    # Add header of date-time stamp and git commit
+    flowables.append(Paragraph(f'Date-Time: {current_date_and_time_as_string()}, Commit: {get_commit_revision_number()}'))
 
     for label, element in content.items():
         flowables.append(Paragraph(label, styles["Heading2"]))
