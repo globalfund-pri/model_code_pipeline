@@ -39,7 +39,7 @@ It also sets the following options:
 
 NOTE: Scenarios for the various counterfactuals are set in the main results for IC script
 """
-r
+
 
 def get_tb_database_2035(load_data_from_raw_files: bool = True) -> Database:
 
@@ -169,7 +169,8 @@ if __name__ == "__main__":
         )
 
     # Save df
-    tb_cases.to_csv('tb_cases_2035.csv')
+    path_to_sessions_folder = get_root_path() / 'sessions'
+    tb_cases.to_csv(path_to_sessions_folder / 'tb_cases_2035.csv')
 
     tbh_deaths = pd.DataFrame(
         index=pd.Index(list(range(2010, 2036)), name='Year'),
@@ -199,7 +200,7 @@ if __name__ == "__main__":
     )
 
     # Save df
-    tbh_deaths.to_csv('tbh_deaths_2035.csv')
+    tbh_deaths.to_csv(path_to_sessions_folder / 'tbh_deaths_2035.csv')
 
     tb_deaths = pd.DataFrame(
         index=pd.Index(list(range(2010, 2036)), name='Year'),
@@ -229,5 +230,5 @@ if __name__ == "__main__":
     )
 
     # Save df
-    tb_deaths.to_csv('tb_deaths_2035.csv')
+    tb_deaths.to_csv(path_to_sessions_folder / 'tb_deaths_2035.csv')
 
