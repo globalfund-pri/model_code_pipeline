@@ -458,17 +458,16 @@ class HTMReport(Report):
             slice(2027, 2029), "model_central"].sum()
         lives_saved_hiv_2027_2029 = hiv_deaths_2027_2029_cf - hiv_deaths_2027_2029_ic
 
-        # Get lives saved for TB
+        # First scale tbdeaths no tx ampngst hivneg
+        a = self.tb.IC.portfolio_results["deathsnotxhivneg"] *1.15125
         tb_deaths_hivneg_2024_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
             slice(2024, 2029), "model_central"].sum()
-        tb_deaths_hivneg_2024_2029_cf = self.tb.IC.portfolio_results["deathsnotxhivneg"].loc[
-            slice(2024, 2029), "model_central"].sum()
+        tb_deaths_hivneg_2024_2029_cf = a.loc[slice(2024, 2029), "model_central"].sum()
         lives_saved_tb_hivneg_2024_2029 = tb_deaths_hivneg_2024_2029_cf - tb_deaths_hivneg_2024_2029_ic
 
         tb_deaths_hivneg_2027_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
             slice(2027, 2029), "model_central"].sum()
-        tb_deaths_hivneg_2027_2029_cf = self.tb.IC.portfolio_results["deathsnotxhivneg"].loc[
-            slice(2027, 2029), "model_central"].sum()
+        tb_deaths_hivneg_2027_2029_cf = a.loc[slice(2027, 2029), "model_central"].sum()
         lives_saved_tb_hivneg_2027_2029 = tb_deaths_hivneg_2027_2029_cf - tb_deaths_hivneg_2027_2029_ic
 
         # Get lives saved for malaria

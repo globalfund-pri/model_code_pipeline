@@ -1,10 +1,7 @@
-import re
 import warnings
 from pathlib import Path
-from typing import Tuple
 
 import pandas as pd
-import regex
 
 from tgftools.filehandler import (
     FixedGp,
@@ -15,7 +12,6 @@ from tgftools.filehandler import (
     PartnerData,
 )
 from tgftools.utils import (
-    get_data_path,
     get_files_with_extension,
 )
 
@@ -24,10 +20,10 @@ relevant files, cleans up the data in these files (harmonizing naming convention
 variables that are not needed), puts them in the format defined for the database format. 
 
 The database format is: 
-1) scenario_descriptor: contains a shorthand for scenario names. The parameters.toml file maps the short-hand to definition
-2) funding fraction: contains the funding fraction and refer to % of GP funding need 
+1) scenario_descriptor: contains shorthands for scenario names. The parameters.toml file maps the short-hand definition
+2) funding fraction: contains the funding fractions and refer to % of GP funding need 
 3) country: holds iso3 code for a country
-4) year: contains year information
+4) year: contains year
 5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition
 6) low, central and high: contains the value for the lower bound, central and upper bound of a given variable. Where 
    LB and UB are not available these should be set to be the same as the "central" value.  
@@ -38,6 +34,7 @@ The database format is:
  3) The WHO partner data as prepared by the TGF. These contain variables including e.g., year, iso3, cases, deaths (by
     hiv status) and population estimates (for a given year). The partner data should contain data for each of these 
     variable for each country eligible for GF funding for 2000 to latest year. 
+ 4) The fixed gp values to compute the non-modelled GP timeseries. 
 
  The above files are saved in the file structure described below. 
  CAUTION: failing to follow the file structure may throw up errors. 
@@ -72,6 +69,7 @@ The database format is:
      0-1 and that coverage is not above 1.  
      d) which ones should be scaled to non-modelled countries
      e) which indicators should be scaled for innovation
+     f) ensure all variables are available for Nick and Stephen
  4) List of scenarios: The parameter file provides the mapping of the scenario descriptions to their short-hand. 
     This list is used to:
     a) to map the variable (short-hand) name to the full definition
@@ -81,14 +79,8 @@ The database format is:
     scenario)
  5) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
     last year of model (e.g. model output may be provided up to 2050, but we only need projections up to 2030), years of 
-    the replenishment, years that should be used in the objector funding for the optimizer, etc.  
-
-Running the script for the first time and options to improve speed: 
-At the end of the script is a line of code stating "LOAD_DATA_FROM_RAW_FILES". The first time you run this code, this 
-needs to be set to True to load the model output and save it locally. In subsequent runs, this can be set to False to 
-speed up the runs. 
-CAUTION: If any changes are made to the way the model output is handled (i.e. add or remove a ISO3 code in the 
-parameter file, the above switch needs to be turned to True and model results re-loaded to reflect these changes! 
+    the replenishment, years that should be used in the objector funding for the optimizer, etc.  They also include key
+    parameters for the analysis, e.g which scenario to run etc. 
 
 CAUTION: 
 Adding or removing items from the aforementioned lists list will automatically be reflected in the rest of the code. If 
@@ -101,13 +93,14 @@ script in order to pass the database check and later will be used to run key che
 
 GOOD CODE PRACTICE:
 Variable names: should be use small letter and be short but easy to understand
-Hard-coding: to be avoided at all costs and if at all limited to these disease files and report class. 
+Hard-coding: to be avoided at all costs and if at all limited to these disease filehandles and report class, only. 
 """
 
 
 class TBMixin:
     """Base class used as a `mix-in` that allows any inheriting class to have a property `disease_name` that returns
     the disease name."""
+
     @property
     def disease_name(self):
         return 'TB'
@@ -142,7 +135,8 @@ class ModelResultsTb(TBMixin, ModelResults):
 
         # Make funding numbers into fractions
         concatenated_dfs = concatenated_dfs.reset_index()
-        concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])['funding_fraction'].transform('max')
+        concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
+            'funding_fraction'].transform('max')
         concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
         concatenated_dfs = concatenated_dfs.round({'funding_fraction': 7})
         concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
@@ -320,7 +314,7 @@ class ModelResultsTb(TBMixin, ModelResults):
 
         # 2. Replace nan with zeros
         df_gp[[
-             "Notified_n",
+            "Notified_n",
             "Notified_n_LB",
             "Notified_n_UB",
             "Notified_p",
@@ -570,32 +564,32 @@ class ModelResultsTb(TBMixin, ModelResults):
         xlsx_df = xlsx_df[xlsx_df['country'].notna()]
 
         # Remove PF_05a scenario
-        xlsx_df = xlsx_df.drop(xlsx_df[xlsx_df.scenario_descriptor =="PF_05a"].index)
+        xlsx_df = xlsx_df.drop(xlsx_df[xlsx_df.scenario_descriptor == "PF_05a"].index)
 
         # Clean up funding fraction and PF scenario
-        if check==1:
+        if check == 1:
             xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
                 '')  # Puts the funding scenario number in a new column called funding fraction
-            xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
-                                                                    1)  # Where there is no funding fraction, set it to 1
+            # Where there is no funding fraction, set it to 1
+            xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('', 1)
             xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
-
         # First get the sum over 2027, 2028 and 2029 of cost by scenario
-        if check ==0:
+        if check == 0:
             xlsx_df['new_column'] = \
-            xlsx_df[(xlsx_df['year'] < 2030) & (xlsx_df['year'] > 2026)].groupby(['scenario_descriptor', 'country'])[
-                'cost_central'].transform('sum')
+                xlsx_df[(xlsx_df['year'] < 2030) & (xlsx_df['year'] > 2026)].groupby(
+                    ['scenario_descriptor', 'country'])[
+                    'cost_central'].transform('sum')
             xlsx_df['new_column'] = xlsx_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
-                lambda v: v.ffill()) # forwardfill
+                lambda v: v.ffill())  # forwardfill
             xlsx_df['new_column'] = xlsx_df.groupby(['scenario_descriptor', 'country'])['new_column'].transform(
-                lambda v: v.bfill()) # backfill
+                lambda v: v.bfill())  # backfill
 
             # Clean up PF scenario
             xlsx_df['funding_fraction'] = xlsx_df['scenario_descriptor'].str.extract('PF_(\d+)$').fillna(
                 '')  # Puts the funding scenario number in a new column called funding fraction
-            xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('',
-                                                                    1)  # Where there is no funding fraction, set it to 1
+            # Where there is no funding fraction, set it to 1
+            xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].replace('', 1)
             xlsx_df.loc[xlsx_df['scenario_descriptor'].str.contains('PF'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
             # Remove cost for non-PF scenarios
@@ -610,7 +604,7 @@ class ModelResultsTb(TBMixin, ModelResults):
             xlsx_df = xlsx_df.drop(columns=['new_column', 'max_cost'])
 
         # Now replace missing funding fractions with 1
-        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].fillna(1)  # Where there is no funding fraction, set it to 1
+        xlsx_df['funding_fraction'] = xlsx_df['funding_fraction'].fillna(1)
 
         # Finally remove duplicates
         xlsx_df = xlsx_df.drop_duplicates()
@@ -1263,13 +1257,12 @@ class GpTb(TBMixin, Gp):
     the partner data and some model results."""
 
     def _build_df(
-        self,
-        fixed_gp: FixedGp,
-        model_results: ModelResults,
-        partner_data: PartnerData,
-        parameters: Parameters,
+            self,
+            fixed_gp: FixedGp,
+            model_results: ModelResults,
+            partner_data: PartnerData,
+            parameters: Parameters,
     ) -> pd.DataFrame:
-
         # Gather the parameters for this function
         gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
         first_year = parameters.get("START_YEAR")
@@ -1297,7 +1290,7 @@ class GpTb(TBMixin, Gp):
         # Get population estimates from first model year to generate ratio
         pop_m_firstyear = (
             model_results.df.loc[
-                ("GP", slice(None), tb_m_countries, first_year+1, "population")
+                ("GP", slice(None), tb_m_countries, first_year + 1, "population")
             ]["central"]
             .groupby(axis=0, level=3)
             .sum()

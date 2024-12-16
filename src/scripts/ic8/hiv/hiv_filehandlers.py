@@ -1,7 +1,5 @@
-import re
 import warnings
 from pathlib import Path
-from typing import Tuple
 
 import pandas as pd
 
@@ -17,16 +15,16 @@ from tgftools.utils import (
     get_files_with_extension, get_data_path,
 )
 
-""" START HERE FOR HIV: This file sets up everything needed to run HIV related code, including reading in the 
-relevant files, cleans up the data in these files (harmonizing naming convention, generate needed extra variables 
-e.g. HIV-negative population estimates, filters out variables that are not needed), puts them in the format defined for
+""" START HERE FOR HIV: This file sets up everything needed to run HIV related code, including reading in the relevant 
+files, cleans up the data in these files (harmonizing naming convention, generate needed extra variables e.g. 
+HIV-negative population estimates, filters out variables that are not needed), puts them in the format defined for
 the database format. 
 
 The database format is: 
-1) scenario_descriptor: contains a shorthand for scenario names. The parameters.toml file maps the short-hand to definition
-2) funding fraction: contains the funding fraction and refer to % of GP funding need 
+1) scenario_descriptor: contains shorthands for scenario names. The parameters.toml file maps the short-hand definitions
+2) funding fraction: contains the funding fractions and refer to % of GP funding need covered
 3) country: holds iso3 code for a country
-4) year: contains year information
+4) year: contains year
 5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition
 6) low, central and high: contains the value for the lower bound, central and upper bound of a given variable. Where 
    LB and UB are not available these should be set to be the same as the "central" value.  
@@ -37,6 +35,8 @@ The database format is:
  3) The UNAIDS partner data as prepared by the TGF. These contain the following variables: year, iso3, new infections, 
     deaths, population estimates (by HIV status) (for a given year). The partner data should contain data for each of 
     these variable for each country eligible for GF funding for 2000 to latest year. 
+ 4) The fixed gp values to compute the non-modelled GP timeseries. This is done for HIV but not used. It has to be 
+    computed else the code will crash because the database containing all the data expects this for hiv also. 
 
  The above files are saved in the file structure described below. 
  CAUTION: failing to follow the file structure may throw up errors. 
@@ -71,6 +71,7 @@ The database format is:
      0-1 and that coverage is not above 1.  
      d) which ones should be scaled to non-modelled countries
      e) which indicators should be scaled for innovation
+     f) ensure all variables are available for Nick and Stephen
  4) List of scenarios: The parameter file provides the mapping of the scenario descriptions to their short-hand. 
     This list is used to:
     a) to map the variable (short-hand) name to the full definition
@@ -80,17 +81,11 @@ The database format is:
     scenario)
  5) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
     last year of model (e.g. model output may be provided up to 2050, but we only need projections up to 2030), years of 
-    the replenishment, years that should be used in the objector funding for the optimizer, etc.  
-
-Running the script for the first time and options to improve speed: 
-At the end of the script is a line of code stating "LOAD_DATA_FROM_RAW_FILES". The first time you run this code, this 
-needs to be set to True to load the model output and save it locally. In subsequent runs, this can be set to False to 
-speed up the runs. 
-CAUTION: If any changes are made to the way the model output is handled (i.e. add or remove a ISO3 code in the 
-parameter file, the above switch needs to be turned to True and model results re-loaded to reflect these changes! 
+    the replenishment, years that should be used in the objector funding for the optimizer, etc. They also include key
+    parameters for the analysis, e.g which scenario to run etc. 
 
 CAUTION: 
-Adding or removing items from the aforementioned lists list will automatically be reflected in the rest of the code. If 
+Adding or removing items from the aforementioned lists will automatically be reflected in the rest of the code. If 
 the code is running from local copies of the model data and analysis by e.g. setting LOAD_DATA_FROM_RAW_FILES to false
 these may not be reflected. 
 
@@ -100,7 +95,7 @@ script in order to pass the database check and later will be used to run key che
 
 GOOD CODE PRACTICE:
 Variable names: should be use small letter and be short but easy to understand
-Hard-coding: to be avoided at all costs and if at all limited to these disease files and report class. 
+Hard-coding: to be avoided at all costs and if at all limited to these disease filehandles and report class, only. 
 """
 
 
@@ -144,28 +139,35 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             (scenario_names, slice(None), expected_countries, slice(None), slice(None))
         ]
 
-        # Make funding numbers into fractions
+        # Make Steps into fractions, this is ONLY used for checks, not for the analysis
         if check == 1:
             concatenated_dfs = concatenated_dfs.reset_index()
-            concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2 # Remove 2 as Step 1 and Step 2 were NULL and CC
-            concatenated_dfs.loc[concatenated_dfs.funding_fraction == -1, 'funding_fraction'] = 1 # Because now 1s will be -1s
-
+            # Remove 2 as Step 1 and Step 2 were NULL and CC
+            concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction']-2
+            # Because now 1s will be -1s
+            concatenated_dfs.loc[concatenated_dfs.funding_fraction == -1, 'funding_fraction'] = 1
             concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
                 'funding_fraction'].transform('max')
             concatenated_dfs['funding_fraction'] = concatenated_dfs['funding_fraction'] / concatenated_dfs['new_column']
             concatenated_dfs = concatenated_dfs.round({'funding_fraction': 3})
+            # otherwise we have duplicates of the 0.5 funding fraction
             concatenated_dfs.loc[
-                concatenated_dfs.funding_fraction == 0.091, 'funding_fraction'] = 0.0  # otherwise we have duplicates of the 0.5 funding fraction
+                concatenated_dfs.funding_fraction == 0.091, 'funding_fraction'] = 0.0
+            # otherwise we have duplicates of the 0.5 funding fraction
             concatenated_dfs.loc[
-                concatenated_dfs.funding_fraction == 0.182, 'funding_fraction'] = 0.1  # otherwise we have duplicates of the 0.5 funding fraction
+                concatenated_dfs.funding_fraction == 0.182, 'funding_fraction'] = 0.1
+            # otherwise we have duplicates of the 0.5 funding fraction
             concatenated_dfs.loc[
-                concatenated_dfs.funding_fraction == 0.273, 'funding_fraction'] = 0.2  # otherwise we have duplicates of the 0.5 funding fraction
+                concatenated_dfs.funding_fraction == 0.273, 'funding_fraction'] = 0.2
+            # otherwise we have duplicates of the 0.5 funding fraction
             concatenated_dfs.loc[
-                concatenated_dfs.funding_fraction == 0.364, 'funding_fraction'] = 0.3  # otherwise we have duplicates of the 0.5 funding fraction
-            concatenated_dfs.loc[concatenated_dfs.funding_fraction == 0.455, 'funding_fraction'] = 0.4  # otherwise we have duplicates of the 0.5 funding fraction
+                concatenated_dfs.funding_fraction == 0.364, 'funding_fraction'] = 0.3
+            # otherwise we have duplicates of the 0.5 funding fraction
+            concatenated_dfs.loc[concatenated_dfs.funding_fraction == 0.455, 'funding_fraction'] = 0.4
             concatenated_dfs = concatenated_dfs.round({'funding_fraction': 1})
             concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
 
+        # This makes real funding fractions as a fraction of PF_100, and is used for the analysis
         if check == 0:
             # Find the smallest funding fraction, set this one to zero and make cost zero so we have full range
             # This is done in analysis.py in line 368 but as we no longer automatically have 0.1 funding (which
@@ -173,14 +175,14 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             concatenated_dfs = concatenated_dfs.reset_index()
             concatenated_dfs['new_column'] = concatenated_dfs.groupby(['scenario_descriptor', 'country'])[
                 'funding_fraction'].transform('min')
-            concatenated_dfs.loc[(concatenated_dfs['new_column'] == concatenated_dfs['funding_fraction']), 'funding_fraction'] = 0
+            concatenated_dfs.loc[
+                (concatenated_dfs['new_column'] == concatenated_dfs['funding_fraction']), 'funding_fraction'] = 0
             concatenated_dfs.loc[(concatenated_dfs['scenario_descriptor'] != 'PF'), 'funding_fraction'] = 1
             concatenated_dfs = concatenated_dfs.drop('new_column', axis=1)
             concatenated_dfs.funding_fraction = concatenated_dfs.funding_fraction.round(7)
-            concatenated_dfs.loc[(concatenated_dfs['funding_fraction'] == 0.0) & (concatenated_dfs['indicator'].str.contains('cost')), 'central'] = 0
-
-        # Check for duplicates
-        # concatenated_dfs = concatenated_dfs.drop_duplicates(subset=["scenario_descriptor","country", "funding_fraction", "year", "indicator"], keep="last")
+            concatenated_dfs.loc[
+                (concatenated_dfs['funding_fraction'] == 0.0) & (concatenated_dfs['indicator'].str.contains('cost')),
+                'central'] = 0
 
         # Re-pack the df
         concatenated_dfs = concatenated_dfs.set_index(
@@ -742,13 +744,17 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             # Step 3: Replace values in Step3 to Step 12 for 2023 and 2026 with values from Step13, because data from
             # Pre IC period are not correct except 2022.
             # Extract Step13 values for 2022 and 2026
-            step13_2022_2026 = csv_df[(csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'].isin([2023, 2024, 2025, 2026]))]
+            step13_2022_2026 = csv_df[
+                (csv_df['scenario_descriptor'] == 'Step13') & (csv_df['year'].isin([2023, 2024, 2025, 2026]))]
 
             # Create a mapping for Step13 values (x, y, z) by country and year
             step13_mapping = step13_2022_2026.set_index(['country', 'year'])[column_names]
 
             # Replace Step1 and Step2 values for 2022 and 2023 with corresponding Step13 values
-            mask_step1_step2_2022_2026 = (csv_df['year'].isin([2023, 2024, 2025, 2026])) & (csv_df['scenario_descriptor'].isin(['Step3', 'Step4', 'Step5', 'Step6', 'Step7', 'Step8', 'Step9', 'Step10', 'Step11', 'Step12']))
+            mask_step1_step2_2022_2026 = (
+                    (csv_df['year'].isin([2023, 2024, 2025, 2026])) &
+                    (csv_df['scenario_descriptor'].isin(
+                        ['Step3', 'Step4', 'Step5', 'Step6', 'Step7', 'Step8', 'Step9', 'Step10', 'Step11', 'Step12'])))
             csv_df.loc[mask_step1_step2_2022_2026, column_names] = csv_df.loc[mask_step1_step2_2022_2026].apply(
                 lambda row: step13_mapping.loc[(row['country'], row['year'])] if (row['country'], row[
                     'year']) in step13_mapping.index else row[column_names],
@@ -760,9 +766,11 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # Clean up funding fraction and PF scenario for checks
         if check == 1:
-            csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('Step(\d+)$').fillna('') # Puts the funding scenario number in a new column called funding fraction
-            csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('', 1) # Where there is no funding fraction, set it to 1
-            csv_df.loc[csv_df['scenario_descriptor'].str.contains('Step'), 'scenario_descriptor'] = 'PF' # removes "_"
+            # Puts the funding scenario number in a new column called funding fraction
+            csv_df['funding_fraction'] = csv_df['scenario_descriptor'].str.extract('Step(\d+)$').fillna('')
+            # Where there is no funding fraction, set it to 1
+            csv_df['funding_fraction'] = csv_df['funding_fraction'].replace('', 1)
+            csv_df.loc[csv_df['scenario_descriptor'].str.contains('Step'), 'scenario_descriptor'] = 'PF'  # removes "_"
 
         # Clean up funding fraction for optimization
         if check == 0:
@@ -793,9 +801,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             # Now replace missing funding fractions with 1
             csv_df['funding_fraction'] = csv_df['funding_fraction'].fillna(
                 1)  # Where there is no funding fraction, set it to 1
-
-        # Remove rows without funding fraction results
-        # csv_df = csv_df[csv_df['plhiv_central'].notna()]
 
         # Finally remove duplicates
         csv_df = csv_df.drop_duplicates()
@@ -1327,11 +1332,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # First remove duplicates (some diplicates have slightly different values
         melted = melted.drop_duplicates()
         melted = melted.drop_duplicates(subset=melted.columns.difference(['value']))
-
-        # filtered_df = melted2.query('year == 2022')
-        # filtered_df = filtered_df.query('funding_fraction == 13.0')
-        # filtered_df2 = filtered_df[filtered_df['indicator'] == 'artcoverage']
-        # filtered_df2 = filtered_df2[filtered_df2['country'] == 'MOZ']
 
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(

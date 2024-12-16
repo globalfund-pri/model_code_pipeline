@@ -4,8 +4,8 @@ from scripts.ic8.tb.tb_filehandlers import TBMixin, PFInputDataTb, PartnerDataTb
 from scripts.ic8.tb.tb_filehandlers import ModelResultsTb
 from tgftools.FilePaths import FilePaths
 from tgftools.database import Database
-from tgftools.filehandler import Parameters, GFYear
-from tgftools.utils import get_data_path, get_root_path
+from tgftools.filehandler import Parameters
+from tgftools.utils import get_root_path
 
 """ 
 This is a simple piece of code that utilizes the Database check to extract data relating to the PF 100 scenario and the 
@@ -117,7 +117,6 @@ if __name__ == "__main__":
         [cost_by_year, incidence_by_year, mortality_by_year, mortalityhivneg_by_year, cases_by_year, deaths_by_year, deathshivneg_by_year, pop_by_year], axis=1)
     df_resource_need.to_csv('df_pf100_tb.csv')
 
-
     # Run data from GP scenario:
     cost_df_gp = model_results.df.loc[
         ("GP", 1, slice(None), slice(None), 'cost')
@@ -179,7 +178,6 @@ if __name__ == "__main__":
         [incidence_by_year_gp, mortality_by_year_gp, mortalityhivneg_by_year_gp], axis=1)
     df_resource_need.to_csv('df_gp_tb.csv')
 
-
     # Get data from partner data
     elig_countries = parameters.get_portfolio_countries_for('TB')
     cases_df_hh = partner_data.df.loc[
@@ -227,5 +225,3 @@ if __name__ == "__main__":
     df_resource_need = pandas.concat(
         [incidence_hh_by_year, mortality_hh_by_year, mortalityhivneg_hh_by_year], axis=1)
     df_resource_need.to_csv('df_partner_tb.csv')
-
-

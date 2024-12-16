@@ -4,13 +4,13 @@ from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV, PartnerDa
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv
 from tgftools.FilePaths import FilePaths
 from tgftools.database import Database
-from tgftools.filehandler import Parameters, GFYear
-from tgftools.utils import get_data_path, get_root_path
+from tgftools.filehandler import Parameters
+from tgftools.utils import get_root_path
 
 
 """ 
-This is a simple piece of code that utilizes the Database check to extract data relating to the PF 100 scenario and the 
-GP scenario and partner data . This code is not part of the modular framework. 
+This is a simple piece of code that utilizes the Database check class to extract data relating to the PF 100 scenario 
+and the GP scenario and partner data . This code is not part of the modular framework. 
 
 When running the resource need make sure to select the desired list of countries in the parameter.toml file. In this 
 file, for some diseases, there is a second list which contains all modelled countries. This gives the option to extract
@@ -108,7 +108,6 @@ if __name__ == "__main__":
         [cost_by_year, incidence_by_year, mortality_by_year, cases_by_year, deaths_by_year, plhiv_by_year, hivneg_by_year], axis=1)
     df_resource_need.to_csv('df_pf_100_hiv.csv')
 
-
     # Run data from GP scenario:
     cases_df = model_results.df.loc[
         ("GP", 1, slice(None), slice(None), 'cases')
@@ -152,7 +151,6 @@ if __name__ == "__main__":
         [incidence_by_year, mortality_by_year], axis=1)
     df_resource_need.to_csv('df_gp_hiv.csv')
 
-
     # Get data from partner data
     elig_countries = parameters.get_portfolio_countries_for('HIV')
     cases_df_hh = partner_data.df.loc[
@@ -189,16 +187,11 @@ if __name__ == "__main__":
     mortality_by_year_hh = deaths_by_year_hh / plhiv_by_year_hh
 
     incidence_by_year_hh = incidence_by_year_hh.rename(
-        columns={'central': 'incidence',})
+        columns={'central': 'incidence', })
     mortality_by_year_hh = mortality_by_year_hh.rename(
-        columns={'central': 'mortality',})
+        columns={'central': 'mortality', })
 
     # Merge all into one and save the output
     df_resource_need = pandas.concat(
         [incidence_by_year_hh, mortality_by_year_hh], axis=1)
     df_resource_need.to_csv('df_partner_hiv.csv')
-
-
-
-
-

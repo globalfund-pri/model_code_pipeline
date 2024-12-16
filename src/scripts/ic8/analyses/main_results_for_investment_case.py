@@ -1,4 +1,7 @@
-"""Do the analysis for all three diseases and produce the report"""
+"""
+This script is the one to run if you want to run the full analysis for all three diseases and produce the final
+report containing the graphs and key stats. Please read the below carefully before running this script.
+"""
 from pathlib import Path
 from typing import Optional
 
@@ -13,20 +16,44 @@ from tgftools.report import Report
 from scripts.ic8.shared.htm_report import HTMReport, SetOfPortfolioProjections
 from tgftools.utils import get_root_path, save_var, load_var, open_file
 
-""" This file holds information relating to running the analysis of the three disease model output and feed them into 
-the report class. 
+""" This file can be used to run the analyses of the three disease model output and feed them into the report. 
+
+This script has the following information and generated the following: 
+- It maps the main scenario and counterfactuals that will be used in the htm_report script. NOTE: be sure to review 
+  these and update them as necessary. For example in IC7 the counterfactual name was different than this IC
+- It 'dumps' the data needed for other pieces for work, i.e. Nick's work on freed-up capacity and Stephen's work on ROI, 
+  and inequality. This part of the script sets the scenarios that need to be 'dumped' and will output all the indicators
+  NOTE: be sure to review this and set the correct scenarios that need to be saved, i.e. in IC7 the main scenario was 
+  called 'IC_IC', now called 'IC' and make sure all the indicators needed are included in both the disease-specific
+  filehandler and defined in the parameter.toml.
+- It generated the final report containing the graphs and key stats, saved under the name at the bottom of the script. 
 
 This class holds the following options: 
-- to load the raw model data (see LOAD_DATA_FROM_RAW_FILES). These need to be loaded the first time the code is run, but
-  can then be set to False to improve speed. NOTE: if any changes are made to the filehandler relating to the model 
-  data, the data needs to be reloaded in order to be reflected. 
-- to run the checks (see DO_CHECKS)
-- to run the analysis (see RUN_ANALYSIS). These need to be run the first time the code is run, but can then be set to 
-  False to improve speed. NOTE: if any changes are made to the analysis (e.g. running another scenario, funding 
-  envelope, non-tgf scenario or counterfactual, the analysis needs to be re-run in order to be reflected.
-- run approach A or B (comment out IC = analysis.portfolio_projection_approach_b to run approach a or 
-  IC = analysis.portfolio_projection_approach_a() to run approach B. 
-    
+- To load the raw model data (see LOAD_DATA_FROM_RAW_FILES). This option load the raw model data, cleans it in the 
+  disease specific filehandler and put the data in a specific dataframe and performs basic checks. If you running this 
+  script for the first time, this option needs to be set to "True" for the code to run. After that it can be set to 
+  "False" to increase speed. NOTE: if any changes are made to i) the filehandlers (core filehandler or 
+   disease specific filehandler) or ii) to the model data or list of countries, the data needs to be reloaded in order 
+   to be reflected. 
+- To run the checks (see DO_CHECKS). NOTE: Given the format of the model data, the funding fractions had to be coded up
+  differently for the checks compared to the analysis. As such it is recommended that checks are run from the disease 
+  specific checks, e.g. hiv_checks.py. More information on how to run the checks can be found there. To perform the 
+  analysis and and to account for the above point on funding fractions go to each disease-specific filehandler
+  and ensure that in the class e.g. ModelResultsHiv(HIVMixin, ModelResults) the checks are set to 0. There should be two 
+  instances in hiv, one in tb and none in malaria. You can search for "check = ".  
+- To run the analysis (see RUN_ANALYSIS). This option runs the analysis itself, i.e. Approach A or B. This option needs
+  to be set to "True" for the code to run. After that, this option can be set to "False" to increase running speed. 
+  NOTE: if any changes are made to the analysis (e.g. running another scenario, another funding 
+  envelope, another non-tgf scenario or new funding data), the analysis needs to be re-run in order to reflect these 
+  updates.
+- NOTE: if load_data_from_raw_files and run_analysis under dump_projections are set to false it may not update the data 
+  being saved for Nick and Stephen and may result in errors. 
+  
+All parameters and files defining this analysis are set out in the following two files: 
+- The parameters.toml file, which outlines all the key parameters outlining the analysis, list of scenarios and how they 
+  are mapped compared to cc, null and gp, the list of modelled and portfolio countries to run as well as the list of the 
+  variables and how these should be handled (scaled to portfolio or not).
+- The filepaths.toml, which outlines which model data and funding data to be used for this analysis.  
 
 The final report containing the key stats and key graphs are saved under the name set at the bottom of this script.  
 """
@@ -94,7 +121,7 @@ def get_report(
         save_var(malaria_projections, project_root / "sessions" / "malaria_analysis_ic8.pkl")
 
     else:
-        # Load the projections
+        # Load the results of the analyses stored
         hiv_projections = load_var(project_root / "sessions" / "hiv_analysis_ic8.pkl")
         tb_projections = load_var(project_root / "sessions" / "tb_analysis_ic8.pkl")
         malaria_projections = load_var(project_root / "sessions" / "malaria_analysis_ic8.pkl")
@@ -108,10 +135,12 @@ def get_report(
 
     return report
 
+
 def dump_projection_to_file(proj, filename):
     """Write the contents of this projection to a csv file."""
     list_of_dfs = list()  # list of mini dataframes for each indicator for each country
 
+    # Make a list of scenarios that should be saved
     for scenario_descriptor, country_results in zip(
         ['IC', 'CC_2022', 'NULL_2022', ],
         [proj.IC.country_results, proj.CF_InfAve.country_results, proj.CF_LivesSaved.country_results, ]
@@ -127,10 +156,10 @@ def dump_projection_to_file(proj, filename):
                 df['scenario_descriptor'] = scenario_descriptor
                 list_of_dfs.append(df)
 
-        # build whole df for export
+        # Build a whole df for export
         whole_df = pd.concat(list_of_dfs, axis=0)
 
-        # save to csv
+        # save the df to csv
         whole_df.to_csv(filename, index=False)
 
 
@@ -177,7 +206,6 @@ def dump_ic_scenario_to_file(
         tb_projections = load_var(project_root / "sessions" / "tb_analysis_ic8.pkl")
         malaria_projections = load_var(project_root / "sessions" / "malaria_analysis_ic8.pkl")
 
-
     # Dump to file
     for (disease, proj) in zip(
             ('hiv', 'tb', 'malaria'),
@@ -190,6 +218,7 @@ if __name__ == "__main__":
 
     outputpath = get_root_path() / 'outputs'
 
+    # This will dump the data to csv for Nick and Stephen
     dump_ic_scenario_to_file(
         load_data_from_raw_files=True,
         run_analysis=True,
