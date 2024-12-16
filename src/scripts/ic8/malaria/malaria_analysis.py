@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pandas as pd
 
 from scripts.ic8.malaria.malaria_checks import DatabaseChecksMalaria
@@ -15,31 +13,41 @@ from tgftools.filehandler import (
     TgfFunding,
 )
 from tgftools.utils import (
-    get_data_path,
     get_root_path,
     load_var,
     save_var,
 )
 
 """
-This script holds everything relating to processing the model output. 
-It contains information on: 
-- The location of the parameter file, including aspects of the analysis such as objector function years, funding years, 
-  whether to handle out of bounds, which scenario to run, etc
-- The location of all the filepaths to be used, i.e.  which model data, pf data, partner data, and funding information
+This script performs the analysis of the malaria model data. 
 
-It also sets the following options: 
-- Whether to load the model output from raw (see LOAD_DATA_FROM_RAW_FILES at the bottom of the file). 
-  CAUTION: Updated to the filehandler relating to model output will not be reflected if this option is set to "False". 
-- Whether to run checks or not (see DO_CHECKS at the bottom of the file) and, if checks are to be run, where to save the
-  report of the checks. 
+This script has the following information and generated the following: 
 
-NOTE: Scenarios for the various counterfactuals are set in the main results for IC script
+It sets the following options: 
+- To load the raw model data (see LOAD_DATA_FROM_RAW_FILES). This option load the raw model data, cleans it in the 
+  disease specific filehandler and put the data in a specific dataframe and performs basic checks. If you running this 
+  script for the first time, this option needs to be set to "True" for the code to run. After that it can be set to 
+  "False" to increase speed. NOTE: if any changes are made to i) the filehandlers (core filehandler or 
+  disease specific filehandler) or ii) to the model data or list of countries, the data needs to be reloaded in order 
+  to be reflected. 
+- To run the checks (see DO_CHECKS). NOTE: Although for hiv and tb the new data structure means it is not recommended 
+  to run the check from this file for malaria it is possible to run checks from this file as funding-fractions match
+  the expected the number of steps and their fractions. 
+- It saves the output of the Approach B to csv. This is done in # Portfolio Projection Approach B: save the optimal 
+  allocation of TGF
+  
+All parameters and files defining this analysis are set out in the following two files: 
+- The parameters.toml file, which outlines all the key parameters outlining the analysis, list of scenarios and how they 
+  are mapped compared to cc, null and gp, the list of modelled and portfolio countries to run as well as the list of the 
+  variables and how these should be handled (scaled to portfolio or not).
+- The filepaths.toml, which outlines which model data and funding data to be used for this analysis.  
+
+NOTE: Scenarios for the various counterfactuals are set in the script "Main_results_for_investment_case.py" under src/
+scripts/ic8/analyses. 
 """
 
 
-def get_malaria_database(load_data_from_raw_files: bool = True) -> Analysis:
-
+def get_malaria_database(load_data_from_raw_files: bool = True) -> Database:
     # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
@@ -93,7 +101,7 @@ def get_malaria_analysis(
 
     db = get_malaria_database(load_data_from_raw_files=load_data_from_raw_files)
 
-    # Run the checks, if do_checks is set to True
+    # Run the checks, if "do_checks" is set to True
     if do_checks:
         DatabaseChecksMalaria(
             db=db,
@@ -132,14 +140,14 @@ if __name__ == "__main__":
 
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
+
     pps = get_set_of_portfolio_projections(analysis)
 
     # Portfolio Projection Approach B: save the optimal allocation of TGF
     results_from_approach_b = analysis.portfolio_projection_approach_b()
 
     (
-        pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(
-        results_from_approach_b.non_tgf_funding_by_country)
+        pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(results_from_approach_b.non_tgf_funding_by_country)
     ).to_csv(
         get_root_path() / 'outputs' / 'malaria_tgf_optimal_allocation.csv',
         header=False

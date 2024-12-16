@@ -1,5 +1,3 @@
-import pandas
-
 from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin, PFInputDataMalaria, PartnerDataMalaria, GpMalaria
 from scripts.ic8.shared.common_checks import (CommonChecks_basicnumericalchecks,
                                               CommonChecks_allscenarios,
@@ -12,8 +10,18 @@ from tgftools.filehandler import Parameters, FixedGp
 from tgftools.utils import get_root_path
 
 """
-This script specifies the parameter file and filepath file, loads all the data and runs the checks. 
+This script performs the checks and saves the output as a report.
+
+NOTES: Given the format of the model data, the funding fractions had to be coded up differently for the checks compared 
+to the analysis for hiv and tb. This is not the case for malaria.  
+
+All parameters and files defining this analysis are set out in the following two files: 
+- The parameters.toml file, which outlines all the key parameters outlining the analysis, list of scenarios and how they 
+  are mapped compared to cc, null and gp, the list of modelled and portfolio countries to run as well as the list of the 
+  variables and how these should be handled (scaled to portfolio or not).
+- The filepaths.toml, which outlines which model data and funding data to be used for this analysis.  
 """
+
 
 class DatabaseChecksMalaria(MALARIAMixin,
                             CommonChecks_basicnumericalchecks,
@@ -27,7 +35,6 @@ class DatabaseChecksMalaria(MALARIAMixin,
 
 
 if __name__ == "__main__":
-
     # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")

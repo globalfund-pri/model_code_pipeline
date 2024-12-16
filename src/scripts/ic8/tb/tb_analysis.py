@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pandas as pd
 
 from scripts.ic8.tb.tb_checks import DatabaseChecksTb
@@ -14,26 +12,40 @@ from tgftools.filehandler import (
     TgfFunding,
 )
 from tgftools.utils import (
-    get_data_path,
     get_root_path,
     load_var,
     save_var,
 )
 
 """
-This script holds everything relating to processing the model output. 
-It contains information on: 
-- The location of the parameter file, including aspects of the analysis such as objector function years, funding years, 
-  whether to handle out of bounds, which scenario to run, etc
-- The location of all the filepaths to be used, i.e.  which model data, pf data, partner data, and funding information
+This script performs the analysis of the hiv model data. 
 
-It also sets the following options: 
-- Whether to load the model output from raw (see LOAD_DATA_FROM_RAW_FILES at the bottom of the file). 
-  CAUTION: Updated to the filehandler relating to model output will not be reflected if this option is set to "False". 
-- Whether to run checks or not (see DO_CHECKS at the bottom of the file) and, if checks are to be run, where to save the
-  report of the checks. 
+This script has the following information and generated the following: 
 
-NOTE: Scenarios for the various counterfactuals are set in the main results for IC script
+It sets the following options: 
+- To load the raw model data (see LOAD_DATA_FROM_RAW_FILES). This option load the raw model data, cleans it in the 
+  disease specific filehandler and put the data in a specific dataframe and performs basic checks. If you running this 
+  script for the first time, this option needs to be set to "True" for the code to run. After that it can be set to 
+  "False" to increase speed. NOTE: if any changes are made to i) the filehandlers (core filehandler or 
+  disease specific filehandler) or ii) to the model data or list of countries, the data needs to be reloaded in order 
+  to be reflected. 
+- To run the checks (see DO_CHECKS). NOTE: Given the format of the model data, the funding fractions had to be coded up
+  differently for the checks compared to the analysis. As such it is recommended that checks are run from the disease 
+  specific checks, e.g. hiv_checks.py. More information on how to run the checks can be found there. To perform the 
+  analysis and and to account for the above point on funding fractions go to each disease-specific filehandler
+  and ensure that in the class e.g. ModelResultsHiv(HIVMixin, ModelResults) the checks are set to 0. There should be two 
+  instances in hiv, one in tb and none in malaria. You can search for "check = ".  
+- It saves the output of the Approach B to csv. This is done in # Portfolio Projection Approach B: save the optimal 
+  allocation of TGF
+  
+All parameters and files defining this analysis are set out in the following two files: 
+- The parameters.toml file, which outlines all the key parameters outlining the analysis, list of scenarios and how they 
+  are mapped compared to cc, null and gp, the list of modelled and portfolio countries to run as well as the list of the 
+  variables and how these should be handled (scaled to portfolio or not).
+- The filepaths.toml, which outlines which model data and funding data to be used for this analysis.  
+
+NOTE: Scenarios for the various counterfactuals are set in the script "Main_results_for_investment_case.py" under src/
+scripts/ic8/analyses. 
 """
 
 
@@ -143,4 +155,3 @@ if __name__ == "__main__":
         get_root_path() / 'outputs' / 'tb_tgf_optimal_allocation.csv',
         header=False
     )
-

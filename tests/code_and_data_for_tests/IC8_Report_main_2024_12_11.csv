@@ -100,8 +100,8 @@ get_key_stats_tb,TB treatment coverage in 2023,71.27434207
 get_key_stats_tb,TB treatment coverage in 2029,95.60263749
 get_lives_saved,Number of lives saved relating to hiv from 2024 to 2029,21089664.33
 get_lives_saved,Number of lives saved relating to hiv from 2027 to 2029,10302669.75
-get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2024 to 2029,14232927.59
-get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2027 to 2029,6956630.58
+get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2024 to 2029,16004806.86
+get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2027 to 2029,7772699.143
 get_lives_saved,Number of lives saved relating to malaria from 2024 to 2029,7882169.85
 get_lives_saved,Number of lives saved relating to malaria 2027 to 2029,4434458.956
-get_lives_saved,Number of lives saved across diseases 2027 to 2029,21693759.28
+get_lives_saved,Number of lives saved across diseases 2027 to 2029,22509827.85

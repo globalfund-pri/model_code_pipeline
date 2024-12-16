@@ -1,8 +1,7 @@
 from typing import Iterable
 
-from tgftools.filehandler import ModelResults, Parameters
+from tgftools.filehandler import ModelResults
 from tgftools.find_cost_effective_frontier import which_points_on_frontier
-from tgftools.utils import get_root_path, open_file
 
 
 def filter_for_frontier(
@@ -15,7 +14,7 @@ def filter_for_frontier(
     This is done only for the `scenario_descriptor` specified.
     The objective function used to determine domination is the same as used in Approach B, which requires specifying:
      * 'years_for_obj_func': the years in which cases and deaths should be minimised
-     * 'years_for_funding': the years for which costs are summed as the 'cost' of the strategy'
+     * 'years_for_funding': the years for which costs are summed as the 'cost' of the strategy
     """
 
     # Summarise cases/death for each funding_fraction: sums within  `years_for_obj_func`
@@ -58,7 +57,7 @@ def filter_for_frontier(
         df['obj_col'] = (df.cases/df.cases.max() + df.deaths/df.deaths.max())
         pts_on_curve = df[['cost', 'obj_col']].to_numpy()
         a = which_points_on_frontier(pts_on_curve, upper_edge=False)
-        fundingfractions_nondominated = df.loc[a,'funding_fraction'].values
+        fundingfractions_nondominated = df.loc[a, 'funding_fraction'].values
         fundingfractions_dominated = set(df['funding_fraction'].unique()) - set(fundingfractions_nondominated)
         model_results.df = model_results.df.drop(
             model_results.df.loc[

@@ -4,16 +4,16 @@ from scripts.ic8.hiv.hiv_filehandlers import HIVMixin, PFInputDataHIV, PartnerDa
 from scripts.ic8.hiv.hiv_filehandlers import ModelResultsHiv
 from tgftools.FilePaths import FilePaths
 from tgftools.database import Database
-from tgftools.filehandler import Parameters, GFYear
-from tgftools.utils import get_data_path, get_root_path
+from tgftools.filehandler import Parameters
+from tgftools.utils import get_root_path
 
 """
-This is a simple piece of code that utilizes the Database check to extract dummy data for the freed up capacity. 
+This is a simple piece of code that utilizes the Database check class to extract dummy data for the freed up capacity. 
 This code is not part of the modular framework. 
 """
 
 
-class DatabaseChecksHiv(HIVMixin,):
+class DatabaseChecksHiv(HIVMixin, ):
     """This is the class for DatabaseChecks to do with the HIV data."""
 
     def __init__(self, *args, **kwargs):
@@ -21,7 +21,6 @@ class DatabaseChecksHiv(HIVMixin,):
 
 
 if __name__ == "__main__":
-
     project_root = get_root_path()
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 

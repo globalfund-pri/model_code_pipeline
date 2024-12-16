@@ -4,8 +4,8 @@ from scripts.ic8.malaria.malaria_filehandlers import MALARIAMixin, PFInputDataMa
 from scripts.ic8.malaria.malaria_filehandlers import ModelResultsMalaria
 from tgftools.FilePaths import FilePaths
 from tgftools.database import Database
-from tgftools.filehandler import Parameters, GFYear
-from tgftools.utils import get_data_path, get_root_path, save_var, load_var
+from tgftools.filehandler import Parameters
+from tgftools.utils import get_root_path
 
 """
 This is a simple piece of code that utilizes the Database check to extract dummy data for the freed up capacity. 
@@ -13,7 +13,7 @@ This code is not part of the modular framework.
 """
 
 
-class DatabaseChecksMalaria(MALARIAMixin,):
+class DatabaseChecksMalaria(MALARIAMixin, ):
     """This is the class for DatabaseChecks to do with the Malaria data."""
 
     def __init__(self, *args, **kwargs):
@@ -21,7 +21,6 @@ class DatabaseChecksMalaria(MALARIAMixin,):
 
 
 if __name__ == "__main__":
-
     # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
@@ -54,8 +53,8 @@ if __name__ == "__main__":
     # Save output for Nick Menzies
     list_of_scenarios = ["HH", "NULL_2000", "CC_2000", "NULL_2022", "CC_2022"]
     fuc_mainscenario_df = model_results.df.loc[
-            ("PF", 1, slice(None), slice(None), slice(None))
-        ]
+        ("PF", 1, slice(None), slice(None), slice(None))
+    ]
     fuc_mainscenario_df = fuc_mainscenario_df.reset_index()
     fuc_mainscenario_df['scenario_descriptor'] = "PF_100"
 

@@ -26,7 +26,14 @@ class SetOfPortfolioProjections(NamedTuple):
 
 class HTMReport(Report):
     """This is the Report class. It accepts AnalysisResults for each disease and produces summary statistics.
-    Each member function returns a Dict of the form {<label>: <stat>} which are assembled into an output Excel file."""
+    Each member function returns a Dict of the form {<label>: <stat>} which are assembled into an output Excel file.
+
+    This is where we can access all data from all the scenarios we have defined, including the IC scenario and produce
+    the data for the key graphs and key stats.
+
+    CAUTION: the years and details of what is being extracted for the final report needs to be reviewed and done with
+    care. The years and specific variables (e.g. tb deaths including or excluding hiv positive individuals).
+    """
 
     def __init__(
             self,
@@ -459,16 +466,35 @@ class HTMReport(Report):
         lives_saved_hiv_2027_2029 = hiv_deaths_2027_2029_cf - hiv_deaths_2027_2029_ic
 
         # Get lives saved for TB
+        # First obtain ratio for tbdeaths no tx amongst hivneg between IC and Partner because we have only 29 modelled
+        # countries. We do not need to do this for malaria and hiv as we have a lot of modelled countries.
+        indicator = "deathshivneg"
+        year = 2022
+        partner_2022 = self.tb.PARTNER[indicator].at[year]
+
+        list_of_dfs = list()  # list of mini dataframes for each indicator for each country
+
+        for country in self.tb.IC.country_results.keys():
+            y = self.tb.IC.country_results[country].model_projection
+            df = y[indicator][['model_central']].loc[year].reset_index()
+            df['indicator'] = indicator
+            df['country'] = country
+            list_of_dfs.append(df)
+
+        # build whole df
+        df = pd.concat(list_of_dfs, axis=0)
+        model_2022 = df[year].sum()
+        ratio = partner_2022 / model_2022
+        adj_tb_cf = (self.tb.IC.portfolio_results["deathsnotxhivneg"])*ratio
+
         tb_deaths_hivneg_2024_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
             slice(2024, 2029), "model_central"].sum()
-        tb_deaths_hivneg_2024_2029_cf = self.tb.IC.portfolio_results["deathsnotxhivneg"].loc[
-            slice(2024, 2029), "model_central"].sum()
+        tb_deaths_hivneg_2024_2029_cf = adj_tb_cf.loc[slice(2024, 2029), "model_central"].sum()
         lives_saved_tb_hivneg_2024_2029 = tb_deaths_hivneg_2024_2029_cf - tb_deaths_hivneg_2024_2029_ic
 
         tb_deaths_hivneg_2027_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
             slice(2027, 2029), "model_central"].sum()
-        tb_deaths_hivneg_2027_2029_cf = self.tb.IC.portfolio_results["deathsnotxhivneg"].loc[
-            slice(2027, 2029), "model_central"].sum()
+        tb_deaths_hivneg_2027_2029_cf = adj_tb_cf.loc[slice(2027, 2029), "model_central"].sum()
         lives_saved_tb_hivneg_2027_2029 = tb_deaths_hivneg_2027_2029_cf - tb_deaths_hivneg_2027_2029_ic
 
         # Get lives saved for malaria

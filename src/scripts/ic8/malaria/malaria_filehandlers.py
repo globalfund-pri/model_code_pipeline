@@ -1,10 +1,8 @@
-import re
-import warnings
+
 from pathlib import Path
 from typing import Tuple
 
 import pandas as pd
-from matplotlib import pyplot as plt
 
 from tgftools.filehandler import (
     FixedGp,
@@ -15,18 +13,18 @@ from tgftools.filehandler import (
     PFInputData,
 )
 from tgftools.utils import (
-    get_files_with_extension, get_data_path, get_root_path,
+    get_files_with_extension,
 )
 
-""" START HERE FOR malaria: This file sets up everything needed to run malaria related code, including reading in the 
+""" START HERE FOR MALARIA: This file sets up everything needed to run malaria related code, including reading in the 
 relevant files, cleans up the data in these files (harmonizing naming convention, generate needed variables, filters out 
 variables that are not needed), puts them in the format defined for the database format. 
 
 The database format is: 
-1) scenario_descriptor: contains a shorthand for scenario names
-2) funding fraction: contains the funding fraction and refer to % of GP funding need 
+1) scenario_descriptor: contains shorthands for scenario names
+2) funding fraction: contains the funding fractions and refer to % of GP funding need 
 3) country: holds iso3 code for a country
-4) year: contains year information
+4) year: contains year
 5) indicator: contains the variable names (short-hand). The parameters.toml file maps the short-hand to definition
 6) low, central and high: contains the value for the lower bound, central and upper bound of a given variable. Where 
    LB and UB are not available these should be set to be the same as the "central" value.  
@@ -37,6 +35,7 @@ The database format is:
  3) The WHO partner data as prepared by the TGF. These contain variables including e.g., year, iso3, cases, deaths, and
     population at risk (for a given year). The partner data should contain data for each of these variable for each 
     country eligible for GF funding for 2000 to latest year. 
+ 4) The fixed gp values to compute the non-modelled GP timeseries. 
 
  The above files are saved in the file structure described below. 
  CAUTION: failing to follow the file structure may throw up errors. 
@@ -71,6 +70,7 @@ The database format is:
      0-1 and that coverage is not above 1.  
      d) which ones should be scaled to non-modelled countries
      e) which indicators should be scaled for innovation
+     f) ensure all variables are available for Nick and Stephen
  4) List of scenarios: The parameter file provides the mapping of the scenario descriptions to their short-hand. 
     This list is used to:
     a) to map the variable (short-hand) name to the full definition
@@ -80,17 +80,11 @@ The database format is:
     scenario)
  5) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
     last year of model (e.g. model output may be provided up to 2050, but we only need projections up to 2030), years of 
-    the replenishment, years that should be used in the objector funding for the optimizer, etc.  
-
-Running the script for the first time and options to improve speed: 
-At the end of the script is a line of code stating "LOAD_DATA_FROM_RAW_FILES". The first time you run this code, this 
-needs to be set to True to load the model output and save it locally. In subsequent runs, this can be set to False to 
-speed up the runs. 
-CAUTION: If any changes are made to the way the model output is handled (i.e. add or remove a ISO3 code in the 
-parameter file, the above switch needs to be turned to True and model results re-loaded to reflect these changes! 
+    the replenishment, years that should be used in the objector funding for the optimizer, etc.  They also include key
+    parameters for the analysis, e.g which scenario to run etc. 
 
 CAUTION: 
-Adding or removing items from the aforementioned lists list will automatically be reflected in the rest of the code. If 
+Adding or removing items from the aforementioned lists will automatically be reflected in the rest of the code. If 
 the code is running from local copies of the model data and analysis by e.g. setting LOAD_DATA_FROM_RAW_FILES to false
 these may not be reflected. 
 
@@ -100,7 +94,7 @@ script in order to pass the database check and later will be used to run key che
 
 GOOD CODE PRACTICE:
 Variable names: should be use small letter and be short but easy to understand
-Hard-coding: to be avoided at all costs and if at all limited to these disease files and report class. 
+Hard-coding: to be avoided at all costs and if at all limited to these disease filehandlers and report class, only. 
 """
 
 
@@ -167,7 +161,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # return adj_concatenated_dfs
         return concatenated_dfs
 
-    def adjust_dfs(self, df:pd.DataFrame) -> pd.DataFrame:
+    def adjust_dfs(self, df: pd.DataFrame) -> pd.DataFrame:
         """ this function will adjust the data in the df for the period 2027 to 2029 to match 2027 estimates. """
 
         df_keep = df.copy()
@@ -179,13 +173,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             'incidence',
             'par',
         ]
-
-        # replace values in 2029 with those for 2028
-        # df.loc[
-        #     ("PF", slice(None), slice(None), 2029, cols_to_be_adjusted)
-        # ] = df.loc[
-        #     ("PF", slice(None), slice(None), 2028, cols_to_be_adjusted)
-        # ]
 
         df = df.reset_index()
         df = df.drop(df[(df['scenario_descriptor'] == 'PF') & (df['year'] == 2029) & (df['indicator'].isin(cols_to_be_adjusted))].index)
@@ -209,7 +196,8 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df = df.sort_values(['funding_fraction', 'country', 'year', 'scenario_descriptor', 'indicator'])
 
         # Implement smoothing, using 3 year rolling-average, using right-window
-        # (Using for-loop as use rolling on groupby/multi-index is not supported: see https://github.com/pandas-dev/pandas/issues/34642)
+        # (Using for-loop as use rolling on groupby/multi-index is not supported:
+        # see https://github.com/pandas-dev/pandas/issues/34642)
         for country in df.index.get_level_values('country').unique():
             funding_fractions_known = df.loc[
                 (slice(None), slice(None), country, slice(None), slice(None))
@@ -229,7 +217,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         # plt.show()
 
         return df
-
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
         """Returns formatted pd.DataFrame from the csv file provided. The returned dataframe is specific to one country,
@@ -415,7 +402,7 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
             }
         )
 
-        # relabel the all the PF_**_CC scenarios as 'PF' only: this is the name of the scenario defined in parameters.toml
+        # relabel all the PF_**_CC scenarios as 'PF' only: this is the name of the scenario defined in parameters.toml
         df.loc[df['scenario_descriptor'].str.startswith('PF_'), 'scenario_descriptor'] = 'PF'
 
         # Give all CFs scenarios a funding fraction of 1

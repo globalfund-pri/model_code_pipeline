@@ -1,13 +1,24 @@
-from itertools import groupby
-
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from tgftools.checks import CheckResult, DatabaseChecks, critical
+from tgftools.checks import CheckResult, critical
 from tgftools.database import Database
 from tgftools.filehandler import GFYear
 from tgftools.utils import get_root_path
+
+"""
+This script runs the common checks and generates a report, This script can be run either from the disease-specific
+checks (e.g. src/scripts/ic8/hiv/hiv_checks.py)
+
+NOTE: Given the format of the model data, the funding fractions had to be coded up differently for the checks compared 
+to the analysis. As such it is recommended that checks are run from the disease specific checks, in the location example
+provided above. 
+ 
+To perform the checks and to account for the above point on funding fractions go to each disease-specific filehandler
+and ensure that in the class e.g. ModelResultsHiv(HIVMixin, ModelResults) the checks are set to 1. There should be two 
+instances in hiv, one in tb and none in malaria. You can search for "check = ".  
+"""
 
 
 class CommonChecks_basicnumericalchecks:
@@ -20,7 +31,8 @@ class CommonChecks_basicnumericalchecks:
 
         # Gather the expectations for this class:
         self.EXPECTED_INDICATORS = params.get_indicators_for(self.disease_name)
-        self.EXPECTED_EPI_INDICATORS = self.EXPECTED_INDICATORS.loc[self.EXPECTED_INDICATORS.use_scaling].index.to_list()
+        self.EXPECTED_EPI_INDICATORS = self.EXPECTED_INDICATORS.loc[
+            self.EXPECTED_INDICATORS.use_scaling].index.to_list()
 
     @staticmethod
     def _summarise(idx: pd.Index) -> pd.DataFrame:
@@ -150,7 +162,8 @@ class CommonChecks_forwardchecks:
         self.EXPECTED_FIRST_YEAR = params.get("START_YEAR")
         self.EXPECTED_FUNDING_FRACTIONS = params.get(self.disease_name).get("FUNDING_FRACTIONS")
         self.EXPECTED_INDICATORS = params.get_indicators_for(self.disease_name)
-        self.EXPECTED_EPI_INDICATORS = self.EXPECTED_INDICATORS.loc[self.EXPECTED_INDICATORS.use_scaling].index.to_list()
+        self.EXPECTED_EPI_INDICATORS = self.EXPECTED_INDICATORS.loc[
+            self.EXPECTED_INDICATORS.use_scaling].index.to_list()
         self.PARTNER_DATA_YEARS = params.get(self.disease_name).get("PARTNER_DATA_YEARS")
         self.PF_DATA_YEARS = params.get(self.disease_name).get("PF_DATA_YEARS")
         self.TOLERANCE = params.get(self.disease_name).get("TOLERANCE_TO_PARTNER_AND_PF_DATA")
@@ -193,7 +206,8 @@ class CommonChecks_forwardchecks:
 
         # Get the scenarios specified in the results
         df = db.model_results.df
-        actual_scenarios = df.groupby(['scenario_descriptor', 'funding_fraction']).size().reset_index().rename(columns={0: 'count'})
+        actual_scenarios = df.groupby(['scenario_descriptor', 'funding_fraction']).size().reset_index().rename(
+            columns={0: 'count'})
 
         # Expected Scenarios:
         # - Each counterfactual, not iterated over funding fraction
@@ -227,7 +241,7 @@ class CommonChecks_forwardchecks:
                 self.EXPECTED_FUNDING_SCENARIOS,
                 self.EXPECTED_FUNDING_FRACTIONS,
                 self.EXPECTED_COUNTRIES,
-                range(self.EXPECTED_FIRST_YEAR+1, self.EXPECTED_LAST_YEAR + 1),
+                range(self.EXPECTED_FIRST_YEAR + 1, self.EXPECTED_LAST_YEAR + 1),
                 self.EXPECTED_EPI_INDICATORS,
             ],
             names=df.index.names,
@@ -246,7 +260,8 @@ class CommonChecks_forwardchecks:
     #     # TODO: this does not work for HIV!
     #     # Percentage need met is calculated by comparing sum of funding in GP to that in each scenario
     #     # The impact should be more or less proportional to the percentage funding available.
-    #     # example here: /Users/mc1405/Dropbox/The Global Fund/Strategic Targets 2022-2028/Processed Model Results/Key Stats/HIV_funding need met check.xlsx
+    #     # example here: /Users/mc1405/Dropbox/The Global Fund/Strategic Targets 2022-2028/Processed Model Results/
+    #     Key Stats/HIV_funding need met check.xlsx
     #
     #     figs = []
     #     for scenario in self.EXPECTED_FUNDING_SCENARIOS:
@@ -299,7 +314,7 @@ class CommonChecks_forwardchecks:
                             correct_order,
                             1.0,
                             country,
-                            range(self.EXPECTED_FIRST_YEAR+1, self.EXPECTED_LAST_YEAR+1),
+                            range(self.EXPECTED_FIRST_YEAR + 1, self.EXPECTED_LAST_YEAR + 1),
                             indicator,
                         ),
                         "central",
@@ -382,7 +397,8 @@ class CommonChecks_forwardchecks:
                     y = df[df['scenario_descriptor'] == label][indicator]
 
                     # Specify color and label (for legend)
-                    ax.plot(x, y, label=label + f" is_monotonic_decreasing: {is_y_monotonic_decreasing_over_x(x,y)}", marker='o')
+                    ax.plot(x, y, label=label + f" is_monotonic_decreasing: {is_y_monotonic_decreasing_over_x(x, y)}",
+                            marker='o')
                     ax.legend()
                     i += 1
 
@@ -481,7 +497,7 @@ class CommonChecks_forwardchecks:
 
                         # Now merge the results for model and partner data into one df
                         if len(result_for_pf > 0):
-                            frame =[result_for_model, result_for_pf]
+                            frame = [result_for_model, result_for_pf]
                             country_result_for_this_indicator = pd.concat(frame)
 
                             # We want the values within each column to be close to one another
@@ -529,7 +545,7 @@ class CommonChecks_allscenarios:
         self.EXPECTED_LAST_YEAR = params.get("END_YEAR")
         self.EXPECTED_INDICATORS = params.get_indicators_for(self.disease_name)
         self.EXPECTED_EPI_INDICATORS = self.EXPECTED_INDICATORS.loc[
-        self.EXPECTED_INDICATORS.use_scaling].index.to_list()
+            self.EXPECTED_INDICATORS.use_scaling].index.to_list()
         self.INDICATORS_FOR_NULL_CHECK = params.get(self.disease_name).get("INDICATORS_FOR_NULL_CHECK")
         self.INDICATORS_FOR_CC_CHECK = params.get(self.disease_name).get("INDICATORS_FOR_CC_CHECK")
         self.TOLERANCE = params.get(self.disease_name).get("TOLERANCE_TO_PARTNER_AND_PF_DATA")
@@ -594,7 +610,7 @@ class CommonChecks_allscenarios:
                 (['HH']),
                 expected_funding,
                 self.EXPECTED_COUNTRIES,
-                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR-1),
+                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_START_YEAR - 1),
                 self.EXPECTED_EPI_INDICATORS,
             ],
             names=df.index.names,
@@ -609,7 +625,7 @@ class CommonChecks_allscenarios:
                 list_of_scenarios2,
                 expected_funding,
                 self.EXPECTED_COUNTRIES,
-                range(self.EXPECTED_START_YEAR-1, self.EXPECTED_LAST_YEAR+1),
+                range(self.EXPECTED_START_YEAR - 1, self.EXPECTED_LAST_YEAR + 1),
                 self.EXPECTED_EPI_INDICATORS,
             ],
             names=df.index.names,
@@ -621,7 +637,7 @@ class CommonChecks_allscenarios:
                 (['GP']),
                 expected_funding,
                 self.EXPECTED_COUNTRIES,
-                range(self.EXPECTED_GP_START_YEAR, self.EXPECTED_LAST_YEAR+1),
+                range(self.EXPECTED_GP_START_YEAR, self.EXPECTED_LAST_YEAR + 1),
                 self.EXPECTED_EPI_INDICATORS,
             ],
             names=df.index.names,
@@ -633,7 +649,7 @@ class CommonChecks_allscenarios:
                 (['CC_2000', 'NULL_2000']),
                 expected_funding,
                 self.EXPECTED_COUNTRIES,
-                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
+                range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR + 1),
                 self.EXPECTED_EPI_INDICATORS,
             ],
             names=df.index.names,
@@ -641,14 +657,14 @@ class CommonChecks_allscenarios:
         expected_idx = expected_idx.append(expected_idx_2)
 
         for country in self.EXPECTED_COUNTRIES:
-            year = gp_year.df.loc[(country), 'year']
+            year = gp_year.df.loc[country, 'year']
 
             expected_idx_2 = pd.MultiIndex.from_product(
-            [
+                [
                     (['CC_FIRSTYEARGF', 'NULL_FIRSTYEARGF']),
                     expected_funding,
                     [country],
-                    range(year, self.EXPECTED_LAST_YEAR+1),
+                    range(year, self.EXPECTED_LAST_YEAR + 1),
                     self.EXPECTED_EPI_INDICATORS,
                 ],
                 names=df.index.names,
@@ -667,7 +683,8 @@ class CommonChecks_allscenarios:
         # TODO: review this with Mehran and the instructions in grey he gave (see below)
         # Plot the full set of scenarios to eyeball i) cases, ii) deaths, iii) incidence and iv) mortality
         # Compare plot of GP/NULL and CONSTCOV line to equivalent of latest exercise (IC or ST) and to
-        # service level coverage for sense-check (check Table 3 here: https://docs.google.com/document/d/1TA5HtXytbOy3122KSKxuTqF10l-Kd49_5gBL9k2Fs1M/edit)
+        # service level coverage for sense-check (check Table 3 here:
+        # https://docs.google.com/document/d/1TA5HtXytbOy3122KSKxuTqF10l-Kd49_5gBL9k2Fs1M/edit)
         # Check CFs for HIV deaths, cases and TB cases trends look comparable to last exercise
         # compare each scenario and make sure order makes sense
 
@@ -681,7 +698,7 @@ class CommonChecks_allscenarios:
                         scenarios,
                         1.0,
                         country,
-                        range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR+1),
+                        range(self.EXPECTED_HISTORIC_FIRST_YEAR, self.EXPECTED_LAST_YEAR + 1),
                         indicator,
                     ),
                     "central",
@@ -766,7 +783,7 @@ class CommonChecks_allscenarios:
                     if scenario == "NULL_2000":
                         year = self.EXPECTED_HISTORIC_FIRST_YEAR
                     if scenario == "NULL_FIRSTYEARGF":
-                        year = gp_year.df.loc[(country), 'year']
+                        year = gp_year.df.loc[country, 'year']
                     if scenario == "NULL_2022":
                         year = self.EXPECTED_START_YEAR
 
@@ -827,7 +844,7 @@ class CommonChecks_allscenarios:
                     if scenario == "CC_2000":
                         year = self.EXPECTED_HISTORIC_FIRST_YEAR
                     if scenario == "CC_FIRSTYEARGF":
-                        year = gp_year.df.loc[(country), 'year']
+                        year = gp_year.df.loc[country, 'year']
                     if scenario == "CC_2022":
                         year = self.EXPECTED_START_YEAR
                     # Get all the results for this country and indicator, up to (and including) the year 20XX
@@ -838,7 +855,7 @@ class CommonChecks_allscenarios:
                                                                          'central'
                                                                      ])
                     # If the numbers are less than 0.5% make them zero to surpress error
-                    country_result_for_this_indicator.loc[country_result_for_this_indicator.central <0.005] = 0
+                    country_result_for_this_indicator.loc[country_result_for_this_indicator.central < 0.005] = 0
 
                     # We want the values within each column to be close to one another
                     if not all_rows_similar(country_result_for_this_indicator):
@@ -895,7 +912,6 @@ class CommonChecks_allscenarios:
 
         scenario_type = [list_scenarios_2000, list_scenarios_GF, list_scenarios_baseline, list_scenarios_2022]
 
-
         # Look at each country/indicator in turn for the year 2000
         for indicator in indicators:
             for country in db.model_results.countries:
@@ -908,7 +924,7 @@ class CommonChecks_allscenarios:
                         scenario_tag = "2000start"
                     if scenario == list_scenarios_GF:
                         start_year - self.EXPECTED_HISTORIC_FIRST_YEAR
-                        end_year = gp_year.df.loc[(country), 'year'] - 1
+                        end_year = gp_year.df.loc[country, 'year'] - 1
                         scenario_tag = "GFstart"
                     if scenario == list_scenarios_baseline:
                         start_year = self.EXPECTED_START_YEAR
@@ -919,10 +935,12 @@ class CommonChecks_allscenarios:
                         end_year = self.EXPECTED_START_YEAR
                         scenario_tag = "2022start"
 
-                    if (scenario == list_scenarios_2022 and self.disease_name == "HIV") or (scenario == list_scenarios_2022 and self.disease_name == "MALARIA"): # TODO: @richard, once John and Pete share the forward runs, edit this
+                    if (scenario == list_scenarios_2022 and self.disease_name == "HIV") or (
+                            scenario == list_scenarios_2022 and self.disease_name == "MALARIA"):
                         print("this is an exception")
                     else:
-                        # Get all the results for this country and indicator and scenario type, up to (and including) the year 20XX
+                        # Get all the results for this country and indicator and scenario type,
+                        # up to (and including) the year 20XX
                         country_result_for_this_indicator = db.model_results.df.loc[
                             (scenario, slice(None), country, slice(start_year, end_year), indicator),
                             'central'
@@ -1017,7 +1035,7 @@ class CommonChecks_allscenarios:
                             country_result_for_this_indicator.rename(
                                 columns={country_result_for_this_indicator.columns[3]: "central"}, inplace=True)
                             country_result_for_this_indicator['year'] = year
-                            country_result_for_this_indicator = round(country_result_for_this_indicator,5)
+                            country_result_for_this_indicator = round(country_result_for_this_indicator, 5)
                             messages.append(country_result_for_this_indicator)
 
         # There should be no message. But, if they are, return CheckResult with the message.
@@ -1028,6 +1046,3 @@ class CommonChecks_allscenarios:
                     messages,
                 )
             )
-
-
-

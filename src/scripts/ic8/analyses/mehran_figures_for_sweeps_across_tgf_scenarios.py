@@ -1,6 +1,20 @@
 """
 This script produces the analysis that shows the Impact that can achieved for each Global Fund budget scenario, under
-Approach B. (aka. RHS-version of Mehran's Figures)
+Approach B. (aka. RHS-version (right-hand-side) of Mehran's Figures)
+
+The script contains the following options:
+- LOAD_DATA and DO_RUN which will load the model data and run the analyses when set to 'True' or not if set to 'False'.
+  When running this script for the first time, these need to be set to 'True'. After that they can be set to 'False' to
+  increase speed. NOTE: if any of the model data is updated by modellers of via the filehandler or if any aspects of the
+  analyses are updated these need to be set to 'True' and script re-run to be reflected.
+- This script used the scenario PF_100 in this version of the IC as the GP. That is because we do not have a GP scenario
+  which contains costs from the modellers. The PF_100 scenario has the frontier applied to it to ensure convex curve.
+  This means that the PF_100 may not fully match the PF_100 when looking at the raw model output as some point may have
+  been removed.
+- The scenarios to be run and the files to be used can be set under the heading 'Scenarios'.
+
+Note: Possible reasons this code may crash include the fact that the funding data does not contain data for each country
+listed in the parameter.toml for each disease, or that the funding is beyond the bounds for which we have model results.
 """
 
 from collections import defaultdict
@@ -31,26 +45,25 @@ from tgftools.utils import (
 project_root = get_root_path()
 path_to_data_folder = get_data_path()
 
-
-# %% Flag to indicate whether the script should reload model results from raw files and/or re-run all the analysis, or
+# Flag to indicate whether the script should reload model results from raw files and/or re-run all the analysis, or
 # instead to re-load locally-cached versions of `ModelResults` binaries and locally-cached version of the analysis
 # results.
 LOAD_DATA = True
 DO_RUN = True
 
-#%% Declare assumptions that are not going to change in the analysis
+# Declare assumptions that are not going to change in the analysis
 parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
 SCENARIO_DESCRIPTOR = parameters.get('SCENARIO_DESCRIPTOR_FOR_IC')
 
-
-#%% Load the databases for HIV, Tb and Malaria
+# Load the databases for HIV, Tb and Malaria
 hiv_db = get_hiv_database(load_data_from_raw_files=LOAD_DATA)
 tb_db = get_tb_database(load_data_from_raw_files=LOAD_DATA)
 malaria_db = get_malaria_database(load_data_from_raw_files=LOAD_DATA)
 
 
-#%% Load Finance Scenario Files
-# N.B. This uses the paths of the currrent sharepoint files, but the sharepoint could be reorganised to make this (a lot!!) easier.
+# Load Finance Scenario Files
+# N.B. This uses the paths of the currrent sharepoint files, but the sharepoint could be reorganised to make this
+# (a lot!!) easier.
 
 funding_path = path_to_data_folder / 'IC8' / 'funding'
 
@@ -62,6 +75,7 @@ def filter_funding_data_for_non_modelled_countries(funding_data_object: TgfFundi
     funding_data_object = copy(funding_data_object)
     funding_data_object.df = funding_data_object.df[funding_data_object.df.index.isin(list_of_modelled_countries)]
     return funding_data_object
+
 
 def make_tgf_funding_scenario(based_on: TgfFunding, total: int) -> TgfFunding:
     """Make a TGF funding object that resembles the one provided in `based_on`, but which is edited so that the
@@ -75,6 +89,7 @@ def make_tgf_funding_scenario(based_on: TgfFunding, total: int) -> TgfFunding:
     return TgfFunding.from_df(df)
 
 
+# This is where you define the scenarios to be run and point the script to the files to be used
 Scenarios = {
     '$13bn Scenario': {
         'tgf': {
@@ -180,8 +195,7 @@ Scenarios = {
 }
 
 
-#%% For each scenario, and for each disease, work out the extent to which the GP need is met across whole portfolio
-
+# For each scenario, and for each disease, work out the extent to which the GP need is met across whole portfolio
 def get_cost_for_highest_cost_scenario_for_each_country(df: pd.DataFrame) -> pd.Series:
     """Returns the cost for the highest cost scenario for each country as pd.Series."""
     # For each disease, work out what amount of TGF funding will lead to full-funding
@@ -189,6 +203,7 @@ def get_cost_for_highest_cost_scenario_for_each_country(df: pd.DataFrame) -> pd.
     dfx = df.loc[(SCENARIO_DESCRIPTOR, slice(None), slice(None), slice_yrs_for_funding, 'cost'), 'central'].groupby(
         by=['country', 'funding_fraction']).sum()
     return dfx.loc[dfx.groupby(level=0).idxmax()]
+
 
 gp_amt = {
     'hiv': get_cost_for_highest_cost_scenario_for_each_country(hiv_db.model_results.df).sum(),
@@ -203,9 +218,7 @@ for scenario_name in Scenarios.keys():
         fraction_funded[disease][scenario_name] = min(total_funding / gp_amt[disease], 1.0)
 
 
-#%% Running the analyses
-
-
+# Running the analyses
 if DO_RUN:
 
     def get_approach_b_projection(
@@ -250,8 +263,7 @@ else:
     Results_RHS = load_var(get_root_path() / "sessions" / "Results_RHS.pkl")
 
 
-#%% Produce Graphic
-
+# Produce Graphic
 YEARS_FOR_COMPARISON = slice(2027, 2029)
 
 cases_and_deaths_vs_gp_for_all_diseasea_and_scenarios = defaultdict(dict)
@@ -308,7 +320,6 @@ for disease in ('hiv', 'tb', 'malaria'):
     fig.show()
     plt.close(fig)
     fig.savefig(project_root / 'outputs' / f"mehran_rhs_fig_cases_and_death_divided_by_gp_{disease}.png")
-
 
 
 # All-disease graphic:
