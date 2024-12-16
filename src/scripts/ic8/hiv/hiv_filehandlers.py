@@ -125,7 +125,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         indicator) and columns containing model output (low, central, high)."""
 
         # If running checks set the below to 1
-        check = 0
+        check = 1
 
         # Read in each file and concatenate the results
         all_csv_file_at_the_path = get_files_with_extension(path, "csv")
@@ -216,7 +216,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df = self._load_sheet(file)
 
         # If we are running checks set the below to 1
-        check = 0
+        check = 1
 
         # Only keep columns of immediate interest:
         csv_df = csv_df[
