@@ -937,6 +937,7 @@ class CommonChecks_allscenarios:
 
                     if (scenario == list_scenarios_2022 and self.disease_name == "HIV") or (
                             scenario == list_scenarios_2022 and self.disease_name == "MALARIA"):
+                        print("this is an exception")
                     else:
                         # Get all the results for this country and indicator and scenario type,
                         # up to (and including) the year 20XX
