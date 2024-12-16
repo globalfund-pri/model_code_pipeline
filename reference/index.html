@@ -405,6 +405,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#src.tgftools.analysis.Analysis.filter_funding_data_for_non_modelled_countries" class="md-nav__link">
+    <span class="md-ellipsis">
+      filter_funding_data_for_non_modelled_countries()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#src.tgftools.analysis.Analysis.get_counterfactual_infections_averted_malaria" class="md-nav__link">
     <span class="md-ellipsis">
       get_counterfactual_infections_averted_malaria()
@@ -450,6 +459,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#src.tgftools.analysis.Analysis.make_diagnostic_report" class="md-nav__link">
+    <span class="md-ellipsis">
+      make_diagnostic_report()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#src.tgftools.analysis.Analysis.portfolio_projection_approach_a" class="md-nav__link">
     <span class="md-ellipsis">
       portfolio_projection_approach_a()
@@ -462,6 +480,15 @@
   <a href="#src.tgftools.analysis.Analysis.portfolio_projection_approach_b" class="md-nav__link">
     <span class="md-ellipsis">
       portfolio_projection_approach_b()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.tgftools.analysis.Analysis.portfolio_projection_approach_c" class="md-nav__link">
+    <span class="md-ellipsis">
+      portfolio_projection_approach_c()
     </span>
   </a>
   
@@ -799,6 +826,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#src.tgftools.analysis.Analysis.filter_funding_data_for_non_modelled_countries" class="md-nav__link">
+    <span class="md-ellipsis">
+      filter_funding_data_for_non_modelled_countries()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#src.tgftools.analysis.Analysis.get_counterfactual_infections_averted_malaria" class="md-nav__link">
     <span class="md-ellipsis">
       get_counterfactual_infections_averted_malaria()
@@ -844,6 +880,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#src.tgftools.analysis.Analysis.make_diagnostic_report" class="md-nav__link">
+    <span class="md-ellipsis">
+      make_diagnostic_report()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#src.tgftools.analysis.Analysis.portfolio_projection_approach_a" class="md-nav__link">
     <span class="md-ellipsis">
       portfolio_projection_approach_a()
@@ -856,6 +901,15 @@
   <a href="#src.tgftools.analysis.Analysis.portfolio_projection_approach_b" class="md-nav__link">
     <span class="md-ellipsis">
       portfolio_projection_approach_b()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.tgftools.analysis.Analysis.portfolio_projection_approach_c" class="md-nav__link">
+    <span class="md-ellipsis">
+      portfolio_projection_approach_c()
     </span>
   </a>
   
@@ -2270,8 +2324,8 @@ The functions defined in the base class do the "behind the scenes" things needed
             <span class="n">doc</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
             <span class="n">filenames</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;Model Results&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">model_results</span><span class="o">.</span><span class="n">path</span><span class="p">),</span>
-                <span class="s2">&quot;Partner Data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1">#str(self.db.partner_data.path),</span>
-                <span class="s2">&quot;PF Input Data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1">#str(self.db.pf_input_data.path),</span>
+                <span class="s2">&quot;Partner Data&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">partner_data</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">partner_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;None&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PF Input Data&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">pf_input_data</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">pf_input_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;None&quot;</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -2591,7 +2645,8 @@ between countries can be optimised (Approach B).
 
             <details class="quote">
               <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">113</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">112</span>
+<span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span>
@@ -3228,7 +3283,25 @@ between countries can be optimised (Approach B).
 <span class="normal">747</span>
 <span class="normal">748</span>
 <span class="normal">749</span>
-<span class="normal">750</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Analysis</span><span class="p">:</span>
+<span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span>
+<span class="normal">757</span>
+<span class="normal">758</span>
+<span class="normal">759</span>
+<span class="normal">760</span>
+<span class="normal">761</span>
+<span class="normal">762</span>
+<span class="normal">763</span>
+<span class="normal">764</span>
+<span class="normal">765</span>
+<span class="normal">766</span>
+<span class="normal">767</span>
+<span class="normal">768</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Analysis</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This is the Analysis class. It holds a Database object and requires an argument for the scenario_descriptor.</span>
 <span class="sd">    It can then output ensemble results (or country-level results) that reflect decisions for the use of the funding -</span>
 <span class="sd">    in particular, when the TGF funding is non-fungible (Approach A) and when it is fungible and its allocation</span>
@@ -3243,22 +3316,15 @@ between countries can be optimised (Approach B).
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">database</span><span class="p">:</span> <span class="n">Database</span><span class="p">,</span>
-        <span class="n">scenario_descriptor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">tgf_funding</span><span class="p">:</span> <span class="n">TgfFunding</span><span class="p">,</span>
         <span class="n">non_tgf_funding</span><span class="p">:</span> <span class="n">NonTgfFunding</span><span class="p">,</span>
         <span class="n">parameters</span><span class="p">:</span> <span class="n">Parameters</span><span class="p">,</span>
-        <span class="n">handle_out_of_bounds_costs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">innovation_on</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-
     <span class="p">):</span>
-        <span class="c1"># Save arguments</span>
+        <span class="c1"># Save arguments (nb, funding data are updated again later in __init__)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="n">database</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span> <span class="o">=</span> <span class="n">scenario_descriptor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span> <span class="o">=</span> <span class="n">tgf_funding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">non_tgf_funding</span> <span class="o">=</span> <span class="n">non_tgf_funding</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handle_out_of_bounds_costs</span> <span class="o">=</span> <span class="n">handle_out_of_bounds_costs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span> <span class="o">=</span> <span class="n">innovation_on</span>
 
         <span class="c1"># Save short-cuts to elements of the database.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gp</span><span class="p">:</span> <span class="n">Gp</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">gp</span>
@@ -3267,9 +3333,26 @@ between countries can be optimised (Approach B).
         <span class="c1"># Store some parameters for easy access</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">disease_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indicators</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get_indicators_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SCENARIO_DESCRIPTOR_FOR_IC&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_out_of_bounds_costs</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;HANDLE_OUT_OF_BOUNDS_COSTS&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;INNOVATION_ON&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">years_for_funding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;YEARS_FOR_FUNDING&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indicators_for_adj_for_innovations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="s1">&#39;INDICATORS_FOR_ADJ_FOR_INNOVATIONS&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">EXPECTED_GP_SCENARIO</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get_gpscenario</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+
+        <span class="c1"># Filter funding assumptions for countries that are not modelled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_funding_data_for_non_modelled_countries</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">non_tgf_funding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_funding_data_for_non_modelled_countries</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">non_tgf_funding</span><span class="p">)</span>
+
+        <span class="c1"># If we should remove the dominated points, edit the model results accordingly:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOVE_DOMINATED_POINTS&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">model_results</span> <span class="o">=</span> <span class="n">filter_for_frontier</span><span class="p">(</span>
+                <span class="n">model_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">model_results</span><span class="p">,</span>
+                <span class="n">scenario_descriptor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span><span class="p">,</span>
+                <span class="n">years_for_obj_func</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;YEARS_FOR_OBJ_FUNC&quot;</span><span class="p">),</span>
+                <span class="n">years_for_funding</span><span class="o">=</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;YEARS_FOR_FUNDING&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
 
         <span class="c1"># Create emulators for each country so that results can be created for any cost (within the range of actual</span>
         <span class="c1"># results).</span>
@@ -3279,10 +3362,20 @@ between countries can be optimised (Approach B).
                 <span class="n">scenario_descriptor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span><span class="p">,</span>
                 <span class="n">country</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
                 <span class="n">years_for_funding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">years_for_funding</span><span class="p">,</span>
-                <span class="n">handle_out_of_bounds_costs</span><span class="o">=</span><span class="n">handle_out_of_bounds_costs</span><span class="p">,</span>
+                <span class="n">handle_out_of_bounds_costs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">handle_out_of_bounds_costs</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span>
         <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">filter_funding_data_for_non_modelled_countries</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">funding_data_object</span><span class="p">:</span> <span class="n">TgfFunding</span> <span class="o">|</span> <span class="n">NonTgfFunding</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TgfFunding</span> <span class="o">|</span> <span class="n">NonTgfFunding</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a funding data object that has been filtered for countries that are not declared as the modelled</span>
+<span class="sd">        countries for that disease.&quot;&quot;&quot;</span>
+        <span class="n">list_of_modelled_countries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get_modelled_countries_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span><span class="p">)</span>
+        <span class="n">funding_data_object</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">funding_data_object</span><span class="p">)</span>
+        <span class="n">funding_data_object</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">funding_data_object</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">funding_data_object</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">list_of_modelled_countries</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">funding_data_object</span>
 
     <span class="k">def</span> <span class="nf">portfolio_projection_approach_a</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioProjection</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding</span>
@@ -3300,14 +3393,13 @@ between countries can be optimised (Approach B).
             <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
             <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span>
                 <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
-                <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span>
+                <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">portfolio_projection_approach_b</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">methods</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
-        <span class="n">optimisation_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioProjection</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the PortfolioProjection For Approach B: i.e., the projection for each country, given the funding</span>
 <span class="sd">        to each country when the TGF funding allocated to a country _CAN_ be changed. Multiple methods for optimisation</span>
@@ -3318,7 +3410,10 @@ between countries can be optimised (Approach B).
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Use the `ApproachB` class to get the TGF funding allocations from the optimisation, getting only the best</span>
         <span class="c1"># result.</span>
-        <span class="n">results_from_approach_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_approach_b</span><span class="p">(</span><span class="n">optimisation_params</span><span class="p">)</span><span class="o">.</span><span class="n">do_approach_b</span><span class="p">(</span>
+
+        <span class="n">methods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;APPROACH_B_METHODS&#39;</span><span class="p">)</span>
+
+        <span class="n">results_from_approach_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_approach_b</span><span class="p">()</span><span class="o">.</span><span class="n">do_approach_b</span><span class="p">(</span>
             <span class="n">methods</span><span class="o">=</span><span class="n">methods</span><span class="p">,</span> <span class="n">provide_best_only</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
         <span class="n">tgf_funding_under_approach_b</span> <span class="o">=</span> <span class="n">results_from_approach_b</span><span class="o">.</span><span class="n">tgf_budget_by_country</span>
@@ -3335,9 +3430,27 @@ between countries can be optimised (Approach B).
             <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
             <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span>
                 <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
-                <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span>
+                <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">portfolio_projection_approach_c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funding_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioProjection</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the PortfolioProjection For Approach C: i.e., the funding fraction is the same in all countries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">country_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_country_projection_given_funding_fraction</span><span class="p">(</span><span class="n">funding_fraction</span><span class="o">=</span><span class="n">funding_fraction</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PortfolioProjection</span><span class="p">(</span>
+            <span class="n">tgf_funding_by_country</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># In this scenario, we do not know the split between TGF and non-TGF sources</span>
+            <span class="n">non_tgf_funding_by_country</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
+            <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span>
+                <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
+                <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
 
     <span class="k">def</span> <span class="nf">portfolio_projection_counterfactual</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -3350,11 +3463,7 @@ between countries can be optimised (Approach B).
 
         <span class="c1"># Create dict of country_results corresponding to the counterfactual scenario</span>
         <span class="n">country_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">countries</span><span class="p">:</span>
-
-            <span class="k">if</span> <span class="n">country</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">:</span>
-                <span class="c1"># Skip a country that is included in the funding data but not included in the model results</span>
-                <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">:</span>
 
             <span class="n">model_projection</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">indicator</span><span class="p">:</span>
@@ -3366,15 +3475,14 @@ between countries can be optimised (Approach B).
 
             <span class="n">country_results</span><span class="p">[</span><span class="n">country</span><span class="p">]</span> <span class="o">=</span> <span class="n">CountryProjection</span><span class="p">(</span>
                 <span class="n">model_projection</span><span class="o">=</span><span class="n">model_projection</span><span class="p">,</span>
-                <span class="n">model_projection_adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_adjust_to_partner_data</span><span class="p">(</span><span class="n">model_projection</span><span class="p">),</span>
                 <span class="n">funding</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">),</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">PortfolioProjection</span><span class="p">(</span>
-            <span class="n">tgf_funding_by_country</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()},</span>
-            <span class="n">non_tgf_funding_by_country</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()},</span>
+            <span class="n">tgf_funding_by_country</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">},</span>
+            <span class="n">non_tgf_funding_by_country</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">},</span>
             <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
-            <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span><span class="n">country_results</span><span class="p">,</span> <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span><span class="n">country_results</span><span class="p">,</span> <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">),</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dump_everything_to_xlsx</span><span class="p">(</span>
@@ -3384,39 +3492,21 @@ between countries can be optimised (Approach B).
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Dump everything into an Excel file.&quot;&quot;&quot;</span>
         <span class="n">DumpAnalysisToExcel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_approach_b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimisation_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApproachB</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_approach_b</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApproachB</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the object `ApproachB` so that other features of it can be accessed conveniently.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">ApproachB</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data_frames_for_approach_b</span><span class="p">(</span><span class="n">optimisation_params</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ApproachB</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data_frames_for_approach_b</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">get_data_frames_for_approach_b</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">optimisation_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dict of dataframes needed for using the `ApproachB` class. This is where the quantities are</span>
 <span class="sd">        computed that summarises the performance of each country under each funding_fraction and the GP, which forms</span>
-<span class="sd">        the basis of the optimisation.</span>
-
-<span class="sd">        Keys (all optional) within the `optimisation_params`:</span>
-<span class="sd">          * `years_for_obj_func`: These are the years for which the sum of cases, deaths are used as the objection</span>
-<span class="sd">        function for the optimisation of TGF shared.</span>
-
-<span class="sd">          * `force_monotonic_decreasing`: Whether the results for each country should be over-written such that</span>
-<span class="sd">         cases and deaths are strictly decreasing with increasing funding.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        the basis of the optimisation.&quot;&quot;&quot;</span>
 
         <span class="c1"># ---------------</span>
         <span class="c1"># Get parameters:</span>
-        <span class="k">if</span> <span class="n">optimisation_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">optimisation_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimisation_params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Argument `optimisation_params` is not of the expected type (dict):&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">optimisation_params</span><span class="p">)</span><span class="si">=}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-
-        <span class="n">force_monotonic_decreasing</span> <span class="o">=</span> <span class="n">optimisation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;force_monotonic_decreasing&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">years_for_obj_func</span> <span class="o">=</span> <span class="n">optimisation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;years_for_obj_func&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">force_monotonic_decreasing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;FORCE_MONOTONIC_DECREASING&quot;</span><span class="p">)</span>
+        <span class="n">years_for_obj_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;YEARS_FOR_OBJ_FUNC&quot;</span><span class="p">)</span>
         <span class="c1"># ---------------</span>
 
         <span class="c1"># get budgets as data-frames</span>
@@ -3518,74 +3608,38 @@ between countries can be optimised (Approach B).
 
             <span class="n">country_projection</span> <span class="o">=</span> <span class="n">CountryProjection</span><span class="p">(</span>
                 <span class="n">model_projection</span><span class="o">=</span><span class="n">model_projection</span><span class="p">,</span>
-                <span class="n">model_projection_adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_adjust_to_partner_data</span><span class="p">(</span><span class="n">model_projection</span><span class="p">),</span>
                 <span class="n">funding</span><span class="o">=</span><span class="n">total_dollar_funding</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">country_results</span><span class="p">[</span><span class="n">country</span><span class="p">]</span> <span class="o">=</span> <span class="n">country_projection</span>
 
         <span class="k">return</span> <span class="n">country_results</span>
 
-    <span class="k">def</span> <span class="nf">_adjust_to_partner_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_projection</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; This will adjust the model output to the latest partner data for all indicators. Where there is no partner</span>
-<span class="sd">        data, no adjustments will be made. It will calculate the ratio between the partner data and model output for the</span>
-<span class="sd">        first year of model output and adjust the central, lower and upper bound values by that ratio from the first</span>
-<span class="sd">        year of model output until the last year that contains projections, so that the central value in the model</span>
-<span class="sd">        matches the partner data in the first year.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Define a dictionary</span>
-        <span class="n">model_projection_adj</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-
-        <span class="c1"># Keep hold of the disease</span>
-        <span class="n">disease</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span>
-
-        <span class="c1"># Set first year of model output</span>
-        <span class="n">expected_first_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;START_YEAR&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Run through each country of the emulates projections for the set scenario and funding and adjust it them to</span>
-        <span class="c1"># baseline partner data, where baseline partner data is available</span>
-        <span class="k">for</span> <span class="n">indicator</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">model_projection</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-
-            <span class="n">df_adj</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;partner&#39;</span><span class="p">))):</span>
-                <span class="c1"># do nothing if no partner data</span>
-                <span class="k">pass</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># make adjustment if there are partner data</span>
-                <span class="n">model_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">model_central</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">expected_first_year</span><span class="p">]</span>
-                <span class="n">partner_data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">partner_central</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">expected_first_year</span><span class="p">]</span>
-                <span class="n">ratio</span> <span class="o">=</span> <span class="n">partner_data</span> <span class="o">/</span> <span class="n">model_data</span>
-
-                <span class="k">if</span> <span class="n">disease</span> <span class="o">==</span> <span class="s2">&quot;HIV&quot;</span><span class="p">:</span>   <span class="c1"># In 7th Replenishment HIV was not adjusted for baseline partner data</span>
-                    <span class="n">ratio</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">disease</span> <span class="o">==</span> <span class="s2">&quot;TB&quot;</span><span class="p">:</span>   <span class="c1"># In 7th Replenishment HIV was not adjusted for baseline partner data</span>
-                    <span class="n">ratio</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">disease</span> <span class="o">==</span> <span class="s2">&quot;MALARIA&quot;</span><span class="p">:</span>   <span class="c1"># In 7th Replenishment HIV was not adjusted for baseline partner data</span>
-                    <span class="n">ratio</span> <span class="o">=</span> <span class="mi">1</span>
-
-                <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">ratio</span><span class="p">):</span> <span class="c1"># Some values are zeros and ratio becomes inf, turn those into 1s</span>
-                    <span class="n">ratio</span> <span class="o">=</span> <span class="mi">1</span>
-
-                <span class="c1"># Only adjust if ratio is not nan</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">ratio</span><span class="p">):</span>
-                    <span class="n">df_adj</span><span class="p">[[</span><span class="s1">&#39;model_central&#39;</span><span class="p">,</span> <span class="s1">&#39;model_high&#39;</span><span class="p">,</span> <span class="s1">&#39;model_low&#39;</span><span class="p">]]</span> <span class="o">*=</span> <span class="n">ratio</span>
-
-            <span class="n">model_projection_adj</span><span class="p">[</span><span class="n">indicator</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_adj</span>
-
-        <span class="k">return</span> <span class="n">model_projection_adj</span>
+    <span class="k">def</span> <span class="nf">_get_country_projection_given_funding_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funding_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CountryProjection</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a dict of CountryProjections given a specified funding_fraction, which is the same in all countries&quot;&quot;&quot;</span>
+        <span class="n">country_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">:</span>
+            <span class="n">model_projection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emulators</span><span class="p">[</span><span class="n">country</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">funding_fraction</span><span class="o">=</span><span class="n">funding_fraction</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">country_projection</span> <span class="o">=</span> <span class="n">CountryProjection</span><span class="p">(</span>
+                <span class="n">model_projection</span><span class="o">=</span><span class="n">model_projection</span><span class="p">,</span>
+                <span class="n">funding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># could find this from self.emulators[country]._lookup_dollars_to_funding_fraction[1.0]</span>
+            <span class="p">)</span>
+            <span class="n">country_results</span><span class="p">[</span><span class="n">country</span><span class="p">]</span> <span class="o">=</span> <span class="n">country_projection</span>
+        <span class="k">return</span> <span class="n">country_results</span>
 
     <span class="k">def</span> <span class="nf">_make_portfolio_results</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">country_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CountryProjection</span><span class="p">],</span>
             <span class="n">adjust_for_unmodelled_innovation</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; This function generates portfolio level results. This included summing up variables across countries,</span>
 <span class="sd">        scaling up for non-modelled countries, and doing the adjustment for GP-related innovation. &quot;&quot;&quot;</span>
 
         <span class="n">actual_without_innovation</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_scale_up_for_non_modelled_countries</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_summing_up_countries</span><span class="p">(</span><span class="n">country_results</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_summing_up_countries</span><span class="p">(</span><span class="n">country_results</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">name</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -3594,7 +3648,7 @@ between countries can be optimised (Approach B).
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Get the fully funded version of the model output</span>
-            <span class="n">scenario_that_represents_full_impact_including_innovation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SCEANRIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION&#39;</span><span class="p">)</span>
+            <span class="n">scenario_that_represents_full_impact_including_innovation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SCENARIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION&#39;</span><span class="p">)</span>
             <span class="n">full_funding_without_innovation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_projection_counterfactual</span><span class="p">(</span><span class="n">scenario_that_represents_full_impact_including_innovation</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="p">(</span>
@@ -3605,11 +3659,13 @@ between countries can be optimised (Approach B).
                 <span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_scale_up_for_non_modelled_countries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">country_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CountryProjection</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_scale_up_for_non_modelled_countries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">country_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CountryProjection</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; This scales the modelled results to non-modelled countries for the epi indicators. &quot;&quot;&quot;</span>
 
         <span class="c1"># Get the first year of the model and list of epi indicators</span>
         <span class="n">first_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;START_YEAR&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;GP&#39;</span><span class="p">):</span>
+            <span class="n">first_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GP_START_YEAR&quot;</span><span class="p">)</span>
 
         <span class="c1"># Get the indicators that should be scaled</span>
         <span class="n">indicator_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get_indicators_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span><span class="p">)</span><span class="o">.</span><span class="n">use_scaling</span>
@@ -3669,15 +3725,25 @@ between countries can be optimised (Approach B).
                 <span class="n">_gp_df</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
                 <span class="n">_gp</span> <span class="o">=</span> <span class="n">_gp_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">_gp_df</span><span class="o">.</span><span class="n">indicator</span> <span class="o">==</span> <span class="n">indicator</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;central&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">)[</span><span class="s1">&#39;central&#39;</span><span class="p">]</span>
                 <span class="n">_gp</span> <span class="o">=</span> <span class="n">_gp</span><span class="p">[</span><span class="n">_gp</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">expected_first_year</span><span class="p">]</span>  <span class="c1"># Ensure all dfs have same length</span>
-                <span class="n">step_one</span> <span class="o">=</span> <span class="p">(</span><span class="n">actual_without_innovation</span><span class="p">[</span><span class="n">indicator</span><span class="p">]</span> <span class="o">/</span> <span class="n">full_funding</span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">_gp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">step_two</span> <span class="o">=</span> <span class="n">actual_without_innovation</span><span class="p">[</span><span class="n">indicator</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">actual_without_innovation</span><span class="p">[</span><span class="n">indicator</span><span class="p">]</span> <span class="o">-</span> <span class="n">step_one</span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">sigmoid_scaling</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">step_one</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span> <span class="o">/</span> <span class="n">full_funding</span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">_gp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">step_two</span> <span class="o">=</span> <span class="n">df</span> <span class="o">-</span> <span class="p">(</span><span class="n">df</span> <span class="o">-</span> <span class="n">step_one</span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">sigmoid_scaling</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="c1"># Over-write the lower and upper bounds so they are the same distance as the modelled distance before applying the sigmoidal adjustment</span>
+                <span class="c1"># If not, the lower bounds and upper bounds can behave strangely</span>
+
+                <span class="c1"># First capture the distance from central to LB and Ub from unadjusted</span>
+                <span class="n">distance_low</span>  <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;model_central&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;model_low&#39;</span><span class="p">]</span>
+                <span class="n">distance_upper</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;model_high&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;model_central&#39;</span><span class="p">]</span>
+
+                <span class="n">step_two</span><span class="p">[</span><span class="s1">&#39;model_low&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_two</span><span class="p">[</span><span class="s1">&#39;model_central&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">distance_low</span>
+                <span class="n">step_two</span><span class="p">[</span><span class="s1">&#39;model_high&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_two</span><span class="p">[</span><span class="s1">&#39;model_central&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">distance_upper</span>
 
                 <span class="c1"># Add adjusted time series to the dataframe</span>
                 <span class="n">adj_country_results</span><span class="p">[</span><span class="n">indicator</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_two</span>
 
         <span class="k">return</span> <span class="n">adj_country_results</span>
 
-    <span class="k">def</span> <span class="nf">_summing_up_countries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">country_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CountryProjection</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_summing_up_countries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">country_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CountryProjection</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; This will sum up all the country results to get the portolfio-level results. This will use the adjusted</span>
 <span class="sd">        country results and be used to generate uncertainty. &quot;&quot;&quot;</span>
 
@@ -3705,6 +3771,7 @@ between countries can be optimised (Approach B).
         <span class="c1"># Define years and parameters we need</span>
         <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span>
         <span class="n">first_year</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;START_YEAR&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;GP&#39;</span><span class="p">):</span>            <span class="n">first_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GP_START_YEAR&quot;</span><span class="p">)</span>
         <span class="n">last_year</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;END_YEAR&quot;</span><span class="p">)</span>
         <span class="n">z_value</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Z_VALUE&quot;</span><span class="p">)</span>
         <span class="n">rho_btw_countries</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE&quot;</span><span class="p">)</span>
@@ -3712,7 +3779,7 @@ between countries can be optimised (Approach B).
         <span class="n">portfolio_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
         <span class="c1"># Defining the list of indicators and countries for the loop</span>
-        <span class="n">indicators</span> <span class="o">=</span> <span class="n">country_results</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">country_results</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">model_projection_adj</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">indicators</span> <span class="o">=</span> <span class="n">country_results</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">country_results</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">model_projection</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="n">types_lookup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indicators</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 
         <span class="n">countries</span> <span class="o">=</span> <span class="n">country_results</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -3727,7 +3794,7 @@ between countries can be optimised (Approach B).
             <span class="n">dfs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="n">countries</span><span class="p">:</span>
                 <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">country_results</span><span class="p">[</span><span class="n">country</span><span class="p">]</span><span class="o">.</span><span class="n">model_projection_adj</span><span class="p">[</span><span class="n">indicator</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                    <span class="n">country_results</span><span class="p">[</span><span class="n">country</span><span class="p">]</span><span class="o">.</span><span class="n">model_projection</span><span class="p">[</span><span class="n">indicator</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
                         <span class="nb">slice</span><span class="p">(</span><span class="n">first_year</span><span class="p">,</span> <span class="n">last_year</span><span class="p">),</span>
                         <span class="p">[</span><span class="s1">&#39;model_central&#39;</span><span class="p">,</span> <span class="s1">&#39;model_high&#39;</span><span class="p">,</span> <span class="s1">&#39;model_low&#39;</span><span class="p">]</span>
                     <span class="p">]</span>
@@ -3755,9 +3822,11 @@ between countries can be optimised (Approach B).
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span> <span class="o">==</span> <span class="s1">&#39;MALARIA&#39;</span><span class="p">:</span>
             <span class="n">indicator_partner</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cases&#39;</span><span class="p">,</span> <span class="s1">&#39;deaths&#39;</span><span class="p">,</span> <span class="s1">&#39;par&#39;</span><span class="p">]</span>
 
+        <span class="n">expected_first_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GRAPH_FIRST_YEAR&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">5</span>
+        <span class="n">expected_last_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;START_YEAR&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
         <span class="n">partner_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">partner_data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="c1"># TODO: remove hard coding</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">2021</span><span class="p">),</span> <span class="n">indicator_partner</span><span class="p">)]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;indicator&#39;</span><span class="p">])[</span><span class="s1">&#39;central&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">expected_first_year</span><span class="p">,</span> <span class="n">expected_last_year</span><span class="p">),</span> <span class="n">indicator_partner</span><span class="p">)]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;indicator&#39;</span><span class="p">])[</span><span class="s1">&#39;central&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">partner_data</span>
 
@@ -3768,7 +3837,7 @@ between countries can be optimised (Approach B).
             <span class="n">gp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">gp</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;central&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Get GP for HIV</span>
-            <span class="n">gp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_projection_counterfactual</span><span class="p">(</span><span class="s1">&#39;GP_GP&#39;</span><span class="p">)</span>  <span class="c1"># todo softcode</span>
+            <span class="n">gp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_projection_counterfactual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EXPECTED_GP_SCENARIO</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
             <span class="c1"># Convert to the same format as other diseases</span>
             <span class="n">gp_data</span> <span class="o">=</span> <span class="n">gp_data</span><span class="o">.</span><span class="n">portfolio_results</span>
@@ -3782,13 +3851,13 @@ between countries can be optimised (Approach B).
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the CF time series to compute lives saved for malaria&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span> <span class="o">!=</span> <span class="s2">&quot;MALARIA&quot;</span><span class="p">:</span>
-
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
         <span class="c1"># Get partner mortality data</span>
         <span class="n">mortality_partner_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">partner_data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="mi">2000</span><span class="p">,</span> <span class="s2">&quot;mortality&quot;</span><span class="p">),</span> <span class="s2">&quot;central&quot;</span>
         <span class="p">]</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;scenario_descriptor&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;indicator&quot;</span><span class="p">])</span>
+        <span class="c1"># 2000 is hard-coded as the year as that is intrinsic to the analysis.</span>
 
         <span class="c1"># TODO: make mean of funding fractions?</span>
         <span class="c1"># Set years of model output</span>
@@ -3866,6 +3935,29 @@ between countries can be optimised (Approach B).
         <span class="n">adjusted_incidence_total</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">adjusted_incidence_total</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">adjusted_incidence_total</span>
+
+    <span class="k">def</span> <span class="nf">make_diagnostic_report</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">plt_show</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a report that compares the results from Approach A and B (and alternative optimisation methods for</span>
+<span class="sd">        Approach B if these are specified).</span>
+<span class="sd">        :param plt_show: determines whether to show the plot</span>
+<span class="sd">        :param filename: filename to save the report to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create the approach_b object</span>
+        <span class="n">approach_b_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_approach_b</span><span class="p">()</span>
+
+        <span class="c1"># Run the report, specifying whether to plot graphs, the filename, and passing through any other kwargs</span>
+        <span class="c1"># Suppress the returned results as the purpose of this function is generating the report.</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">approach_b_object</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">plt_show</span><span class="o">=</span><span class="n">plt_show</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">methods</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;APPROACH_B_METHODS&#39;</span><span class="p">),</span>
+            <span class="n">provide_best_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -3899,17 +3991,59 @@ between countries can be optimised (Approach B).
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">dump_everything_to_xlsx</span><span class="p">(</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">dump_everything_to_xlsx</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dump everything into an Excel file.&quot;&quot;&quot;</span>
     <span class="n">DumpAnalysisToExcel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="src.tgftools.analysis.Analysis.filter_funding_data_for_non_modelled_countries" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">filter_funding_data_for_non_modelled_countries</span><span class="p">(</span><span class="n">funding_data_object</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns a funding data object that has been filtered for countries that are not declared as the modelled
+countries for that disease.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">filter_funding_data_for_non_modelled_countries</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">funding_data_object</span><span class="p">:</span> <span class="n">TgfFunding</span> <span class="o">|</span> <span class="n">NonTgfFunding</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TgfFunding</span> <span class="o">|</span> <span class="n">NonTgfFunding</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a funding data object that has been filtered for countries that are not declared as the modelled</span>
+<span class="sd">    countries for that disease.&quot;&quot;&quot;</span>
+    <span class="n">list_of_modelled_countries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get_modelled_countries_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span><span class="p">)</span>
+    <span class="n">funding_data_object</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">funding_data_object</span><span class="p">)</span>
+    <span class="n">funding_data_object</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">funding_data_object</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">funding_data_object</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">list_of_modelled_countries</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">funding_data_object</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -3934,7 +4068,12 @@ between countries can be optimised (Approach B).
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">708</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">703</span>
+<span class="normal">704</span>
+<span class="normal">705</span>
+<span class="normal">706</span>
+<span class="normal">707</span>
+<span class="normal">708</span>
 <span class="normal">709</span>
 <span class="normal">710</span>
 <span class="normal">711</span>
@@ -3971,12 +4110,7 @@ between countries can be optimised (Approach B).
 <span class="normal">742</span>
 <span class="normal">743</span>
 <span class="normal">744</span>
-<span class="normal">745</span>
-<span class="normal">746</span>
-<span class="normal">747</span>
-<span class="normal">748</span>
-<span class="normal">749</span>
-<span class="normal">750</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_counterfactual_infections_averted_malaria</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">745</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_counterfactual_infections_averted_malaria</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Return the CF time series to compute infections averted for malaria&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span> <span class="o">!=</span> <span class="s2">&quot;MALARIA&quot;</span><span class="p">:</span>
@@ -4043,7 +4177,12 @@ between countries can be optimised (Approach B).
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">663</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
 <span class="normal">664</span>
 <span class="normal">665</span>
 <span class="normal">666</span>
@@ -4081,22 +4220,17 @@ between countries can be optimised (Approach B).
 <span class="normal">698</span>
 <span class="normal">699</span>
 <span class="normal">700</span>
-<span class="normal">701</span>
-<span class="normal">702</span>
-<span class="normal">703</span>
-<span class="normal">704</span>
-<span class="normal">705</span>
-<span class="normal">706</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_counterfactual_lives_saved_malaria</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">701</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_counterfactual_lives_saved_malaria</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Return the CF time series to compute lives saved for malaria&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span> <span class="o">!=</span> <span class="s2">&quot;MALARIA&quot;</span><span class="p">:</span>
-
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
     <span class="c1"># Get partner mortality data</span>
     <span class="n">mortality_partner_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">partner_data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="mi">2000</span><span class="p">,</span> <span class="s2">&quot;mortality&quot;</span><span class="p">),</span> <span class="s2">&quot;central&quot;</span>
     <span class="p">]</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;scenario_descriptor&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;indicator&quot;</span><span class="p">])</span>
+    <span class="c1"># 2000 is hard-coded as the year as that is intrinsic to the analysis.</span>
 
     <span class="c1"># TODO: make mean of funding fractions?</span>
     <span class="c1"># Set years of model output</span>
@@ -4143,7 +4277,7 @@ between countries can be optimised (Approach B).
 
 
 <h3 id="src.tgftools.analysis.Analysis.get_data_frames_for_approach_b" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_data_frames_for_approach_b</span><span class="p">(</span><span class="n">optimisation_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">get_data_frames_for_approach_b</span><span class="p">()</span></code>
 
 </h3>
 
@@ -4153,51 +4287,10 @@ between countries can be optimised (Approach B).
       <p>Returns dict of dataframes needed for using the <code>ApproachB</code> class. This is where the quantities are
 computed that summarises the performance of each country under each funding_fraction and the GP, which forms
 the basis of the optimisation.</p>
-<p>Keys (all optional) within the <code>optimisation_params</code>:
-  * <code>years_for_obj_func</code>: These are the years for which the sum of cases, deaths are used as the objection
-function for the optimisation of TGF shared.</p>
-<ul>
-<li><code>force_monotonic_decreasing</code>: Whether the results for each country should be over-written such that
- cases and deaths are strictly decreasing with increasing funding.</li>
-</ul>
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
-<span class="normal">305</span>
-<span class="normal">306</span>
-<span class="normal">307</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">307</span>
 <span class="normal">308</span>
 <span class="normal">309</span>
 <span class="normal">310</span>
@@ -4272,35 +4365,33 @@ function for the optimisation of TGF shared.</p>
 <span class="normal">379</span>
 <span class="normal">380</span>
 <span class="normal">381</span>
-<span class="normal">382</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_data_frames_for_approach_b</span><span class="p">(</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_data_frames_for_approach_b</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">optimisation_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns dict of dataframes needed for using the `ApproachB` class. This is where the quantities are</span>
 <span class="sd">    computed that summarises the performance of each country under each funding_fraction and the GP, which forms</span>
-<span class="sd">    the basis of the optimisation.</span>
-
-<span class="sd">    Keys (all optional) within the `optimisation_params`:</span>
-<span class="sd">      * `years_for_obj_func`: These are the years for which the sum of cases, deaths are used as the objection</span>
-<span class="sd">    function for the optimisation of TGF shared.</span>
-
-<span class="sd">      * `force_monotonic_decreasing`: Whether the results for each country should be over-written such that</span>
-<span class="sd">     cases and deaths are strictly decreasing with increasing funding.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    the basis of the optimisation.&quot;&quot;&quot;</span>
 
     <span class="c1"># ---------------</span>
     <span class="c1"># Get parameters:</span>
-    <span class="k">if</span> <span class="n">optimisation_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">optimisation_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimisation_params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Argument `optimisation_params` is not of the expected type (dict):&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">optimisation_params</span><span class="p">)</span><span class="si">=}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-
-    <span class="n">force_monotonic_decreasing</span> <span class="o">=</span> <span class="n">optimisation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;force_monotonic_decreasing&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">years_for_obj_func</span> <span class="o">=</span> <span class="n">optimisation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;years_for_obj_func&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">force_monotonic_decreasing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;FORCE_MONOTONIC_DECREASING&quot;</span><span class="p">)</span>
+    <span class="n">years_for_obj_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;YEARS_FOR_OBJ_FUNC&quot;</span><span class="p">)</span>
     <span class="c1"># ---------------</span>
 
     <span class="c1"># get budgets as data-frames</span>
@@ -4406,7 +4497,12 @@ function for the optimisation of TGF shared.</p>
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">646</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
 <span class="normal">647</span>
 <span class="normal">648</span>
 <span class="normal">649</span>
@@ -4416,19 +4512,14 @@ function for the optimisation of TGF shared.</p>
 <span class="normal">653</span>
 <span class="normal">654</span>
 <span class="normal">655</span>
-<span class="normal">656</span>
-<span class="normal">657</span>
-<span class="normal">658</span>
-<span class="normal">659</span>
-<span class="normal">660</span>
-<span class="normal">661</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_gp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">656</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_gp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns data-frame of the GP elements that are needed for reporting.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span> <span class="o">!=</span> <span class="s1">&#39;HIV&#39;</span><span class="p">:</span>
         <span class="n">gp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">gp</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;central&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Get GP for HIV</span>
-        <span class="n">gp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_projection_counterfactual</span><span class="p">(</span><span class="s1">&#39;GP_GP&#39;</span><span class="p">)</span>  <span class="c1"># todo softcode</span>
+        <span class="n">gp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio_projection_counterfactual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EXPECTED_GP_SCENARIO</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="c1"># Convert to the same format as other diseases</span>
         <span class="n">gp_data</span> <span class="o">=</span> <span class="n">gp_data</span><span class="o">.</span><span class="n">portfolio_results</span>
@@ -4461,7 +4552,14 @@ function for the optimisation of TGF shared.</p>
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">630</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
 <span class="normal">631</span>
 <span class="normal">632</span>
 <span class="normal">633</span>
@@ -4470,12 +4568,7 @@ function for the optimisation of TGF shared.</p>
 <span class="normal">636</span>
 <span class="normal">637</span>
 <span class="normal">638</span>
-<span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
-<span class="normal">642</span>
-<span class="normal">643</span>
-<span class="normal">644</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_partner</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">639</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_partner</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns data-frame of the partner data that are needed for reporting.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span> <span class="o">==</span> <span class="s1">&#39;HIV&#39;</span><span class="p">:</span>
@@ -4485,11 +4578,83 @@ function for the optimisation of TGF shared.</p>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_name</span> <span class="o">==</span> <span class="s1">&#39;MALARIA&#39;</span><span class="p">:</span>
         <span class="n">indicator_partner</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cases&#39;</span><span class="p">,</span> <span class="s1">&#39;deaths&#39;</span><span class="p">,</span> <span class="s1">&#39;par&#39;</span><span class="p">]</span>
 
+    <span class="n">expected_first_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GRAPH_FIRST_YEAR&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">5</span>
+    <span class="n">expected_last_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;START_YEAR&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
     <span class="n">partner_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">partner_data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="c1"># TODO: remove hard coding</span>
-        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">2021</span><span class="p">),</span> <span class="n">indicator_partner</span><span class="p">)]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;indicator&#39;</span><span class="p">])[</span><span class="s1">&#39;central&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenario_descriptor</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">expected_first_year</span><span class="p">,</span> <span class="n">expected_last_year</span><span class="p">),</span> <span class="n">indicator_partner</span><span class="p">)]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;indicator&#39;</span><span class="p">])[</span><span class="s1">&#39;central&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">partner_data</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="src.tgftools.analysis.Analysis.make_diagnostic_report" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">make_diagnostic_report</span><span class="p">(</span><span class="n">plt_show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create a report that compares the results from Approach A and B (and alternative optimisation methods for
+Approach B if these are specified).
+:param plt_show: determines whether to show the plot
+:param filename: filename to save the report to</p>
+
+          <details class="quote">
+            <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">747</span>
+<span class="normal">748</span>
+<span class="normal">749</span>
+<span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span>
+<span class="normal">757</span>
+<span class="normal">758</span>
+<span class="normal">759</span>
+<span class="normal">760</span>
+<span class="normal">761</span>
+<span class="normal">762</span>
+<span class="normal">763</span>
+<span class="normal">764</span>
+<span class="normal">765</span>
+<span class="normal">766</span>
+<span class="normal">767</span>
+<span class="normal">768</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">make_diagnostic_report</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plt_show</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a report that compares the results from Approach A and B (and alternative optimisation methods for</span>
+<span class="sd">    Approach B if these are specified).</span>
+<span class="sd">    :param plt_show: determines whether to show the plot</span>
+<span class="sd">    :param filename: filename to save the report to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create the approach_b object</span>
+    <span class="n">approach_b_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_approach_b</span><span class="p">()</span>
+
+    <span class="c1"># Run the report, specifying whether to plot graphs, the filename, and passing through any other kwargs</span>
+    <span class="c1"># Suppress the returned results as the purpose of this function is generating the report.</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">approach_b_object</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="n">plt_show</span><span class="o">=</span><span class="n">plt_show</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;APPROACH_B_METHODS&#39;</span><span class="p">),</span>
+        <span class="n">provide_best_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -4515,73 +4680,8 @@ to each country when the TGF funding allocated to a country CANNOT be changed.</
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">portfolio_projection_approach_a</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioProjection</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding</span>
-<span class="sd">    to each country when the TGF funding allocated to a country CANNOT be changed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">country_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_country_projections_given_funding_dollar_amounts</span><span class="p">(</span>
-        <span class="n">total_funding_by_country</span><span class="o">=</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">PortfolioProjection</span><span class="p">(</span>
-        <span class="n">tgf_funding_by_country</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
-        <span class="n">non_tgf_funding_by_country</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">non_tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
-        <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
-        <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span>
-            <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
-            <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span>
-        <span class="p">),</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-          </details>
-  </div>
-
-</div>
-
-
-<div class="doc doc-object doc-function">
-
-
-
-
-<h3 id="src.tgftools.analysis.Analysis.portfolio_projection_approach_b" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">portfolio_projection_approach_b</span><span class="p">(</span><span class="n">methods</span><span class="p">,</span> <span class="n">optimisation_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
-
-</h3>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Returns the PortfolioProjection For Approach B: i.e., the projection for each country, given the funding
-to each country when the TGF funding allocated to a country <em>CAN</em> be changed. Multiple methods for optimisation
-may be tried, but only a single result is provided (that of the best solution found.)
-:param methods: List of methods to use in approach_b (For method see <code>do_approach_b</code>)
-:param optimisation_params: Dict of parameters specifying how to construct the optimisation.
-See <code>_get_data_frames_for_approach_b</code></p>
-
-          <details class="quote">
-            <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">189</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
+<span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
 <span class="normal">192</span>
@@ -4599,9 +4699,56 @@ See <code>_get_data_frames_for_approach_b</code></p>
 <span class="normal">204</span>
 <span class="normal">205</span>
 <span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">portfolio_projection_approach_a</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioProjection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding</span>
+<span class="sd">    to each country when the TGF funding allocated to a country CANNOT be changed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">country_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_country_projections_given_funding_dollar_amounts</span><span class="p">(</span>
+        <span class="n">total_funding_by_country</span><span class="o">=</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">PortfolioProjection</span><span class="p">(</span>
+        <span class="n">tgf_funding_by_country</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+        <span class="n">non_tgf_funding_by_country</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">non_tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+        <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
+        <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span>
+            <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
+            <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="src.tgftools.analysis.Analysis.portfolio_projection_approach_b" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">portfolio_projection_approach_b</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the PortfolioProjection For Approach B: i.e., the projection for each country, given the funding
+to each country when the TGF funding allocated to a country <em>CAN</em> be changed. Multiple methods for optimisation
+may be tried, but only a single result is provided (that of the best solution found.)
+:param methods: List of methods to use in approach_b (For method see <code>do_approach_b</code>)
+:param optimisation_params: Dict of parameters specifying how to construct the optimisation.
+See <code>_get_data_frames_for_approach_b</code></p>
+
+          <details class="quote">
+            <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">209</span>
 <span class="normal">210</span>
 <span class="normal">211</span>
 <span class="normal">212</span>
@@ -4614,10 +4761,30 @@ See <code>_get_data_frames_for_approach_b</code></p>
 <span class="normal">219</span>
 <span class="normal">220</span>
 <span class="normal">221</span>
-<span class="normal">222</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">portfolio_projection_approach_b</span><span class="p">(</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">portfolio_projection_approach_b</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">methods</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
-    <span class="n">optimisation_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioProjection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the PortfolioProjection For Approach B: i.e., the projection for each country, given the funding</span>
 <span class="sd">    to each country when the TGF funding allocated to a country _CAN_ be changed. Multiple methods for optimisation</span>
@@ -4628,7 +4795,10 @@ See <code>_get_data_frames_for_approach_b</code></p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Use the `ApproachB` class to get the TGF funding allocations from the optimisation, getting only the best</span>
     <span class="c1"># result.</span>
-    <span class="n">results_from_approach_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_approach_b</span><span class="p">(</span><span class="n">optimisation_params</span><span class="p">)</span><span class="o">.</span><span class="n">do_approach_b</span><span class="p">(</span>
+
+    <span class="n">methods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;APPROACH_B_METHODS&#39;</span><span class="p">)</span>
+
+    <span class="n">results_from_approach_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_approach_b</span><span class="p">()</span><span class="o">.</span><span class="n">do_approach_b</span><span class="p">(</span>
         <span class="n">methods</span><span class="o">=</span><span class="n">methods</span><span class="p">,</span> <span class="n">provide_best_only</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
     <span class="n">tgf_funding_under_approach_b</span> <span class="o">=</span> <span class="n">results_from_approach_b</span><span class="o">.</span><span class="n">tgf_budget_by_country</span>
@@ -4645,8 +4815,60 @@ See <code>_get_data_frames_for_approach_b</code></p>
         <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
         <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span>
             <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
-            <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span>
+            <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
         <span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="src.tgftools.analysis.Analysis.portfolio_projection_approach_c" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">portfolio_projection_approach_c</span><span class="p">(</span><span class="n">funding_fraction</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the PortfolioProjection For Approach C: i.e., the funding fraction is the same in all countries</p>
+
+          <details class="quote">
+            <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">portfolio_projection_approach_c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funding_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioProjection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the PortfolioProjection For Approach C: i.e., the funding fraction is the same in all countries</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">country_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_country_projection_given_funding_fraction</span><span class="p">(</span><span class="n">funding_fraction</span><span class="o">=</span><span class="n">funding_fraction</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">PortfolioProjection</span><span class="p">(</span>
+        <span class="n">tgf_funding_by_country</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># In this scenario, we do not know the split between TGF and non-TGF sources</span>
+        <span class="n">non_tgf_funding_by_country</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
+        <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span>
+            <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
+            <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">innovation_on</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+        <span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
@@ -4672,43 +4894,38 @@ See <code>_get_data_frames_for_approach_b</code></p>
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">portfolio_projection_counterfactual</span><span class="p">(</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">portfolio_projection_counterfactual</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PortfolioProjection</span><span class="p">:</span>
@@ -4719,11 +4936,7 @@ See <code>_get_data_frames_for_approach_b</code></p>
 
     <span class="c1"># Create dict of country_results corresponding to the counterfactual scenario</span>
     <span class="n">country_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">countries</span><span class="p">:</span>
-
-        <span class="k">if</span> <span class="n">country</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">:</span>
-            <span class="c1"># Skip a country that is included in the funding data but not included in the model results</span>
-            <span class="k">continue</span>
+    <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">:</span>
 
         <span class="n">model_projection</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">indicator</span><span class="p">:</span>
@@ -4735,15 +4948,14 @@ See <code>_get_data_frames_for_approach_b</code></p>
 
         <span class="n">country_results</span><span class="p">[</span><span class="n">country</span><span class="p">]</span> <span class="o">=</span> <span class="n">CountryProjection</span><span class="p">(</span>
             <span class="n">model_projection</span><span class="o">=</span><span class="n">model_projection</span><span class="p">,</span>
-            <span class="n">model_projection_adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_adjust_to_partner_data</span><span class="p">(</span><span class="n">model_projection</span><span class="p">),</span>
             <span class="n">funding</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">),</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">PortfolioProjection</span><span class="p">(</span>
-        <span class="n">tgf_funding_by_country</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()},</span>
-        <span class="n">non_tgf_funding_by_country</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tgf_funding</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()},</span>
+        <span class="n">tgf_funding_by_country</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">},</span>
+        <span class="n">non_tgf_funding_by_country</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">},</span>
         <span class="n">country_results</span><span class="o">=</span><span class="n">country_results</span><span class="p">,</span>
-        <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span><span class="n">country_results</span><span class="p">,</span> <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="n">portfolio_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_portfolio_results</span><span class="p">(</span><span class="n">country_results</span><span class="p">,</span> <span class="n">adjust_for_unmodelled_innovation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
@@ -4780,25 +4992,19 @@ See <code>_get_data_frames_for_approach_b</code></p>
 
             <details class="quote">
               <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
 <span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">CountryProjection</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">CountryProjection</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;NamedTuple for cases and death for a given program cost in a given country.&quot;&quot;&quot;</span>
 
     <span class="n">model_projection</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span>
         <span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
     <span class="p">]</span>  <span class="c1"># dict of the form {&lt;indicator&gt;: &lt;pd.DataFrame&gt;}</span>
     <span class="n">funding</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">model_projection_adj</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span>
-        <span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
-    <span class="p">]</span>  <span class="c1"># dict of the form {&lt;indicator&gt;: &lt;pd.DataFrame&gt;}</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -4843,7 +5049,8 @@ See <code>_get_data_frames_for_approach_b</code></p>
 
             <details class="quote">
               <summary>Source code in <code>src/tgftools/analysis.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 95</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 94</span>
+<span class="normal"> 95</span>
 <span class="normal"> 96</span>
 <span class="normal"> 97</span>
 <span class="normal"> 98</span>
@@ -4855,8 +5062,7 @@ See <code>_get_data_frames_for_approach_b</code></p>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">PortfolioProjection</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">PortfolioProjection</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;NamedTuple for the results of an Analysis.&quot;&quot;&quot;</span>
 
     <span class="n">tgf_funding_by_country</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
@@ -4943,79 +5149,96 @@ pd.DataFrames are written to their own sheet of the same name.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/tgftools/report.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Report</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Report</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This is the BaseClass for Report classes. It provides the core functionality to generate reports. It can be</span>
 <span class="sd">    inherited from to allow it to accept sets of PortfolioProjections for the diseases. It intended that each member</span>
 <span class="sd">    function will either: (i) return a Dict of the form {&lt;label&gt;: &lt;stat&gt;}, or (ii) return a pd.DataFrame. These can be</span>
@@ -5042,8 +5265,9 @@ pd.DataFrames are written to their own sheet of the same name.</p>
             <span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run all member functions, print the results to screen, and (if filename provided assemble them into Excel.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run all member functions, print the results to screen, returns the results in the form of dictionary and</span>
+<span class="sd">        (if filename provided) assemble them into an Excel file and draw graphs.&quot;&quot;&quot;</span>
 
         <span class="n">all_results_for_stats_pages</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># Storage for all the results</span>
         <span class="n">all_results_for_individual_worksheets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -5061,6 +5285,12 @@ pd.DataFrames are written to their own sheet of the same name.</p>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Return from </span><span class="si">{</span><span class="n">ch_name</span><span class="si">}</span><span class="s2"> function is not of recognised type (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ch_name</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Compile the results for the &#39;stats&#39; summary</span>
+        <span class="n">results_for_main</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">func_results</span> <span class="ow">in</span> <span class="n">all_results_for_stats_pages</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">stat_result</span> <span class="ow">in</span> <span class="n">func_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">results_for_main</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">func_name</span><span class="p">,</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">stat_result</span><span class="p">])</span>
+
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Write to Excel</span>
             <span class="n">wb</span> <span class="o">=</span> <span class="n">Workbook</span><span class="p">()</span>
@@ -5068,11 +5298,10 @@ pd.DataFrames are written to their own sheet of the same name.</p>
             <span class="c1"># Write to &#39;stats&#39; worksheet:</span>
             <span class="n">work_sheet_stats</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
             <span class="n">work_sheet_stats</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;stats&#39;</span>
-            <span class="k">for</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">func_results</span> <span class="ow">in</span> <span class="n">all_results_for_stats_pages</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">for</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">stat_result</span> <span class="ow">in</span> <span class="n">func_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">work_sheet_stats</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">func_name</span><span class="p">,</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">stat_result</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">results_for_main</span><span class="p">:</span>
+                <span class="n">work_sheet_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-            <span class="c1"># Write to &#39;individual&#39; worksheet, based on the template</span>
+            <span class="c1"># Write results to &#39;individual&#39; worksheet</span>
             <span class="k">for</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">func_results</span> <span class="ow">in</span> <span class="n">all_results_for_individual_worksheets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">work_sheet</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">create_sheet</span><span class="p">()</span>
                 <span class="n">work_sheet</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">func_name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>  <span class="c1"># truncate to first ten characters, as requirement of Excel</span>
@@ -5084,6 +5313,17 @@ pd.DataFrames are written to their own sheet of the same name.</p>
 
             <span class="c1"># Save</span>
             <span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="c1"># Returning in the same format as the Excel file:</span>
+            <span class="c1"># * key=&#39;main&#39;: a pd.DataFrame contains all the scalar stats from individual functions</span>
+            <span class="c1"># * all other keys/sheets: pd.DataFrames from all the functions that returned pd.DataFrames</span>
+            <span class="s1">&#39;stats&#39;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results_for_main</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Value&#39;</span><span class="p">})</span>
+            <span class="p">),</span>
+            <span class="o">**</span><span class="n">all_results_for_individual_worksheets</span><span class="p">,</span>
+        <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">_post_processing_on_workbook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workbook</span><span class="p">:</span> <span class="n">Workbook</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Do anything necessary to post-process the workbook: for instance, create graphs on certain worksheets.&quot;&quot;&quot;</span>
@@ -5144,53 +5384,72 @@ pd.DataFrames are written to their own sheet of the same name.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Run all member functions, print the results to screen, and (if filename provided assemble them into Excel.</p>
+      <p>Run all member functions, print the results to screen, returns the results in the form of dictionary and
+(if filename provided) assemble them into an Excel file and draw graphs.</p>
 
           <details class="quote">
             <summary>Source code in <code>src/tgftools/report.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run all member functions, print the results to screen, and (if filename provided assemble them into Excel.&quot;&quot;&quot;</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run all member functions, print the results to screen, returns the results in the form of dictionary and</span>
+<span class="sd">    (if filename provided) assemble them into an Excel file and draw graphs.&quot;&quot;&quot;</span>
 
     <span class="n">all_results_for_stats_pages</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># Storage for all the results</span>
     <span class="n">all_results_for_individual_worksheets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -5208,6 +5467,12 @@ pd.DataFrames are written to their own sheet of the same name.</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Return from </span><span class="si">{</span><span class="n">ch_name</span><span class="si">}</span><span class="s2"> function is not of recognised type (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ch_name</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
 
+    <span class="c1"># Compile the results for the &#39;stats&#39; summary</span>
+    <span class="n">results_for_main</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">func_results</span> <span class="ow">in</span> <span class="n">all_results_for_stats_pages</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">stat_result</span> <span class="ow">in</span> <span class="n">func_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">results_for_main</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">func_name</span><span class="p">,</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">stat_result</span><span class="p">])</span>
+
     <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Write to Excel</span>
         <span class="n">wb</span> <span class="o">=</span> <span class="n">Workbook</span><span class="p">()</span>
@@ -5215,11 +5480,10 @@ pd.DataFrames are written to their own sheet of the same name.</p>
         <span class="c1"># Write to &#39;stats&#39; worksheet:</span>
         <span class="n">work_sheet_stats</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
         <span class="n">work_sheet_stats</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;stats&#39;</span>
-        <span class="k">for</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">func_results</span> <span class="ow">in</span> <span class="n">all_results_for_stats_pages</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">stat_result</span> <span class="ow">in</span> <span class="n">func_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">work_sheet_stats</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">func_name</span><span class="p">,</span> <span class="n">stat_name</span><span class="p">,</span> <span class="n">stat_result</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">results_for_main</span><span class="p">:</span>
+            <span class="n">work_sheet_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-        <span class="c1"># Write to &#39;individual&#39; worksheet, based on the template</span>
+        <span class="c1"># Write results to &#39;individual&#39; worksheet</span>
         <span class="k">for</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">func_results</span> <span class="ow">in</span> <span class="n">all_results_for_individual_worksheets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">work_sheet</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">create_sheet</span><span class="p">()</span>
             <span class="n">work_sheet</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">func_name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>  <span class="c1"># truncate to first ten characters, as requirement of Excel</span>
@@ -5231,6 +5495,17 @@ pd.DataFrames are written to their own sheet of the same name.</p>
 
         <span class="c1"># Save</span>
         <span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="c1"># Returning in the same format as the Excel file:</span>
+        <span class="c1"># * key=&#39;main&#39;: a pd.DataFrame contains all the scalar stats from individual functions</span>
+        <span class="c1"># * all other keys/sheets: pd.DataFrames from all the functions that returned pd.DataFrames</span>
+        <span class="s1">&#39;stats&#39;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results_for_main</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Key&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Value&#39;</span><span class="p">})</span>
+        <span class="p">),</span>
+        <span class="o">**</span><span class="n">all_results_for_individual_worksheets</span><span class="p">,</span>
+    <span class="p">}</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
