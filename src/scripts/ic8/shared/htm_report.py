@@ -179,7 +179,7 @@ class HTMReport(Report):
             "Reduction in hiv mortality rate between the year 2029 compared to 2023": hiv_mortality_reduction,
 
             "HIV mortality rate in the year 2021": hiv_mortality_2021,
-            "HIV mortality rate in the year 2029": hiv_mortality_2028,
+            "HIV mortality rate in the year 2028": hiv_mortality_2028,
             "Reduction in hiv mortality rate between the year 2028 compared to 2021": hiv_mortality_reduction_st,
 
             "Incidence reduction in AGYW in most affected countries from 2023 to 2029": relative_reduction,
@@ -692,34 +692,6 @@ class HTMReport(Report):
             }
         )
 
-    def tbn_deaths(self) -> pd.DataFrame:
-        """Produce graph for TB deaths"""
-        return pd.DataFrame(
-            index=pd.Index(list(range(2010, 2031)), name='Year'),
-            data={
-                'Actual': self.tb.PARTNER['deathshivneg'],
-                'GP': self.tb.CF_forgraphs['deathshivneg'],
-                'Counterfactual': self.tb.CF_InfAve.portfolio_results['deathshivneg']['model_central'],
-                'IC': self.tb.IC.portfolio_results['deathshivneg']['model_central'],
-                'IC_LB': self.tb.IC.portfolio_results['deathshivneg']['model_low'],
-                'IC_UB': self.tb.IC.portfolio_results['deathshivneg']['model_high'],
-                'pop_actual': self.tb.PARTNER['population'],
-                'pop_cf': self.tb.CF_InfAve.portfolio_results['population']['model_central'],
-                'pop_ic': self.tb.IC.portfolio_results['population']['model_central'],
-                'Actual_mort': self.tb.PARTNER['deathshivneg'] / self.tb.PARTNER["population"],
-                'GP_mort': self.tb.CF_forgraphs['mortality'],
-                'CF_mort': self.tb.CF_InfAve.portfolio_results['deathshivneg']['model_central'] /
-                          self.tb.CF_InfAve.portfolio_results['population']['model_central'],
-                'IC_mort': self.tb.IC.portfolio_results['deathshivneg']['model_central'] /
-                          self.tb.IC.portfolio_results['population']['model_central'],
-                'IC_LB_mort': self.tb.IC.portfolio_results['deathshivneg']['model_low'] /
-                             self.tb.IC.portfolio_results['population']['model_central'],
-                'IC_UB_mort': self.tb.IC.portfolio_results['deathshivneg']['model_high'] /
-                             self.tb.IC.portfolio_results['population']['model_central'],
-            }
-        )
-
-
     def mal_cases(self) -> pd.DataFrame:
         """Produce graph for malaria cases"""
         return pd.DataFrame(
@@ -956,7 +928,6 @@ class HTMReport(Report):
             'tb_cases',
             'tbh_deaths',
             'tb_deaths',
-            'tbn_deaths',
             'mal_cases',
             'mal_deaths',
             'comb_mort',
