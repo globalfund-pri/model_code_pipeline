@@ -156,6 +156,10 @@ class HTMReport(Report):
         art_coverage_2029 = self.hiv.IC.portfolio_results["art"].at[2029, "model_central"] / \
                             self.hiv.IC.portfolio_results["plhiv"].at[2029, "model_central"] * 100
         art_number_2029 = self.hiv.IC.portfolio_results["art"].at[2029, "model_central"]
+        pmtct_number_2027_2029 = self.hiv.IC.portfolio_results["pmtct"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        hst_2027_2029 = self.hiv.IC.portfolio_results['hst'].loc[
+            slice(2027, 2029), "model_central"].sum()
 
         return {
             "Number of new hiv infections in the year 2023": hiv_cases_2023,
@@ -187,6 +191,8 @@ class HTMReport(Report):
             "ART coverage in the year 2023": art_coverage_2023,
             "ART coverage in the year 2029": art_coverage_2029,
             "Number of people on ART in the year 2029": art_number_2029,
+            "Number of pregnant women receiving ART between 2027 and 2029:": pmtct_number_2027_2029,
+            "Number pf people receiving HIV testing and councelling 2027 to 2029": hst_2027_2029,
         }
 
     def get_key_stats_tb(self) -> Dict[str, float]:
@@ -258,6 +264,10 @@ class HTMReport(Report):
                              self.tb.IC.portfolio_results["cases"].at[2023, "model_central"] * 100
         tb_txcoverage_2029 = self.tb.IC.portfolio_results["notified"].at[2029, "model_central"] / \
                              self.tb.IC.portfolio_results["cases"].at[2029, "model_central"] * 100
+        tb_art_2027_2029 = self.tb.IC.portfolio_results["tbart"].loc[
+            slice(2027, 2029), "model_central"].sum()
+        tb_screened_2027_2029 = self.tb.IC.portfolio_results["notified"].loc[
+            slice(2027, 2029), "model_central"].sum()*22.9
 
         return {
             "Number of TB cases in the year 2023": tb_cases_2023,
@@ -304,6 +314,9 @@ class HTMReport(Report):
 
             "TB treatment coverage in 2023": tb_txcoverage_2023,
             "TB treatment coverage in 2029": tb_txcoverage_2029,
+
+            "Number of HIV-positive TB patients receiving ART between 2027 to 2029": tb_art_2027_2029,
+            "Number of people screened between 2027 and 2029": tb_screened_2027_2029,
         }
 
     def get_key_stats_malaria(self) -> Dict[str, float]:
@@ -381,8 +394,17 @@ class HTMReport(Report):
         malaria_llins_2024_2029 = self.malaria.IC.portfolio_results["llins"].loc[
             slice(2024, 2029), "model_central"].sum()
 
+        smc_2027_2029 = self.malaria.IC.portfolio_results['smc'].loc[
+            slice(2024, 2029), "model_central"].sum()
+
         tx_publicsector_2024_2029 = self.malaria.IC.portfolio_results["txpublic"].loc[
             slice(2024, 2029), "model_central"].sum()
+
+        tx_publicsector_2027_2029 = self.malaria.IC.portfolio_results["txpublic"].loc[
+            slice(2027, 2029), "model_central"].sum()
+
+        number_tx = self.malaria.IC.portfolio_results["nrtx"].loc[
+            slice(2027, 2029), "model_central"].sum()
 
         vaccines_2024_2029 = self.malaria.IC.portfolio_results["vaccine"].loc[
             slice(2024, 2029), "model_central"].sum()
@@ -438,7 +460,12 @@ class HTMReport(Report):
             "Number of bed nets distributed between 2024 and 2029": malaria_llins_2024_2029,
             "LLIN use in 2023 in SSA": llinuse_2023,
             "LLIN use in 2029 in SSA": llinuse_2029,
+
+            "Number of children receiving SMC": smc_2027_2029,
+
             "Number of people treated in the public sector between 2024 and 2029": tx_publicsector_2024_2029,
+            "Number of people treated in the public sector between 2027 and 2029": tx_publicsector_2027_2029,
+            "Numbr of people treated for malaria between 2027 and 2029": number_tx,
 
             "Number of people vaccinated between 2024 and 2029": vaccines_2024_2029,
             "Number of vaccine doses distributed between 2024 and 2029": vaccines_doses_2024_2029,

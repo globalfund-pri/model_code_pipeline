@@ -202,6 +202,12 @@ type="count"
 use_scaling=false
 
 [[HIV.indicator]]
+name="fswreached"
+description="number of FSW reached with prevention programmes"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="msmcoverage"
 description="percentage of MSM accessing prevention services at the end of the reporting period"
 type="fraction"
@@ -210,6 +216,12 @@ use_scaling=false
 [[HIV.indicator]]
 name="msmprep"
 description="number of MSM on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="msmreached"
+description="number of MSM reached with prevention programmes"
 type="count"
 use_scaling=false
 
@@ -226,8 +238,20 @@ type="count"
 use_scaling=false
 
 [[HIV.indicator]]
+name="pwidreached"
+description="number of PWID reached with prevention programmes"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="ost"
 description="number of PWID on OST at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="hst"
+description="number of people receiving HIV testing and councelling"
 type="count"
 use_scaling=false
 

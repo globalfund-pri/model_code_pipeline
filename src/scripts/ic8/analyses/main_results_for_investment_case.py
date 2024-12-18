@@ -164,8 +164,8 @@ def dump_projection_to_file(proj, filename):
 
 
 def dump_ic_scenario_to_file(
-        load_data_from_raw_files: bool = False,
-        run_analysis: bool = False,
+        load_data_from_raw_files: bool = True,
+        run_analysis: bool = True,
         filename_stub: Optional[Path] = None,
 ) -> None:
     project_root = get_root_path()

@@ -4,7 +4,7 @@
 [HIV]
 NON-TGF-FUNDING = "IC8/funding/2024_11_24/hiv/non_tgf/hiv_nonfung_base_c.csv"
 TGF-FUNDING = "IC8/funding/2024_11_24/hiv/tgf/hiv_fung_inc_unalc_bs17.csv"
-MODEL-RESULTS = "IC8/modelling_outputs/hiv/2024_11_24"
+MODEL-RESULTS = "IC8/modelling_outputs/hiv/2024_12_17"
 PARTNER-DATA = "IC8/partner/hiv/2024_10_17"
 PF-INPUT-DATA = "IC8/pf/hiv/2024_03_28"
 GP-DATA = "IC8/fixed_gps/hiv_gp.csv"

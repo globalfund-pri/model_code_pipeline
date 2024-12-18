@@ -120,7 +120,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         indicator) and columns containing model output (low, central, high)."""
 
         # If running checks set the below to 1
-        check = 0
+        check = 1
 
         # Read in each file and concatenate the results
         all_csv_file_at_the_path = get_files_with_extension(path, "csv")
@@ -207,6 +207,10 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Add ic_ic scenario to model output
         concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
 
+        # df2 = concatenated_dfs[concatenated_dfs.duplicated(keep=False)]
+        #
+        # df2 = concatenated_dfs[concatenated_dfs.duplicated()]
+
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
@@ -218,7 +222,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df = self._load_sheet(file)
 
         # If we are running checks set the below to 1
-        check = 0
+        check = 1
 
         # Only keep columns of immediate interest:
         csv_df = csv_df[
@@ -354,9 +358,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "PWID_PrEP",
                 "PWID_PrEP_LB",
                 "PWID_PrEP_UB",
+                "FSW_reached",
+                "FSW_reached_LB",
+                "FSW_reached_UB",
+                "MSM_reached",
+                "MSM_reached_LB",
+                "MSM_reached_UB",
+                "PWID_reached",
+                "PWID_reached_LB",
+                "PWID_reached_UB",
                 "OST",
                 "OST_LB",
                 "OST_UB",
+                "HST",
+                "HST_LB",
+                "HST_UB",
                 "KOS",
                 "KOS_LB",
                 "KOS_UB",
@@ -500,9 +516,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             "PWID_PrEP",
             "PWID_PrEP_LB",
             "PWID_PrEP_UB",
+            "FSW_reached",
+            "FSW_reached_LB",
+            "FSW_reached_UB",
+            "MSM_reached",
+            "MSM_reached_LB",
+            "MSM_reached_UB",
+            "PWID_reached",
+            "PWID_reached_LB",
+            "PWID_reached_UB",
             "OST",
             "OST_LB",
             "OST_UB",
+            "HST",
+            "HST_LB",
+            "HST_UB",
             "KOS",
             "KOS_LB",
             "KOS_UB",
@@ -628,9 +656,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             "PWID_PrEP",
             "PWID_PrEP_LB",
             "PWID_PrEP_UB",
+            "FSW_reached",
+            "FSW_reached_LB",
+            "FSW_reached_UB",
+            "MSM_reached",
+            "MSM_reached_LB",
+            "MSM_reached_UB",
+            "PWID_reached",
+            "PWID_reached_LB",
+            "PWID_reached_UB",
             "OST",
             "OST_LB",
             "OST_UB",
+            "HST",
+            "HST_LB",
+            "HST_UB",
             "KOS",
             "KOS_LB",
             "KOS_UB",
@@ -684,9 +724,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "PWID_PrEP": "pwidprep_central",
                 "PWID_PrEP_LB": "pwidprep_low",
                 "PWID_PrEP_UB": "pwidprep_high",
+                "FSW_reached": "fswreached_central",
+                "FSW_reached_LB": "fswreached_low",
+                "FSW_reached_UB": "fswreached_high",
+                "MSM_reached": "msmreached_central",
+                "MSM_reached_LB": "msmreached_low",
+                "MSM_reached_UB": "msmreached_high",
+                "PWID_reached": "pwidreached_central",
+                "PWID_reached_LB": "pwidreached_low",
+                "PWID_reached_UB": "pwidreached_high",
                 "OST": "ost_central",
                 "OST_LB": "ost_low",
                 "OST_UB": "ost_high",
+                "HST": "hst_central",
+                "HST_LB": "hst_low",
+                "HST_UB": "hst_high",
                 "KOS": "status_central",
                 "KOS_LB": "status_low",
                 "KOS_UB": "status_high",
@@ -707,7 +759,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Fix Step 13 in 2022
         filename = "HIV cost impact"
         if filename in str(file.name):
-            print('hello')
 
             # Remove Step 12 for SDN
             csv_df = csv_df.drop(
@@ -1308,10 +1359,8 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["population_central"]
 
         # Remove GP from first file, second file is corrected model output for this scenario
-        if file == Path(
-                get_data_path()
-                / "IC8/modelling_outputs/hiv/2024_11_24/HIV historical scenarios 17aug24.csv"
-        ):
+        filename = "HIV historical scenarios"
+        if filename in str(file.name):
             csv_df = csv_df.drop(
                 csv_df[
                     csv_df["scenario_descriptor"]
