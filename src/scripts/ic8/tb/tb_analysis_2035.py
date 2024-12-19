@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from scripts.ic8.tb.tb_checks import DatabaseChecksTb
@@ -12,6 +14,7 @@ from tgftools.filehandler import (
     TgfFunding,
 )
 from tgftools.utils import (
+    get_data_path,
     get_root_path,
     load_var,
     save_var,
@@ -38,6 +41,7 @@ NOTE: Scenarios for the various counterfactuals are set in the main results for 
 
 
 def get_tb_database_2035(load_data_from_raw_files: bool = True) -> Database:
+
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
@@ -111,11 +115,11 @@ def get_tb_analysis_2035(
     parameters.int_store['END_YEAR'] = 2035
 
     return Analysis(
-        database=db,
-        tgf_funding=tgf_funding,
-        non_tgf_funding=non_tgf_funding,
-        parameters=parameters,
-    )
+            database=db,
+            tgf_funding=tgf_funding,
+            non_tgf_funding=non_tgf_funding,
+            parameters=parameters,
+        )
 
 
 if __name__ == "__main__":
@@ -130,43 +134,42 @@ if __name__ == "__main__":
 
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
-
     pps = get_set_of_portfolio_projections(analysis)
 
     # Get results out from this set for the graph
     tb_cases = pd.DataFrame(
-        index=pd.Index(list(range(2005, 2036)), name='Year'),
-        data={
-            'Actual': pps.PARTNER['cases'],
-            'GP': pps.CF_forgraphs['cases'],
-            'Counterfactual': pps.CF_InfAve.portfolio_results['cases']['model_central'],
-            'IC': pps.IC.portfolio_results['cases']['model_central'],
-            'IC_LB': pps.IC.portfolio_results['cases']['model_low'],
-            'IC_UB': pps.IC.portfolio_results['cases']['model_high'],
-            'pop_actual': pps.PARTNER['population'],
-            'pop_cf': pps.CF_InfAve.portfolio_results['population']['model_central'],
-            'pop_ic': pps.IC.portfolio_results['population']['model_central'],
-            'Actual_inc': pps.PARTNER['cases'] / pps.PARTNER["population"],
-            'GP_inc': pps.CF_forgraphs['incidence'],
-            'CF_inc': pps.CF_InfAve.portfolio_results['cases']['model_central'] /
-                      pps.CF_InfAve.portfolio_results['population']['model_central'],
-            'IC_inc': pps.IC.portfolio_results['cases']['model_central'] /
-                      pps.IC.portfolio_results['population']['model_central'],
-            'IC_LB_inc': pps.IC.portfolio_results['cases']['model_low'] /
-                         pps.IC.portfolio_results['population']['model_central'],
-            'IC_UB_inc': pps.IC.portfolio_results['cases']['model_high'] /
-                         pps.IC.portfolio_results['population']['model_central'],
-            'IC_LB_adj': (pps.IC.portfolio_results['cases']['model_low']) * 0.9,
-            'IC_UB_adj': (pps.IC.portfolio_results['cases']['model_high']) * 1.1,
-        }
-    )
+            index=pd.Index(list(range(2010, 2036)), name='Year'),
+            data={
+                'Actual': pps.PARTNER['cases'],
+                'GP': pps.CF_forgraphs['cases'],
+                'Counterfactual': pps.CF_InfAve.portfolio_results['cases']['model_central'],
+                'IC': pps.IC.portfolio_results['cases']['model_central'],
+                'IC_LB': pps.IC.portfolio_results['cases']['model_low'],
+                'IC_UB': pps.IC.portfolio_results['cases']['model_high'],
+                'pop_actual': pps.PARTNER['population'],
+                'pop_cf': pps.CF_InfAve.portfolio_results['population']['model_central'],
+                'pop_ic': pps.IC.portfolio_results['population']['model_central'],
+                'Actual_inc': pps.PARTNER['cases'] / pps.PARTNER["population"],
+                'GP_inc': pps.CF_forgraphs['incidence'],
+                'CF_inc': pps.CF_InfAve.portfolio_results['cases']['model_central'] /
+                          pps.CF_InfAve.portfolio_results['population']['model_central'],
+                'IC_inc': pps.IC.portfolio_results['cases']['model_central'] /
+                          pps.IC.portfolio_results['population']['model_central'],
+                'IC_LB_inc': pps.IC.portfolio_results['cases']['model_low'] /
+                             pps.IC.portfolio_results['population']['model_central'],
+                'IC_UB_inc': pps.IC.portfolio_results['cases']['model_high'] /
+                             pps.IC.portfolio_results['population']['model_central'],
+                'IC_LB_adj': (pps.IC.portfolio_results['cases']['model_low'])*0.9,
+                'IC_UB_adj': (pps.IC.portfolio_results['cases']['model_high'])*1.1,
+            }
+        )
 
     # Save df
     path_to_sessions_folder = get_root_path() / 'sessions'
     tb_cases.to_csv(path_to_sessions_folder / 'tb_cases_2035.csv')
 
     tbh_deaths = pd.DataFrame(
-        index=pd.Index(list(range(2005, 2036)), name='Year'),
+        index=pd.Index(list(range(2010, 2036)), name='Year'),
         data={
             'Actual': pps.PARTNER['deaths'],
             'GP': pps.CF_forgraphs['deaths'],
@@ -187,8 +190,8 @@ if __name__ == "__main__":
                          pps.IC.portfolio_results['population']['model_central'],
             'IC_UB_inc': pps.IC.portfolio_results['deaths']['model_high'] /
                          pps.IC.portfolio_results['population']['model_central'],
-            'IC_LB_adj': (pps.IC.portfolio_results['deaths']['model_low']) * 0.9,
-            'IC_UB_adj': (pps.IC.portfolio_results['deaths']['model_high']) * 1.1,
+            'IC_LB_adj': (pps.IC.portfolio_results['deaths']['model_low'])*0.9,
+            'IC_UB_adj': (pps.IC.portfolio_results['deaths']['model_high'])*1.1,
         }
     )
 
@@ -196,7 +199,7 @@ if __name__ == "__main__":
     tbh_deaths.to_csv(path_to_sessions_folder / 'tbh_deaths_2035.csv')
 
     tb_deaths = pd.DataFrame(
-        index=pd.Index(list(range(2005, 2036)), name='Year'),
+        index=pd.Index(list(range(2010, 2036)), name='Year'),
         data={
             'Actual': pps.PARTNER['deathshivneg'],
             'GP': pps.CF_forgraphs['deathshivneg'],
@@ -217,10 +220,11 @@ if __name__ == "__main__":
                          pps.IC.portfolio_results['population']['model_central'],
             'IC_UB_inc': pps.IC.portfolio_results['deathshivneg']['model_high'] /
                          pps.IC.portfolio_results['population']['model_central'],
-            'IC_LB_adj': (pps.IC.portfolio_results['deathshivneg']['model_low']) * 0.9,
-            'IC_UB_adj': (pps.IC.portfolio_results['deathshivneg']['model_high']) * 1.1,
+            'IC_LB_adj': (pps.IC.portfolio_results['deathshivneg']['model_low'])*0.9,
+            'IC_UB_adj': (pps.IC.portfolio_results['deathshivneg']['model_high'])*1.1,
         }
     )
 
     # Save df
     tb_deaths.to_csv(path_to_sessions_folder / 'tb_deaths_2035.csv')
+
