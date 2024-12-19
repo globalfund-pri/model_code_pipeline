@@ -207,10 +207,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Add ic_ic scenario to model output
         concatenated_dfs = pd.concat(([concatenated_dfs, ic_df]))
 
-        # df2 = concatenated_dfs[concatenated_dfs.duplicated(keep=False)]
-        #
-        # df2 = concatenated_dfs[concatenated_dfs.duplicated()]
-
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
