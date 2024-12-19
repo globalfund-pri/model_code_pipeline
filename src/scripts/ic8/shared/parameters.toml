@@ -1421,12 +1421,12 @@ use_scaling=false
 
 [MALARIA]
 #SSA only
-#PORTFOLIO_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'STP', 'SWZ', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
-PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH',  'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
+PORTFOLIO_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'STP', 'SWZ', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
+#PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH',  'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
 # SSA countries only, DJI (frontier)
-#MODELLED_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
 # DJI, NIC, VNM (frontier)
-MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BGD', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'ZMB', 'ZWE']
+#MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BGD', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
 GP_START_YEAR = 2015
 PARTNER_DATA_YEARS = [2020, 2021, 2022]
