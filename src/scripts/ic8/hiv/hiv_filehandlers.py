@@ -120,7 +120,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         indicator) and columns containing model output (low, central, high)."""
 
         # If running checks set the below to 1
-        check = 1
+        check = 0
 
         # Read in each file and concatenate the results
         all_csv_file_at_the_path = get_files_with_extension(path, "csv")
@@ -222,7 +222,7 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df = self._load_sheet(file)
 
         # If we are running checks set the below to 1
-        check = 1
+        check = 0
 
         # Only keep columns of immediate interest:
         csv_df = csv_df[
@@ -314,6 +314,13 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 'Deaths_70_74',
                 'Deaths_75_79',
                 'Deaths_80',
+                "AGYW_NI",
+                "AGYW_NI_LB",
+                "AGYW_NI_UB",
+                "AGYW_PLHIV",
+                "AGYW_PLHIV_LB",
+                "AGYW_PLHIV_UB",
+                "AGYW_pop",
                 "Adult_ART",
                 'Ped_ART',
                 'notx_15plus_more500',
@@ -472,6 +479,13 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             'Deaths_70_74',
             'Deaths_75_79',
             'Deaths_80',
+            "AGYW_NI",
+            "AGYW_NI_LB",
+            "AGYW_NI_UB",
+            "AGYW_PLHIV",
+            "AGYW_PLHIV_LB",
+            "AGYW_PLHIV_UB",
+            "AGYW_pop",
             "Adult_ART",
             'Ped_ART',
             'notx_15plus_more500',
@@ -612,6 +626,13 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             'Deaths_70_74',
             'Deaths_75_79',
             'Deaths_80',
+            "AGYW_NI",
+            "AGYW_NI_LB",
+            "AGYW_NI_UB",
+            "AGYW_PLHIV",
+            "AGYW_PLHIV_LB",
+            "AGYW_PLHIV_UB",
+            "AGYW_pop",
             "Adult_ART",
             'Ped_ART',
             'notx_15plus_more500',
@@ -703,6 +724,12 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "Population": "population_central",
                 "Population_LB": "population_low",
                 "Population_UB": "population_high",
+                "AGYW_NI": "agywni_central",
+                "AGYW_NI_LB": "agywni_low",
+                "AGYW_NI_UB": "agywni_high",
+                "AGYW_PLHIV": "agywplhiv_central",
+                "AGYW_PLHIV_LB": "agywplhiv_low",
+                "AGYW_PLHIV_UB": "agywplhiv_high",
                 "ART_total": "art_central",
                 "ART_total_LB": "art_low",
                 "ART_total_UB": "art_high",
@@ -1204,6 +1231,11 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["deaths80_central"] = csv_df["Deaths_80"]
         csv_df["deaths80_high"] = csv_df["Deaths_80"]
         csv_df = csv_df.drop(columns=["Deaths_80"])
+
+        csv_df["agywpop_low"] = csv_df["AGYW_pop"]
+        csv_df["agywpop_central"] = csv_df["AGYW_pop"]
+        csv_df["agywpop_high"] = csv_df["AGYW_pop"]
+        csv_df = csv_df.drop(columns=["AGYW_pop"])
 
         csv_df["adultart_low"] = csv_df["Adult_ART"]
         csv_df["adultart_central"] = csv_df["Adult_ART"]

@@ -107,7 +107,7 @@ class HTMReport(Report):
 
         for country in country_list:
             y = self.hiv.IC.country_results[country].model_projection
-            indicators = ['population15to19', 'population20to24', 'plhiv15to19', 'plhiv20to24', 'cases15to19', 'cases20to24']
+            indicators = ['agywni', 'agywpop', 'agywplhiv']
             years = range(2022, 2031)
             for indicator in indicators:
                 df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
@@ -121,28 +121,28 @@ class HTMReport(Report):
         # Now use this df to get agyw incidence in 2023 and 2029
         # First compute the required sums in 2023
         cases_sum_2023 = df[(df['year'] == 2023) &
-                            (df['indicator'].isin(['cases15to19', 'cases20to24']))]['model_central'].sum()
+                            (df['indicator'].isin(['agywni']))]['model_central'].sum()
 
         population_sum_2022 = df[(df['year'] == 2022) &
-                                 (df['indicator'].isin(['population15to19', 'population20to24']))][
+                                 (df['indicator'].isin(['agywpop']))][
             'model_central'].sum()
 
         plhiv_sum_2022 = df[(df['year'] == 2022) &
-                            (df['indicator'].isin(['plhiv15to19', 'plhiv20to24']))]['model_central'].sum()
+                            (df['indicator'].isin(['agywplhiv']))]['model_central'].sum()
 
         # Calculate incidence in 2023
         incidence_2023 = cases_sum_2023 / (population_sum_2022 - plhiv_sum_2022)
 
         # Then compute the required sums for 2029
         cases_sum_2029 = df[(df['year'] == 2029) &
-                            (df['indicator'].isin(['cases15to19', 'cases20to24']))]['model_central'].sum()
+                            (df['indicator'].isin(['agywni']))]['model_central'].sum()
 
         population_sum_2028 = df[(df['year'] == 2028) &
-                                 (df['indicator'].isin(['population15to19', 'population20to24']))][
+                                 (df['indicator'].isin(['agywpop']))][
             'model_central'].sum()
 
         plhiv_sum_2028 = df[(df['year'] == 2028) &
-                            (df['indicator'].isin(['plhiv15to19', 'plhiv20to24']))]['model_central'].sum()
+                            (df['indicator'].isin(['agywplhiv']))]['model_central'].sum()
 
         # Calculate incidence for 2029
         incidence_2029 = cases_sum_2029 / (population_sum_2028 - plhiv_sum_2028)
@@ -465,7 +465,7 @@ class HTMReport(Report):
 
             "Number of people treated in the public sector between 2024 and 2029": tx_publicsector_2024_2029,
             "Number of people treated in the public sector between 2027 and 2029": tx_publicsector_2027_2029,
-            "Numbr of people treated for malaria between 2027 and 2029": number_tx,
+            "Number of people treated for malaria between 2027 and 2029": number_tx,
 
             "Number of people vaccinated between 2024 and 2029": vaccines_2024_2029,
             "Number of vaccine doses distributed between 2024 and 2029": vaccines_doses_2024_2029,

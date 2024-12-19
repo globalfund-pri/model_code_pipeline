@@ -688,6 +688,24 @@ type="count"
 use_scaling=false
 
 [[HIV.indicator]]
+name="agywni"
+description="number of new infections amongst agyws"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="agywplhiv"
+description="number of agyws whi are hiv-positive"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="agywpop"
+description="number of agyws"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="adultart"
 description="number of adults 15+ on art"
 type="count"
@@ -1556,6 +1574,12 @@ use_scaling=false
 [[MALARIA.indicator]]
 name="txprivate"
 description="number of people treated in the private sector"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="nrtx"
+description="number of people treated (coverage multiplied by cases)"
 type="count"
 use_scaling=false
 

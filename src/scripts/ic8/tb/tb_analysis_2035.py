@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     # Get results out from this set for the graph
     tb_cases = pd.DataFrame(
-        index=pd.Index(list(range(2010, 2036)), name='Year'),
+        index=pd.Index(list(range(2005, 2036)), name='Year'),
         data={
             'Actual': pps.PARTNER['cases'],
             'GP': pps.CF_forgraphs['cases'],
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     tb_cases.to_csv(path_to_sessions_folder / 'tb_cases_2035.csv')
 
     tbh_deaths = pd.DataFrame(
-        index=pd.Index(list(range(2010, 2036)), name='Year'),
+        index=pd.Index(list(range(2005, 2036)), name='Year'),
         data={
             'Actual': pps.PARTNER['deaths'],
             'GP': pps.CF_forgraphs['deaths'],
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     tbh_deaths.to_csv(path_to_sessions_folder / 'tbh_deaths_2035.csv')
 
     tb_deaths = pd.DataFrame(
-        index=pd.Index(list(range(2010, 2036)), name='Year'),
+        index=pd.Index(list(range(2005, 2036)), name='Year'),
         data={
             'Actual': pps.PARTNER['deathshivneg'],
             'GP': pps.CF_forgraphs['deathshivneg'],
