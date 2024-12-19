@@ -186,7 +186,7 @@ class HTMReport(Report):
             "HIV mortality rate in the year 2028": hiv_mortality_2028,
             "Reduction in hiv mortality rate between the year 2028 compared to 2021": hiv_mortality_reduction_st,
 
-            "Incidence reduction in AGYW in most affected countries from 2023 to 2029": relative_reduction,
+            "Incidence reduction in AGYW in most affected countries from 2023 to 2029": incidence_2029,
 
             "ART coverage in the year 2023": art_coverage_2023,
             "ART coverage in the year 2029": art_coverage_2029,
