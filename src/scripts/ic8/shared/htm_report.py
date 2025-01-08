@@ -857,11 +857,11 @@ class HTMReport(Report):
         incidence_reduction_portfolio_2023_2029 = (hiv_incidence_reduction + tb_incidence_reduction + malaria_incidence_reduction) / 3
 
         # Get deaths averted from CFs for 2027 to 2029
-        hiv_deaths_2027_2029_cf = self.hiv.CF_LivesSaved.portfolio_results["deaths"].loc[
+        hiv_deaths_2027_2029_cf = self.hiv.CF_InfAve.portfolio_results["deaths"].loc[
             slice(2027, 2029), "model_central"].sum()
-        tb_deaths_2027_2029_cf = self.tb.CF_LivesSaved.portfolio_results["deaths"].loc[
+        tb_deaths_2027_2029_cf = self.tb.CF_InfAve.portfolio_results["deaths"].loc[
             slice(2027, 2029), "model_central"].sum()
-        malaria_deaths_2027_2029_cf = self.malaria.CF_LivesSaved.portfolio_results["deaths"].loc[
+        malaria_deaths_2027_2029_cf = self.malaria.CF_InfAve.portfolio_results["deaths"].loc[
             slice(2027, 2029), "model_central"].sum()
 
         # Compute deaths averted
