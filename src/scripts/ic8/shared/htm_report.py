@@ -160,6 +160,11 @@ class HTMReport(Report):
             slice(2027, 2029), "model_central"].sum()
         hst_2027_2029 = self.hiv.IC.portfolio_results['hst'].loc[
             slice(2027, 2029), "model_central"].sum()
+        kp_reached_2027_2029 = self.hiv.IC.portfolio_results['fswreached'].loc[
+            slice(2027, 2029), "model_central"].sum() + self.hiv.IC.portfolio_results['msmreached'].loc[
+            slice(2027, 2029), "model_central"].sum() + self.hiv.IC.portfolio_results['pwidreached'].loc[
+            slice(2027, 2029), "model_central"].sum()
+
 
         return {
             "Number of new hiv infections in the year 2023": hiv_cases_2023,
@@ -193,6 +198,7 @@ class HTMReport(Report):
             "Number of people on ART in the year 2029": art_number_2029,
             "Number of pregnant women receiving ART between 2027 and 2029:": pmtct_number_2027_2029,
             "Number pf people receiving HIV testing and councelling 2027 to 2029": hst_2027_2029,
+            "Number of KP reached with prevention programmes between 2027 and 2029": kp_reached_2027_2029,
         }
 
     def get_key_stats_tb(self) -> Dict[str, float]:
@@ -268,6 +274,8 @@ class HTMReport(Report):
             slice(2027, 2029), "model_central"].sum()
         tb_screened_2027_2029 = self.tb.IC.portfolio_results["notified"].loc[
             slice(2027, 2029), "model_central"].sum()*22.9
+        mdrtx_2027_2029 = self.tb.IC.portfolio_results["mdrTx"].loc[
+            slice(2027, 2029), "model_central"].sum()
 
         return {
             "Number of TB cases in the year 2023": tb_cases_2023,
@@ -314,6 +322,8 @@ class HTMReport(Report):
 
             "TB treatment coverage in 2023": tb_txcoverage_2023,
             "TB treatment coverage in 2029": tb_txcoverage_2029,
+
+            "Number of people treated for mdr between 2027 and 2029": mdrtx_2027_2029,
 
             "Number of HIV-positive TB patients receiving ART between 2027 to 2029": tb_art_2027_2029,
             "Number of people screened between 2027 and 2029": tb_screened_2027_2029,
