@@ -3,6 +3,7 @@ This script file was created to plot graphs of each service coverage indicator a
 used in the appendix of the IC8 summary paper.
 The files used here are the outputs from `src/scripts/ic8/analyses/main_results_for_investment_case.py`
 """
+from tgftools.filehandler import RegionInformation
 from tgftools.utils import get_root_path
 import pandas as pd
 import seaborn as sns
@@ -64,12 +65,18 @@ combined_data['scenario_descriptor'] = combined_data['scenario_descriptor'].map(
 # Get the list of unique countries and indicators
 countries = combined_data['country'].unique()
 
+r = RegionInformation()
+countries = {
+    c: r.get_country_name_from_iso(c)
+    for c in countries
+}
+
 # Create a single PDF to store all the figures
 output_file = outputpath / 'dump_files' / 'service_coverage_country_trellis.pdf'
 with PdfPages(output_file) as pdf:
 
     # Loop through each country to create a trellis for each country
-    for country in countries:
+    for country in countries.keys():
         # Filter data for the current country
         country_data = combined_data[combined_data['country'] == country]
 
@@ -136,9 +143,12 @@ with PdfPages(output_file) as pdf:
 
         # Adjust the layout and add a main title
         plt.subplots_adjust(top=0.85)  # Adjust space to fit the title
-        g.fig.suptitle(f"Service Coverage Indicators for {country}", fontsize=16)
+
+        g.fig.suptitle(f"Service Coverage Indicators for {countries[country]} (ISO: {country})", fontsize=16)
 
         # Save the current figure to the PDF
         pdf.savefig(g.fig)
 
         plt.close(g.fig)  # Close the figure explicitly to avoid conflicts
+
+print('Done!')
