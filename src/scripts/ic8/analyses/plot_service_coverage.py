@@ -26,6 +26,15 @@ data = {
     for k, v in files.items()
 }
 
+# Add indicator in the TB file to make vaccine coverage (doses divided by population)
+df = data['tb']
+df.loc[df['indicator'] == 'vaccine', ['model_central', 'model_low', 'model_high']] = (
+    df.loc[df['indicator'] == 'vaccine', ['model_central', 'model_low', 'model_high']]
+    / df.loc[df['indicator'] == 'population', ['model_central', 'model_low', 'model_high']]
+).fillna(0.0)
+
+
+
 # Create combined dataset
 combined_data = pd.concat(
     [df.assign(disease=k) for k, df in data.items()],
@@ -37,15 +46,15 @@ combined_data['indicator'] = combined_data['disease'] + '_' + combined_data['ind
 
 # Select with indicators to plot
 indicators_to_plot = {
-    'hiv_artcoverage': "HIV: ART Coverage",
-    'hiv_fswcoverage': "HIV: FSW Coverage",
-    'hiv_vmmc': "HIV: Number of VMMC per year",
-    'tb_txcoverage': "TB: Treatment Coverage",
-    'tb_mdrtxcoverage': "TB: MDR Treatmet Coverage",
-    'tb_vaccine': "TB: Vaccine Coverage",
-    'malaria_llinsuse': "MALARIA: LLIN Coverage (In Use)",
-    'malaria_txcoverage': "MALARIA: Treatment Coverage",
-    'malaria_vaccinecoverage': "MALARIA: Vaccine Coverage",
+    'hiv_artcoverage': "HIV: Fraction of all persons living with HIV on ART",
+    'hiv_fswcoverage': "HIV: Fraction of Female Sex Workers Accessing Prevention Services",
+    'hiv_prep': "HIV: The number of persons receiving PrEP",
+    'tb_txcoverage': "TB: Fraction of persons with TB that receive treatment (among all cases)",
+    'tb_mdrtxcoverage': "TB: Fraction of persons wih drug-resistant TB that begin 2nd-line treatment",
+    'tb_vaccine': "TB: Fraction of persons (all ages) vaccinated in that year",
+    'malaria_vectorcontrolcoverage': "MALARIA: Fraction of persons reached with vectoral control (any form)",
+    'malaria_smccoverage': "MALARIA: Fraction of all children protected by Seasonal Malaria Chemoprevention",
+    'malaria_txcoverage': "MALARIA: Fraction of malaria cases (all ages) that receive treatment",
 }
 
 # Define scenario_descriptors to include in the plots
@@ -131,7 +140,9 @@ with PdfPages(output_file) as pdf:
                 handles, labels = ax.get_legend_handles_labels()
                 by_label = dict(zip(labels, handles))  # Remove duplicates
                 ax.legend(by_label.values(), by_label.keys(), title="Scenario Descriptor")
-                ax.set_ylim(0, None)
+                ax.set_ylim(0, 1.0)
+                ax.set_ylim(2024, 2029)
+
 
         # Map the plotting function to the grid
         g.map_dataframe(plot_with_ribbon)
