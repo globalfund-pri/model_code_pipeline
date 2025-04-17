@@ -108,7 +108,7 @@ with PdfPages(output_file) as pdf:
             aspect=1.5,  # Aspect ratio of each facet
             col_wrap=3,
             sharey=False,
-            sharex=True,
+            sharex=False,
         )
 
         # Define the function to plot with ribbons and central lines
