@@ -33,6 +33,12 @@ df.loc[df['indicator'] == 'vaccine', ['model_central', 'model_low', 'model_high'
     / df.loc[df['indicator'] == 'population', ['model_central', 'model_low', 'model_high']]
 ).fillna(0.0)
 
+# Add indicator to the HIV file to make PREP coverage (number on prep divided by HIV-neg pop)
+x = data['hiv']
+x.loc[x['indicator'] == 'prep', ['model_central', 'model_low', 'model_high']] = (
+    x.loc[x['indicator'] == 'prep', ['model_central', 'model_low', 'model_high']]
+    / x.loc[x['indicator'] == 'hivneg', ['model_central', 'model_low', 'model_high']]
+).fillna(0.0)
 
 
 # Create combined dataset
@@ -48,7 +54,7 @@ combined_data['indicator'] = combined_data['disease'] + '_' + combined_data['ind
 indicators_to_plot = {
     'hiv_artcoverage': "HIV: Fraction of all persons living with HIV on ART",
     'hiv_fswcoverage': "HIV: Fraction of Female Sex Workers Accessing Prevention Services",
-    'hiv_prep': "HIV: The number of persons receiving PrEP",
+    'hiv_prep': "HIV: The fraction of HIV-negative persons (all ages) receiving PrEP",
     'tb_txcoverage': "TB: Fraction of persons with TB that receive treatment (among all cases)",
     'tb_mdrtxcoverage': "TB: Fraction of persons wih drug-resistant TB that begin 2nd-line treatment",
     'tb_vaccine': "TB: Fraction of persons (all ages) vaccinated in that year",
@@ -141,7 +147,7 @@ with PdfPages(output_file) as pdf:
                 by_label = dict(zip(labels, handles))  # Remove duplicates
                 ax.legend(by_label.values(), by_label.keys(), title="Scenario Descriptor")
                 ax.set_ylim(0, 1.0)
-                ax.set_ylim(2024, 2029)
+                ax.set_xlim(2024, 2029)
 
 
         # Map the plotting function to the grid
