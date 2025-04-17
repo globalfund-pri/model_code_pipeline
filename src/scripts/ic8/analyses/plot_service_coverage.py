@@ -77,6 +77,10 @@ combined_data = combined_data[(
 combined_data['indicator'] = combined_data['indicator'].map(indicators_to_plot)
 combined_data['scenario_descriptor'] = combined_data['scenario_descriptor'].map(scenario_descriptors_to_plot)
 
+# Trim all values to be in the range [0,1]
+combined_data[['model_central', 'model_low', 'model_high']] = combined_data[['model_central', 'model_low', 'model_high']].clip(lower=0.0, upper=1.0)
+
+
 # Get the list of unique countries and indicators
 countries = combined_data['country'].unique()
 
