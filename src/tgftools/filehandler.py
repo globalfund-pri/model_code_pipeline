@@ -273,6 +273,9 @@ class RegionInformation:
         """returns iso3 code for a given country"""
         return self._iso3_lookup[name]
 
+    def get_region_for_iso(self, iso: str) -> str:
+        """returns region for a given country iso3 code"""
+        return self.region.at[iso, "GlobalFundRegion"]
 
 class Indicators:
     """FileHandler that holds the definitions of each indicator."""

@@ -20,3 +20,8 @@ def test_region_information():
     # Get the list of ISO3 codes for a particular region
     c = r.get_countries_in_region("Central Africa")
     assert isinstance(c, List) and (len(c) > 0)
+
+    # Get the region for a particular ISO3 code
+    assert all([r.get_region_for_iso(country) == 'Central Africa' for country in c])
+    assert 'High Impact Africa 2' == r.get_region_for_iso('ZWE')
+
