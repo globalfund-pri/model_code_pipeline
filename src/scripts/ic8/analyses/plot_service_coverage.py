@@ -126,15 +126,15 @@ with PdfPages(output_file) as pdf:
             for scenario, group in grouped:
                 color = color_mapping[scenario]
 
-                # Plot the uncertainty bound (fill_between) for each scenario
-                ax.fill_between(
-                    group["year"],
-                    group["model_low"],
-                    group["model_high"],
-                    alpha=0.2,
-                    color=color,  # Match ribbon color with the line
-                    label=f"{scenario} Range (Low-High)"
-                )
+                # # Plot the uncertainty bound (fill_between) for each scenario
+                # ax.fill_between(
+                #     group["year"],
+                #     group["model_low"],
+                #     group["model_high"],
+                #     alpha=0.2,
+                #     color=color,  # Match ribbon color with the line
+                #     label=f"{scenario} Range (Low-High)"
+                # )
 
                 # Plot the central line for each scenario
                 sns.lineplot(
