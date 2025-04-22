@@ -3,15 +3,21 @@ This script file was created to plot graphs of each service coverage indicator a
 used in the appendix of the IC8 summary paper.
 The files used here are the outputs from `src/scripts/ic8/analyses/main_results_for_investment_case.py`
 """
-from tgftools.filehandler import RegionInformation
-from tgftools.utils import get_root_path
+from pathlib import Path
+from textwrap import fill
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
+from tgftools.filehandler import RegionInformation
+from tgftools.utils import get_root_path
 
-# Get the output directory
+# Load Region Information
+r = RegionInformation()
+
+
+# Get the ouyput directory
 outputpath = get_root_path() / 'outputs'
 
 # Load the input files for each disease
@@ -45,6 +51,22 @@ x.loc[x['indicator'] == 'prep', ['model_central', 'model_low', 'model_high']] = 
 combined_data = pd.concat(
     [df.assign(disease=k) for k, df in data.items()],
     ignore_index=True
+)
+
+# Drop Any data before 2024 and after 2029 as do not want that plotted
+combined_data = combined_data.drop(
+    combined_data.index[(combined_data['year'] < 2024) | (combined_data['year'] > 2029)]
+)
+
+# Merge in Region Information
+combined_data['region'] = combined_data['country'].map(r.get_region_for_iso)
+
+# Cut Time into Periods
+combined_data['year'] = combined_data['year'].astype(int)
+combined_data['period'] = pd.cut(
+    combined_data['year'],
+    bins=[-float('inf'), 2027, 2030],  # inclusive on left-side, exclusive on right-side
+    labels=['2024-2026', '2027-2029']
 )
 
 # Relabel indicators
@@ -83,93 +105,119 @@ combined_data[['model_central', 'model_low', 'model_high']] = combined_data[['mo
 
 # Get the list of unique countries and indicators
 countries = combined_data['country'].unique()
-
-r = RegionInformation()
 countries = {
     c: r.get_country_name_from_iso(c)
     for c in countries
 }
 
+# Get the list of unique regions
+regions = sorted(set([r.get_region_for_iso(c) for c in countries]))
+
+
 # Create a single PDF to store all the figures
-output_file = outputpath / 'dump_files' / 'service_coverage_country_trellis.pdf'
-with PdfPages(output_file) as pdf:
 
-    # Loop through each country to create a trellis for each country
-    for country in countries.keys():
-        # Filter data for the current country
-        country_data = combined_data[combined_data['country'] == country]
+def write_appendix_doc(
+        data: pd.DataFrame,
+        filename: Path,
+        aggregate_time: bool = False,  # False --> plot by year, True --> plot by period
+        aggregate_country: bool = False,  # False --> plot by country, True --> plot by region
+):
+    time_axis = "year" if not aggregate_time else "period"
+    geo_axis = "country" if not aggregate_country else "region"
+    geo_units = countries if not aggregate_country else regions
 
-        # Create a Seaborn FacetGrid for this country with panels for each indicator
-        g = sns.FacetGrid(
-            country_data,
-            col="indicator",  # Panels for each indicator
-            margin_titles=False,
-            height=4,  # Height of each facet
-            aspect=1.5,  # Aspect ratio of each facet
-            col_wrap=3,
-            sharey=False,
-            sharex=False,
-        )
+    data = data.groupby(
+        ['scenario_descriptor', 'indicator'] + [time_axis] + [geo_axis]
+    )['model_central'].mean().reset_index()
+    data['model_central'] = data['model_central'].fillna(0.0)
 
-        # Define the function to plot with ribbons and central lines
-        def plot_with_ribbon(data, **kwargs):
-            ax = plt.gca()  # Get the current Axes
+    with (PdfPages(filename) as pdf):
+        # Loop through each country to create a trellis for each country
 
-            # Get a color palette with enough colors for the groups
-            unique_scenarios = data["scenario_descriptor"].unique()
-            palette = sns.color_palette("husl", len(unique_scenarios))  # "husl" ensures good contrast
-            color_mapping = dict(zip(unique_scenarios, palette))
+        for geo_unit in geo_units:
 
-            # Group the data by 'scenario_descriptor'
-            grouped = data.groupby("scenario_descriptor")
+            # Filter data for the current geographic unit
+            geo_unit_data = data[data[geo_axis] == geo_unit]
 
-            for scenario, group in grouped:
-                color = color_mapping[scenario]
+            # Create a Seaborn FacetGrid for this geo_unit, with panels for each indicator
+            g = sns.FacetGrid(
+                geo_unit_data,
+                col="indicator",  # Panels for each indicator
+                hue="scenario_descriptor",  # Different lines for each scenario
+                margin_titles=False,
+                height=4,  # Height of each facet
+                aspect=1.5,  # Aspect ratio of each facet
+                col_wrap=3,
+                sharey=False,
+                sharex=False,
+            )
 
-                # # Plot the uncertainty bound (fill_between) for each scenario
-                # ax.fill_between(
-                #     group["year"],
-                #     group["model_low"],
-                #     group["model_high"],
-                #     alpha=0.2,
-                #     color=color,  # Match ribbon color with the line
-                #     label=f"{scenario} Range (Low-High)"
-                # )
+            # Add line plots to each panel
+            g.map(sns.lineplot, time_axis, "model_central", marker='o')
+            g.add_legend(title="Scenario")
 
-                # Plot the central line for each scenario
-                sns.lineplot(
-                    x="year",
-                    y="model_central",
-                    data=group,
-                    label=scenario,  # Add a label for the legend
-                    ax=ax,
-                    color=color,  # Match line color with the ribbon
-                )
+            # Adjust labels and remove "indicator = " prefix
+            for ax in g.axes.flat:
+                ax.set_ylim(0.0, 1.0)
+                ax.set_xlabel(time_axis.capitalize())
+                ax.set_ylabel("")
+                if ax.get_title():
+                    ax.set_title(ax.get_title().replace("indicator = ", ""), fontsize=10)
 
-                # Adjust the legend to avoid duplicate labels
-                handles, labels = ax.get_legend_handles_labels()
-                by_label = dict(zip(labels, handles))  # Remove duplicates
-                ax.legend(by_label.values(), by_label.keys(), title="Scenario Descriptor")
-                ax.set_ylim(0, 1.0)
-                ax.set_xlim(2024, 2029)
+            if not aggregate_country:
+                suptitle_text = f"Service Coverage Indicators for {r.get_country_name_from_iso(geo_unit)} (ISO: {geo_unit})"
+            else:
+
+                country_names_in_region = ", ".join(
+                    sorted(map(r.get_country_name_from_iso, r.get_countries_in_region(geo_unit))))
+                suptitle_text = f"Service Coverage Indicators for {(geo_unit)}\n" \
+                                + fill(f"\n({country_names_in_region})", width=100)
 
 
-        # Map the plotting function to the grid
-        g.map_dataframe(plot_with_ribbon)
+            # plt.tight_layout()
+            plt.subplots_adjust(top=0.85, wspace=0.3, hspace=0.4)  # Adjust spacing and make space to fit the title
+            g.fig.suptitle(suptitle_text, fontsize=16)  # Adjust y to prevent overlap
 
-        # Add titles and adjust the layout
-        g.set_axis_labels("Year", "")
-        g.set_titles(col_template="{col_name}")
-        g.add_legend(title="Scenario Descriptor")
+            # Save the current figure to the PDF
+            pdf.savefig(g.fig)
+            plt.close(g.fig)  # Close the figure explicitly to avoid conflicts
 
-        # Adjust the layout and add a main title
-        plt.subplots_adjust(top=0.85)  # Adjust space to fit the title
 
-        g.fig.suptitle(f"Service Coverage Indicators for {countries[country]} (ISO: {country})", fontsize=16)
 
-        # Save the current figure to the PDF
-        pdf.savefig(g.fig)
+# Aggregation by Period & Region
+write_appendix_doc(
+    data=combined_data,
+    filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_aggregate_period_and_region.pdf',
+    aggregate_time=True,
+    aggregate_country=True
+)
 
-        plt.close(g.fig)  # Close the figure explicitly to avoid conflicts
+
+# Original version (no aggregation)
+write_appendix_doc(
+    data=combined_data,
+    filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_original.pdf',
+    aggregate_time=False,
+    aggregate_country=False
+)
+
+# Aggregation by Period only
+write_appendix_doc(
+    data=combined_data,
+    filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_aggregate_period.pdf',
+    aggregate_time=True,
+    aggregate_country=False
+)
+
+# Aggregation by Region only
+write_appendix_doc(
+    data=combined_data,
+    filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_aggregate_region.pdf',
+    aggregate_time=False,
+    aggregate_country=True
+)
+
+
+
 
 print('Done!')
