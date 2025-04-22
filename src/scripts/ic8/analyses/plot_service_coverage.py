@@ -15,7 +15,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 from tgftools.filehandler import RegionInformation
 from tgftools.utils import get_root_path
 
-
 # Get the output directory
 outputpath = get_root_path() / 'outputs'
 
@@ -42,7 +41,7 @@ combined_data = combined_data.drop(
     combined_data.index[(combined_data['year'] < 2024) | (combined_data['year'] > 2029)]
 )
 
-# Merge in Region Information
+# Merge in World Bank Region Information
 r = RegionInformation()
 combined_data['region'] = combined_data['country'].map(r.get_wbregion_for_iso)
 
@@ -50,7 +49,7 @@ combined_data['region'] = combined_data['country'].map(r.get_wbregion_for_iso)
 combined_data['year'] = combined_data['year'].astype(int)
 combined_data['period'] = pd.cut(
     combined_data['year'],
-    bins=[-float('inf'), 2027, 2030],  # inclusive on left-side, exclusive on right-side
+    bins=[-float('inf'), 2026, 2029],  # exclusive on left-side, inclusive on right-side
     labels=['2024-2026', '2027-2029']
 )
 
@@ -73,7 +72,6 @@ scenario_descriptors_to_plot = {
     'IC': "Investment Scenario",
 }
 
-
 # Drop indicators and scenario that we don't want to plot
 combined_data = combined_data[(
     combined_data['indicator'].isin(indicators_to_plot.keys())
@@ -93,6 +91,17 @@ countries = {
 }
 regions = sorted(set([r.get_wbregion_for_iso(c) for c in countries]))
 
+countries_in_each_region = {
+    region: {
+        disease.upper(): ", ".join(sorted(
+            map(r.get_country_name_from_iso, set(combined_data.loc[
+                (combined_data.region == region) & (combined_data.disease == disease), "country"
+            ].values))
+        ))
+        for disease in ('hiv', 'tb', 'malaria')
+    }
+    for region in regions
+}
 
 
 def write_appendix_doc(
@@ -111,7 +120,6 @@ def write_appendix_doc(
     data = data.groupby(
         ['scenario_descriptor', 'indicator'] + [time_axis] + [geo_axis]
     )['model_central'].mean().reset_index()
-    data['model_central'] = data['model_central']
 
     with (PdfPages(filename) as pdf):
         # Loop through each country to create a trellis for each country
@@ -119,7 +127,10 @@ def write_appendix_doc(
         for geo_unit in geo_units:
 
             # Filter data for the current geographic unit
-            geo_unit_data = data[data[geo_axis] == geo_unit].dropna()
+            geo_unit_data = data[data[geo_axis] == geo_unit].dropna()  # drop.na means that the graph is blank if there
+
+            if geo_unit_data.empty:
+                continue  # Skip this geo_unit if there's no data
 
             # Create a Seaborn FacetGrid for this geo_unit, with panels for each indicator
             g = sns.FacetGrid(
@@ -130,8 +141,8 @@ def write_appendix_doc(
                 height=4,  # Height of each facet
                 aspect=1.5,  # Aspect ratio of each facet
                 col_wrap=2,
-                sharey=False,
-                sharex=False,
+                sharey=True,
+                sharex=True,
                 col_order=indicators_to_plot.values()  # Control panel order
             )
 
@@ -150,14 +161,16 @@ def write_appendix_doc(
             if not aggregate_country:
                 suptitle_text = f"Service Coverage Indicators for {r.get_country_name_from_iso(geo_unit)} (ISO: {geo_unit})"
             else:
-                country_names_in_region = ", ".join(
-                    sorted(map(r.get_country_name_from_iso, r.get_countries_in_wbregion(geo_unit))))
-                suptitle_text = f"Service Coverage Indicators for {(geo_unit)}\n" \
-                                + fill(f"\n({country_names_in_region})", width=100)
+                # country_names_to_list = ", ".join(
+                #     sorted(map(r.get_country_name_from_iso, r.get_countries_in_wbregion(geo_unit))))
+                country_names_to_list = "\n".join(
+                    [fill(f"{k}: {v}", width=120) for k, v in countries_in_each_region[geo_unit].items()]
+                )
+                suptitle_text = f"Service Coverage Indicators for {(geo_unit)}\n" + country_names_to_list
 
             # Adjust layout
-            plt.subplots_adjust(top=0.80, wspace=0.3, hspace=0.4)  # Adjust spacing and make space to fit the title
-            g.fig.suptitle(suptitle_text, fontsize=14)  # Adjust y to prevent overlap
+            plt.subplots_adjust(top=0.75, wspace=0.3, hspace=0.4)  # Adjust spacing and make space to fit the title
+            g.fig.suptitle(suptitle_text, fontsize=12)  # Adjust y to prevent overlap
 
             # Save the current figure to the PDF
             pdf.savefig(g.fig)
