@@ -5,6 +5,7 @@ The files used here are the outputs from `src/scripts/ic8/analyses/main_results_
 """
 from pathlib import Path
 from textwrap import fill
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -76,12 +77,14 @@ combined_data['indicator'] = combined_data['disease'] + '_' + combined_data['ind
 indicators_to_plot = {
     'hiv_artcoverage': "HIV: Fraction of all persons living with HIV on ART",
     'hiv_fswcoverage': "HIV: Fraction of Female Sex Workers Accessing Prevention Services",
-    'hiv_prep': "HIV: The fraction of HIV-negative persons (all ages) receiving PrEP",
+    # 'hiv_prep': "HIV: The fraction of HIV-negative persons (all ages) receiving PrEP",
+    # 'hiv_pmtctcoverage': "HIV: PMTCT",
     'tb_txcoverage': "TB: Fraction of persons with TB that receive treatment (among all cases)",
-    'tb_mdrtxcoverage': "TB: Fraction of persons wih drug-resistant TB that begin 2nd-line treatment",
-    'tb_vaccine': "TB: Fraction of persons (all ages) vaccinated in that year",
+    'tb_mdrtxcoverage': "TB: Fraction of persons with drug-resistant TB that begin 2nd-line treatment",
+    # 'tb_vaccine': "TB: Fraction of persons (all ages) vaccinated in that year",
+    # 'tb_tbartcoverage': "TB: ART COV",
     'malaria_vectorcontrolcoverage': "MALARIA: Fraction of persons reached with vectoral control (any form)",
-    'malaria_smccoverage': "MALARIA: Fraction of all children protected by Seasonal Malaria Chemoprevention",
+    # 'malaria_smccoverage': "MALARIA: Fraction of all children protected by Seasonal Malaria Chemoprevention",
     'malaria_txcoverage': "MALARIA: Fraction of malaria cases (all ages) that receive treatment",
 }
 
@@ -147,9 +150,10 @@ def write_appendix_doc(
                 margin_titles=False,
                 height=4,  # Height of each facet
                 aspect=1.5,  # Aspect ratio of each facet
-                col_wrap=3,
+                col_wrap=2,
                 sharey=False,
                 sharex=False,
+                col_order=indicators_to_plot.values()  # Control panel order
             )
 
             # Add line plots to each panel
@@ -193,29 +197,29 @@ write_appendix_doc(
 )
 
 
-# Original version (no aggregation)
-write_appendix_doc(
-    data=combined_data,
-    filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_original.pdf',
-    aggregate_time=False,
-    aggregate_country=False
-)
-
-# Aggregation by Period only
-write_appendix_doc(
-    data=combined_data,
-    filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_aggregate_period.pdf',
-    aggregate_time=True,
-    aggregate_country=False
-)
-
-# Aggregation by Region only
-write_appendix_doc(
-    data=combined_data,
-    filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_aggregate_region.pdf',
-    aggregate_time=False,
-    aggregate_country=True
-)
+# # Original version (no aggregation)
+# write_appendix_doc(
+#     data=combined_data,
+#     filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_original.pdf',
+#     aggregate_time=False,
+#     aggregate_country=False
+# )
+#
+# # Aggregation by Period only
+# write_appendix_doc(
+#     data=combined_data,
+#     filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_aggregate_period.pdf',
+#     aggregate_time=True,
+#     aggregate_country=False
+# )
+#
+# # Aggregation by Region only
+# write_appendix_doc(
+#     data=combined_data,
+#     filename=outputpath / 'dump_files' / 'service_coverage_country_trellis_aggregate_region.pdf',
+#     aggregate_time=False,
+#     aggregate_country=True
+# )
 
 
 
