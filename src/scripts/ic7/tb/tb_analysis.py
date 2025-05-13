@@ -117,11 +117,12 @@ def get_tb_analysis(
     tgf_funding = (
         TgfFunding(
             path_to_data_folder
-            / "IC7/TimEmulationTool"
+            / "IC8/"
             / "funding"
+            /"2025_05_05"
             / "tb"
             / "tgf"
-            / "tb_Fubgible_gf_17b_incUnalloc.csv"
+            / "tb_Fubgible_gf_11b_incUnalloc.csv"
         )
     )
     non_tgf_funding = (

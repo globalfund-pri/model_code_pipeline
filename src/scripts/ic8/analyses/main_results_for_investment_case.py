@@ -63,7 +63,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
     Counterfactual projections,"""
     return SetOfPortfolioProjections(
-        IC=analysis.portfolio_projection_approach_b(),
+        IC=analysis.portfolio_projection_approach_a(),
         CF_InfAve=analysis.portfolio_projection_counterfactual('CC_2022'),
         CF_LivesSaved=analysis.portfolio_projection_counterfactual('NULL_2022'),
         CF_LivesSaved_Malaria=analysis.get_counterfactual_lives_saved_malaria(),
@@ -75,7 +75,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
             "Main scenario name: ": analysis.scenario_descriptor,
             "Adjustment for innovation was applied:": analysis.innovation_on,
             "Did we handle out of bounds costs: ": analysis.handle_out_of_bounds_costs,
-            "Which approach do we use: ": 'b',
+            "Which approach do we use: ": 'a',
             "Files used for PF data: ": str(analysis.database.pf_input_data.path),
             "Files used for partner data: ": str(analysis.database.partner_data.path),
             "Files used for model output: ": str(analysis.database.model_results.path),
@@ -136,14 +136,15 @@ def get_report(
     return report
 
 
+
 def dump_projection_to_file(proj, filename):
     """Write the contents of this projection to a csv file."""
     list_of_dfs = list()  # list of mini dataframes for each indicator for each country
 
     # Make a list of scenarios that should be saved
     for scenario_descriptor, country_results in zip(
-        ['IC', 'CC_2022', 'NULL_2022', ],
-        [proj.IC.country_results, proj.CF_InfAve.country_results, proj.CF_LivesSaved.country_results, ]
+            ['IC', 'CC_2022', 'NULL_2022', ],
+            [proj.IC.country_results, proj.CF_InfAve.country_results, proj.CF_LivesSaved.country_results, ]
     ):
         for country in country_results.keys():
             y = country_results[country].model_projection
@@ -212,7 +213,6 @@ def dump_ic_scenario_to_file(
             (hiv_projections, tb_projections, malaria_projections)
     ):
         dump_projection_to_file(proj=proj, filename=f"{filename_stub}_{disease}.csv")
-
 
 if __name__ == "__main__":
 

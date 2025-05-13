@@ -1,5 +1,10 @@
 """Do the analysis for all three diseases and produce the report"""
 
+from pathlib import Path
+from typing import Optional
+
+import pandas as pd
+
 from scripts.ic7.hiv.hiv_analysis import get_hiv_analysis
 from scripts.ic7.malaria.malaria_analysis import get_malaria_analysis
 from scripts.ic7.tb.tb_analysis import get_tb_analysis
@@ -32,7 +37,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
     Counterfactual projections,"""
     return SetOfPortfolioProjections(
-        IC=analysis.portfolio_projection_approach_b(),
+        IC=analysis.portfolio_projection_approach_a(),
         CF_InfAve=analysis.portfolio_projection_counterfactual('CC_CC'),
         CF_LivesSaved=analysis.portfolio_projection_counterfactual('NULL_NULL'),
         CF_LivesSaved_Malaria=analysis.get_counterfactual_lives_saved_malaria(),
@@ -44,7 +49,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
             "Main scenario name: ": analysis.scenario_descriptor,
             "Adjustment for innovation was applied:": analysis.innovation_on,
             "Did we handle out of bounds costs: ": analysis.handle_out_of_bounds_costs,
-            "Which approach do we use: ": 'b',
+            "Which approach do we use: ": 'a',
             "Files used for PF data: ": str(analysis.database.pf_input_data.path),
             "Files used for partner data: ": str(analysis.database.partner_data.path),
             "Files used for model output: ": str(analysis.database.model_results.path),
@@ -103,12 +108,99 @@ def get_report(
     return report
 
 
+def dump_projection_to_file(proj, filename):
+    """Write the contents of this projection to a csv file."""
+    list_of_dfs = list()  # list of mini dataframes for each indicator for each country
+
+    # Make a list of scenarios that should be saved
+    for scenario_descriptor, country_results in zip(
+            ['IC', 'CC_2022', 'NULL_2022', ],
+            [proj.IC.country_results, proj.CF_InfAve.country_results, proj.CF_LivesSaved.country_results, ]
+    ):
+        for country in country_results.keys():
+            y = country_results[country].model_projection
+            indicators = y.keys()
+            years = range(2022, 2031)
+            for indicator in indicators:
+                df = y[indicator][['model_central', 'model_high', 'model_low']].loc[years].reset_index()
+                df['indicator'] = indicator
+                df['country'] = country
+                df['scenario_descriptor'] = scenario_descriptor
+                list_of_dfs.append(df)
+
+        # Build a whole df for export
+        whole_df = pd.concat(list_of_dfs, axis=0)
+
+        # save the df to csv
+        whole_df.to_csv(filename, index=False)
+
+
+def dump_ic_scenario_to_file(
+        load_data_from_raw_files: bool = True,
+        run_analysis: bool = True,
+        filename_stub: Optional[Path] = None,
+) -> None:
+    project_root = get_root_path()
+
+    if filename_stub is None:
+        print('We need a filename!!')
+        return
+
+    if run_analysis:
+        # Run the analyses
+        hiv_projections = get_set_of_portfolio_projections(
+            get_hiv_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=False,
+            )
+        )
+        save_var(hiv_projections, project_root / "sessions" / "hiv_analysis_ic8.pkl")
+
+        tb_projections = get_set_of_portfolio_projections(
+            get_tb_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=False,
+            )
+        )
+        save_var(tb_projections, project_root / "sessions" / "tb_analysis_ic8.pkl")
+
+        malaria_projections = get_set_of_portfolio_projections(
+            get_malaria_analysis(
+                load_data_from_raw_files=load_data_from_raw_files,
+                do_checks=False,
+            )
+        )
+        save_var(malaria_projections, project_root / "sessions" / "malaria_analysis_ic8.pkl")
+
+    else:
+        # Load the projections
+        hiv_projections = load_var(project_root / "sessions" / "hiv_analysis_ic8.pkl")
+        tb_projections = load_var(project_root / "sessions" / "tb_analysis_ic8.pkl")
+        malaria_projections = load_var(project_root / "sessions" / "malaria_analysis_ic8.pkl")
+
+    # Dump to file
+    for (disease, proj) in zip(
+            ('hiv', 'tb', 'malaria'),
+            (hiv_projections, tb_projections, malaria_projections)
+    ):
+        dump_projection_to_file(proj=proj, filename=f"{filename_stub}_{disease}.csv")
+
+
 if __name__ == "__main__":
+
+    outputpath = get_root_path() / 'outputs'
+
+    # This will dump the data to csv for Nick and Stephen
+    dump_ic_scenario_to_file(
+        load_data_from_raw_files=True,
+        run_analysis=True,
+        filename_stub=Path(str(outputpath) + "/dump_ic7")
+    )
+
     # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = False
+    LOAD_DATA_FROM_RAW_FILES = True
     DO_CHECKS = False
     RUN_ANALYSIS = True
-    outputpath = get_root_path() / 'outputs'
 
     r = get_report(
         load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
