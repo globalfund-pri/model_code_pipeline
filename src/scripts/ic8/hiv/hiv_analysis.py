@@ -7,6 +7,7 @@ from tgftools.analysis import Analysis
 from tgftools.database import Database
 from tgftools.filehandler import (
     FixedGp,
+    AdjPreIC,
     NonTgfFunding,
     Parameters,
     TgfFunding,
@@ -115,17 +116,19 @@ def get_hiv_analysis(
     # Load assumption for budgets for this analysis
     tgf_funding = TgfFunding(filepaths.get('hiv', 'tgf-funding'))
     non_tgf_funding = NonTgfFunding(filepaths.get('hiv', 'non-tgf-funding'))
+    pre_replenishment_adj = AdjPreIC(filepaths.get('hiv', 'prepf-data'))
 
     return Analysis(
         database=db,
         tgf_funding=tgf_funding,
         non_tgf_funding=non_tgf_funding,
+        pre_replenishment_adj=pre_replenishment_adj,
         parameters=parameters,
     )
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
 
     # Create the Analysis object
@@ -135,21 +138,21 @@ if __name__ == "__main__":
     )
 
     # Make diagnostic report
-    analysis.make_diagnostic_report(
-        filename=get_root_path() / "outputs" / "diagnostic_report_hiv.pdf"
-    )
+    # analysis.make_diagnostic_report(
+    #     filename=get_root_path() / "outputs" / "diagnostic_report_hiv.pdf"
+    # )
 
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
 
     pps = get_set_of_portfolio_projections(analysis)
 
-    # Portfolio Projection Approach B: save the optimal allocation of TGF
-    results_from_approach_b = analysis.portfolio_projection_approach_b()
-
-    (
-        pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(results_from_approach_b.non_tgf_funding_by_country)
-    ).to_csv(
-        get_root_path() / 'outputs' / 'hiv_tgf_optimal_allocation.csv',
-        header=False
-    )
+    # # Portfolio Projection Approach B: save the optimal allocation of TGF
+    # results_from_approach_b = analysis.portfolio_projection_approach_b()
+    #
+    # (
+    #     pd.Series(results_from_approach_b.tgf_funding_by_country) + pd.Series(results_from_approach_b.non_tgf_funding_by_country)
+    # ).to_csv(
+    #     get_root_path() / 'outputs' / 'hiv_tgf_optimal_allocation.csv',
+    #     header=False
+    # )

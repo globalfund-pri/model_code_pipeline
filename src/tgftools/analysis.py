@@ -10,7 +10,7 @@ from tgftools.approach_b import ApproachB
 from tgftools.database import Database
 from tgftools.dump_analysis_to_excel import DumpAnalysisToExcel
 from tgftools.emulator import Emulator
-from tgftools.filehandler import Gp, NonTgfFunding, Parameters, TgfFunding
+from tgftools.filehandler import Gp, NonTgfFunding, Parameters, TgfFunding, AdjPreIC
 from tgftools.utils import matmul
 
 """This file holds everything needed for the Analysis class. The analysis class extracts the necessary output from the 
@@ -126,12 +126,14 @@ class Analysis:
         database: Database,
         tgf_funding: TgfFunding,
         non_tgf_funding: NonTgfFunding,
+        pre_replenishment_adj: AdjPreIC,
         parameters: Parameters,
     ):
         # Save arguments (nb, funding data are updated again later in __init__)
         self.database = database
         self.parameters = parameters
         self.tgf_funding = tgf_funding
+        self.pre_replenishment_adj = pre_replenishment_adj
         self.non_tgf_funding = non_tgf_funding
 
         # Save short-cuts to elements of the database.
@@ -144,6 +146,7 @@ class Analysis:
         self.scenario_descriptor = parameters.get('SCENARIO_DESCRIPTOR_FOR_IC')
         self.handle_out_of_bounds_costs = parameters.get('HANDLE_OUT_OF_BOUNDS_COSTS')
         self.innovation_on = parameters.get('INNOVATION_ON')
+        self.adj_pre_replenishment_on = parameters.get('PREREPLENISHMENTADJ_ON')
         self.years_for_funding = self.parameters.get('YEARS_FOR_FUNDING')
         self.indicators_for_adj_for_innovations = self.parameters.get(self.disease_name).get(
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
@@ -185,6 +188,50 @@ class Analysis:
         funding_data_object.df = funding_data_object.df[funding_data_object.df.index.isin(list_of_modelled_countries)]
         return funding_data_object
 
+    def _adjust_prereplenishment(self, country_results: dict) -> dict:
+        """Adjusts country-level results to account for pre-replenishment funding reductions.
+
+           Increases cases and deaths and decreases service indicators for countries
+           with funding reductions, based on `pre_replenishment_adj` percentages.
+
+           Args:
+               country_results (dict): The original projections by country.
+
+           Returns:
+               dict: The adjusted projections.
+           """
+        adj_df = self.pre_replenishment_adj.df.reset_index().set_index('country')['value'].to_dict()
+        year_range = range(2024, 2031)  # inclusive of 2030
+        if self.disease_name == 'HIV':
+            indicators_to_increase = ['cases', 'deaths']
+            services_to_scale_down = ['art', 'pmtct', 'hst', 'fswreached', 'msmreached', 'pwidreached', 'hst']
+
+        elif self.disease_name == 'TB':
+            indicators_to_increase = ['cases', 'deaths', 'deathshivneg']
+            services_to_scale_down = ['mdrTx', 'notified', 'tbart']
+
+        elif self.disease_name == 'MALARIA':
+            indicators_to_increase = ['cases', 'deaths']
+            services_to_scale_down = ['txpublic', 'llin', 'smc']
+
+        for country, adj_factor in adj_df.items():
+            if country not in country_results:
+                continue  # skip countries not in results
+
+            scale_up_factor = 1.0 / adj_factor if adj_factor > 0 else 1.0  # avoid div by zero
+
+            for indicator, df in country_results[country].model_projection.items():
+                if indicator in indicators_to_increase:
+                    mask = df.index.get_level_values('year').isin(year_range)
+                    df.loc[mask, ['model_central', 'model_high', 'model_low']] *= scale_up_factor
+
+                elif indicator in services_to_scale_down:
+                    mask = df.index.get_level_values('year').isin(year_range)
+                    scale_down_factor = adj_factor  # same as available funding percent
+                    df.loc[mask, ['model_central', 'model_high', 'model_low']] *= scale_down_factor
+
+        return country_results
+
     def portfolio_projection_approach_a(self) -> PortfolioProjection:
         """Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding
         to each country when the TGF funding allocated to a country CANNOT be changed.
@@ -195,6 +242,10 @@ class Analysis:
                 self.tgf_funding.df["value"] + self.non_tgf_funding.df["value"]
             ).to_dict()
         )
+
+        if self.adj_pre_replenishment_on:
+            country_results = self._adjust_prereplenishment(country_results)
+
         return PortfolioProjection(
             tgf_funding_by_country=self.tgf_funding.df["value"].to_dict(),
             non_tgf_funding_by_country=self.non_tgf_funding.df["value"].to_dict(),
@@ -258,7 +309,6 @@ class Analysis:
                 name='none',
             ),
         )
-
 
     def portfolio_projection_counterfactual(
             self,

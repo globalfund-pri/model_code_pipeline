@@ -136,7 +136,6 @@ def get_report(
     return report
 
 
-
 def dump_projection_to_file(proj, filename):
     """Write the contents of this projection to a csv file."""
     list_of_dfs = list()  # list of mini dataframes for each indicator for each country
@@ -220,7 +219,7 @@ if __name__ == "__main__":
 
     # This will dump the data to csv for Nick and Stephen
     dump_ic_scenario_to_file(
-        load_data_from_raw_files=True,
+        load_data_from_raw_files=False,
         run_analysis=True,
         filename_stub=Path(str(outputpath) + "/dump_ic")
     )

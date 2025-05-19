@@ -538,3 +538,17 @@ class NonTgfFunding(FundingData):
         """Build dataframe with the index as the country ISO code, and one column (named `value`) with the amounts"""
         df = pd.read_csv(path).set_index("country").fillna(0).round(0).astype(int)  # fill blanks with 0.0 and make ints
         return df.rename(columns={df.columns[0]: "value"})
+
+
+class AdjPreIC(FileHandler):
+    """The type of FileHandler that is used for holding a AdjPreIC that is defined by proportion reductions in funding
+    for the period 2024-2026."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _build_df(self, path: Path) -> pd.DataFrame:
+        """Build dataframe with the index as the country ISO code, and one column (named `value`) with the amounts"""
+        df = pd.read_csv(path).set_index("country").fillna(1).round(2)  # fill blanks with 0.0 and make ints
+        return df.rename(columns={df.columns[0]: "value"})
+
