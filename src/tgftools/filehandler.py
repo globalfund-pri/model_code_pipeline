@@ -235,6 +235,10 @@ class RegionInformation:
     Note that it does not inherit from the FileHandler base class as it uses different forms of internal storage and
     does not need to perform checks."""
 
+    # @Mikaela - ....
+    # 1) in the file `region_information.csv` make some extra column labelled, "ASIA", "MEAN", "SSA", etc. and fill with True/False accordingly.
+    # 2) in this function, make a new member function called `get_country_subset()` (or similar) and let it return the list of ISO3 codes in that subset (this will resember 'get_countries_in a region()`)
+
     def __init__(self):
         rfp = get_root_path() / "resources"
 
