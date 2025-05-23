@@ -10,7 +10,7 @@ from tgftools.approach_b import ApproachB
 from tgftools.database import Database
 from tgftools.dump_analysis_to_excel import DumpAnalysisToExcel
 from tgftools.emulator import Emulator
-from tgftools.filehandler import Gp, NonTgfFunding, Parameters, TgfFunding
+from tgftools.filehandler import Gp, NonTgfFunding, Parameters, TgfFunding, RegionInformation
 from tgftools.utils import matmul
 
 """This file holds everything needed for the Analysis class. The analysis class extracts the necessary output from the 
@@ -174,6 +174,9 @@ class Analysis:
             )
             for c in self.countries
         }
+
+        # Load the helper class for Regional Information
+        self.region_info = RegionInformation()
 
     def filter_funding_data_for_non_modelled_countries(
             self, funding_data_object: TgfFunding | NonTgfFunding
@@ -470,6 +473,8 @@ class Analysis:
     def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
+        # @Mikaela -- Make this not do any scaling if self.parameters['SCALE_TO_NON_MODELLED_COUNTRIES'] is True.
+
         # Get the first year of the model and list of epi indicators
         first_year = self.parameters.get("START_YEAR")
         if name == ('GP'):
@@ -579,7 +584,8 @@ class Analysis:
         # Define years and parameters we need
         p = self.parameters
         first_year = p.get("START_YEAR")
-        if name == ('GP'):            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
+        if name == ('GP'):
+            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
         last_year = p.get("END_YEAR")
         z_value = p.get("Z_VALUE")
         rho_btw_countries = p.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")
@@ -590,7 +596,18 @@ class Analysis:
         indicators = country_results[list(country_results.keys())[0]].model_projection.keys()
         types_lookup = self.indicators['type'].to_dict()
 
-        countries = country_results.keys()
+        # Define which countries to sum up...
+        # Something like the following......
+        country_subset = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        if country_subset == 'ALL':
+            countries = country_results.keys()
+        else:
+            countries = list(
+                set(
+                    self.region_info.get_country_subset(country_subset)  # <-- or whatever you call the function in RegionalInformation
+                ).intersection(country_results.keys())
+            )
+
         # Extracting all values for each indicator across all countries, if we should do an aggregation
         for indicator in indicators:
             type_of_indicator_is_count = types_lookup[indicator] == 'count'
