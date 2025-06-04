@@ -148,6 +148,7 @@ class Analysis:
         self.indicators_for_adj_for_innovations = self.parameters.get(self.disease_name).get(
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
         self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
+        self.scale_to_non_modelled = self.parameters.get("SCALE_TO_NON_MODELLED_COUNTRIES")
 
         # Filter funding assumptions for countries that are not modelled
         self.tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.tgf_funding)
@@ -474,7 +475,7 @@ class Analysis:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
         # Skip scaling and return original results if parameter is False
-        if not self.parameters.get("SCALE_TO_NON_MODELLED_COUNTRIES", True):
+        if not self.scale_to_non_modelled:
             return country_results
 
         # Get the first year of the model and list of epi indicators
@@ -615,6 +616,29 @@ class Analysis:
         }
 
         countries = country_results.keys() # Just to reset country list just in case to avoid errors
+
+        if not countries:
+            print(
+                f"[WARN] No countries available for '{self.disease_name}' in region '{country_subset}'. Creating dummy country with zeros.")
+
+            dummy_iso3 = "DUMMY"
+            dummy_projections = {}
+
+            for indicator in indicators:
+                df = pd.DataFrame({
+                    'model_central': [0] * (last_year - first_year + 1),
+                    'model_low': [0] * (last_year - first_year + 1),
+                    'model_high': [0] * (last_year - first_year + 1),
+                }, index=range(first_year, last_year + 1))
+
+                dummy_projections[indicator] = df
+
+            country_results = {
+                dummy_iso3: CountryProjection(model_projection=dummy_projections)
+            }
+
+            # Reset countries from filtered results to ensure consistency
+            countries = country_results.keys()
 
         # Extracting all values for each indicator across all countries, if we should do an aggregation
         for indicator in indicators:
