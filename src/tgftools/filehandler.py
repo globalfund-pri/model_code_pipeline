@@ -277,6 +277,18 @@ class RegionInformation:
         """returns iso3 code for a given country"""
         return self._iso3_lookup[name]
 
+    def get_countries_by_regional_flag(self, regional_flag: str) -> List[str]:
+        """Return ISO3 codes based on a regional flag or all countries if 'ALL'."""
+        regional_flag = regional_flag.upper()
+
+        if regional_flag == "ALL":
+            return sorted(self.region.index.tolist())
+
+        if regional_flag not in self.region.columns:
+            raise ValueError(f"Column '{regional_flag}' does not exist in the dataset.")
+
+        return sorted(self.region[self.region[regional_flag].astype(bool)].index.tolist())
+
 
 class Indicators:
     """FileHandler that holds the definitions of each indicator."""

@@ -21,8 +21,8 @@ REMOVE_DOMINATED_POINTS = true
 INNOVATION_ON = false
 FORCE_MONOTONIC_DECREASING = true  # Whether the results for each country should be over-written such that cases and deaths are strictly decreasing with increasing funding.
 APPROACH_B_METHODS = ['ga_backwards', 'ga_forwards']  # Methods for optimisation, see ApproachB class for others
-REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS = "ALL"        # COULD BE: "ALL", "ASIA", "MENA", "SSA", etc. (See
-SCALE_TO_NON_MODELLED_COUNTRIES = true  # Can be true or false   (may not want this -- could be implii
+REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS = "PKU"        # COULD BE: "ALL", "ASIA", "MENA", "SSA", etc. (See
+SCALE_TO_NON_MODELLED_COUNTRIES = false  # Can be true or false   (may not want this -- could be implii
 
 # --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------

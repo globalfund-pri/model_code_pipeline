@@ -473,7 +473,9 @@ class Analysis:
     def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
-        # @Mikaela -- Make this not do any scaling if self.parameters['SCALE_TO_NON_MODELLED_COUNTRIES'] is True.
+        # Skip scaling and return original results if parameter is False
+        if not self.parameters.get("SCALE_TO_NON_MODELLED_COUNTRIES", True):
+            return country_results
 
         # Get the first year of the model and list of epi indicators
         first_year = self.parameters.get("START_YEAR")
@@ -508,7 +510,6 @@ class Analysis:
             gp: Gp,
     ) -> Dict[str, pd.DataFrame]:
         """ This will make the necessary adjustments for innovations assumed to come in within the partner GP. """
-
 
         sigmoid_scaling = pd.Series(
             dict(zip(
@@ -596,17 +597,24 @@ class Analysis:
         indicators = country_results[list(country_results.keys())[0]].model_projection.keys()
         types_lookup = self.indicators['type'].to_dict()
 
-        # Define which countries to sum up...
-        # Something like the following......
+        # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
         country_subset = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
         if country_subset == 'ALL':
             countries = country_results.keys()
         else:
             countries = list(
                 set(
-                    self.region_info.get_country_subset(country_subset)  # <-- or whatever you call the function in RegionalInformation
+                    self.region_info.get_countries_by_regional_flag(country_subset)
                 ).intersection(country_results.keys())
             )
+
+        # Filter country_results to match only countries in the selected subset
+        country_results = {
+            iso3: result for iso3, result in country_results.items()
+            if iso3 in countries
+        }
+
+        countries = country_results.keys() # Just to reset country list just in case to avoid errors
 
         # Extracting all values for each indicator across all countries, if we should do an aggregation
         for indicator in indicators:

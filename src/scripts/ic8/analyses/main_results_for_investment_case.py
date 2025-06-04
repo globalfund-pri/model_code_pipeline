@@ -226,7 +226,7 @@ if __name__ == "__main__":
     )
 
     # This is the entry point for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
     RUN_ANALYSIS = True
 
