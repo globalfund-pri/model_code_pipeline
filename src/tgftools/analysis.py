@@ -283,6 +283,10 @@ class Analysis:
                 + self.non_tgf_funding.df["value"]
             ).to_dict()
         )
+
+        if self.adj_pre_replenishment_on:
+            country_results = self._adjust_prereplenishment(country_results)
+
         return PortfolioProjection(
             tgf_funding_by_country=tgf_funding_under_approach_b,
             non_tgf_funding_by_country=self.non_tgf_funding.df["value"].to_dict(),

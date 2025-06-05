@@ -63,7 +63,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
     Counterfactual projections,"""
     return SetOfPortfolioProjections(
-        IC=analysis.portfolio_projection_approach_a(),
+        IC=analysis.portfolio_projection_approach_b(),
         CF_InfAve=analysis.portfolio_projection_counterfactual('CC_2022'),
         CF_LivesSaved=analysis.portfolio_projection_counterfactual('NULL_2022'),
         CF_LivesSaved_Malaria=analysis.get_counterfactual_lives_saved_malaria(),
@@ -86,7 +86,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
 
 
 def get_report(
-        load_data_from_raw_files: bool = True,
+        load_data_from_raw_files: bool = False,
         run_analysis: bool = True,
         do_checks: bool = False,
 ) -> Report:
@@ -164,7 +164,7 @@ def dump_projection_to_file(proj, filename):
 
 
 def dump_ic_scenario_to_file(
-        load_data_from_raw_files: bool = True,
+        load_data_from_raw_files: bool = False,
         run_analysis: bool = True,
         filename_stub: Optional[Path] = None,
 ) -> None:
@@ -225,7 +225,7 @@ if __name__ == "__main__":
     )
 
     # This is the entry point for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
     RUN_ANALYSIS = True
 

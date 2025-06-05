@@ -2,28 +2,28 @@
 # All file paths are stored here. They are given relative to the DATA_FILE_PATH stored in `tgftools.conf`
 
 [HIV]
-NON-TGF-FUNDING = "IC8/funding/2025_05_13/hiv/hiv_nonfung_base_c.csv"
-TGF-FUNDING = "IC8/funding/2025_05_13/hiv/hiv_fung_exc_unalc11.csv"
+NON-TGF-FUNDING = "IC8/funding/2025_06_04/hiv/hiv_nonfung_base_c.csv"
+TGF-FUNDING = "IC8/funding/2025_06_04/hiv/hiv_fung_incl_unalc17.csv"
 MODEL-RESULTS = "IC8/modelling_outputs/hiv/2024_11_24"
 PARTNER-DATA = "IC8/partner/hiv/2024_12_12"
 PF-INPUT-DATA = "IC8/pf/hiv/2024_03_28"
 GP-DATA = "IC8/fixed_gps/hiv_gp.csv"
-PREPF-DATA = "IC8/funding/2025_05_13/hiv/hiv_2024_2026.csv"
+PREPF-DATA = "IC8/funding/2025_06_04/hiv/hiv_2024_2026.csv"
 
 [TB]
-NON-TGF-FUNDING = "IC8/funding/2025_05_13/tb/tb_nonfung_base_INDdp50_c.csv"
-TGF-FUNDING = "IC8/funding/2025_05_13/tb/tb_fung_exc_unalc11.csv"
+NON-TGF-FUNDING = "IC8/funding/2025_06_04/tb/tb_nonfung_base_INDdp50_c.csv"
+TGF-FUNDING = "IC8/funding/2025_06_04/tb/tb_fung_incl_unalc17.csv"
 MODEL-RESULTS = "IC8/modelling_outputs/tb/2024_10_15"
 PARTNER-DATA = "IC8/partner/tb/2024_12_12"
 PF-INPUT-DATA = "IC8/pf/tb/2024_03_28"
 GP-DATA = "IC8/fixed_gps/tb_gp.csv"
-PREPF-DATA = "IC8/funding/2025_05_13/tb/tb_2024_2026.csv"
+PREPF-DATA = "IC8/funding/2025_06_04/tb/tb_2024_2026.csv"
 
 [MALARIA]
-NON-TGF-FUNDING = "IC8/funding/2025_05_13/malaria/malaria_nonfung_base_c.csv"
-TGF-FUNDING = "IC8/funding/2025_05_13/malaria/malaria_fung_exc_unalc11.csv"
+NON-TGF-FUNDING = "IC8/funding/2025_06_04/malaria/malaria_nonfung_base_c.csv"
+TGF-FUNDING = "IC8/funding/2025_06_04/malaria/malaria_fung_incl_unalc17.csv"
 MODEL-RESULTS = "IC8/modelling_outputs/malaria/2024_01_09"
 PARTNER-DATA = "IC8/partner/malaria/2024_12_12"
 PF-INPUT-DATA = "IC8/pf/malaria/2024_03_28"
 GP-DATA = "IC8/fixed_gps/malaria_gp.csv"
-PREPF-DATA = "IC8/funding/2025_05_13/malaria/malaria_2024_2026.csv"
+PREPF-DATA = "IC8/funding/2025_06_04/malaria/malaria_2024_2026.csv"
