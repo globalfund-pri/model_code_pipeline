@@ -619,26 +619,29 @@ class Analysis:
 
         if not countries:
             print(
-                f"[WARN] No countries available for '{self.disease_name}' in region '{country_subset}'. Creating dummy country with zeros.")
+                f"[WARN] No countries available for '{self.disease_name}' in region '{country_subset}'. Creating two dummy countries with zeros.")
 
-            dummy_iso3 = "DUMMY"
-            dummy_projections = {}
+            indicators = list(indicators)  # Just to be safe in case it's a dict_keys object
 
-            for indicator in indicators:
-                df = pd.DataFrame({
-                    'model_central': [0] * (last_year - first_year + 1),
-                    'model_low': [0] * (last_year - first_year + 1),
-                    'model_high': [0] * (last_year - first_year + 1),
-                }, index=range(first_year, last_year + 1))
+            country_results = {}
 
-                dummy_projections[indicator] = df
+            for i in range(2):  # Create two dummy countries
+                dummy_iso3 = f"DUMMY{i + 1}"
+                dummy_projections = {}
 
-            country_results = {
-                dummy_iso3: CountryProjection(model_projection=dummy_projections)
-            }
+                for indicator in indicators:
+                    df = pd.DataFrame({
+                        'model_central': [0] * (last_year - first_year + 1),
+                        'model_low': [0] * (last_year - first_year + 1),
+                        'model_high': [0] * (last_year - first_year + 1),
+                    }, index=range(first_year, last_year + 1))
 
-            # Reset countries from filtered results to ensure consistency
-            countries = country_results.keys()
+                    dummy_projections[indicator] = df
+
+                country_results[dummy_iso3] = CountryProjection(model_projection=dummy_projections, funding=0.0)
+
+        # Reset countries from filtered results to ensure consistency
+        countries = country_results.keys()
 
         # Extracting all values for each indicator across all countries, if we should do an aggregation
         for indicator in indicators:
