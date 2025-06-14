@@ -17,23 +17,26 @@ get_key_stats_hiv,Number of new hiv infections in the year 2023,795944.804
 get_key_stats_hiv,Number of new hiv infections  in the year 2029,273326.4263
 get_key_stats_hiv,Reduction in new hiv infections  between the year 2029 compared to 2023,-65.66012807
 get_key_stats_hiv,HIV incidence in the year 2023,0.000175337
-get_key_stats_hiv,HIV incidence in the year 2029,5.53394E-05
+get_key_stats_hiv,HIV incidence in the year 2029,5.53E-05
 get_key_stats_hiv,Reduction in hiv incidence between the year 2029 compared to 2023,-68.4381837
 get_key_stats_hiv,HIV incidence in the year 2021,0.000243936
-get_key_stats_hiv,HIV incidence in the year 2028,5.65361E-05
+get_key_stats_hiv,HIV incidence in the year 2028,5.65E-05
 get_key_stats_hiv,Reduction in hiv incidence between the year 2028 compared to 2021,-76.8233515
 get_key_stats_hiv,Number of hiv deaths in the year 2023,523988.4253
 get_key_stats_hiv,Number of  hiv deaths  in the year 2029,215664.5288
 get_key_stats_hiv,Reduction in of hiv deaths  between the year 2029 compared to 2023,-58.84173803
 get_key_stats_hiv,HIV mortality rate in the year 2023,0.000113228
-get_key_stats_hiv,HIV mortality rate in the year 2029,4.70752E-05
+get_key_stats_hiv,HIV mortality rate in the year 2029,4.29E-05
 get_key_stats_hiv,Reduction in hiv mortality rate between the year 2029 compared to 2023,-62.14503422
 get_key_stats_hiv,HIV mortality rate in the year 2021,0.000132117
+get_key_stats_hiv,HIV mortality rate in the year 2028,4.70752E-05
 get_key_stats_hiv,Reduction in hiv mortality rate between the year 2028 compared to 2021,-64.36845346
 get_key_stats_hiv,Incidence reduction in AGYW in most affected countries from 2023 to 2029,22.45899107
 get_key_stats_hiv,ART coverage in the year 2023,80.19105879
 get_key_stats_hiv,ART coverage in the year 2029,91.87619872
 get_key_stats_hiv,Number of people on ART in the year 2029,29236264.38
+get_key_stats_hiv,Number of pregnant women receiving ART between 2027 and 2029:,2307914.441
+get_key_stats_hiv,Number pf people receiving HIV testing and councelling 2027 to 2029,16986077.48
 get_key_stats_malaria,Number of malaria cases in the year 2023,235299431.2
 get_key_stats_malaria,Number of malaria cases in the year 2029,100849536.6
 get_key_stats_malaria,Reduction in malaria cases between the year 2029 compared to 2023 ,-57.13991485
@@ -44,10 +47,10 @@ get_key_stats_malaria,Malaria incidence in the year 2021,0.075469834
 get_key_stats_malaria,Malaria incidence in the year 2028,0.040996906
 get_key_stats_malaria,Reduction in malaria incidence between the year 2028 compared to 2021,-45.67775738
 get_key_stats_malaria,Number of malaria deaths in the year 2023,564722.4844
-get_key_stats_malaria,Number of malaria deaths  in the year 2029,197899.1312
+get_key_stats_malaria,Number of malaria deaths  in the year 2029,1.98E+05
 get_key_stats_malaria,Reduction in malaria deaths between the year 2029 compared to 2023,-64.95639245
 get_key_stats_malaria,Malaria mortality rate in the year 2023,0.000171285
-get_key_stats_malaria,Malaria mortality rate in the year 2029,5.48917E-05
+get_key_stats_malaria,Malaria mortality rate in the year 2029,5.49E-05
 get_key_stats_malaria,Reduction in malaria mortality rate between the year 2029 compared to 2023,-67.95301942
 get_key_stats_malaria,Malaria mortality rate in the year 2021,0.000189177
 get_key_stats_malaria,Malaria mortality rate in the year 2028,9.05253E-05
@@ -56,7 +59,10 @@ get_key_stats_malaria,Number of bed nets distributed between 2027 and 2029,19815
 get_key_stats_malaria,Number of bed nets distributed between 2024 and 2029,3197619026
 get_key_stats_malaria,LLIN use in 2023 in SSA,49.48435618
 get_key_stats_malaria,LLIN use in 2029 in SSA,58.80840281
+get_key_stats_malaria,Number of children receiving SMC,559437173.3
 get_key_stats_malaria,Number of people treated in the public sector between 2024 and 2029,2588019526
+get_key_stats_malaria,Number of people treated in the public sector between 2027 and 2029,1313878005
+get_key_stats_malaria,Numbr of people treated for malaria between 2027 and 2029,454889724.7
 get_key_stats_malaria,Number of people vaccinated between 2024 and 2029,67327411
 get_key_stats_malaria,Number of vaccine doses distributed between 2024 and 2029,255844137
 get_key_stats_malaria,Vaccine coverage between 2024 and 2029,0.142436496
@@ -78,7 +84,7 @@ get_key_stats_tb,Number of TB deaths in the year 2023,1223008.262
 get_key_stats_tb,Number of TB deaths in the year 2029,528997.8242
 get_key_stats_tb,Reduction in TB deaths between the year 2029 compared to 2023,-56.74617738
 get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2023,1068377.581
-get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2029,455606.2822
+get_key_stats_tb,Number of TB deaths amongst hiv-negative individuals in the year 2029,4.56E+05
 get_key_stats_tb,Reduction in TB deaths amongst hiv-negative individuals between the year 2029 compared to 2023,-57.35531235
 get_key_stats_tb,TB mortality rate in the year 2023,0.000264857
 get_key_stats_tb,TB mortality rate in the year 2029,0.000105797
@@ -98,6 +104,8 @@ get_key_stats_tb,Number of MDRTB notifications between 2027 and 2029,625846.6419
 get_key_stats_tb,Number of MDRTB notifications between 2024 and 2029,1133513.078
 get_key_stats_tb,TB treatment coverage in 2023,71.27434207
 get_key_stats_tb,TB treatment coverage in 2029,95.60263749
+get_key_stats_tb,Number of HIV-positive TB patients receiving ART between 2027 to 2029,974212.6241
+get_key_stats_tb,Number of people screened between 2027 and 2029,513310269.9
 get_lives_saved,Number of lives saved relating to hiv from 2024 to 2029,21089664.33
 get_lives_saved,Number of lives saved relating to hiv from 2027 to 2029,10302669.75
 get_lives_saved,Number of lives saved relating to tb  amongst hivneg from 2024 to 2029,16004806.86
