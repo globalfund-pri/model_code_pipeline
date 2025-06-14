@@ -164,7 +164,7 @@ def dump_projection_to_file(proj, filename):
 
 
 def dump_ic_scenario_to_file(
-        load_data_from_raw_files: bool = False,
+        load_data_from_raw_files: bool = True,
         run_analysis: bool = True,
         filename_stub: Optional[Path] = None,
 ) -> None:
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     # This will dump the data to csv for Nick and Stephen
     dump_ic_scenario_to_file(
-        load_data_from_raw_files=False,
+        load_data_from_raw_files=True,
         run_analysis=True,
         filename_stub=Path(str(outputpath) + "/dump_ic")
     )

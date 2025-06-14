@@ -482,6 +482,8 @@ class Analysis:
         first_year = self.parameters.get("START_YEAR")
         if name == ('GP'):
             first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
+        if name == ('NULL_2022'):
+            first_year = self.parameters.get("NULL_START_YEAR")
 
         # Get the indicators that should be scaled
         indicator_list = self.parameters.get_indicators_for(self.disease_name).use_scaling
@@ -588,6 +590,7 @@ class Analysis:
         first_year = p.get("START_YEAR")
         if name == ('GP'):
             first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
+        if name == ('NULL_2022'):            first_year = self.parameters.get("NULL_START_YEAR")
         last_year = p.get("END_YEAR")
         z_value = p.get("Z_VALUE")
         rho_btw_countries = p.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")
