@@ -474,26 +474,39 @@ class Analysis:
     def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
-        # Skip scaling and return original results if parameter is False
-        if not self.scale_to_non_modelled:
-            return country_results
+        # Define years and parameters we need
+        p = self.parameters
 
         # Get the first year of the model and list of epi indicators
-        first_year = self.parameters.get("START_YEAR")
+        first_year = p.get("START_YEAR")
         if name == ('GP'):
-            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
+            first_year = p.get(self.disease_name).get("GP_START_YEAR")
         if name == ('NULL_2022'):
-            first_year = self.parameters.get("NULL_START_YEAR")
+            first_year = p.get("NULL_START_YEAR")
 
         # Get the indicators that should be scaled
-        indicator_list = self.parameters.get_indicators_for(self.disease_name).use_scaling
+        indicator_list = p.get_indicators_for(self.disease_name).use_scaling
         indicator_list = pd.DataFrame(indicator_list).reset_index()
         indicator_list = indicator_list.loc[indicator_list['use_scaling'] == True]
         indicator_list = indicator_list['name'].tolist()
 
+        # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
+        country_subset = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        if country_subset == 'ALL':
+            countries = country_results.keys()
+        else:
+            countries = list(
+                set(
+                    self.region_info.get_countries_by_regional_flag(country_subset)
+                ).intersection(self.database.partner_data.countries)
+            )
+
         # Filter partner data to the corresponding year and epi indicators, summed across countries and turned
         # into a dictionary
-        df_partner = self.database.partner_data.df.loc[(self.scenario_descriptor, slice(None), first_year, indicator_list)].groupby(axis=0, level='indicator').sum()['central'].to_dict()
+        df_partner = \
+            self.database.partner_data.df.loc[
+                (self.scenario_descriptor, countries, first_year, indicator_list)].groupby(
+                axis=0, level='indicator').sum()['central'].to_dict()
 
         # This loop scaled all epi indicators to non-modelled countries
         adj_results_portfolio = dict()
