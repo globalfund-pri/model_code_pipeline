@@ -310,6 +310,13 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 'Deaths_70_74',
                 'Deaths_75_79',
                 'Deaths_80',
+                "AGYW_NI",
+                "AGYW_NI_LB",
+                "AGYW_NI_UB",
+                "AGYW_PLHIV",
+                "AGYW_PLHIV_LB",
+                "AGYW_PLHIV_UB",
+                "AGYW_pop",
                 "Adult_ART",
                 'Ped_ART',
                 'notx_15plus_more500',
@@ -354,9 +361,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "PWID_PrEP",
                 "PWID_PrEP_LB",
                 "PWID_PrEP_UB",
+                "FSW_reached",
+                "FSW_reached_LB",
+                "FSW_reached_UB",
+                "MSM_reached",
+                "MSM_reached_LB",
+                "MSM_reached_UB",
+                "PWID_reached",
+                "PWID_reached_LB",
+                "PWID_reached_UB",
                 "OST",
                 "OST_LB",
                 "OST_UB",
+                "HST",
+                "HST_LB",
+                "HST_UB",
                 "KOS",
                 "KOS_LB",
                 "KOS_UB",
@@ -456,6 +475,13 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             'Deaths_70_74',
             'Deaths_75_79',
             'Deaths_80',
+            "AGYW_NI",
+            "AGYW_NI_LB",
+            "AGYW_NI_UB",
+            "AGYW_PLHIV",
+            "AGYW_PLHIV_LB",
+            "AGYW_PLHIV_UB",
+            "AGYW_pop",
             "Adult_ART",
             'Ped_ART',
             'notx_15plus_more500',
@@ -500,9 +526,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             "PWID_PrEP",
             "PWID_PrEP_LB",
             "PWID_PrEP_UB",
+            "FSW_reached",
+            "FSW_reached_LB",
+            "FSW_reached_UB",
+            "MSM_reached",
+            "MSM_reached_LB",
+            "MSM_reached_UB",
+            "PWID_reached",
+            "PWID_reached_LB",
+            "PWID_reached_UB",
             "OST",
             "OST_LB",
             "OST_UB",
+            "HST",
+            "HST_LB",
+            "HST_UB",
             "KOS",
             "KOS_LB",
             "KOS_UB",
@@ -584,6 +622,13 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             'Deaths_70_74',
             'Deaths_75_79',
             'Deaths_80',
+            "AGYW_NI",
+            "AGYW_NI_LB",
+            "AGYW_NI_UB",
+            "AGYW_PLHIV",
+            "AGYW_PLHIV_LB",
+            "AGYW_PLHIV_UB",
+            "AGYW_pop",
             "Adult_ART",
             'Ped_ART',
             'notx_15plus_more500',
@@ -628,9 +673,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
             "PWID_PrEP",
             "PWID_PrEP_LB",
             "PWID_PrEP_UB",
+            "FSW_reached",
+            "FSW_reached_LB",
+            "FSW_reached_UB",
+            "MSM_reached",
+            "MSM_reached_LB",
+            "MSM_reached_UB",
+            "PWID_reached",
+            "PWID_reached_LB",
+            "PWID_reached_UB",
             "OST",
             "OST_LB",
             "OST_UB",
+            "HST",
+            "HST_LB",
+            "HST_UB",
             "KOS",
             "KOS_LB",
             "KOS_UB",
@@ -663,6 +720,12 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "Population": "population_central",
                 "Population_LB": "population_low",
                 "Population_UB": "population_high",
+                "AGYW_NI": "agywni_central",
+                "AGYW_NI_LB": "agywni_low",
+                "AGYW_NI_UB": "agywni_high",
+                "AGYW_PLHIV": "agywplhiv_central",
+                "AGYW_PLHIV_LB": "agywplhiv_low",
+                "AGYW_PLHIV_UB": "agywplhiv_high",
                 "ART_total": "art_central",
                 "ART_total_LB": "art_low",
                 "ART_total_UB": "art_high",
@@ -684,9 +747,21 @@ class ModelResultsHiv(HIVMixin, ModelResults):
                 "PWID_PrEP": "pwidprep_central",
                 "PWID_PrEP_LB": "pwidprep_low",
                 "PWID_PrEP_UB": "pwidprep_high",
+                "FSW_reached": "fswreached_central",
+                "FSW_reached_LB": "fswreached_low",
+                "FSW_reached_UB": "fswreached_high",
+                "MSM_reached": "msmreached_central",
+                "MSM_reached_LB": "msmreached_low",
+                "MSM_reached_UB": "msmreached_high",
+                "PWID_reached": "pwidreached_central",
+                "PWID_reached_LB": "pwidreached_low",
+                "PWID_reached_UB": "pwidreached_high",
                 "OST": "ost_central",
                 "OST_LB": "ost_low",
                 "OST_UB": "ost_high",
+                "HST": "hst_central",
+                "HST_LB": "hst_low",
+                "HST_UB": "hst_high",
                 "KOS": "status_central",
                 "KOS_LB": "status_low",
                 "KOS_UB": "status_high",
@@ -707,7 +782,6 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         # Fix Step 13 in 2022
         filename = "HIV cost impact"
         if filename in str(file.name):
-            print('hello')
 
             # Remove Step 12 for SDN
             csv_df = csv_df.drop(
@@ -1154,6 +1228,11 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["deaths80_high"] = csv_df["Deaths_80"]
         csv_df = csv_df.drop(columns=["Deaths_80"])
 
+        csv_df["agywpop_low"] = csv_df["AGYW_pop"]
+        csv_df["agywpop_central"] = csv_df["AGYW_pop"]
+        csv_df["agywpop_high"] = csv_df["AGYW_pop"]
+        csv_df = csv_df.drop(columns=["AGYW_pop"])
+
         csv_df["adultart_low"] = csv_df["Adult_ART"]
         csv_df["adultart_central"] = csv_df["Adult_ART"]
         csv_df["adultart_high"] = csv_df["Adult_ART"]
@@ -1308,10 +1387,8 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         csv_df["mortality_high"] = csv_df["deaths_high"] / csv_df["population_central"]
 
         # Remove GP from first file, second file is corrected model output for this scenario
-        if file == Path(
-                get_data_path()
-                / "IC8/modelling_outputs/hiv/2024_11_24/HIV historical scenarios 17aug24.csv"
-        ):
+        filename = "HIV historical scenarios"
+        if filename in str(file.name):
             csv_df = csv_df.drop(
                 csv_df[
                     csv_df["scenario_descriptor"]

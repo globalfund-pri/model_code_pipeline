@@ -10,7 +10,7 @@ from tgftools.approach_b import ApproachB
 from tgftools.database import Database
 from tgftools.dump_analysis_to_excel import DumpAnalysisToExcel
 from tgftools.emulator import Emulator
-from tgftools.filehandler import Gp, NonTgfFunding, Parameters, TgfFunding
+from tgftools.filehandler import Gp, NonTgfFunding, Parameters, TgfFunding, RegionInformation
 from tgftools.utils import matmul
 
 """This file holds everything needed for the Analysis class. The analysis class extracts the necessary output from the 
@@ -148,6 +148,7 @@ class Analysis:
         self.indicators_for_adj_for_innovations = self.parameters.get(self.disease_name).get(
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
         self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
+        self.scale_to_non_modelled = self.parameters.get("SCALE_TO_NON_MODELLED_COUNTRIES")
 
         # Filter funding assumptions for countries that are not modelled
         self.tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.tgf_funding)
@@ -174,6 +175,9 @@ class Analysis:
             )
             for c in self.countries
         }
+
+        # Load the helper class for Regional Information
+        self.region_info = RegionInformation()
 
     def filter_funding_data_for_non_modelled_countries(
             self, funding_data_object: TgfFunding | NonTgfFunding
@@ -470,20 +474,39 @@ class Analysis:
     def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
+        # Define years and parameters we need
+        p = self.parameters
+
         # Get the first year of the model and list of epi indicators
-        first_year = self.parameters.get("START_YEAR")
+        first_year = p.get("START_YEAR")
         if name == ('GP'):
-            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
+            first_year = p.get(self.disease_name).get("GP_START_YEAR")
+        if name == ('NULL_2022'):
+            first_year = p.get("NULL_START_YEAR")
 
         # Get the indicators that should be scaled
-        indicator_list = self.parameters.get_indicators_for(self.disease_name).use_scaling
+        indicator_list = p.get_indicators_for(self.disease_name).use_scaling
         indicator_list = pd.DataFrame(indicator_list).reset_index()
         indicator_list = indicator_list.loc[indicator_list['use_scaling'] == True]
         indicator_list = indicator_list['name'].tolist()
 
+        # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
+        country_subset = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        if country_subset == 'ALL':
+            countries = country_results.keys()
+        else:
+            countries = list(
+                set(
+                    self.region_info.get_countries_by_regional_flag(country_subset)
+                ).intersection(self.database.partner_data.countries)
+            )
+
         # Filter partner data to the corresponding year and epi indicators, summed across countries and turned
         # into a dictionary
-        df_partner = self.database.partner_data.df.loc[(self.scenario_descriptor, slice(None), first_year, indicator_list)].groupby(axis=0, level='indicator').sum()['central'].to_dict()
+        df_partner = \
+            self.database.partner_data.df.loc[
+                (self.scenario_descriptor, countries, first_year, indicator_list)].groupby(
+                axis=0, level='indicator').sum()['central'].to_dict()
 
         # This loop scaled all epi indicators to non-modelled countries
         adj_results_portfolio = dict()
@@ -503,7 +526,6 @@ class Analysis:
             gp: Gp,
     ) -> Dict[str, pd.DataFrame]:
         """ This will make the necessary adjustments for innovations assumed to come in within the partner GP. """
-
 
         sigmoid_scaling = pd.Series(
             dict(zip(
@@ -579,7 +601,9 @@ class Analysis:
         # Define years and parameters we need
         p = self.parameters
         first_year = p.get("START_YEAR")
-        if name == ('GP'):            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
+        if name == ('GP'):
+            first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
+        if name == ('NULL_2022'):            first_year = self.parameters.get("NULL_START_YEAR")
         last_year = p.get("END_YEAR")
         z_value = p.get("Z_VALUE")
         rho_btw_countries = p.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")
@@ -590,7 +614,51 @@ class Analysis:
         indicators = country_results[list(country_results.keys())[0]].model_projection.keys()
         types_lookup = self.indicators['type'].to_dict()
 
+        # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
+        country_subset = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        if country_subset == 'ALL':
+            countries = country_results.keys()
+        else:
+            countries = list(
+                set(
+                    self.region_info.get_countries_by_regional_flag(country_subset)
+                ).intersection(country_results.keys())
+            )
+
+        # Filter country_results to match only countries in the selected subset
+        country_results = {
+            iso3: result for iso3, result in country_results.items()
+            if iso3 in countries
+        }
+
+        countries = country_results.keys() # Just to reset country list just in case to avoid errors
+
+        if not countries:
+            print(
+                f"[WARN] No countries available for '{self.disease_name}' in region '{country_subset}'. Creating two dummy countries with zeros.")
+
+            indicators = list(indicators)  # Just to be safe in case it's a dict_keys object
+
+            country_results = {}
+
+            for i in range(2):  # Create two dummy countries
+                dummy_iso3 = f"DUMMY{i + 1}"
+                dummy_projections = {}
+
+                for indicator in indicators:
+                    df = pd.DataFrame({
+                        'model_central': [0] * (last_year - first_year + 1),
+                        'model_low': [0] * (last_year - first_year + 1),
+                        'model_high': [0] * (last_year - first_year + 1),
+                    }, index=range(first_year, last_year + 1))
+
+                    dummy_projections[indicator] = df
+
+                country_results[dummy_iso3] = CountryProjection(model_projection=dummy_projections, funding=0.0)
+
+        # Reset countries from filtered results to ensure consistency
         countries = country_results.keys()
+
         # Extracting all values for each indicator across all countries, if we should do an aggregation
         for indicator in indicators:
             type_of_indicator_is_count = types_lookup[indicator] == 'count'

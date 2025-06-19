@@ -491,6 +491,10 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df["txprivate_high"] = df["treatments_given_private"]
         df = df.drop(columns=["treatments_given_private"])
 
+        df["nrtx_low"] = df["treatment_coverage"] * df["cases_low"]
+        df["nrtx_central"] = df["treatment_coverage"] * df["cases_central"]
+        df["nrtx_high"] = df["treatment_coverage"] * df[("cases_high")]
+
         df["txcoverage_low"] = df["treatment_coverage"]
         df["txcoverage_central"] = df["treatment_coverage"]
         df["txcoverage_high"] = df["treatment_coverage"]

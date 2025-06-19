@@ -1231,6 +1231,9 @@ class PartnerDataTb(TBMixin, PartnerData):
         csv_df["incidence"] = csv_df["cases"] / csv_df["population"]
         csv_df["mortality"] = csv_df["deaths"] / csv_df["population"]
 
+        # Create a mask for 2022 and duplicate 'x' values to 2023
+        csv_df.loc[csv_df['year'] == 2023, 'mdrnotified'] = csv_df.loc[csv_df['year'] == 2022, 'mdrnotified'].values
+
         # Pivot to long format
         melted = csv_df.melt(id_vars=["country", "year"])
         melted = melted.rename(columns={'variable': 'indicator'})
