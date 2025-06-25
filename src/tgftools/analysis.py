@@ -239,7 +239,7 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country=tgf_funding_under_approach_b,
             non_tgf_funding_by_country=self.non_tgf_funding.df["value"].to_dict(),
-            country_results=country_results,
+            country_results=country_results,  # <-- note that this will include countries that may be filtered out (todo: fix this)
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
@@ -255,7 +255,7 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country=None,  # In this scenario, we do not know the split between TGF and non-TGF sources
             non_tgf_funding_by_country=None,
-            country_results=country_results,
+            country_results=country_results,  # <-- note that this will include countries that may be filtered out (todo: fix this)
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
@@ -293,7 +293,7 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country={k: float('nan') for k in self.countries},
             non_tgf_funding_by_country={k: float('nan') for k in self.countries},
-            country_results=country_results,
+            country_results=country_results,  # <-- note that this will include countries that may be filtered out (todo: fix this)
             portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False, name=name),
         )
 
@@ -659,9 +659,6 @@ class Analysis:
 
                 country_results[dummy_iso3] = CountryProjection(model_projection=dummy_projections, funding=0.0)
 
-            # Reset countries from filtered results to ensure consistency
-            countries = country_results.keys()
-
         # Extracting all values for each indicator across all countries, if we should do an aggregation
         for indicator in indicators:
             type_of_indicator_is_count = types_lookup[indicator] == 'count'
@@ -671,7 +668,7 @@ class Analysis:
                 continue
 
             dfs = list()
-            for country in countries:
+            for country in country_results:
                 dfs.append(
                     country_results[country].model_projection[indicator].loc[
                         slice(first_year, last_year),
