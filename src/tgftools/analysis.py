@@ -600,10 +600,15 @@ class Analysis:
 
         # Define years and parameters we need
         p = self.parameters
-        first_year = p.get("START_YEAR")
+
+        # Define start year (over-riding for special cases)
         if name == ('GP'):
             first_year = self.parameters.get(self.disease_name).get("GP_START_YEAR")
-        if name == ('NULL_2022'):            first_year = self.parameters.get("NULL_START_YEAR")
+        elif name == ('NULL_2022'):
+            first_year = self.parameters.get("NULL_START_YEAR")
+        else:
+            first_year = p.get("START_YEAR")
+
         last_year = p.get("END_YEAR")
         z_value = p.get("Z_VALUE")
         rho_btw_countries = p.get("RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE")
