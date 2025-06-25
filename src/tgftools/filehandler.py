@@ -235,10 +235,6 @@ class RegionInformation:
     Note that it does not inherit from the FileHandler base class as it uses different forms of internal storage and
     does not need to perform checks."""
 
-    # @Mikaela - ....
-    # 1) in the file `region_information.csv` make some extra column labelled, "ASIA", "MEAN", "SSA", etc. and fill with True/False accordingly.
-    # 2) in this function, make a new member function called `get_country_subset()` (or similar) and let it return the list of ISO3 codes in that subset (this will resember 'get_countries_in a region()`)
-
     def __init__(self):
         rfp = get_root_path() / "resources"
 
@@ -279,15 +275,18 @@ class RegionInformation:
 
     def get_countries_by_regional_flag(self, regional_flag: str) -> List[str]:
         """Return ISO3 codes based on a regional flag or all countries if 'ALL'."""
-        regional_flag = regional_flag.upper()
+        recognised_flags = (  # {'ARABLEAGUE', 'COE', 'Johannes', 'OIC', 'PKU', 'SSA'}
+                set(self.region.columns) - {'ISO3', 'ISO2', 'GeographyName', 'Differentiation', 'GlobalFundRegion', 'GlobalFundDepartment'})
 
         if regional_flag == "ALL":
             return sorted(self.region.index.tolist())
 
-        if regional_flag not in self.region.columns:
+        elif regional_flag not in recognised_flags:
             raise ValueError(f"Column '{regional_flag}' does not exist in the dataset.")
 
-        return sorted(self.region[self.region[regional_flag].astype(bool)].index.tolist())
+        else:
+            mask_within_region = self.region[regional_flag].astype(bool)
+            return sorted(self.region.loc[mask_within_region].index.tolist())
 
 
 class Indicators:
