@@ -1,4 +1,5 @@
 import math
+import warnings
 from copy import copy
 from typing import Dict, Iterable, NamedTuple, Optional, Union
 
@@ -148,7 +149,6 @@ class Analysis:
         self.indicators_for_adj_for_innovations = self.parameters.get(self.disease_name).get(
             'INDICATORS_FOR_ADJ_FOR_INNOVATIONS')
         self.EXPECTED_GP_SCENARIO = self.parameters.get_gpscenario().index.to_list()
-        self.scale_to_non_modelled = self.parameters.get("SCALE_TO_NON_MODELLED_COUNTRIES")
 
         # Filter funding assumptions for countries that are not modelled
         self.tgf_funding = self.filter_funding_data_for_non_modelled_countries(self.tgf_funding)
@@ -471,7 +471,7 @@ class Analysis:
                 )
             )
 
-    def _scale_up_for_non_modelled_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
+    def _scale_up_for_non_modelled_countries(self, portfolio_results: Dict[str, pd.DataFrame], name: str) -> Dict[str, pd.DataFrame]:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
         # Define years and parameters we need
@@ -491,13 +491,13 @@ class Analysis:
         indicator_list = indicator_list['name'].tolist()
 
         # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
-        country_subset = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
-        if country_subset == 'ALL':
-            countries = country_results.keys()
+        country_subset_param = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        if country_subset_param == 'ALL':
+            country_subset = slice(None)
         else:
-            countries = list(
+            country_subset = list(
                 set(
-                    self.region_info.get_countries_by_regional_flag(country_subset)
+                    self.region_info.get_countries_by_regional_flag(country_subset_param)
                 ).intersection(self.database.partner_data.countries)
             )
 
@@ -505,12 +505,12 @@ class Analysis:
         # into a dictionary
         df_partner = \
             self.database.partner_data.df.loc[
-                (self.scenario_descriptor, countries, first_year, indicator_list)].groupby(
+                (self.scenario_descriptor, country_subset, first_year, indicator_list)].groupby(
                 axis=0, level='indicator').sum()['central'].to_dict()
 
         # This loop scaled all epi indicators to non-modelled countries
         adj_results_portfolio = dict()
-        for indicator, df in country_results.items():
+        for indicator, df in portfolio_results.items():
             if indicator not in indicator_list:
                 adj_results_portfolio[indicator] = df
             else:
@@ -631,11 +631,9 @@ class Analysis:
             if iso3 in countries
         }
 
-        countries = country_results.keys() # Just to reset country list just in case to avoid errors
-
         if not countries:
-            print(
-                f"[WARN] No countries available for '{self.disease_name}' in region '{country_subset}'. Creating two dummy countries with zeros.")
+            warnings.warn(
+                f"No countries available for '{self.disease_name}' in region '{country_subset}'. Creating two dummy countries with zeros.")
 
             indicators = list(indicators)  # Just to be safe in case it's a dict_keys object
 
@@ -656,8 +654,8 @@ class Analysis:
 
                 country_results[dummy_iso3] = CountryProjection(model_projection=dummy_projections, funding=0.0)
 
-        # Reset countries from filtered results to ensure consistency
-        countries = country_results.keys()
+            # Reset countries from filtered results to ensure consistency
+            countries = country_results.keys()
 
         # Extracting all values for each indicator across all countries, if we should do an aggregation
         for indicator in indicators:
