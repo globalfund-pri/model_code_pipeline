@@ -1265,25 +1265,29 @@ class GpTb(TBMixin, Gp):
             model_results: ModelResults,
             partner_data: PartnerData,
             parameters: Parameters,
+            country_list: list = None,
     ) -> pd.DataFrame:
         # Gather the parameters for this function
         gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
         first_year = parameters.get("START_YEAR")
         last_year = parameters.get("END_YEAR")
 
-        tb_countries = parameters.get_portfolio_countries_for(self.disease_name)
-        tb_m_countries = parameters.get_modelled_countries_for(self.disease_name)
+        if country_list is not None:
+            modelled_countries_in_modelled_list = [c for c in country_list if c in model_results.countries]
+        else:
+            country_list = parameters.get_portfolio_countries_for(self.disease_name)
+            modelled_countries_in_modelled_list = parameters.get_modelled_countries_for(self.disease_name)
 
         # Extract relevant partner and model data
         pop_model = (
             model_results.df.loc[
-                ("GP", slice(None), tb_m_countries, slice(None), "population")
+                ("GP", slice(None), modelled_countries_in_modelled_list, slice(None), "population")
             ]["central"]
             .groupby(axis=0, level=3)
             .sum()
         )
         pop_partner = (
-            partner_data.df.loc[("PF", tb_countries, slice(None), "population")][
+            partner_data.df.loc[("PF", country_list, slice(None), "population")][
                 "central"
             ]
             .groupby(axis=0, level=2)
@@ -1293,28 +1297,28 @@ class GpTb(TBMixin, Gp):
         # Get population estimates from first model year to generate ratio
         pop_m_firstyear = (
             model_results.df.loc[
-                ("GP", slice(None), tb_m_countries, first_year + 1, "population")
+                ("GP", slice(None), modelled_countries_in_modelled_list, first_year + 1, "population")
             ]["central"]
             .groupby(axis=0, level=3)
             .sum()
         )
         pop_firstyear = partner_data.df.loc[
-            ("PF", tb_countries, first_year, "population")
+            ("PF", country_list, first_year, "population")
         ].sum()["central"]
         ratio = pop_m_firstyear / pop_firstyear
 
         # Use GP baseline year partner data to get the cases/deaths/incidence/mortality estimates at baseline
         cases_baseyear = partner_data.df.loc[
-            ("PF", tb_countries, gp_start_year, "cases")
+            ("PF", country_list, gp_start_year, "cases")
         ].sum()["central"]
         deaths_baseyear = partner_data.df.loc[
-            ("PF", tb_countries, gp_start_year, "deaths")
+            ("PF", country_list, gp_start_year, "deaths")
         ].sum()["central"]
         deathshivneg_baseyear = partner_data.df.loc[
-            ("PF", tb_countries, gp_start_year, "deathshivneg")
+            ("PF", country_list, gp_start_year, "deathshivneg")
         ].sum()["central"]
         pop_baseyear = partner_data.df.loc[
-            ("PF", tb_countries, gp_start_year, "population")
+            ("PF", country_list, gp_start_year, "population")
         ].sum()["central"]
         incidence_baseyear = cases_baseyear / pop_baseyear
         mortality_rate_2015 = deaths_baseyear / pop_baseyear

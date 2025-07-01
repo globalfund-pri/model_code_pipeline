@@ -804,19 +804,23 @@ class GpMalaria(MALARIAMixin, Gp):
         fixed_gp: FixedGp,
         model_results: ModelResults,
         partner_data: PartnerData,
-        parameters: Parameters
+        parameters: Parameters,
+        country_list: list = None,
     ) -> pd.DataFrame:
 
         # Gather the parameters for this function
         gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
         last_year = parameters.get("END_YEAR")
 
-        malaria_countries = parameters.get_portfolio_countries_for(self.disease_name)
-        malaria_m_countries = parameters.get_modelled_countries_for(self.disease_name)
+        if country_list is not None:
+            modelled_countries_in_modelled_list = [c for c in country_list if c in model_results.countries]
+        else:
+            country_list = parameters.get_portfolio_countries_for(self.disease_name)
+            modelled_countries_in_modelled_list = parameters.get_modelled_countries_for(self.disease_name)
 
         # Extract relevant partner and model data
         pop_model = (
-            model_results.df.loc[("PF", 1, malaria_m_countries, slice(None), "par")][
+            model_results.df.loc[("PF", 1, modelled_countries_in_modelled_list, slice(None), "par")][
                 "central"
             ]
             .groupby(axis=0, level=3)
@@ -826,25 +830,25 @@ class GpMalaria(MALARIAMixin, Gp):
         # Get population estimates from first model year to generate ratio
         pop_m_firstyear = (
             model_results.df.loc[
-                ("PF", 1, malaria_m_countries, gp_start_year, "par")
+                ("PF", 1, modelled_countries_in_modelled_list, gp_start_year, "par")
             ]["central"]
             .groupby(axis=0, level=1)
             .sum()
         )
         pop_firstyear = partner_data.df.loc[
-            ("PF", malaria_countries, gp_start_year, "par")
+            ("PF", country_list, gp_start_year, "par")
         ].sum()["central"]
         ratio = pop_m_firstyear / pop_firstyear
 
         # Use baseline partner data to get the cases/deaths/incidence/mortality estimates at baseline
         cases_baseyear = partner_data.df.loc[
-            ("PF", malaria_countries, gp_start_year, "cases")
+            ("PF", country_list, gp_start_year, "cases")
         ].sum()["central"]
         pop_baseyear = partner_data.df.loc[
-            ("PF", malaria_countries, gp_start_year, "par")
+            ("PF", country_list, gp_start_year, "par")
         ].sum()["central"]
         deaths_baseyear = partner_data.df.loc[
-            ("PF", malaria_countries, gp_start_year, "deaths")
+            ("PF", country_list, gp_start_year, "deaths")
         ].sum()["central"]
         incidence_baseyear = cases_baseyear / pop_baseyear
         mortality_rate_baseyear = deaths_baseyear / pop_baseyear

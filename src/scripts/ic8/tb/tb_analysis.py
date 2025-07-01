@@ -9,7 +9,7 @@ from tgftools.filehandler import (
     FixedGp,
     NonTgfFunding,
     Parameters,
-    TgfFunding,
+    TgfFunding, RegionInformation,
 )
 from tgftools.utils import (
     get_root_path,
@@ -89,6 +89,68 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
         pf_input_data=pf_input_data,
         partner_data=partner_data,
     )
+
+def get_tb_database_subset(load_data_from_raw_files: bool = True, country_subset_param: str = None) -> Database:
+
+    # Declare the parameters and filepaths
+    project_root = get_root_path()
+    parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
+
+    # Load the helper class for Regional Information
+    region_info = RegionInformation()
+
+    # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
+    country_in_region = region_info.get_countries_by_regional_flag(country_subset_param)
+
+    # If load_data_from_raw_files is set to True it will re-load the data else, else use the version saved last loaded
+    if load_data_from_raw_files:
+        # Load the files
+        model_results = ModelResultsTb(
+            filepaths.get('tb', 'model-results'),
+            parameters=parameters,
+        )
+        # Save the model_results object
+        save_var(model_results, project_root / "sessions" / "tb_model_data_ic8.pkl")
+    else:
+        # Load the model results
+        model_results = load_var(project_root / "sessions" / "tb_model_data_ic8.pkl")
+
+    # Load all other data
+    pf_input_data = PFInputDataTb(filepaths.get('tb', 'pf-input-data'), parameters=parameters)
+    partner_data = PartnerDataTb(filepaths.get('tb', 'partner-data'), parameters=parameters)
+    fixed_gp = FixedGp(filepaths.get('tb', 'gp-data'), parameters=parameters)
+
+    # Get the existing countries in the partner_data index
+    existing_partner_countries = set(partner_data.df.index.get_level_values('country').unique())
+    filtered_partner_countries = [country for country in country_in_region if country in existing_partner_countries]
+    existing_pf_countries = set(pf_input_data.df.index.get_level_values('country').unique())
+    filtered_pf_countries = [country for country in country_in_region if country in existing_pf_countries]
+    existing_model_countries = set(model_results.df.index.get_level_values('country').unique())
+    filtered_model_countries = [country for country in country_in_region if country in existing_model_countries]
+
+    # Filter country_list to only include countries present in partner_data
+    partner_data.df = partner_data.df.loc[(slice(None), filtered_partner_countries, slice(None), slice(None))]
+    pf_input_data.df = pf_input_data.df.loc[(slice(None), filtered_pf_countries, slice(None), slice(None))]
+    model_results.df = model_results.df.loc[(slice(None), slice(None), filtered_model_countries, slice(None), slice(None))]
+
+    # This calls the code that generates the milestone based GP
+    gp = GpTb(
+        fixed_gp=fixed_gp,
+        model_results=model_results,
+        partner_data=partner_data,
+        parameters=parameters,
+        country_list=filtered_partner_countries,
+    )
+
+    # Create and return the database
+    return Database(
+        model_results=model_results,
+        gp=gp,
+        pf_input_data=pf_input_data,
+        partner_data=partner_data,
+    )
+
 
 
 def get_tb_analysis(

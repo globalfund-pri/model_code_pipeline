@@ -220,13 +220,13 @@ if __name__ == "__main__":
 
     # This will dump the data to csv for Nick and Stephen
     dump_ic_scenario_to_file(
-        load_data_from_raw_files=True,
+        load_data_from_raw_files=False,
         run_analysis=True,
         filename_stub=Path(str(outputpath) + "/dump_ic")
     )
 
     # This is the entry point for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = True
+    LOAD_DATA_FROM_RAW_FILES = False
     DO_CHECKS = False
     RUN_ANALYSIS = True
 

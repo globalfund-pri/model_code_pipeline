@@ -701,8 +701,21 @@ class Analysis:
         expected_first_year = self.parameters.get("GRAPH_FIRST_YEAR") - 5
         expected_last_year = self.parameters.get("START_YEAR") + 1
 
-        partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, slice(None), range(expected_first_year, expected_last_year), indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
+        # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
+        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        if country_subset_param == 'ALL':
+            partner_data = self.database.partner_data.df.loc[
+                (self.scenario_descriptor, slice(None), range(expected_first_year, expected_last_year),
+                 indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
+        else:
+            country_list = self.region_info.get_countries_by_regional_flag(country_subset_param)
+            # Get the existing countries in the partner_data index
+            existing_countries = set(self.database.partner_data.df.index.get_level_values('country').unique())
+            # Filter country_list to only include countries present in partner_data
+            filtered_countries = [country for country in country_list if country in existing_countries]
+            partner_data = self.database.partner_data.df.loc[
+                (self.scenario_descriptor, filtered_countries, range(expected_first_year, expected_last_year),
+                 indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
 
         return partner_data
 
@@ -710,7 +723,16 @@ class Analysis:
         """Returns data-frame of the GP elements that are needed for reporting."""
 
         if self.disease_name != 'HIV':
-            gp_data = self.database.gp.df['central'].unstack()
+            # Define which countries to sum up.
+            country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+            if country_subset_param == 'ALL':
+                gp_data = self.database.gp.df['central'].unstack()
+            elif self.disease_name =="TB":
+                from scripts.ic8.tb.tb_analysis import get_tb_database_subset
+                gp_data = get_tb_database_subset(load_data_from_raw_files=False, country_subset_param=country_subset_param).gp.df['central'].unstack()
+            elif self.disease_name =="MALARIA":
+                from scripts.ic8.malaria.malaria_analysis import get_malaria_database_subset
+                gp_data = get_malaria_database_subset(load_data_from_raw_files=False, country_subset_param=country_subset_param).gp.df['central'].unstack()
         else:
             # Get GP for HIV
             gp_data = self.portfolio_projection_counterfactual(self.EXPECTED_GP_SCENARIO[0])
@@ -729,9 +751,20 @@ class Analysis:
         if self.disease_name != "MALARIA":
             return pd.DataFrame()
 
+        # Define which countries to sum up. This is the
+        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        if country_subset_param == 'ALL':
+           country_list = slice(None)
+        else:
+            country_in_region = self.region_info.get_countries_by_regional_flag(country_subset_param)
+            # Get the existing countries in the partner_data index
+            existing_countries = set(self.database.model_results.df.index.get_level_values('country').unique())
+            # Filter country_list to only include countries present in partner_data
+            country_list = [country for country in country_in_region if country in existing_countries]
+
         # Get partner mortality data
         mortality_partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, slice(None), 2000, "mortality"), "central"
+            (self.scenario_descriptor, country_list, 2000, "mortality"), "central"
         ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
         # 2000 is hard-coded as the year as that is intrinsic to the analysis.
 
@@ -744,16 +777,16 @@ class Analysis:
 
         # Get the model estimates for par for IC scenario and generate mean across funding fractions
         par_model_data = self.database.model_results.df.loc[
-            (self.scenario_descriptor, slice(None), slice(None), range(expected_first_year, expected_last_year), "par"), "central"
+            (self.scenario_descriptor, slice(None), country_list, range(expected_first_year, expected_last_year), "par"), "central"
         ].groupby(axis=0, level=['country', 'year']).mean().unstack()
 
         # Then get the estimates from baseline from model and partner data to compute adjustment ratio
         par_firstyear_partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, slice(None), expected_first_year, "par"), "central"
+            (self.scenario_descriptor, country_list, expected_first_year, "par"), "central"
         ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
 
         par_firstyear_model_data = self.database.model_results.df.loc[
-            (self.scenario_descriptor, 1, slice(None), expected_first_year, "par"), "central"
+            (self.scenario_descriptor, 1, country_list, expected_first_year, "par"), "central"
         ].droplevel(axis=0, level=["scenario_descriptor", "funding_fraction", "year", "indicator"])
 
         ratio = par_firstyear_partner_data / par_firstyear_model_data
@@ -776,28 +809,39 @@ class Analysis:
             return pd.DataFrame()
 
         # Get partner mortality data
+        # Define which countries to sum up.
+        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        if country_subset_param == 'ALL':
+            country_list = slice(None)
+        else:
+            country_in_region = self.region_info.get_countries_by_regional_flag(country_subset_param)
+            # Get the existing countries in the partner_data index
+            existing_countries = set(self.database.model_results.df.index.get_level_values('country').unique())
+            # Filter country_list to only include countries present in partner_data
+            country_list = [country for country in country_in_region if country in existing_countries]
+
         # Set first year of model output
         expected_first_year = self.parameters.get("START_YEAR")
         expected_last_year = self.parameters.get("END_YEAR")
 
         incidence_partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, slice(None), expected_first_year, "incidence"), "central"
+            (self.scenario_descriptor, country_list, expected_first_year, "incidence"), "central"
         ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
 
         # TODO: make mean of funding fractions?
         # First adjust model data to baseline partner data
         # Get the model estimates for par for IC scenario and generate mean across funding fractions
         par_model_data = self.database.model_results.df.loc[
-            (self.scenario_descriptor, slice(None), slice(None), range(expected_first_year, expected_last_year), "par"), 'central'
+            (self.scenario_descriptor, slice(None), country_list, range(expected_first_year, expected_last_year), "par"), 'central'
         ].groupby(axis=0, level=['country', 'year']).mean().unstack()
 
         # Then get the estimates from baseline from model and partner data to compute adjustment ratio
         par_firstyear_partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, slice(None), expected_first_year, "par"), "central"
+            (self.scenario_descriptor, country_list, expected_first_year, "par"), "central"
         ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
 
         par_firstyear_model_data = self.database.model_results.df.loc[
-            (self.scenario_descriptor, 1, slice(None), expected_first_year, "par"), "central"
+            (self.scenario_descriptor, 1, country_list, expected_first_year, "par"), "central"
         ].droplevel(axis=0, level=["scenario_descriptor", "funding_fraction", "year", "indicator"])
 
         ratio = par_firstyear_partner_data / par_firstyear_model_data

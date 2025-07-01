@@ -462,12 +462,14 @@ class Gp:
         model_results: ModelResults,
         partner_data: PartnerData,
         parameters: Optional[Parameters] = None,
+        **kwargs,
     ):
         self.df: pd.DataFrame = self._build_df(
             fixed_gp=fixed_gp,
             model_results=model_results,
             partner_data=partner_data,
-            parameters=parameters
+            parameters=parameters,
+            **kwargs,
         )
         self._checks(self.df)
 
