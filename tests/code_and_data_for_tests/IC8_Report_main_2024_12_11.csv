@@ -1,6 +1,6 @@
 Function,Key,Value
-get_combined_stats,Total number of deaths from 3 diseases in 2005 (from partner),4143321.245
 get_combined_stats,Total number of deaths from 3 diseases in 2020 (from partner),2310718.391
+get_combined_stats,Total number of deaths from 3 diseases in 2005 (from partner),4143321.245
 get_combined_stats,Total number of deaths from 3 diseases in 2023 ,2311719.171
 get_combined_stats,Total number of deaths from 3 diseases in 2029 ,942561.4841
 get_combined_stats,Deaths averted (constant coverage) for HIV 2027 to 2029,10302669.75
