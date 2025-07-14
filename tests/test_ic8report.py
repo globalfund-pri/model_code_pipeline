@@ -45,7 +45,7 @@ def test_ic8report(tmpdir):
     filename = tmpdir / 'test_report_ic8.xlsx'
     run_results = run_ic8_report(filename)
 
-    target_results = pd.read_csv(path_to_data_for_tests / 'IC8_Report_main_2024_12_11.csv')
+    target_results = pd.read_csv(path_to_data_for_tests / 'IC8_Report_main_2025_02_24.csv')
 
     # Check for close agreement of the "main" results
     pd.testing.assert_series_equal(
