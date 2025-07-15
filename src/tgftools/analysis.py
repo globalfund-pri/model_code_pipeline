@@ -1,7 +1,7 @@
 import math
 import warnings
 from copy import copy
-from typing import Dict, Iterable, NamedTuple, Optional, Union
+from typing import Dict, Iterable, NamedTuple, Optional, Union, List
 
 import pandas as pd
 from pathlib import Path
@@ -179,6 +179,23 @@ class Analysis:
         # Load the helper class for Regional Information
         self.region_info = RegionInformation()
 
+        # Store country subsets we are interested in for outputs
+        self.country_subset = self.get_country_subset()
+
+    def get_country_subset(self) -> List[str]:
+        """Returns the list of ISO3 country codes corresponding to the subset of countries we are interested in for outputs"""
+        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        whole_portfolio_countries = self.parameters.get_portfolio_countries_for(self.disease_name)
+
+        if country_subset_param == 'ALL':
+            return whole_portfolio_countries
+        else:
+            return list(
+                set(
+                    self.region_info.get_countries_by_regional_flag(country_subset_param)
+                ).intersection(whole_portfolio_countries)
+            )
+
     def filter_funding_data_for_non_modelled_countries(
             self, funding_data_object: TgfFunding | NonTgfFunding
     ) -> TgfFunding | NonTgfFunding:
@@ -199,16 +216,19 @@ class Analysis:
                 self.tgf_funding.df["value"] + self.non_tgf_funding.df["value"]
             ).to_dict()
         )
+
+        # Return portfolio result, ensuring that only results for countries that are within this region are included.
         return PortfolioProjection(
-            tgf_funding_by_country=self.tgf_funding.df["value"].to_dict(),
-            non_tgf_funding_by_country=self.non_tgf_funding.df["value"].to_dict(),
-            country_results=country_results,
+            tgf_funding_by_country={country: amt for country, amt in self.tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
+            non_tgf_funding_by_country={country: amt for country, amt in self.non_tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
+            country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
                 name='none',
-            ),
+            )
         )
+
 
     def portfolio_projection_approach_b(
         self,
@@ -236,10 +256,12 @@ class Analysis:
                 + self.non_tgf_funding.df["value"]
             ).to_dict()
         )
+
+        # Return portfolio result, ensuring that only results for countries that are within this region are included.
         return PortfolioProjection(
-            tgf_funding_by_country=tgf_funding_under_approach_b,
-            non_tgf_funding_by_country=self.non_tgf_funding.df["value"].to_dict(),
-            country_results=country_results,  # <-- note that this will include countries that may be filtered out (todo: fix this)
+            tgf_funding_by_country={country: amt for country, amt in self.tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
+            non_tgf_funding_by_country={country: amt for country, amt in self.non_tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
+            country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
@@ -252,10 +274,11 @@ class Analysis:
         """Returns the PortfolioProjection For Approach C: i.e., the funding fraction is the same in all countries
         """
         country_results = self._get_country_projection_given_funding_fraction(funding_fraction=funding_fraction)
+
         return PortfolioProjection(
             tgf_funding_by_country=None,  # In this scenario, we do not know the split between TGF and non-TGF sources
             non_tgf_funding_by_country=None,
-            country_results=country_results,  # <-- note that this will include countries that may be filtered out (todo: fix this)
+            country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
@@ -293,7 +316,7 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country={k: float('nan') for k in self.countries},
             non_tgf_funding_by_country={k: float('nan') for k in self.countries},
-            country_results=country_results,  # <-- note that this will include countries that may be filtered out (todo: fix this)
+            country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
             portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False, name=name),
         )
 
