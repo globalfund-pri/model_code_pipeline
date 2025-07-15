@@ -265,6 +265,22 @@ class RegionInformation:
                 self.region.loc[self.region.GlobalFundRegion == region].index.to_list()
             )
 
+    def get_countries_in_wbregion(self, region: str) -> List:
+        """For a given region, return the list of ISO3 for the countries in that region."""
+        if region not in (
+                'South Asia',
+                'Sub-Saharan Africa',
+                'Europe & Central Asia',
+                'Latin America & Caribbean',
+                'East Asia & Pacific',
+                'Middle East & North Africa'
+        ):
+            raise ValueError(f"World Bank Region not recognised {region=}.")
+        else:
+            return sorted(
+                self.region.loc[self.region.WorldBank == region].index.to_list()
+            )
+
     def get_country_name_from_iso(self, iso: str) -> str:
         """returns country name given iso3 code"""
         return self._country_name_lookup[iso]
@@ -272,6 +288,14 @@ class RegionInformation:
     def get_iso_for_country(self, name: str) -> str:
         """returns iso3 code for a given country"""
         return self._iso3_lookup[name]
+
+    def get_region_for_iso(self, iso: str) -> str:
+        """returns region for a given country iso3 code"""
+        return self.region.at[iso, "GlobalFundRegion"]
+
+    def get_wbregion_for_iso(self, iso: str) -> str:
+        """returns World Bank Region for a given country iso3 code"""
+        return self.region.at[iso, "WorldBank"]
 
     def get_countries_by_regional_flag(self, regional_flag: str) -> List[str]:
         """Return ISO3 codes based on a regional flag or all countries if 'ALL'."""
@@ -287,7 +311,6 @@ class RegionInformation:
         else:
             mask_within_region = self.region[regional_flag].astype(bool)
             return sorted(self.region.loc[mask_within_region].index.tolist())
-
 
 class Indicators:
     """FileHandler that holds the definitions of each indicator."""

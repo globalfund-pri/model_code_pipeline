@@ -23,10 +23,22 @@ def test_region_information():
     c = r.get_countries_in_region("Central Africa")
     assert isinstance(c, List) and (len(c) > 0)
 
+    # Get the region for a particular ISO3 code
+    assert all([r.get_region_for_iso(country) == 'Central Africa' for country in c])
+    assert 'High Impact Africa 2' == r.get_region_for_iso('ZWE')
+
+    # Get list of ISO3 codes for a particular World Bank region
+    wb_c = r.get_countries_in_wbregion("Sub-Saharan Africa")
+    assert isinstance(wb_c, List) and (len(wb_c) > 0)
+
+    # Get the World Bank region for particular ISO3 code
+    assert all([r.get_wbregion_for_iso(country) == 'Sub-Saharan Africa' for country in wb_c])
+    assert 'Sub-Saharan Africa' == r.get_wbregion_for_iso('ZWE')
+
 
 def test_get_countries_by_regional_flag():
     """Check that the RegionInformation class works as expected when getting countries by regional flag."""
-    
+
     r = RegionInformation()
 
     # Check performance with recognised flags
