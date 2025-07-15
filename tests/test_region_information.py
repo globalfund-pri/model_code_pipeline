@@ -1,5 +1,7 @@
 from typing import List
 
+import pytest
+
 from tgftools.filehandler import RegionInformation
 
 
@@ -32,3 +34,18 @@ def test_region_information():
     # Get the World Bank region for particular ISO3 code
     assert all([r.get_wbregion_for_iso(country) == 'Sub-Saharan Africa' for country in wb_c])
     assert 'Sub-Saharan Africa' == r.get_wbregion_for_iso('ZWE')
+
+
+def test_get_countries_by_regional_flag():
+    """Check that the RegionInformation class works as expected when getting countries by regional flag."""
+
+    r = RegionInformation()
+
+    # Check performance with recognised flags
+    for flag in ('ARABLEAGUE', 'COE', 'Johannes', 'OIC', 'PKU', 'SSA'):
+        x = r.get_countries_by_regional_flag(flag)
+        assert isinstance(x, List) and (len(x) > 0)
+
+    # Check performance with unrecognised flag
+    with pytest.raises(ValueError):
+        r.get_countries_by_regional_flag('INVALID_FLAG')

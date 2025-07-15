@@ -297,6 +297,21 @@ class RegionInformation:
         """returns World Bank Region for a given country iso3 code"""
         return self.region.at[iso, "WorldBank"]
 
+    def get_countries_by_regional_flag(self, regional_flag: str) -> List[str]:
+        """Return ISO3 codes based on a regional flag or all countries if 'ALL'."""
+        recognised_flags = (  # {'ARABLEAGUE', 'COE', 'Johannes', 'OIC', 'PKU', 'SSA'}
+                set(self.region.columns) - {'ISO3', 'ISO2', 'GeographyName', 'Differentiation', 'GlobalFundRegion', 'GlobalFundDepartment'})
+
+        if regional_flag == "ALL":
+            return sorted(self.region.index.tolist())
+
+        elif regional_flag not in recognised_flags:
+            raise ValueError(f"Column '{regional_flag}' does not exist in the dataset.")
+
+        else:
+            mask_within_region = self.region[regional_flag].astype(bool)
+            return sorted(self.region.loc[mask_within_region].index.tolist())
+
 class Indicators:
     """FileHandler that holds the definitions of each indicator."""
 
@@ -470,12 +485,14 @@ class Gp:
         model_results: ModelResults,
         partner_data: PartnerData,
         parameters: Optional[Parameters] = None,
+        **kwargs,
     ):
         self.df: pd.DataFrame = self._build_df(
             fixed_gp=fixed_gp,
             model_results=model_results,
             partner_data=partner_data,
-            parameters=parameters
+            parameters=parameters,
+            **kwargs,
         )
         self._checks(self.df)
 
