@@ -244,6 +244,8 @@ class RegionInformation:
 
         self._country_name_lookup = self.region['GeographyName'].to_dict()
         self._iso3_lookup = {v: k for k, v in self._country_name_lookup.items()}
+        self._recognised_flags = (  # {'ARABLEAGUE', 'COE', 'Johannes', 'OIC', 'PKU', 'SSA', etc.}
+                set(self.region.columns) - {'ISO3', 'ISO2', 'GeographyName', 'Differentiation', 'GlobalFundRegion', 'GlobalFundDepartment', 'WorldBank'})
 
     def get_countries_in_region(self, region: str) -> List:
         """For a given region, return the list of ISO3 for the countries in that region."""
@@ -299,18 +301,20 @@ class RegionInformation:
 
     def get_countries_by_regional_flag(self, regional_flag: str) -> List[str]:
         """Return ISO3 codes based on a regional flag or all countries if 'ALL'."""
-        recognised_flags = (  # {'ARABLEAGUE', 'COE', 'Johannes', 'OIC', 'PKU', 'SSA'}
-                set(self.region.columns) - {'ISO3', 'ISO2', 'GeographyName', 'Differentiation', 'GlobalFundRegion', 'GlobalFundDepartment'})
 
         if regional_flag == "ALL":
             return sorted(self.region.index.tolist())
 
-        elif regional_flag not in recognised_flags:
+        elif regional_flag not in self._recognised_flags:
             raise ValueError(f"Column '{regional_flag}' does not exist in the dataset.")
 
         else:
             mask_within_region = self.region[regional_flag].astype(bool)
             return sorted(self.region.loc[mask_within_region].index.tolist())
+
+    def get_regional_flags(self) -> List[str]:
+        """Return list of regional flags."""
+        return self._recognised_flags
 
 class Indicators:
     """FileHandler that holds the definitions of each indicator."""

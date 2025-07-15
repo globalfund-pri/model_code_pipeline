@@ -38,8 +38,12 @@ class Report:
         )
 
     def report(self, filename: Optional[Path] = None) -> Dict:
-        """Run all member functions, print the results to screen, returns the results in the form of dictionary and
+        """Run all member functions (one each for each regional subset, as defined in REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS), ...
+        ... then print the results to screen, returns the results in the form of dictionary and
         (if filename provided) assemble them into an Excel file and draw graphs."""
+
+        all_regions = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+
 
         all_results_for_stats_pages = dict()  # Storage for all the results
         all_results_for_individual_worksheets = dict()
@@ -47,15 +51,20 @@ class Report:
         all_funcs = self._get_all_funcs_to_generate_stats()
         for ch_name in all_funcs:
             pprint(f"** {ch_name} **")
-            output = self.__getattribute__(ch_name)()
-            pprint(output)
 
-            if isinstance(output, dict):
-                all_results_for_stats_pages[ch_name] = output
-            elif isinstance(output, pd.DataFrame):
-                all_results_for_individual_worksheets[ch_name] = output
-            else:
-                raise ValueError(f"Return from {ch_name} function is not of recognised type ({type(ch_name)}).")
+            for region in all_regions:
+                print(f"  {region}")
+
+                output = self.__getattribute__(ch_name)(regional_flag=region)
+                pprint(output)
+
+                if isinstance(output, dict):
+                    all_results_for_stats_pages[f'{ch_name}: {region}'] = output
+                elif isinstance(output, pd.DataFrame):
+                    all_results_for_individual_worksheets[f'{ch_name}: {region}'] = output
+                else:
+                    raise ValueError(f"Return from {ch_name} function (for region {region}) is not of recognised type"
+                                     f" ({type(ch_name)}).")
 
         # Compile the results for the 'stats' summary
         results_for_main = list()

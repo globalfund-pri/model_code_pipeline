@@ -1,4 +1,4 @@
-from typing import Dict, Any, NamedTuple
+from typing import Dict, Any, NamedTuple, Optional, List
 
 import openpyxl
 import pandas as pd
@@ -59,7 +59,7 @@ class HTMReport(Report):
                 'Malaria': {**self.malaria.Info}
             })
 
-    def get_key_stats_hiv(self) -> Dict[str, float]:
+    def get_key_stats_hiv(self, region: str) -> Dict[str, float]:
         """Generate the incidence reduction between 2029 and 2023, per disease"""
 
         # Generate output relating cases
@@ -201,7 +201,7 @@ class HTMReport(Report):
             "Number of KP reached with prevention programmes between 2027 and 2029": kp_reached_2027_2029,
         }
 
-    def get_key_stats_tb(self) -> Dict[str, float]:
+    def get_key_stats_tb(self, region: str) -> Dict[str, float]:
         """ Get the key stats for tb.  """
 
         # Generate output relating to cases
@@ -329,7 +329,7 @@ class HTMReport(Report):
             "Number of people screened between 2027 and 2029": tb_screened_2027_2029,
         }
 
-    def get_key_stats_malaria(self) -> Dict[str, float]:
+    def get_key_stats_malaria(self, region: str) -> Dict[str, float]:
         """ Get the key stats for malaria.  """
 
         # Generate output relating to cases
@@ -488,7 +488,7 @@ class HTMReport(Report):
             "Vaccine cost between 2027 and 2029": vaccines_cost_2027_2029,
         }
 
-    def get_lives_saved(self) -> Dict[str, float]:
+    def get_lives_saved(self, region: str) -> Dict[str, float]:
         """Save a graph to the outputs directory"""
 
         # Get lives saved for HIV
@@ -558,7 +558,7 @@ class HTMReport(Report):
             "Number of lives saved across diseases 2027 to 2029": total_ls_2027_2029,
         }
 
-    def get_infections_averted(self) -> dict[str, Any]:
+    def get_infections_averted(self, region: str) -> dict[str, Any]:
         """ Generate infections averted """
 
         # Get infections averted for HIV
@@ -589,7 +589,7 @@ class HTMReport(Report):
             "Infections averted across three diseases from 2027 to 2029": infections_averted_2027_2029_portfolio,
         }
 
-    def hiv_cases(self) -> pd.DataFrame:
+    def hiv_cases(self, region: str) -> pd.DataFrame:
         """Produce graph for HIV cases"""
         return pd.DataFrame(
             index=pd.Index(list(range(2005, 2031)), name='Year'),
@@ -613,7 +613,7 @@ class HTMReport(Report):
             }
         )
 
-    def hiv_deaths(self) -> pd.DataFrame:
+    def hiv_deaths(self, region: str) -> pd.DataFrame:
         """Produce graph for HIV deaths"""
         return pd.DataFrame(
             index=pd.Index(list(range(2005, 2031)), name='Year'),
@@ -641,7 +641,7 @@ class HTMReport(Report):
             }
         )
 
-    def tb_cases(self) -> pd.DataFrame:
+    def tb_cases(self, region: str) -> pd.DataFrame:
         """Produce graph for TB cases"""
         return pd.DataFrame(
             index=pd.Index(list(range(2005, 2031)), name='Year'),
@@ -671,7 +671,7 @@ class HTMReport(Report):
             }
         )
 
-    def tbh_deaths(self) -> pd.DataFrame:
+    def tbh_deaths(self, region: str) -> pd.DataFrame:
         """Produce graph for TB deaths"""
         return pd.DataFrame(
             index=pd.Index(list(range(2005, 2031)), name='Year'),
@@ -700,7 +700,7 @@ class HTMReport(Report):
             }
         )
 
-    def tb_deaths(self) -> pd.DataFrame:
+    def tb_deaths(self, region: str) -> pd.DataFrame:
         """Produce graph for TB deaths"""
         return pd.DataFrame(
             index=pd.Index(list(range(2005, 2031)), name='Year'),
@@ -729,7 +729,7 @@ class HTMReport(Report):
             }
         )
 
-    def mal_cases(self) -> pd.DataFrame:
+    def mal_cases(self, region: str) -> pd.DataFrame:
         """Produce graph for malaria cases"""
         return pd.DataFrame(
             index=pd.Index(list(range(2005, 2031)), name='Year'),
@@ -756,7 +756,7 @@ class HTMReport(Report):
             }
         )
 
-    def mal_deaths(self) -> pd.DataFrame:
+    def mal_deaths(self, region: str) -> pd.DataFrame:
         """Produce graph for malaria deaths"""
         return pd.DataFrame(
             index=pd.Index(list(range(2005, 2031)), name='Year'),
@@ -783,7 +783,7 @@ class HTMReport(Report):
             }
         )
 
-    def get_combined_stats(self) -> dict[str, Any]:
+    def get_combined_stats(self, region: str) -> dict[str, Any]:
         """ Generate combined stats """
 
         # Get deaths in 2023 for each disease
@@ -893,17 +893,17 @@ class HTMReport(Report):
             "Reduction in incidence across three diseases from 2023 to 2029": incidence_reduction_portfolio_2023_2029,
         }
 
-    def comb_mort(self) -> pd.DataFrame:
+    def comb_mort(self, region: str) -> pd.DataFrame:
         """Generate graphs for the combined mortality. """
 
         return self._calculate_combined_mortality_stats()['Combined mortality df']
 
-    def comb_inc(self) -> pd.DataFrame:
+    def comb_inc(self, region: str) -> pd.DataFrame:
         """Generate graphs for the combined incidence. """
 
         return self._calculate_combined_incidence_stats()['Combined incidence df']
 
-    def comb_reduc(self) -> pd.DataFrame:
+    def comb_reduc(self, region: str) -> pd.DataFrame:
         """Get reductions in mortality for IC and CF. """
 
         # Keep only the reductions in mortality and incidence and turn into a df
@@ -1456,3 +1456,15 @@ class HTMReport(Report):
             "Reduction in incidence in IC": reduction_ic,
             "Reduction in incidence in CF": reduction_cf,
         }
+
+    def _country_subset_for_region(self, region: str) -> List[str]:
+        """Returns list of ISO3 country codes for region"""
+        self.
+        if regional == 'ALL':
+            countries = country_results.keys()
+        else:
+            countries = list(
+                set(
+                    self.region_info.get_countries_by_regional_flag(regional_flag)
+                ).intersection(country_results.keys())
+            )

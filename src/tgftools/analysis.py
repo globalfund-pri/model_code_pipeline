@@ -109,6 +109,13 @@ class PortfolioProjection(NamedTuple):
     #                                                    (central/low/high for the value) across all the portfolio,
     #                                                    with adjustments.
 
+    portfolio_results_by_regional_flag: dict[
+        str, dict[
+            dict, pd.DataFrame
+        ]
+    ]  # dict of the form {regional_flag: portfolio_result for the regional}
+
+
 
 class Analysis:
     """This is the Analysis class. It holds a Database object and requires an argument for the scenario_descriptor.
@@ -199,15 +206,25 @@ class Analysis:
                 self.tgf_funding.df["value"] + self.non_tgf_funding.df["value"]
             ).to_dict()
         )
+
         return PortfolioProjection(
             tgf_funding_by_country=self.tgf_funding.df["value"].to_dict(),
             non_tgf_funding_by_country=self.non_tgf_funding.df["value"].to_dict(),
             country_results=country_results,
-            portfolio_results=self._make_portfolio_results(
+            portfolio_results=self._make_portfolio_results(  # <-- for global projection
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
                 name='none',
+                regional_flag=None,
             ),
+            portfolio_results_by_regional_flag={
+                regional_flag: self._make_portfolio_results(
+                    country_results=country_results,
+                    adjust_for_unmodelled_innovation=self.innovation_on,
+                    name='none',
+                    regional_flag=regional_flag
+                ) for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+            }
         )
 
     def portfolio_projection_approach_b(
@@ -239,12 +256,20 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country=tgf_funding_under_approach_b,
             non_tgf_funding_by_country=self.non_tgf_funding.df["value"].to_dict(),
-            country_results=country_results,  # <-- note that this will include countries that may be filtered out (todo: fix this)
+            country_results=country_results,
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
                 name='none',
-            )
+                regional_flag=None),
+            portfolio_results_by_regional_flag={
+                regional_flag: self._make_portfolio_results(
+                    country_results=country_results,
+                    adjust_for_unmodelled_innovation=self.innovation_on,
+                    name='none',
+                    regional_flag=regional_flag
+                ) for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+            }
         )
 
 
@@ -261,6 +286,13 @@ class Analysis:
                 adjust_for_unmodelled_innovation=self.innovation_on,
                 name='none',
             ),
+            portfolio_results_by_regional_flag={
+                regional_flag: self._make_portfolio_results(country_results,
+                                                            adjust_for_unmodelled_innovation=False,
+                                                            name=name,
+                                                            regional_flag=regional_flag)
+                for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+            }
         )
 
 
@@ -294,7 +326,17 @@ class Analysis:
             tgf_funding_by_country={k: float('nan') for k in self.countries},
             non_tgf_funding_by_country={k: float('nan') for k in self.countries},
             country_results=country_results,  # <-- note that this will include countries that may be filtered out (todo: fix this)
-            portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False, name=name),
+            portfolio_results=self._make_portfolio_results(country_results,
+                                                           adjust_for_unmodelled_innovation=False,
+                                                           name=name,
+                                                           regional_flag=None),
+            portfolio_results_by_regional_flag={
+                regional_flag: self._make_portfolio_results(country_results,
+                                             adjust_for_unmodelled_innovation=False,
+                                             name=name,
+                                             regional_flag=regional_flag)
+                for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+            }
         )
 
     def dump_everything_to_xlsx(
@@ -445,13 +487,21 @@ class Analysis:
             country_results: Dict[str, CountryProjection],
             adjust_for_unmodelled_innovation: bool,
             name: str,
+            regional_flag: Optional[str] = None,
     ) -> Dict[str, pd.DataFrame]:
         """ This function generates portfolio level results. This included summing up variables across countries,
         scaling up for non-modelled countries, and doing the adjustment for GP-related innovation. """
 
+        regional_flag = regional_flag if regional_flag else 'ALL' # If None is passed (or no value), use 'ALL'
+
         actual_without_innovation = (
             self._scale_up_for_non_modelled_countries(
-                self._summing_up_countries(country_results, name), name
+                self._summing_up_countries(
+                    country_results=country_results,
+                    regional_flag=regional_flag,
+                    name=name),
+                regional_flag=regional_flag,
+                name=name
             )
         )
 
@@ -471,7 +521,7 @@ class Analysis:
                 )
             )
 
-    def _scale_up_for_non_modelled_countries(self, portfolio_results: Dict[str, pd.DataFrame], name: str) -> Dict[str, pd.DataFrame]:
+    def _scale_up_for_non_modelled_countries(self, portfolio_results: Dict[str, pd.DataFrame], name: str, regional_flag: str) -> Dict[str, pd.DataFrame]:
         """ This scales the modelled results to non-modelled countries for the epi indicators. """
 
         # Define years and parameters we need
@@ -491,13 +541,12 @@ class Analysis:
         indicator_list = indicator_list['name'].tolist()
 
         # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
-        country_subset_param = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
-        if country_subset_param == 'ALL':
+        if regional_flag == 'ALL':
             country_subset = slice(None)
         else:
             country_subset = list(
                 set(
-                    self.region_info.get_countries_by_regional_flag(country_subset_param)
+                    self.region_info.get_countries_by_regional_flag(regional_flag)
                 ).intersection(self.database.partner_data.countries)
             )
 
@@ -573,7 +622,7 @@ class Analysis:
 
         return adj_country_results
 
-    def _summing_up_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
+    def _summing_up_countries(self, country_results: Dict[str, CountryProjection], name: str, regional_flag: str) -> Dict[str, pd.DataFrame]:
         """ This will sum up all the country results to get the portolfio-level results. This will use the adjusted
         country results and be used to generate uncertainty. """
 
@@ -620,13 +669,12 @@ class Analysis:
         types_lookup = self.indicators['type'].to_dict()
 
         # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
-        country_subset = p.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
-        if country_subset == 'ALL':
+        if regional_flag == 'ALL':
             countries = country_results.keys()
         else:
             countries = list(
                 set(
-                    self.region_info.get_countries_by_regional_flag(country_subset)
+                    self.region_info.get_countries_by_regional_flag(regional_flag)
                 ).intersection(country_results.keys())
             )
 
@@ -638,7 +686,7 @@ class Analysis:
 
         if not countries:
             warnings.warn(
-                f"No countries available for '{self.disease_name}' in region '{country_subset}'. Creating two dummy countries with zeros.")
+                f"No countries available for '{self.disease_name}' in region '{regional_flag}'. Creating two dummy countries with zeros.")
 
             indicators = list(indicators)  # Just to be safe in case it's a dict_keys object
 
@@ -688,7 +736,7 @@ class Analysis:
 
         return portfolio_results
 
-    def get_partner(self) -> pd.DataFrame:
+    def get_partner(self) -> dict[str, pd.DataFrame]:
         """Returns data-frame of the partner data that are needed for reporting."""
 
         if self.disease_name == 'HIV':
@@ -701,160 +749,185 @@ class Analysis:
         expected_first_year = self.parameters.get("GRAPH_FIRST_YEAR") - 5
         expected_last_year = self.parameters.get("START_YEAR") + 1
 
-        # Define which countries to sum up. This is the place where we would filter for regions if the run requests this
-        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
-        if country_subset_param == 'ALL':
-            partner_data = self.database.partner_data.df.loc[
-                (self.scenario_descriptor, slice(None), range(expected_first_year, expected_last_year),
-                 indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
-        else:
-            country_list = self.region_info.get_countries_by_regional_flag(country_subset_param)
-            # Get the existing countries in the partner_data index
-            existing_countries = set(self.database.partner_data.df.index.get_level_values('country').unique())
-            # Filter country_list to only include countries present in partner_data
-            filtered_countries = [country for country in country_list if country in existing_countries]
-            partner_data = self.database.partner_data.df.loc[
-                (self.scenario_descriptor, filtered_countries, range(expected_first_year, expected_last_year),
-                 indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
+        def get_partner_data_for_regional_subset(regional_flag: str) -> pd.DataFrame:
+            """This function returns the partner data for a given regional flag."""
+            if regional_flag == 'ALL':
+                partner_data = self.database.partner_data.df.loc[
+                    (self.scenario_descriptor, slice(None), range(expected_first_year, expected_last_year),
+                     indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
+            else:
+                country_list = self.region_info.get_countries_by_regional_flag(regional_flag)
+                # Get the existing countries in the partner_data index
+                existing_countries = set(self.database.partner_data.df.index.get_level_values('country').unique())
+                # Filter country_list to only include countries present in partner_data
+                filtered_countries = [country for country in country_list if country in existing_countries]
+                partner_data = self.database.partner_data.df.loc[
+                    (self.scenario_descriptor, filtered_countries, range(expected_first_year, expected_last_year),
+                     indicator_partner)].groupby(axis=0, level=['year', 'indicator'])['central'].sum().unstack()
 
-        return partner_data
+            return partner_data
 
-    def get_gp(self) -> pd.DataFrame:
-        """Returns data-frame of the GP elements that are needed for reporting."""
+        return {
+            regional_flag: get_partner_data_for_regional_subset(regional_flag)
+            for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        }
+
+    def get_gp(self) -> dict[str, pd.DataFrame]:
+        """Returns data-frame of the GP elements that are needed for reporting, for each regional flag."""
 
         if self.disease_name != 'HIV':
-            # Define which countries to sum up.
-            country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
-            if country_subset_param == 'ALL':
-                gp_data = self.database.gp.df['central'].unstack()
-            elif self.disease_name =="TB":
-                from scripts.ic8.tb.tb_analysis import get_tb_database_subset
-                gp_data = get_tb_database_subset(load_data_from_raw_files=False, country_subset_param=country_subset_param).gp.df['central'].unstack()
-            elif self.disease_name =="MALARIA":
-                from scripts.ic8.malaria.malaria_analysis import get_malaria_database_subset
-                gp_data = get_malaria_database_subset(load_data_from_raw_files=False, country_subset_param=country_subset_param).gp.df['central'].unstack()
+
+            def get_gp_data_for_regional_subset_for_malaria_or_tb(regional_flag: str) -> pd.DataFrame:
+                # Define which countries to sum up.
+                if regional_flag == 'ALL':
+                    return self.database.gp.df['central'].unstack()
+                elif self.disease_name =="TB":
+                    from scripts.ic8.tb.tb_analysis import get_tb_database_subset
+                    return get_tb_database_subset(load_data_from_raw_files=False, country_subset_param=regional_flag).gp.df['central'].unstack()
+                elif self.disease_name =="MALARIA":
+                    from scripts.ic8.malaria.malaria_analysis import get_malaria_database_subset
+                    return get_malaria_database_subset(load_data_from_raw_files=False, country_subset_param=regional_flag).gp.df['central'].unstack()
+
+            return {
+                regional_flag: get_gp_data_for_regional_subset_for_malaria_or_tb(regional_flag)
+                for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+            }
+
         else:
             # Get GP for HIV
-            gp_data = self.portfolio_projection_counterfactual(self.EXPECTED_GP_SCENARIO[0])
+            gp_cf = self.portfolio_projection_counterfactual(self.EXPECTED_GP_SCENARIO[0])
 
-            # Convert to the same format as other diseases
-            gp_data = gp_data.portfolio_results
-            gp_data = pd.concat(gp_data, axis=0).reset_index(level=0).rename({'level_0': 'key'}, axis=1)
-            gp_data = gp_data.drop(['model_low', 'model_high'], axis=1)
-            gp_data = gp_data.pivot(columns='key', values='model_central')
+            def get_gp_data_for_regional_subset_for_hiv(regional_flag: str) -> pd.DataFrame:
+                # Convert to the same format as other diseases
+                gp_data = gp_cf.portfolio_results_by_regional_flag[regional_flag]
+                gp_data = pd.concat(gp_data, axis=0).reset_index(level=0).rename({'level_0': 'key'}, axis=1)
+                gp_data = gp_data.drop(['model_low', 'model_high'], axis=1)
+                gp_data = gp_data.pivot(columns='key', values='model_central')
+                return gp_data
 
-        return gp_data
+            return {
+                regional_flag: get_gp_data_for_regional_subset_for_hiv(regional_flag)
+                for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+            }
 
-    def get_counterfactual_lives_saved_malaria(self) -> pd.DataFrame:
-        """ Return the CF time series to compute lives saved for malaria"""
+
+    def get_counterfactual_lives_saved_malaria(self) -> dict[str, pd.DataFrame]:
+        """ Return the CF time series to compute lives saved for malaria, for each regional flag."""
 
         if self.disease_name != "MALARIA":
             return pd.DataFrame()
 
-        # Define which countries to sum up. This is the
-        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
-        if country_subset_param == 'ALL':
-           country_list = slice(None)
-        else:
-            country_in_region = self.region_info.get_countries_by_regional_flag(country_subset_param)
-            # Get the existing countries in the partner_data index
-            existing_countries = set(self.database.model_results.df.index.get_level_values('country').unique())
-            # Filter country_list to only include countries present in partner_data
-            country_list = [country for country in country_in_region if country in existing_countries]
+        def get_cf_for_regional_flag(regional_flag: str) -> pd.DataFrame:
+            if regional_flag == 'ALL':
+               country_list = slice(None)
+            else:
+                country_in_region = self.region_info.get_countries_by_regional_flag(regional_flag)
+                # Get the existing countries in the partner_data index
+                existing_countries = set(self.database.model_results.df.index.get_level_values('country').unique())
+                # Filter country_list to only include countries present in partner_data
+                country_list = [country for country in country_in_region if country in existing_countries]
 
-        # Get partner mortality data
-        mortality_partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, country_list, 2000, "mortality"), "central"
-        ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
-        # 2000 is hard-coded as the year as that is intrinsic to the analysis.
+            # Get partner mortality data
+            mortality_partner_data = self.database.partner_data.df.loc[
+                (self.scenario_descriptor, country_list, 2000, "mortality"), "central"
+            ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
+            # 2000 is hard-coded as the year as that is intrinsic to the analysis.
 
-        # TODO: make mean of funding fractions?
-        # Set years of model output
-        expected_first_year = self.parameters.get("START_YEAR")
-        expected_last_year = self.parameters.get("END_YEAR")
+            # TODO: make mean of funding fractions?
+            # Set years of model output
+            expected_first_year = self.parameters.get("START_YEAR")
+            expected_last_year = self.parameters.get("END_YEAR")
 
-        # First adjust model data to baseline partner data
+            # First adjust model data to baseline partner data
 
-        # Get the model estimates for par for IC scenario and generate mean across funding fractions
-        par_model_data = self.database.model_results.df.loc[
-            (self.scenario_descriptor, slice(None), country_list, range(expected_first_year, expected_last_year), "par"), "central"
-        ].groupby(axis=0, level=['country', 'year']).mean().unstack()
+            # Get the model estimates for par for IC scenario and generate mean across funding fractions
+            par_model_data = self.database.model_results.df.loc[
+                (self.scenario_descriptor, slice(None), country_list, range(expected_first_year, expected_last_year), "par"), "central"
+            ].groupby(axis=0, level=['country', 'year']).mean().unstack()
 
-        # Then get the estimates from baseline from model and partner data to compute adjustment ratio
-        par_firstyear_partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, country_list, expected_first_year, "par"), "central"
-        ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
+            # Then get the estimates from baseline from model and partner data to compute adjustment ratio
+            par_firstyear_partner_data = self.database.partner_data.df.loc[
+                (self.scenario_descriptor, country_list, expected_first_year, "par"), "central"
+            ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
 
-        par_firstyear_model_data = self.database.model_results.df.loc[
-            (self.scenario_descriptor, 1, country_list, expected_first_year, "par"), "central"
-        ].droplevel(axis=0, level=["scenario_descriptor", "funding_fraction", "year", "indicator"])
+            par_firstyear_model_data = self.database.model_results.df.loc[
+                (self.scenario_descriptor, 1, country_list, expected_first_year, "par"), "central"
+            ].droplevel(axis=0, level=["scenario_descriptor", "funding_fraction", "year", "indicator"])
 
-        ratio = par_firstyear_partner_data / par_firstyear_model_data
+            ratio = par_firstyear_partner_data / par_firstyear_model_data
 
-        # Compute modelled par that have been adjusted to baseline partner data
-        adj_par_data_model = par_model_data.mul(ratio, axis=0)
+            # Compute modelled par that have been adjusted to baseline partner data
+            adj_par_data_model = par_model_data.mul(ratio, axis=0)
 
-        # Now compute deaths from the above as a CF time series for lives saved
-        adjusted_mortality = adj_par_data_model.mul(mortality_partner_data, axis=0)
-        adjusted_mortality_total = adjusted_mortality.sum(axis=0)
-        adjusted_mortality_total.index = adjusted_mortality_total.index.astype(int)
+            # Now compute deaths from the above as a CF time series for lives saved
+            adjusted_mortality = adj_par_data_model.mul(mortality_partner_data, axis=0)
+            adjusted_mortality_total = adjusted_mortality.sum(axis=0)
+            adjusted_mortality_total.index = adjusted_mortality_total.index.astype(int)
 
-        return adjusted_mortality_total
+            return adjusted_mortality_total
 
-    def get_counterfactual_infections_averted_malaria(self) -> pd.DataFrame:
-        """ Return the CF time series to compute infections averted for malaria"""
+        return {
+            regional_flag: get_cf_for_regional_flag(regional_flag)
+            for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        }
+
+    def get_counterfactual_infections_averted_malaria(self) -> dict[str, pd.DataFrame]:
+        """ Return the CF time series to compute infections averted for malaria, for each regional flag."""
 
         if self.disease_name != "MALARIA":
-
             return pd.DataFrame()
 
-        # Get partner mortality data
-        # Define which countries to sum up.
-        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
-        if country_subset_param == 'ALL':
-            country_list = slice(None)
-        else:
-            country_in_region = self.region_info.get_countries_by_regional_flag(country_subset_param)
-            # Get the existing countries in the partner_data index
-            existing_countries = set(self.database.model_results.df.index.get_level_values('country').unique())
-            # Filter country_list to only include countries present in partner_data
-            country_list = [country for country in country_in_region if country in existing_countries]
+        def get_cf_for_regional_flag(regional_flag: str) -> pd.DataFrame:
 
-        # Set first year of model output
-        expected_first_year = self.parameters.get("START_YEAR")
-        expected_last_year = self.parameters.get("END_YEAR")
+            if regional_flag == 'ALL':
+                country_list = slice(None)
+            else:
+                country_in_region = self.region_info.get_countries_by_regional_flag(regional_flag)
+                # Get the existing countries in the partner_data index
+                existing_countries = set(self.database.model_results.df.index.get_level_values('country').unique())
+                # Filter country_list to only include countries present in partner_data
+                country_list = [country for country in country_in_region if country in existing_countries]
 
-        incidence_partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, country_list, expected_first_year, "incidence"), "central"
-        ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
+            # Set first year of model output
+            expected_first_year = self.parameters.get("START_YEAR")
+            expected_last_year = self.parameters.get("END_YEAR")
 
-        # TODO: make mean of funding fractions?
-        # First adjust model data to baseline partner data
-        # Get the model estimates for par for IC scenario and generate mean across funding fractions
-        par_model_data = self.database.model_results.df.loc[
-            (self.scenario_descriptor, slice(None), country_list, range(expected_first_year, expected_last_year), "par"), 'central'
-        ].groupby(axis=0, level=['country', 'year']).mean().unstack()
+            incidence_partner_data = self.database.partner_data.df.loc[
+                (self.scenario_descriptor, country_list, expected_first_year, "incidence"), "central"
+            ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
 
-        # Then get the estimates from baseline from model and partner data to compute adjustment ratio
-        par_firstyear_partner_data = self.database.partner_data.df.loc[
-            (self.scenario_descriptor, country_list, expected_first_year, "par"), "central"
-        ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
+            # TODO: make mean of funding fractions?
+            # First adjust model data to baseline partner data
+            # Get the model estimates for par for IC scenario and generate mean across funding fractions
+            par_model_data = self.database.model_results.df.loc[
+                (self.scenario_descriptor, slice(None), country_list, range(expected_first_year, expected_last_year), "par"), 'central'
+            ].groupby(axis=0, level=['country', 'year']).mean().unstack()
 
-        par_firstyear_model_data = self.database.model_results.df.loc[
-            (self.scenario_descriptor, 1, country_list, expected_first_year, "par"), "central"
-        ].droplevel(axis=0, level=["scenario_descriptor", "funding_fraction", "year", "indicator"])
+            # Then get the estimates from baseline from model and partner data to compute adjustment ratio
+            par_firstyear_partner_data = self.database.partner_data.df.loc[
+                (self.scenario_descriptor, country_list, expected_first_year, "par"), "central"
+            ].droplevel(axis=0, level=["scenario_descriptor", "year", "indicator"])
 
-        ratio = par_firstyear_partner_data / par_firstyear_model_data
+            par_firstyear_model_data = self.database.model_results.df.loc[
+                (self.scenario_descriptor, 1, country_list, expected_first_year, "par"), "central"
+            ].droplevel(axis=0, level=["scenario_descriptor", "funding_fraction", "year", "indicator"])
 
-        # Compute modelled par that have been adjusted to baseline partner data
-        adj_par_data_model = par_model_data.mul(ratio, axis=0)
+            ratio = par_firstyear_partner_data / par_firstyear_model_data
 
-        # Now compute deaths from the above as a CF time series for lives saved
-        adjusted_incidence = adj_par_data_model.mul(incidence_partner_data, axis=0)
-        adjusted_incidence_total = adjusted_incidence.sum(axis=0)
-        adjusted_incidence_total.index = adjusted_incidence_total.index.astype(int)
+            # Compute modelled par that have been adjusted to baseline partner data
+            adj_par_data_model = par_model_data.mul(ratio, axis=0)
 
-        return adjusted_incidence_total
+            # Now compute deaths from the above as a CF time series for lives saved
+            adjusted_incidence = adj_par_data_model.mul(incidence_partner_data, axis=0)
+            adjusted_incidence_total = adjusted_incidence.sum(axis=0)
+            adjusted_incidence_total.index = adjusted_incidence_total.index.astype(int)
+
+            return adjusted_incidence_total
+
+        return {
+            regional_flag: get_cf_for_regional_flag(regional_flag)
+            for regional_flag in self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        }
 
     def make_diagnostic_report(
             self,
