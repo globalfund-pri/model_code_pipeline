@@ -5,8 +5,9 @@
 # Overall specification of the analysis
 HISTORIC_FIRST_YEAR = 2000 # First year of historic scenarios
 GRAPH_FIRST_YEAR = 2010 # Year for which we want data in the report
+NULL_START_YEAR = 2022 # First year for NULL scenario, if you adjust to start year + 1 the whole time series goes down
 PARTNER_START_YEAR = 2015 # First year for which we want to compare model output to partner data
-START_YEAR = 2022  # The last year for which data available. This is the year upon which calibrating adjustments are made for the model results.
+START_YEAR = 2023  # The last year for which data available. This is the year upon which calibrating adjustments are made for the model results.
 END_YEAR = 2030  # The final year of the model results
 LAST_YEAR_PF = 2026
 YEARS_FOR_FUNDING = [2027, 2028, 2029]  # These are the years for which the funding data corrrespond
@@ -21,6 +22,7 @@ REMOVE_DOMINATED_POINTS = true
 INNOVATION_ON = false
 FORCE_MONOTONIC_DECREASING = true  # Whether the results for each country should be over-written such that cases and deaths are strictly decreasing with increasing funding.
 APPROACH_B_METHODS = ['ga_backwards', 'ga_forwards']  # Methods for optimisation, see ApproachB class for others
+REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS = "ALL"        # COULD BE: "ALL", "ASIA", "MENA", "SSA", etc.
 
 # --------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------
@@ -103,7 +105,7 @@ PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', '
 MODELLED_COUNTRIES = ['AFG' ,'AGO', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'DJI', 'DOM', 'ECU', 'EGY', 'ETH', 'GEO', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'SUR', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'YEM', 'ZAF', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
 GP_START_YEAR = 2020
-PARTNER_DATA_YEARS = [2022]
+PARTNER_DATA_YEARS = [2023]
 PF_DATA_YEARS = [2024,2025,2026]
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
@@ -202,6 +204,12 @@ type="count"
 use_scaling=false
 
 [[HIV.indicator]]
+name="fswreached"
+description="number of FSW reached with prevention programmes"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="msmcoverage"
 description="percentage of MSM accessing prevention services at the end of the reporting period"
 type="fraction"
@@ -210,6 +218,12 @@ use_scaling=false
 [[HIV.indicator]]
 name="msmprep"
 description="number of MSM on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="msmreached"
+description="number of MSM reached with prevention programmes"
 type="count"
 use_scaling=false
 
@@ -226,8 +240,20 @@ type="count"
 use_scaling=false
 
 [[HIV.indicator]]
+name="pwidreached"
+description="number of PWID reached with prevention programmes"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="ost"
 description="number of PWID on OST at the end of the reporting period"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="hst"
+description="number of people receiving HIV testing and councelling"
 type="count"
 use_scaling=false
 
@@ -664,6 +690,24 @@ type="count"
 use_scaling=false
 
 [[HIV.indicator]]
+name="agywni"
+description="number of new infections amongst agyws"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="agywplhiv"
+description="number of agyws whi are hiv-positive"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
+name="agywpop"
+description="number of agyws"
+type="count"
+use_scaling=false
+
+[[HIV.indicator]]
 name="adultart"
 description="number of adults 15+ on art"
 type="count"
@@ -809,7 +853,7 @@ PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', '
 MODELLED_COUNTRIES = ['AFG', 'AGO', 'BGD', 'CMR', 'COD', 'ETH', 'GHA', 'IDN', 'IND', 'KEN', 'KHM', 'MDG', 'MMR', 'MOZ', 'NGA', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'THA', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.11,0.22,0.33,0.44,0.56,0.67,0.78,0.89,1,]
 GP_START_YEAR = 2015
-PARTNER_DATA_YEARS = [2020,2021,2022]
+PARTNER_DATA_YEARS = [2020,2021,2022, 2023]
 PF_DATA_YEARS = [2024,2025,2026]
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths', 'deathshivneg']
@@ -1387,10 +1431,10 @@ PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', '
 MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BGD', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
 GP_START_YEAR = 2015
-PARTNER_DATA_YEARS = [2020, 2021, 2022]
+PARTNER_DATA_YEARS = [2020, 2021, 2022, 2023]
 PF_DATA_YEARS = [2024,2025,2026]
 HISTORIC_FIRST_YEAR = 2000
-HISTORIC_END_YEAR = 2022
+HISTORIC_END_YEAR = 2023
 TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
 INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
 INDICATORS_FOR_NULL_CHECK = ['irsppl', 'irshh', 'llins', 'txpublic', 'smc', 'vaccine', 'txcoverage', 'smccoverage', 'vaccinecoverage']
@@ -1532,6 +1576,12 @@ use_scaling=false
 [[MALARIA.indicator]]
 name="txprivate"
 description="number of people treated in the private sector"
+type="count"
+use_scaling=false
+
+[[MALARIA.indicator]]
+name="nrtx"
+description="number of people treated (coverage multiplied by cases)"
 type="count"
 use_scaling=false
 
