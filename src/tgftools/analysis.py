@@ -218,7 +218,7 @@ class Analysis:
         )
 
         # Return portfolio result, ensuring that only results for countries that are within this region are included.
-        PortfolioProjection(
+        return PortfolioProjection(
             tgf_funding_by_country={country: amt for country, amt in self.tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
             non_tgf_funding_by_country={country: amt for country, amt in self.non_tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
             country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
@@ -258,7 +258,7 @@ class Analysis:
         )
 
         # Return portfolio result, ensuring that only results for countries that are within this region are included.
-        PortfolioProjection(
+        return PortfolioProjection(
             tgf_funding_by_country={country: amt for country, amt in self.tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
             non_tgf_funding_by_country={country: amt for country, amt in self.non_tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
             country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
