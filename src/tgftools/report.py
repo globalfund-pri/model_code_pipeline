@@ -18,8 +18,9 @@ class Report:
     pd.DataFrames are written to their own sheet of the same name.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, parameters, **kwargs):
         """Initialise the Report Class"""
+        self.parameters = parameters
 
     def _get_all_funcs_to_generate_stats(self) -> list[str]:
         """Returns a list of the functions in the class that will generate statistics (i.e., any function with a name
@@ -78,6 +79,12 @@ class Report:
             work_sheet_stats.title = 'stats'
             for line in results_for_main:
                 work_sheet_stats.append(line)
+
+            # Write parameters.toml into 'parameters' sheet
+            work_sheet_params = wb.create_sheet()
+            work_sheet_params.title = 'params'
+            for i, line in enumerate(self.parameters.raw_store.splitlines()):
+                work_sheet_params.append([f'Line #{i + 1}', line])
 
             # Write results to 'individual' worksheet
             for func_name, func_results in all_results_for_individual_worksheets.items():
