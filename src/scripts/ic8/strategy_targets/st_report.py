@@ -1,38 +1,21 @@
-from typing import Dict, Any, NamedTuple
+from typing import Dict
 
 import openpyxl
 import pandas as pd
 from openpyxl import Workbook
-from openpyxl.chart import Reference, LineChart
 
-from tgftools.analysis import PortfolioProjection
+from scripts.ic8.shared.htm_report import SetOfPortfolioProjections
 from tgftools.filehandler import Parameters
 from tgftools.report import Report
-from tgftools.utils import get_root_path, matmul
-
-
-class SetOfPortfolioProjections(NamedTuple):
-    IC: PortfolioProjection  # The main forward projection scenario for the investment case
-    CF_InfAve: PortfolioProjection  # The counterfactual projection scenario to compute infections averted
-    # (N.B., we may have multiple different ones for different diseases)
-    CF_LivesSaved: PortfolioProjection  # The counterfactual projection scenario to compute lives saved
-    # (N.B., we may have multiple different ones for different diseases)
-    CF_LivesSaved_Malaria: pd.DataFrame  # The counterfactual for lives saved for malaria
-    CF_InfectionsAverted_Malaria: pd.DataFrame  # The counterfactual for lives saved for malaria
-    PARTNER: pd.DataFrame  # Dataframe containing partner data needed for reporting
-    CF_forgraphs: pd.DataFrame  # Dataframe containing GP needed for reporting (N.B., may differ by disease)
-    Info: Dict # Dictionary containing all the information on the ananlysis including files used and technical information
 
 
 class STReport(Report):
-    """This is the Report class. It accepts AnalysisResults for each disease and produces summary statistics.
-    Each member function returns a Dict of the form {<label>: <stat>} which are assembled into an output Excel file.
-
-    This is where we can access all data from all the scenarios we have defined, including the IC scenario and produce
-    the data for the key graphs and key stats.
-
-    CAUTION: the years and details of what is being extracted for the final report needs to be reviewed and done with
-    care. The years and specific variables (e.g. tb deaths including or excluding hiv positive individuals).
+    """This is the Strategy Targets Report class. It accepts `SetOfPortfolioProjections` instances for each disease
+    (similar to HTMReport Class, which is used the main Investment Case analysis) and cqn write the report to an Excel File.
+    The excel file contains:
+    * Statistics for the overall change in cases, deaths for each disease
+    * Country level value for each service coverage indicator
+    * Formatting on the service coverage worksheet to highlight discrepancies between model and partner estimates.
     """
 
     def __init__(
