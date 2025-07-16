@@ -1,35 +1,19 @@
 """This script is used to run the report for strategy targets"""
 from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections
-from scripts.ic8.strategy_targets.st_report import STReport
-from tgftools.filehandler import Parameters
-from tgftools.utils import get_root_path, open_file
-
-from pathlib import Path
-from typing import Optional
-
-import pandas as pd
-
 from scripts.ic8.hiv.hiv_analysis import get_hiv_analysis
 from scripts.ic8.malaria.malaria_analysis import get_malaria_analysis
+from scripts.ic8.strategy_targets.st_report import STReport
 from scripts.ic8.tb.tb_analysis import get_tb_analysis
-from tgftools.analysis import Analysis
 from tgftools.filehandler import Parameters
-from tgftools.report import Report
-from scripts.ic8.shared.htm_report import HTMReport, SetOfPortfolioProjections
 from tgftools.utils import get_root_path, save_var, load_var, open_file
-
-
-# This is the entry point for running Reports for the HIV, TB and MALARIA combined.
-LOAD_DATA_FROM_RAW_FILES = False
-DO_CHECKS = False
-RUN_ANALYSIS = True
 
 
 def get_st_report(
         load_data_from_raw_files: bool = True,
         run_analysis: bool = True,
 ) -> STReport:
-    """Returns the report for strategy targets."""
+    """Returns the report for strategy targets, having re-run/loaded the projections."""
+
     project_root = get_root_path()
 
     if run_analysis:
