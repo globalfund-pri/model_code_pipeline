@@ -406,8 +406,6 @@ class ModelResultsMalaria(MALARIAMixin, ModelResults):
         df.loc[df['scenario_descriptor'].str.startswith('PF_'), 'scenario_descriptor'] = 'PF'
 
         # Give all CFs scenarios a funding fraction of 1
-        # NOTE: if we give them NANs the checks do not work
-        # TODO: see if we can rewrite the check "correct_number_of_scenarios"
         df['funding_fraction'] = df['funding_fraction'].fillna(1)  # Where there is no funding fraction, set it to 1
 
         # Duplicate indicators that do not have LB and UB to give low and high columns and remove duplicates

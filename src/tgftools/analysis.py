@@ -221,7 +221,7 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country={country: amt for country, amt in self.tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
             non_tgf_funding_by_country={country: amt for country, amt in self.non_tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
-            country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
+            country_results={country: country_projection for country, country_projection in country_results.items() if country in self.country_subset},
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
@@ -261,7 +261,7 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country={country: amt for country, amt in self.tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
             non_tgf_funding_by_country={country: amt for country, amt in self.non_tgf_funding.df["value"].to_dict().items() if country in self.country_subset},
-            country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
+            country_results={country: country_projection for country, country_projection in country_results.items() if country in self.country_subset},
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
@@ -278,7 +278,7 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country=None,  # In this scenario, we do not know the split between TGF and non-TGF sources
             non_tgf_funding_by_country=None,
-            country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
+            country_results={country: country_projection for country, country_projection in country_results.items() if country in self.country_subset},
             portfolio_results=self._make_portfolio_results(
                 country_results=country_results,
                 adjust_for_unmodelled_innovation=self.innovation_on,
@@ -316,7 +316,7 @@ class Analysis:
         return PortfolioProjection(
             tgf_funding_by_country={k: float('nan') for k in self.countries},
             non_tgf_funding_by_country={k: float('nan') for k in self.countries},
-            country_results={country: country_projection for country, country_projection in country_results.items() if self.country_subset},
+            country_results={country: country_projection for country, country_projection in country_results.items() if country in self.country_subset},
             portfolio_results=self._make_portfolio_results(country_results, adjust_for_unmodelled_innovation=False, name=name),
         )
 
