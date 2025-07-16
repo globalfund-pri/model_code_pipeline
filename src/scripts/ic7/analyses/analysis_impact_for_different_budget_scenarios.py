@@ -113,8 +113,6 @@ for scenario_label, files in scenarios.items():
         hiv=analysis_hiv.portfolio_projection_approach_b(methods=['ga_backwards'], optimisation_params=optimisation_params),
         tb=analysis_tb.portfolio_projection_approach_b(methods=['ga_backwards'], optimisation_params=optimisation_params),
         malaria=analysis_malaria.portfolio_projection_approach_a(),
-        # todo: Couldn't get Approach B to work, as some countries that should be modelled were not in the results (e.g. COM), so using ApproachA as placeholder
-        # malaria=analysis_malaria.portfolio_projection_approach_b(methods=['ga_backwards'], optimisation_params=optimisation_params),
     )
 
     # Define a summary measure of the results (could make any summary measure, or use one of the methods on `HTMReport`)

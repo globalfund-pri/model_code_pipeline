@@ -6,7 +6,7 @@ from openpyxl import Workbook
 from openpyxl.chart import Reference, LineChart
 
 from tgftools.analysis import PortfolioProjection
-from tgftools.filehandler import Parameters
+from tgftools.filehandler import Parameters, RegionInformation
 from tgftools.report import Report
 from tgftools.utils import get_root_path, matmul
 
@@ -99,9 +99,20 @@ class HTMReport(Report):
         hiv_mortality_reduction_st = (hiv_mortality_2028 / hiv_mortality_2021 - 1) * 100
 
         # Generate incidence reduction amongst AGYW in high burden countries
-
-        # Need to filter by countries below
+        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
         country_list = ['BWA', 'CMR', 'KEN', 'LSO', 'MOZ', 'MWI', 'NAM', 'SWZ', 'TZA', 'UGA', 'ZAF', 'ZMB', 'ZWE']
+
+        # Load the helper class for Regional Information
+        self.region_info = RegionInformation()
+
+        if country_subset_param == 'ALL':
+            country_list = country_list
+        else:
+            country_list = list(
+                set(
+                    self.region_info.get_countries_by_regional_flag(country_subset_param)
+                ).intersection(country_list)
+            )
 
         list_of_dfs = list()  # list of mini dataframes for each indicator for each country
 
@@ -374,7 +385,22 @@ class HTMReport(Report):
 
         # Get llin use in 2023 limited to SSA only
         # Need to filter by countries below
-        country_list = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
+        country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
+        country_list = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA',
+                        'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA',
+                        'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
+
+        # Load the helper class for Regional Information
+        self.region_info = RegionInformation()
+
+        if country_subset_param == 'ALL':
+            country_list = country_list
+        else:
+            country_list = list(
+                set(
+                    self.region_info.get_countries_by_regional_flag(country_subset_param)
+                ).intersection(country_list)
+            )
 
         list_of_dfs = list()  # list of mini dataframes for each indicator for each country
 
@@ -1107,7 +1133,6 @@ class HTMReport(Report):
         sds = pd.DataFrame({"hiv":hiv_sd, "tb":tb_sd, "malaria":malaria_sd})
 
         # Prepare to generate CIs
-        # rho_btw_diseases = 1 # TODO: update
         rho_btw_diseases = self.parameters.get("RHO_BETWEEN_DISEASES")
         years = list(range(2024, 2031))
         combined_temp = (hiv_mortality_ic + tb_mortality_ic + malaria_mortality_ic) / 3
