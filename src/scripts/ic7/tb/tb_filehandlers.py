@@ -372,7 +372,6 @@ class ModelResultsTb(TBMixin, ModelResults):
         # Convert funding_fraction to float
         melted["funding_fraction"] = melted["funding_fraction"].astype(float)
 
-        # TODO: any NANs or NAs should be replaced. By zero? Do that for all diseases
         # Set the index and unpivot variant (so that these are columns (low/central/high) are returned
         unpivoted = melted.set_index(
             [
