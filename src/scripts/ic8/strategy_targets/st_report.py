@@ -154,7 +154,9 @@ class STReport(Report):
         ]
         sheet = pd.concat(list_of_dfs).reset_index()[order_of_columns].sort_values(['disease', 'country', 'year', 'indicator'])
 
-        # Add a 'check' column to signify discrepancies
+        # Add a "checking column" to signify discrepancies
+        # The column is called `est_out_of_range` and is True if any partner or PF data (when available) falls outside
+        # the range model results (after expanding the model range by 10% in either direction).
         tol = 0.1
         model_range_does_not_include_partner_estimate = (
                     sheet['partner_central'].notnull() & ~sheet['partner_central'].between(
@@ -162,7 +164,6 @@ class STReport(Report):
                 sheet['model_high'] * (1. + tol),
                 inclusive='both'
             ))
-
         model_range_does_not_include_pf_estimate = (
             sheet['pf_central'].notnull() & ~sheet['pf_central'].between(
                 sheet['model_low'] * (1. - tol),
@@ -170,17 +171,16 @@ class STReport(Report):
                 inclusive='both'
             )
         )
-
         sheet['est_out_of_range'] = model_range_does_not_include_partner_estimate | model_range_does_not_include_pf_estimate
 
         return sheet
 
     def _post_processing_on_workbook(self, workbook: Workbook):
-        """Add custom formatting to workbook."""
+        """Add custom formatting to the workbook."""
 
         # Color rows based on 'est_out_of_range' column value: red if 'est_out_of_range' column is true, meaning some problem.
 
-        sheet = workbook['service_co']
+        sheet = workbook['service_co']  # This is the 'service_coverage' worksheet.
 
         # Get all rows and columns in the worksheet
         max_row = sheet.max_row
