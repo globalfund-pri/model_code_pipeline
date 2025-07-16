@@ -52,7 +52,7 @@ def analysis(database):
 
 def test_report(tmp_path):
     """Create test report, passing it a dict to substitute for the results that would be used to make the form."""
-    report = TestReport(diseaseX={'stat1': 10, 'stat2': 20})
+    report = TestReport(diseaseX={'stat1': 10, 'stat2': 20}, parameters=Parameters(path_to_data_for_tests / "parameters.toml"))
     tmp_file = tmp_path / "test_report.xlsx"
     _ = report.report(tmp_file)
-    # open_file(tmp_file)
+    open_file(tmp_file)

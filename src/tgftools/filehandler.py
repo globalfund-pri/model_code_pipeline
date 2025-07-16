@@ -361,7 +361,16 @@ class Parameters:
     def __init__(self, path: Path):
         # Load the parameters file using tomllib library
         with open(path, 'rb') as f:
+            # Load and interpret the parameter file
             self.int_store: dict = tomllib.load(f)
+
+        with open(path, 'rb') as f:
+            # Store contents of .toml file as rawq text
+            raw_content = f.read()
+            f.seek(0)
+            self.raw_store: str = raw_content.decode('utf-8')
+
+
 
     def get(self, what) -> Any:
         """Pass through to `get` of the internally stored dict."""
