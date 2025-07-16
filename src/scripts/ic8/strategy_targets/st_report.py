@@ -152,7 +152,7 @@ class STReport(Report):
             'disease', 'country', 'year', 'indicator', 'description', 'model_low', 'model_central', 'model_high',
             'pf_low', 'pf_central', 'pf_high', 'partner_low', 'partner_central', 'partner_high',
         ]
-        sheet = pd.concat(list_of_dfs).reset_index()[order_of_columns].sort_values(['disease', 'country', 'year', 'indicator'])
+        sheet = pd.concat(list_of_dfs).reset_index()[order_of_columns].sort_values(['disease', 'country', 'year', 'indicator']).reset_index(drop=True)
 
         # Add a "checking column" to signify discrepancies
         # The column is called `est_out_of_range` and is True if any partner or PF data (when available) falls outside
