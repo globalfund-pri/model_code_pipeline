@@ -46,9 +46,9 @@ class Report:
 
         all_funcs = self._get_all_funcs_to_generate_stats()
         for ch_name in all_funcs:
-            pprint(f"** {ch_name} **")
+            # pprint(f"** {ch_name} **")
             output = self.__getattribute__(ch_name)()
-            pprint(output)
+            # pprint(output)
 
             if isinstance(output, dict):
                 all_results_for_stats_pages[ch_name] = output
