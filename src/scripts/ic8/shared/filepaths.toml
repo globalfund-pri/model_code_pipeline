@@ -1,5 +1,6 @@
 # This is the `filepaths.toml` file for the IC8 analysis.
 # All file paths are stored here. They are given relative to the DATA_FILE_PATH stored in `tgftools.conf`
+# Note that we keep the file seperate to the parameters because we tend to change the file and parameters at different times and for different purposes.
 
 [HIV]
 NON-TGF-FUNDING = "IC8/funding/19-12-2024/hiv/budget_scenarios/hiv_nonfung_base_c.csv"
