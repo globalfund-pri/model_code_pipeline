@@ -49,11 +49,13 @@ scripts/ic8/analyses.
 """
 
 
-def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
+def get_hiv_database() -> Database:
     # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
+
+    load_data_from_raw_files = parameters.get('LOAD_DATA_FROM_RAW_FILES')
 
     # If load_data_from_raw_files is set to True it will re-load the data else, else use the version saved last loaded
     if load_data_from_raw_files:
@@ -88,10 +90,7 @@ def get_hiv_database(load_data_from_raw_files: bool = True) -> Database:
     )
 
 
-def get_hiv_analysis(
-        load_data_from_raw_files: bool = True,
-        do_checks: bool = False,
-) -> Analysis:
+def get_hiv_analysis() -> Analysis:
     """Returns the analysis for HIV."""
 
     # Declare the parameters and filepaths
@@ -100,17 +99,7 @@ def get_hiv_analysis(
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
     # Load the database
-    db = get_hiv_database(load_data_from_raw_files=load_data_from_raw_files)
-
-    # Run the checks, if "do_checks" is set to True
-    if do_checks:
-        DatabaseChecksHiv(
-            db=db,
-            parameters=parameters,
-        ).run(
-            suppress_error=True,
-            filename=project_root / "outputs" / "hiv_last_report.pdf"
-        )
+    db = get_hiv_database()
 
     # Load assumption for budgets for this analysis
     tgf_funding = TgfFunding(filepaths.get('hiv', 'tgf-funding'))
@@ -125,14 +114,9 @@ def get_hiv_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
-    DO_CHECKS = False
 
     # Create the Analysis object
-    analysis = get_hiv_analysis(
-        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-        do_checks=DO_CHECKS
-    )
+    analysis = get_hiv_analysis()
 
     # Make diagnostic report
     analysis.make_diagnostic_report(

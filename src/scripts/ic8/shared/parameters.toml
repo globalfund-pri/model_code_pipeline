@@ -1,6 +1,9 @@
 # This is the `parameters.toml` file for the IC8 analysis.
 # All parameters and definitions for that analysis are stored here.
 
+# Switches for file management
+LOAD_DATA_FROM_RAW_FILES = false
+RUN_ANALYSIS = true
 
 # Overall specification of the analysis
 HISTORIC_FIRST_YEAR = 2000 # First year of historic scenarios
