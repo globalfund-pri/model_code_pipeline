@@ -201,18 +201,18 @@ class Analysis:
                dict: The adjusted projections.
            """
         adj_df = self.pre_replenishment_adj.df.reset_index().set_index('country')['value'].to_dict()
-        year_range = range(2024, 2031)  # inclusive of 2030
+        year_range = range(2025, 2031)  # inclusive of 2030
         if self.disease_name == 'HIV':
             indicators_to_increase = ['cases', 'deaths']
-            services_to_scale_down = ['art', 'pmtct', 'hst', 'fswreached', 'msmreached', 'pwidreached', 'hst']
+            # services_to_scale_down = ['art', 'pmtct', 'hst', 'fswreached', 'msmreached', 'pwidreached', 'hst']
 
         elif self.disease_name == 'TB':
             indicators_to_increase = ['cases', 'deaths', 'deathshivneg']
-            services_to_scale_down = ['mdrTx', 'notified', 'tbart']
+            # services_to_scale_down = ['mdrTx', 'notified', 'tbart']
 
         elif self.disease_name == 'MALARIA':
             indicators_to_increase = ['cases', 'deaths']
-            services_to_scale_down = ['txpublic', 'llin', 'smc']
+            # services_to_scale_down = ['txpublic', 'llin', 'smc']
 
         for country, adj_factor in adj_df.items():
             if country not in country_results:
@@ -225,10 +225,10 @@ class Analysis:
                     mask = df.index.get_level_values('year').isin(year_range)
                     df.loc[mask, ['model_central', 'model_high', 'model_low']] *= scale_up_factor
 
-                elif indicator in services_to_scale_down:
-                    mask = df.index.get_level_values('year').isin(year_range)
-                    scale_down_factor = adj_factor  # same as available funding percent
-                    df.loc[mask, ['model_central', 'model_high', 'model_low']] *= scale_down_factor
+                # elif indicator in services_to_scale_down:
+                #     mask = df.index.get_level_values('year').isin(year_range)
+                #     scale_down_factor = adj_factor  # same as available funding percent
+                #     df.loc[mask, ['model_central', 'model_high', 'model_low']] *= scale_down_factor
 
         return country_results
 

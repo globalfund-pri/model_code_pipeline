@@ -220,7 +220,7 @@ if __name__ == "__main__":
     # This will dump the data to csv for Nick and Stephen
     dump_ic_scenario_to_file(
         load_data_from_raw_files=False,
-        run_analysis=True,
+        run_analysis=False,
         filename_stub=Path(str(outputpath) + "/dump_ic")
     )
 
