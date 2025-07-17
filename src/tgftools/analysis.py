@@ -206,6 +206,19 @@ class Analysis:
         funding_data_object.df = funding_data_object.df[funding_data_object.df.index.isin(list_of_modelled_countries)]
         return funding_data_object
 
+    def portfolio_projection(self) -> PortfolioProjection:
+        """Do a portfolio projection using the method that is specified in the parameters file."""
+        approach = self.parameters.get('METHOD_FOR_ALLOCATION_IN_IC').upper()
+        if approach == 'A':
+            return self.portfolio_projection_approach_a()
+        elif approach == 'B':
+            return self.portfolio_projection_approach_b()
+        elif approach == 'C':
+            raise ValueError('Cannot do Approach C without a funding_fraction being specified. '
+                             'Call `portfolio_projection_approach_c` instead.')
+        else:
+            raise ValueError(f'Do not recognise the method for allocation in IC: {approach=}')
+
     def portfolio_projection_approach_a(self) -> PortfolioProjection:
         """Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding
         to each country when the TGF funding allocated to a country CANNOT be changed.
