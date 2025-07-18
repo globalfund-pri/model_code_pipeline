@@ -1,0 +1,1915 @@
+# This is the `parameters.toml` file for the IC8 analysis.
+# All parameters and definitions for that analysis are stored here.
+
+# Switches for file management
+LOAD_DATA_FROM_RAW_FILES = true
+RUN_ANALYSIS = true
+
+# Overall specification of the analysis
+HISTORIC_FIRST_YEAR = 2000 # First year of historic scenarios
+GRAPH_FIRST_YEAR = 2010 # Year for which we want data in the report
+NULL_START_YEAR = 2022 # First year for NULL scenario, if you adjust to start year + 1 the whole time series goes down
+PARTNER_START_YEAR = 2015 # First year for which we want to compare model output to partner data
+START_YEAR = 2023  # The last year for which data available. This is the year upon which calibrating adjustments are made for the model results.
+END_YEAR = 2030  # The final year of the model results
+LAST_YEAR_PF = 2026
+YEARS_FOR_FUNDING = [2027, 2028, 2029]  # These are the years for which the funding data corrrespond
+YEARS_FOR_OBJ_FUNC = [2027, 2028, 2029, 2030]  # These are the years for which cases/deathhs are minimised
+RHO_BETWEEN_COUNTRIES_WITHIN_DISEASE = 1.0
+RHO_BETWEEN_DISEASES = 1.0
+Z_VALUE = 1.282
+SCENARIO_THAT_REPRESENTS_FULL_IMPACT_INCLUDING_INNOVATION = 'FULL_FUNDING'
+SCENARIO_DESCRIPTOR_FOR_IC = 'PF'
+HANDLE_OUT_OF_BOUNDS_COSTS = true
+REMOVE_DOMINATED_POINTS = true
+INNOVATION_ON = false
+FORCE_MONOTONIC_DECREASING = true  # Whether the results for each country should be over-written such that cases and deaths are strictly decreasing with increasing funding.
+METHOD_FOR_ALLOCATION_IN_IC = 'b'  #  Whether approach 'a' or 'b' is used for the allocation in the IC.
+APPROACH_B_METHODS = ['ga_backwards', 'ga_forwards']  # Methods for optimisation, see ApproachB class for others
+REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS = "ALL"        # COULD BE: "ALL", "ASIA", "MENA", "SSA", etc.
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# Definition of the Counterfactuals defined the model results
+[[counterfactual]]
+name="GP"
+description="Follow GP milestones"
+is_null=false
+is_cc=false
+is_gp=true
+
+[[counterfactual]]
+name="HH"
+description="Historical (modelled) time series"
+is_null=false
+is_cc=false
+is_gp=false
+
+[[counterfactual]]
+name="CC_2000"
+description="constant coverage starting in 2000"
+is_null=false
+is_cc=true
+is_gp=false
+
+[[counterfactual]]
+name="NULL_2000"
+description="null starting in 2000"
+is_null=true
+is_cc=false
+is_gp=false
+
+[[counterfactual]]
+name="CC_FIRSTYEARGF"
+description="constant coverage starting in first year of GF results"
+is_null=false
+is_cc=true
+is_gp=false
+
+[[counterfactual]]
+name="NULL_FIRSTYEARGF"
+description="null starting in first year of GF results"
+is_null=true
+is_cc=false
+is_gp=false
+
+[[counterfactual]]
+name="CC_2022"
+description="constant coverage starting from baseline"
+is_null=false
+is_cc=true
+is_gp=false
+
+[[counterfactual]]
+name="NULL_2022"
+description="null starting from baseline"
+is_null=true
+is_cc=false
+is_gp=false
+
+# Definition of the Scenarios defined the model results
+[[scenario]]
+name="PF"
+description="follow PF targets and maintain coverage"
+is_null=false
+is_cc=false
+is_gp=false
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# HIV specific definitions
+
+[HIV]
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'CUB', 'DJI', 'DMA', 'DOM', 'DZA', 'ECU', 'EGY', 'ERI', 'ETH', 'FJI', 'FSM', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GRD', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'KIR', 'LAO', 'LBN', 'LBR', 'LCA', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MDV', 'MHL', 'MKD', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MRT', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRK', 'PRY', 'PSE', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'STP', 'SUR', 'SWZ', 'SYR', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TON', 'TUN', 'TUV', 'TZA', 'UGA', 'UKR', 'UZB', 'VCT', 'VEN', 'VNM', 'VUT', 'YEM', 'ZAF', 'ZMB', 'ZWE']
+# Add ARM (no GP), DZA, MKD, MRT (no model) ERI, CUB, LBN, SYR (no funding), MDV (frontier)
+MODELLED_COUNTRIES = ['AFG' ,'AGO', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'DJI', 'DOM', 'ECU', 'EGY', 'ETH', 'GEO', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'SUR', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'YEM', 'ZAF', 'ZMB', 'ZWE']
+FUNDING_FRACTIONS = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+GP_START_YEAR = 2020
+PARTNER_DATA_YEARS = [2023]
+PF_DATA_YEARS = [2024,2025,2026]
+TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
+INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
+INDICATORS_FOR_NULL_CHECK = ['art', 'artcoverage', 'pmtct', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage', 'prep', 'fswprep', 'msmprep', 'pwidprep', 'ost', 'vmmc']
+INDICATORS_FOR_CC_CHECK = ['artcoverage', 'pmtctcoverage', 'fswcoverage', 'msmcoverage', 'pwidcoverage', 'status', 'vls']
+NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+[[HIV.indicator]]
+name="cases"
+description="number of new HIV infections"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths"
+description="number of HIV related deaths"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv"
+description="number of persons living with HIV"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population"
+description="total population from Spectrum"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="hivneg"
+description="number of hiv-negative people"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="incidence"
+description="number of new infections with HIV that occur with a year"
+type="rate"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="mortality"
+description="number of deaths amongst hiv-positive people for a given year"
+type="rate"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="art"
+description="number of people on ART"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="artcoverage"
+description="percentage of people on ART among all people living with HIV at the end of the reporting period"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="pmtct"
+description="number of people accessing PMTCT services among all people living with HIV at the end of the reporting period"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="pmtctneed"
+description="number of people needing PMTCT services among all people living with HIV at the end of the reporting period"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="pmtctcoverage"
+description="percentage of people accessing PMTCT services among all people living with HIV at the end of the reporting period"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="prep"
+description="number of people on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="fswcoverage"
+description="percentage of FSW accessing prevention services at the end of the reporting period"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="fswprep"
+description="number of FSW on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="fswreached"
+description="number of FSW reached with prevention programmes"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="msmcoverage"
+description="percentage of MSM accessing prevention services at the end of the reporting period"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="msmprep"
+description="number of MSM on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="msmreached"
+description="number of MSM reached with prevention programmes"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="pwidcoverage"
+description="percentage of people accessing prevention services at the end of the reporting period"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="pwidprep"
+description="number of PWID on PrEP at the end of the reporting period"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="pwidreached"
+description="number of PWID reached with prevention programmes"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="ost"
+description="number of PWID on OST at the end of the reporting period"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="hst"
+description="number of people receiving HIV testing and councelling"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="vmmc"
+description="number of vmmc conducted at the end of the reporting period"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="status"
+description="proportion of the population who know their hiv status at the end of the reporting period"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="vls"
+description="proportion of PLHIV who are virologically surpressed at the end of the reporting period"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="cost"
+description="total cost fot this scenario"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv0to4"
+description="number of plhiv aged 0 to 4 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv5to9"
+description="number of plhiv aged 5 to 9 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv10to14"
+description="number of plhiv aged 10 to 14 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv15to19"
+description="number of plhiv aged 15 to 19 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv20to24"
+description="number of plhiv aged 20 to 24 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv25to29"
+description="number of plhiv aged 25 to 29 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv30to34"
+description="number of plhiv aged 30 to 34 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv35to39"
+description="number of plhiv aged 35 to 39 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv40to44"
+description="number of plhiv aged 40 to 44 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv45to49"
+description="number of plhiv aged 45 to 49 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv50to54"
+description="number of plhiv aged 50 to 54 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv55to59"
+description="number of plhiv aged 55 to 59 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv60to64"
+description="number of plhiv aged 60 to 64 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv65to69"
+description="number of plhiv aged 65 to 69 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv70to74"
+description="number of plhiv aged 70 to 74 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv75to79"
+description="number of plhiv aged 75 to 79 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="plhiv80"
+description="number of plhiv aged over 80 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population0to4"
+description="number of population aged 0 to 4 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population5to9"
+description="number of population aged 5 to 9 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population10to14"
+description="number of population aged 10 to 14 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population15to19"
+description="number of population aged 15 to 19 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population20to24"
+description="number of population aged 20 to 24 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population25to29"
+description="number of population aged 25 to 29 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population30to34"
+description="number of population aged 30 to 34 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population35to39"
+description="number of population aged 35 to 39 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population40to44"
+description="number of population aged 40 to 44 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population45to49"
+description="number of population aged 45 to 49 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population50to54"
+description="number of population aged 50 to 54 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population55to59"
+description="number of population aged 55 to 59 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population60to64"
+description="number of population aged 60 to 64 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population65to69"
+description="number of population aged 65 to 69 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population70to74"
+description="number of population aged 70 to 74 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population75to79"
+description="number of population aged 75 to 79 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="population80"
+description="number of population aged over 80 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases0to4"
+description="number of cases aged 0 to 4 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases5to9"
+description="number of cases aged 5 to 9 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases10to14"
+description="number of cases aged 10 to 14 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases15to19"
+description="number of cases aged 15 to 19 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases20to24"
+description="number of cases aged 20 to 24 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases25to29"
+description="number of cases aged 25 to 29 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases30to34"
+description="number of cases aged 30 to 34 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases35to39"
+description="number of cases aged 35 to 39 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases40to44"
+description="number of cases aged 40 to 44 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases45to49"
+description="number of cases aged 45 to 49 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases50to54"
+description="number of cases aged 50 to 54 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases55to59"
+description="number of cases aged 55 to 59 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases60to64"
+description="number of cases aged 60 to 64 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases65to69"
+description="number of cases aged 65 to 69 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases70to74"
+description="number of cases aged 70 to 74 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases75to79"
+description="number of cases aged 75 to 79 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="cases80"
+description="number of cases aged over 80 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths0to4"
+description="number of HIV related deaths amongst 0 to 4 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths5to9"
+description="number of HIV related deaths amongst 5 to 9 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths10to14"
+description="number of HIV related deaths amongst 10 to 14 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths15to19"
+description="number of HIV related deaths amongst 15 to 19 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths20to24"
+description="number of HIV related deaths amongst 20 to 24 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths25to29"
+description="number of HIV related deaths amongst 25 to 29 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths30to34"
+description="number of HIV related deaths amongst 30 to 34 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths35to39"
+description="number of HIV related deaths amongst 35 to 39 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths40to44"
+description="number of HIV related deaths amongst 40 to 44 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths45to49"
+description="number of HIV related deaths amongst 45 to 49 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths50to54"
+description="number of HIV related deaths amongst 50 to 54 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths55to59"
+description="number of HIV related deaths amongst 55 to 59 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths60to64"
+description="number of HIV related deaths amongst 60 to 64 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths65to69"
+description="number of HIV related deaths amongst 65 to 69 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths70to74"
+description="number of HIV related deaths amongst 70 to 74 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths75to79"
+description="number of HIV related deaths amongst 75 to 79 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="deaths80"
+description="number of HIV related deaths amongst over 80 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="agywni"
+description="number of new infections amongst agyws"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="agywplhiv"
+description="number of agyws whi are hiv-positive"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="agywpop"
+description="number of agyws"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[HIV.indicator]]
+name="adultart"
+description="number of adults 15+ on art"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="pedart"
+description="number of pediatric patients on ART"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx15plusmore500"
+description="number of people not on treatment aged 15 plus with CD4 more than 500"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx15plus350to500"
+description="number of people not on treatment aged 15 plus with CD4 btw 350 and 500"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx15plus250to350"
+description="number of people not on treatment aged 15 plus with CD4 btw 250 and 350"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx15plus200to250"
+description="number of people not on treatment aged 15 plus with CD4 btw 200 and 250"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx15plus100to200"
+description="number of people not on treatment aged 15 plus with CD4 btw 100 and 200"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx15plus50to100"
+description="number of people not on treatment aged 15 plus with CD4 btw 50 and 100"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx15plusless50"
+description="number of people not on treatment aged 15 plus with CD4 less than 50"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx5to14more1000"
+description="number of people not on treatment aged 5 to 14 with CD4 more than 1000"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx5to14cd750to999"
+description="number of people not on treatment aged 5 to 14 with CD4 btw 750 and 999"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx5to14cd500to749"
+description="number of people not on treatment aged 5 to 14 with CD4 btw 500 and 749"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx5to14cd350to499"
+description="number of people not on treatment aged 5 to 14 with CD4 btw 350 and 499"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx5to14cd200to349"
+description="number of people not on treatment aged 5 to 14 with CD4 btw 200 and 349"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notx5to14less200"
+description="number of people not on treatment aged 5 to 14 with CD4 less than 200"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notxless5more30"
+description="number of people not on treatment aged less than 5 years old with CD status more than 30"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notxless5cd26to30"
+description="number of people not on treatment aged less than 5 years old with CD status btw 26 and 30"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notxless5cd21to25"
+description="number of people not on treatment aged less than 5 years old with CD status btw 21 and 25"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notxless5cd16to20"
+description="number of people not on treatment aged less than 5 years old with CD status btw 16 and 20"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notxless5cd11to15"
+description="number of people not on treatment aged less than 5 years old with CD status btw 11 and 15"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notxless5cd5to10"
+description="number of people not on treatment aged less than 5 years old with CD status btw 5 and 10"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[HIV.indicator]]
+name="notxless5less5"
+description="number of people not on treatment aged less than 5 years old with CD status less than 5"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# TB specific definitions
+
+[TB]
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'DMA', 'DOM', 'DZA', 'EGY', 'ERI', 'ETH', 'FJI', 'FSM', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GRD', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'IRQ', 'JOR', 'KAZ', 'KEN', 'KGZ', 'KHM', 'KIR', 'LAO', 'LBR', 'LBY', 'LCA', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MDV', 'MHL', 'MLI', 'MMR', 'MNG', 'MOZ', 'MRT', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRK', 'PSE', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SLV', 'SOM', 'SSD', 'STP', 'SUR', 'SWZ', 'SYR', 'TCD', 'TGO', 'THA', 'TJK', 'TKM', 'TLS', 'TON', 'TUN', 'TUV', 'TZA', 'UGA', 'UKR', 'UZB', 'VCT', 'VEN', 'VNM', 'VUT', 'WSM', 'YEM', 'ZAF', 'ZMB', 'ZWE']
+MODELLED_COUNTRIES = ['AFG', 'AGO', 'BGD', 'CMR', 'COD', 'ETH', 'GHA', 'IDN', 'IND', 'KEN', 'KHM', 'MDG', 'MMR', 'MOZ', 'NGA', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'THA', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'ZAF', 'ZMB', 'ZWE']
+FUNDING_FRACTIONS = [0.11,0.22,0.33,0.44,0.56,0.67,0.78,0.89,1,]
+GP_START_YEAR = 2015
+PARTNER_DATA_YEARS = [2020,2021,2022, 2023]
+PF_DATA_YEARS = [2024,2025,2026]
+TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
+INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths', 'deathshivneg']
+INDICATORS_FOR_NULL_CHECK = ['notified', 'txcoverage', 'tbart', 'tbartcoverage', 'mdrnotified', 'mdrtxcoverage', 'TxSR', 'mdrTxSR']
+INDICATORS_FOR_CC_CHECK = ['txcoverage', 'tbartcoverage', 'mdrtxcoverage', 'TxSR', 'mdrTxSR']
+NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.01798620996209160, 0.04742587317756680, 0.11920292202211800, 0.26894142136999500, 0.50000000000000000, 0.73105857863000500, 0.88079707797788200, 0.95257412682243300, 0.98201379003790800, 1]
+
+[[TB.indicator]]
+name="cases"
+description="number of new tb infections"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths"
+description="number of tb related deaths"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg"
+description="number of deaths amongst hiv negative people"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathsnotx"
+description="number of tb related deaths in abscence of treatment"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathsnotxhivneg"
+description="number of deaths in abscence of treatment amongst hiv negative people"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population"
+description="total population"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases0to4"
+description="number of new tb infections amongst those 0 to 4"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases5to9"
+description="number of new tb infections amongst those 5 to 9"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases10to14"
+description="number of new tb infections amongst those 10 to 14"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases15to19"
+description="number of new tb infections amongst those 15 to 19"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases20to24"
+description="number of new tb infections amongst those 20 to 24"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases25to29"
+description="number of new tb infections amongst those 25 to 29"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases30to34"
+description="number of new tb infections amongst those 30 to 34"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases35to39"
+description="number of new tb infections amongst those 35 to 39"
+type="count"
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases40to44"
+description="number of new tb infections amongst those 40 to 44"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases45to49"
+description="number of new tb infections amongst those 45 to 49"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases50to54"
+description="number of new tb infections amongst those 50 to 54"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases55to59"
+description="number of new tb infections amongst those 55 to 59"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases60to64"
+description="number of new tb infections amongst those 60 to 64"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases65to69"
+description="number of new tb infections amongst those 65 to 69"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases70to74"
+description="number of new tb infections amongst those 70 to 74"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases75to79"
+description="number of new tb infections amongst those 75 to 79"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="cases80"
+description="number of new tb infections amongst those 80 plus"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths0to4"
+description="number of tb related deaths amongst those 0 to 4"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths5to9"
+description="number of tb related deaths amongst those 5 to 9"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths10to14"
+description="number of tb related deaths amongst those 10 to 14"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths15to19"
+description="number of tb related deaths amongst those 15 to 19"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths20to24"
+description="number of tb related deaths amongst those 20 to 24"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths25to29"
+description="number of tb related deaths amongst those 25 to 29"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths30to34"
+description="number of tb related deaths amongst those 30 to 34"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths35to39"
+description="number of tb related deaths amongst those 35 to 39"
+type="count"
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths40to44"
+description="number of tb related deaths amongst those 40 to 44"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths45to49"
+description="number of tb related deaths amongst those 45 to 49"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths50to54"
+description="number of tb related deaths amongst those 50 to 54"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths55to59"
+description="number of tb related deaths amongst those 55 to 59"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths60to64"
+description="number of tb related deaths amongst those 60 to 64"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths65to69"
+description="number of tb related deaths amongst those 65 to 69"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths70to74"
+description="number of tb related deaths amongst those 70 to 74"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths75to79"
+description="number of tb related deaths amongst those 75 to 79"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deaths80"
+description="number of tb related deaths amongst those 80 plus"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg0to4"
+description="number of tb deaths amongst hiv-negative individuals amongst those 0 to 4"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg5to9"
+description="number of tb deaths amongst hiv-negative individuals amongst those 5 to 9"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg10to14"
+description="number of tb deaths amongst hiv-negative individuals amongst those 10 to 14"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg15to19"
+description="number of tb deaths amongst hiv-negative individuals amongst those 15 to 19"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg20to24"
+description="number of tb deaths amongst hiv-negative individuals amongst those 20 to 24"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg25to29"
+description="number of tb deaths amongst hiv-negative individuals amongst those 25 to 29"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg30to34"
+description="number of tb deaths amongst hiv-negative individuals amongst those 30 to 34"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg35to39"
+description="number of tb deaths amongst hiv-negative individuals amongst those 35 to 39"
+type="count"
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg40to44"
+description="number of tb deaths amongst hiv-negative individuals amongst those 40 to 44"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg45to49"
+description="number of tb deaths amongst hiv-negative individuals amongst those 45 to 49"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg50to54"
+description="number of tb deaths amongst hiv-negative individuals amongst those 50 to 54"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg55to59"
+description="number of tb deaths amongst hiv-negative individuals amongst those 55 to 59"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg60to64"
+description="number of tb deaths amongst hiv-negative individuals amongst those 60 to 64"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg65to69"
+description="number of tb deaths amongst hiv-negative individuals amongst those 65 to 69"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg70to74"
+description="number of tb deaths amongst hiv-negative individuals amongst those 70 to 74"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg75to79"
+description="number of tb deaths amongst hiv-negative individuals amongst those 75 to 79"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="deathshivneg80"
+description="number of tb deaths amongst hiv-negative individuals amongst those 80 plus"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population0to4"
+description="total population aged 0 to 4"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population5to9"
+description="total population aged 5 to 9"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population10to14"
+description="total population aged 10 to 14"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population15to19"
+description="total population aged 15 to 19"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population20to24"
+description="total population aged 20 to 24"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population25to29"
+description="total population aged 25 to 29"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population30to34"
+description="total population aged 30 to 34"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population35to39"
+description="total population aged 35 to 39"
+type="count"
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population40to44"
+description="total population aged 40 to 44"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population45to49"
+description="total population aged 45 to 49"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population50to54"
+description="total population aged 50 to 54"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population55to59"
+description="total population aged 55 to 59"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population60to64"
+description="total population aged 60 to 64"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population65to69"
+description="total population aged 65 to 69"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population70to74"
+description="total population aged 70 to 74"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population75to79"
+description="total population aged 75 to 79"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="population80"
+description="total population aged 80 plus"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="yld"
+description="number of yld"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="yldhivneg"
+description="number of yld hiv neg"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="plhiv"
+description="number of plhiv"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="incidence"
+description="number of new tb cases that occur with a year"
+type="rate"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="mortality"
+description="mortality rate related to tb for a given year"
+type="rate"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="mdrnotified"
+description="number of people with confirmed RR-TB and/or MDR-TB that began second-line treatment"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="mdrtxcoverage"
+description="percentage of people with confirmed RR-TB and/or MDR-TB that began second-line treatment"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="mdrestimatesnew"
+description="number of mdr cases amongst new TB cases"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="mdrestimatedretx"
+description="number of estimated mdr cases amongst re-treated"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="mdrTxSR"
+description="mdr treatment succes rate"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="notified"
+description="number of patients with all forms of TB notified (i.e. bacteriologically confirmed + clinically diagnosed) includes only those with new and relapse TB"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="txcoverage"
+description="percentage of patients with all forms of TB bacteriologically confirmed plus clinically diagnosed and successfully treated (cured plus treatment completed) among all TB patients notified during a specified period; includes only those with new and relapse TB"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="mdrTx"
+description="number of people treated for mdr-TB"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="TxSR"
+description="treatment succes rate"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="tbart"
+description="number of HIV-positive new and relapse TB patients on ART during TB treatment"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="tbartcoverage"
+description="percentage of HIV-positive new and relapse TB patients on ART during TB treatment"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="vaccine"
+description="number of peopl vaccinated "
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[TB.indicator]]
+name="cost"
+description="total cost for this scenario minus vaccine costs"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[TB.indicator]]
+name="costvx"
+description="total cost of vaccine for this scenario"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# MALARIA specific definitions
+
+[MALARIA]
+#SSA only
+#PORTFOLIO_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'STP', 'SWZ', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BFA', 'BGD', 'BOL', 'BTN', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'CPV', 'DJI', 'ERI', 'ETH',  'GHA', 'GIN', 'GMB', 'GNB', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'NIC', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'VNM', 'ZMB', 'ZWE']
+# SSA countries only, DJI (frontier)
+#MODELLED_COUNTRIES = ['AGO', 'BDI', 'BEN', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'KEN', 'LBR', 'MDG', 'MLI', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'TZA', 'UGA', 'ZMB', 'ZWE']
+# DJI, NIC, VNM (frontier)
+MODELLED_COUNTRIES = ['AFG', 'AGO', 'BDI', 'BEN', 'BGD', 'BFA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COM', 'ERI', 'ETH', 'GHA', 'GIN', 'GMB', 'GNB', 'HND', 'HTI', 'IDN', 'IND', 'KEN', 'KHM', 'LAO', 'LBR', 'MDG', 'MLI', 'MMR', 'MOZ', 'MRT', 'MWI', 'NAM', 'NER', 'NGA', 'PAK', 'PHL', 'PNG', 'RWA', 'SDN', 'SEN', 'SLE', 'SOM', 'SSD', 'TCD', 'TGO', 'THA', 'TZA', 'UGA', 'ZMB', 'ZWE']
+FUNDING_FRACTIONS = [0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.5,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00,]
+GP_START_YEAR = 2015
+PARTNER_DATA_YEARS = [2020, 2021, 2022, 2023]
+PF_DATA_YEARS = [2024,2025,2026]
+HISTORIC_FIRST_YEAR = 2000
+HISTORIC_END_YEAR = 2023
+TOLERANCE_TO_PARTNER_AND_PF_DATA = 0.1
+INDICATORS_FOR_ADJ_FOR_INNOVATIONS = ['cases', 'deaths']
+INDICATORS_FOR_NULL_CHECK = ['irsppl', 'irshh', 'llins', 'txpublic', 'smc', 'vaccine', 'txcoverage', 'smccoverage', 'vaccinecoverage']
+INDICATORS_FOR_CC_CHECK = ['txcoverage', 'smccoverage', 'vaccinecoverage']
+NEW_INNOVATIONS_SCALING_FACTORS = [0.0, 0.01798620996209160, 0.04742587317756680, 0.11920292202211800, 0.26894142136999500, 0.50000000000000000, 0.73105857863000500, 0.88079707797788200, 0.95257412682243300, 0.98201379003790800, 1]
+
+[[MALARIA.indicator]]
+name="cases"
+description="number of malaria cases"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="cases0to4"
+description="number of malaria cases amongst 0 to 4 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="cases5to14"
+description="number of malaria cases amongst 5 to 14 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="cases15plus"
+description="number of malaria cases amongst people 15 years old and over"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="deaths"
+description="number of malaria related deaths"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="deaths0to4"
+description="number of malaria deaths amongst 0 to 4 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="deaths5to14"
+description="number of malaria deaths amongst 5 to 14 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="deaths15plus"
+description="number of malaria deaths amongst people 14 years old and over"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="par"
+description="population at risk"
+type="count"
+use_scaling=true
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="par0to4"
+description="population at risk aged 0 to 4 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="par5to14"
+description="population at risk aged 5 to 14 year olds"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="par15plus"
+description="population at risk aged 14 years old and over"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="partargetedsmc"
+description="population at risk for smc in targeted areas"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="parvx"
+description="population at risk for vaccination"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="incidence"
+description="number of new malaria cases that occur with a year"
+type="rate"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="mortality"
+description="mortality rate related to malaria for a given year"
+type="rate"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="yld"
+description="years of healthy life lost due to disability or ill-health"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="irsppl"
+description="number of people protected by irs"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="irshh"
+description="number of households protected by irs"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="llins"
+description="number of llins distributed through mass campaign and continuous distribution"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="llinsuse"
+description="number of people using llins"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="txpublic"
+description="number of people treated in the public sector"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="txprivate"
+description="number of people treated in the private sector"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="nrtx"
+description="number of people treated (coverage multiplied by cases)"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="txcoverage"
+description="percentage of the population treated for malaria in public sector"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="hospitalization"
+description="number of people being hospitalized for malaria"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="smc"
+description="Number of children protected by smc"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="smccoverage"
+description="Proportion of children (overall) protected by smc"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="vectorcontrol"
+description="Number of people reached with vector control"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="vectorcontrolcoverage"
+description="Percentage of people reached with vector control"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="vaccine"
+description="Number of people vaccinated"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="vaccinedoses"
+description="Number of vaccine doses given"
+type="count"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="vaccinecoverage"
+description="Proportion of people protected by vaccination"
+type="fraction"
+use_scaling=false
+is_service_coverage_indicator=true
+
+[[MALARIA.indicator]]
+name="cost"
+description="total cost for this scenario minus vaccine but including private sector treatment"
+type="count"
+use_scaling= false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="costtxprivate"
+description="total cost of treatment in private sector"
+type="count"
+use_scaling= false
+is_service_coverage_indicator=false
+
+[[MALARIA.indicator]]
+name="costvx"
+description="total cost of vaccine program"
+type="count"
+use_scaling= false
+is_service_coverage_indicator=false
+
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
