@@ -2,7 +2,7 @@
 # All parameters and definitions for that analysis are stored here.
 
 # Switches for file management
-LOAD_DATA_FROM_RAW_FILES = false
+LOAD_DATA_FROM_RAW_FILES = true
 RUN_ANALYSIS = true
 
 # Overall specification of the analysis
