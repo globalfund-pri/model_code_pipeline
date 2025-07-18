@@ -1,6 +1,9 @@
 # This is the `parameters.toml` file for the IC7 analysis.
 # All parameters and definitions for that analysis are stored here.
 
+# Switches for file management
+LOAD_DATA_FROM_RAW_FILES = false
+RUN_ANALYSIS = true
 
 # Overall specification of the analysis
 START_YEAR = 2020  # The first year of the model results (and the last year for which data available). This is the year upon which calibrating adjustments are made for the model results.

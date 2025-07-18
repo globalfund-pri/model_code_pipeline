@@ -18,11 +18,7 @@ def run_ic8_report(filename: pathlib.Path) -> Dict:
 
     from scripts.ic8.analyses.main_results_for_investment_case import get_report
 
-    r = get_report(
-        load_data_from_raw_files=True,
-        do_checks=False,
-        run_analysis=True,
-    )
+    r = get_report()
 
     # Generate report (checking that it can be written to an Excel file)
     rtn_from_return = r.report(filename)

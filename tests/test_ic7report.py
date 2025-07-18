@@ -14,11 +14,7 @@ def run_ic7_report(tmpdir: pathlib.Path) -> Dict:
 
     from scripts.ic7.analyses.main_results_for_investment_case import get_report
 
-    r = get_report(
-        load_data_from_raw_files=True,
-        do_checks=True,
-        run_analysis=True,
-    )
+    r = get_report()
 
     # Generate report (checking that it can be written to an Excel file)
     filename = tmpdir / 'test_report.xlsx'
