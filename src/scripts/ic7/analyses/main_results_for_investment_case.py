@@ -52,38 +52,21 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
         }
     )
 
-def get_report(
-        load_data_from_raw_files: bool = False,
-        run_analysis: bool = False,
-        do_checks: bool = False,
-) -> Report:
+def get_report() -> Report:
     project_root = get_root_path()
+    parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
 
+    run_analysis = parameters.get('RUN_ANALYSIS')
     if run_analysis:
 
         # Run the analyses
-        hiv_projections = get_set_of_portfolio_projections(
-            get_hiv_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
+        hiv_projections = get_set_of_portfolio_projections(get_hiv_analysis())
         save_var(hiv_projections, project_root / "sessions" / "hiv_projections.pkl")
 
-        tb_projections = get_set_of_portfolio_projections(
-            get_tb_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
+        tb_projections = get_set_of_portfolio_projections(get_tb_analysis())
         save_var(tb_projections, project_root / "sessions" / "tb_projections.pkl")
 
-        malaria_projections = get_set_of_portfolio_projections(
-            get_malaria_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
+        malaria_projections = get_set_of_portfolio_projections(get_malaria_analysis())
         save_var(malaria_projections, project_root / "sessions" / "malaria_projections.pkl")
 
     else:
@@ -104,16 +87,10 @@ def get_report(
 
 if __name__ == "__main__":
     # This is the entry report for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = False
-    DO_CHECKS = False
-    RUN_ANALYSIS = True
+
     outputpath = get_root_path() / 'outputs'
 
-    r = get_report(
-        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-        do_checks=DO_CHECKS,
-        run_analysis=RUN_ANALYSIS,
-    )
+    r = get_report()
 
     # Generate report
     filename = get_root_path() / 'outputs' / 'final_report.xlsx'

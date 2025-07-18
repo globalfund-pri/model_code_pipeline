@@ -11,7 +11,7 @@ funding_path = path_to_data_folder / "IC7" / 'TimEmulationTool' / "funding"
 # Declare the parameters, indicators and scenarios
 parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
 
-tb_db = get_tb_database(load_data_from_raw_files=False)
+tb_db = get_tb_database()
 
 # Load assumption for budgets for this analysis
 tgf_funding = (

@@ -39,12 +39,13 @@ analysis class directly.
 """
 
 
-def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
+def get_tb_database() -> Database:
     path_to_data_folder = get_data_path()
     project_root = get_root_path()
 
     # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
+    load_data_from_raw_files = parameters.get('LOAD_DATA_FROM_RAW_FILES')
 
     if load_data_from_raw_files:
         # Load the files
@@ -89,10 +90,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
         partner_data=partner_data,
     )
 
-def get_tb_analysis(
-        load_data_from_raw_files: bool = True,
-        do_checks: bool = False,
-) -> Analysis:
+def get_tb_analysis() -> Analysis:
     """Return the Analysis object for TB."""
 
     path_to_data_folder = get_data_path()
@@ -101,17 +99,7 @@ def get_tb_analysis(
     # Declare the parameters, indicators and scenarios
     parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
 
-    db = get_tb_database(load_data_from_raw_files=load_data_from_raw_files)
-
-    # Run the checks
-    if do_checks:
-        DatabaseChecksTb(
-            db=db,
-            parameters=parameters
-        ).run(
-            suppress_error=True,
-            filename=project_root / "outputs" / "tb_report_of_checks.pdf"
-        )
+    db = get_tb_database()
 
     # Load assumption for budgets for this analysis
     tgf_funding = (
@@ -144,14 +132,9 @@ def get_tb_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = False
-    DO_CHECKS = False
 
     # Create the Analysis object
-    analysis = get_tb_analysis(
-        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-        do_checks=DO_CHECKS
-    )
+    analysis = get_tb_analysis()
 
     # To examine results from approach A / B....
     # analysis.portfolio_projection_approach_a()

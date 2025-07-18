@@ -40,11 +40,13 @@ NOTE: Scenarios for the various counterfactuals are set in the main results for 
 """
 
 
-def get_tb_database_2035(load_data_from_raw_files: bool = True) -> Database:
+def get_tb_database_2035() -> Database:
 
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
+
+    load_data_from_raw_files = parameters.get('LOAD_DATA_FROM_RAW_FILES')
 
     if load_data_from_raw_files:
         # Load the files
@@ -79,10 +81,7 @@ def get_tb_database_2035(load_data_from_raw_files: bool = True) -> Database:
     )
 
 
-def get_tb_analysis_2035(
-        load_data_from_raw_files: bool = True,
-        do_checks: bool = False,
-) -> Analysis:
+def get_tb_analysis_2035() -> Analysis:
     """Return the Analysis object for TB."""
 
     # Declare the parameters and filepaths
@@ -90,17 +89,7 @@ def get_tb_analysis_2035(
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
-    db = get_tb_database_2035(load_data_from_raw_files=load_data_from_raw_files)
-
-    # Run the checks
-    if do_checks:
-        DatabaseChecksTb(
-            db=db,
-            parameters=parameters
-        ).run(
-            suppress_error=True,
-            filename=project_root / "outputs" / "tb_report_of_checks_ic8.pdf"
-        )
+    db = get_tb_database_2035()
 
     # Load assumption for budgets for this analysis
     tgf_funding = TgfFunding(filepaths.get('tb', 'tgf-funding'))
@@ -123,14 +112,9 @@ def get_tb_analysis_2035(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
-    DO_CHECKS = False
 
     # Create the Analysis object
-    analysis = get_tb_analysis_2035(
-        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-        do_checks=DO_CHECKS
-    )
+    analysis = get_tb_analysis_2035()
 
     # Get the finalised Set of Portfolio Projections (decided upon IC scenario and Counterfactual):
     from scripts.ic8.analyses.main_results_for_investment_case import get_set_of_portfolio_projections

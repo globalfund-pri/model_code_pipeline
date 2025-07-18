@@ -84,9 +84,9 @@ NON_TGF_FUNDING = '_nonFubgible_dipiBase.csv'
 parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
 
 #%% Load the databases for HIV, Tb and Malaria
-hiv_db = get_hiv_database(load_data_from_raw_files=DO_RUN)
-tb_db = get_tb_database(load_data_from_raw_files=DO_RUN)
-malaria_db = get_malaria_database(load_data_from_raw_files=DO_RUN)
+hiv_db = get_hiv_database()
+tb_db = get_tb_database()
+malaria_db = get_malaria_database()
 
 # %% Function for running batch of analyses for all the funding scenarios for the LHS figure
 

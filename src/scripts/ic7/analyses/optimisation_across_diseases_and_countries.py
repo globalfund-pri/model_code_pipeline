@@ -34,9 +34,9 @@ parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "p
 
 # Load databases
 db = {
-    'hiv': get_hiv_database(load_data_from_raw_files=False),
-    'tb': get_tb_database(load_data_from_raw_files=False),
-    'malaria': get_malaria_database(load_data_from_raw_files=False),
+    'hiv': get_hiv_database(),
+    'tb': get_tb_database(),
+    'malaria': get_malaria_database(),
 }
 
 # Declare assumptions that are not going to change in the analysis

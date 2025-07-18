@@ -765,7 +765,7 @@ class Analysis:
                 gp_data = self.database.gp.df['central'].unstack()
             elif self.disease_name =="TB":
                 from scripts.ic8.tb.tb_analysis import get_tb_database_subset
-                gp_data = get_tb_database_subset(load_data_from_raw_files=False, country_subset_param=country_subset_param).gp.df['central'].unstack()
+                gp_data = get_tb_database_subset(country_subset_param=country_subset_param).gp.df['central'].unstack()
             elif self.disease_name =="MALARIA":
                 from scripts.ic8.malaria.malaria_analysis import get_malaria_database_subset
                 gp_data = get_malaria_database_subset(load_data_from_raw_files=False, country_subset_param=country_subset_param).gp.df['central'].unstack()

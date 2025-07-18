@@ -49,12 +49,13 @@ scripts/ic8/analyses.
 """
 
 
-def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
+def get_tb_database() -> Database:
 
     # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
+    load_data_from_raw_files = parameters.get('GET_FROM_RAW_DATA_FILES')
 
     # If load_data_from_raw_files is set to True it will re-load the data else, else use the version saved last loaded
     if load_data_from_raw_files:
@@ -90,7 +91,7 @@ def get_tb_database(load_data_from_raw_files: bool = True) -> Database:
         partner_data=partner_data,
     )
 
-def get_tb_database_subset(load_data_from_raw_files: bool = True, country_subset_param: str = None) -> Database:
+def get_tb_database_subset(country_subset_param: str = None) -> Database:
 
     # Declare the parameters and filepaths
     project_root = get_root_path()
@@ -104,6 +105,7 @@ def get_tb_database_subset(load_data_from_raw_files: bool = True, country_subset
     country_in_region = region_info.get_countries_by_regional_flag(country_subset_param)
 
     # If load_data_from_raw_files is set to True it will re-load the data else, else use the version saved last loaded
+    load_data_from_raw_files = parameters.get('GET_FROM_RAW_DATA_FILES')
     if load_data_from_raw_files:
         # Load the files
         model_results = ModelResultsTb(
@@ -153,10 +155,7 @@ def get_tb_database_subset(load_data_from_raw_files: bool = True, country_subset
 
 
 
-def get_tb_analysis(
-        load_data_from_raw_files: bool = True,
-        do_checks: bool = False,
-) -> Analysis:
+def get_tb_analysis() -> Analysis:
     """Return the Analysis object for TB."""
 
     # Declare the parameters and filepaths
@@ -164,17 +163,7 @@ def get_tb_analysis(
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
 
-    db = get_tb_database(load_data_from_raw_files=load_data_from_raw_files)
-
-    # Run the checks, if do_checks is set to True
-    if do_checks:
-        DatabaseChecksTb(
-            db=db,
-            parameters=parameters
-        ).run(
-            suppress_error=True,
-            filename=project_root / "outputs" / "tb_report_of_checks_ic8.pdf"
-        )
+    db = get_tb_database()
 
     # Load assumption for budgets for this analysis
     tgf_funding = TgfFunding(filepaths.get('tb', 'tgf-funding'))
@@ -189,14 +178,10 @@ def get_tb_analysis(
 
 
 if __name__ == "__main__":
-    LOAD_DATA_FROM_RAW_FILES = True
-    DO_CHECKS = False
+
 
     # Create the Analysis object
-    analysis = get_tb_analysis(
-        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-        do_checks=DO_CHECKS
-    )
+    analysis = get_tb_analysis()
 
     # Make diagnostic report
     analysis.make_diagnostic_report(

@@ -65,9 +65,9 @@ for v in scenarios.values():
 # Declare the parameters, indicators and scenarios
 parameters = Parameters(project_root / "src" / "scripts" / "ic7" / "shared" / "parameters.toml")
 
-hiv_db = get_hiv_database(load_data_from_raw_files=False)
-tb_db = get_tb_database(load_data_from_raw_files=False)
-malaria_db = get_malaria_database(load_data_from_raw_files=False)
+hiv_db = get_hiv_database()
+tb_db = get_tb_database()
+malaria_db = get_malaria_database()
 
 # Declare assumptions that are not going to change in the analysis
 NON_TGF_FUNDING = '_nonFubgible_dipiBase.csv'
