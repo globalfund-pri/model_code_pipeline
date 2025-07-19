@@ -32,7 +32,7 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
     """Returns set of portfolio projections, including the decided configuration for the Investment Case and
     Counterfactual projections,"""
     return SetOfPortfolioProjections(
-        IC=analysis.portfolio_projection_approach_b(),
+        IC=analysis.portfolio_projection(),
         CF_InfAve=analysis.portfolio_projection_counterfactual('CC_CC'),
         CF_LivesSaved=analysis.portfolio_projection_counterfactual('NULL_NULL'),
         CF_LivesSaved_Malaria=analysis.get_counterfactual_lives_saved_malaria(),
@@ -44,7 +44,6 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
             "Main scenario name: ": analysis.scenario_descriptor,
             "Adjustment for innovation was applied:": analysis.innovation_on,
             "Did we handle out of bounds costs: ": analysis.handle_out_of_bounds_costs,
-            "Which approach do we use: ": 'b',
             "Files used for PF data: ": str(analysis.database.pf_input_data.path),
             "Files used for partner data: ": str(analysis.database.partner_data.path),
             "Files used for model output: ": str(analysis.database.model_results.path),
