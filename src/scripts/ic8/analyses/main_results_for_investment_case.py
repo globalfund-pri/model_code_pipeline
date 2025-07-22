@@ -184,10 +184,10 @@ if __name__ == "__main__":
 
     outputpath = get_root_path() / 'outputs'
 
-    # This will dump the data to csv for Nick and Stephen
-    dump_ic_scenario_to_file(filename_stub=Path(str(outputpath) + "/dump_ic"))
-
     # Generate report
     r = get_report()
     r.report(filename := get_root_path() / 'outputs' / 'final_report_ic8.xlsx')
     open_file(filename)
+
+    # This will dump the data to csv for Nick and Stephen
+    # dump_ic_scenario_to_file(filename_stub=Path(str(outputpath) + "/dump_ic"))
