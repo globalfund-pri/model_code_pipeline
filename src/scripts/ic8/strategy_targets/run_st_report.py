@@ -8,38 +8,22 @@ from tgftools.filehandler import Parameters
 from tgftools.utils import get_root_path, save_var, load_var, open_file
 
 
-def get_st_report(
-        load_data_from_raw_files: bool = True,
-        run_analysis: bool = True,
-) -> STReport:
+def get_st_report() -> STReport:
     """Returns the report for strategy targets, having re-run/loaded the projections."""
 
     project_root = get_root_path()
+    parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    run_analysis = parameters.get('RUN_ANALYSIS')
 
     if run_analysis:
         # Run the analyses
-        hiv_projections = get_set_of_portfolio_projections(
-            get_hiv_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=False,
-            )
-        )
+        hiv_projections = get_set_of_portfolio_projections(get_hiv_analysis())
         save_var(hiv_projections, project_root / "sessions" / "hiv_analysis_ic8.pkl")
 
-        tb_projections = get_set_of_portfolio_projections(
-            get_tb_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=False,
-            )
-        )
+        tb_projections = get_set_of_portfolio_projections(get_tb_analysis())
         save_var(tb_projections, project_root / "sessions" / "tb_analysis_ic8.pkl")
 
-        malaria_projections = get_set_of_portfolio_projections(
-            get_malaria_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=False,
-            )
-        )
+        malaria_projections = get_set_of_portfolio_projections(get_malaria_analysis())
         save_var(malaria_projections, project_root / "sessions" / "malaria_analysis_ic8.pkl")
 
     else:
@@ -57,21 +41,13 @@ def get_st_report(
 
 
 if __name__ == "__main__":
-
+    # This is the entry point for running the Strategy Report
     outputpath = get_root_path() / 'outputs'
 
-    # This is the entry point for running the Strategy Report
-    LOAD_DATA_FROM_RAW_FILES = False
-    RUN_ANALYSIS = True
-
-    r = get_st_report(
-        load_data_from_raw_files=False,
-        run_analysis=False,
-    )
+    r = get_st_report()
 
     # Generate report
-    filename = get_root_path() / 'outputs' / 'strategy_report.xlsx'
-    r.report(filename)
+    r.report(filename := get_root_path() / 'outputs' / 'strategy_report.xlsx')
     open_file(filename)
 
 

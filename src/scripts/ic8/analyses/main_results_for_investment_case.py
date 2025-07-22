@@ -84,39 +84,22 @@ def get_set_of_portfolio_projections(analysis: Analysis) -> SetOfPortfolioProjec
     )
 
 
-def get_report(
-        load_data_from_raw_files: bool = True,
-        run_analysis: bool = True,
-        do_checks: bool = False,
-) -> Report:
+def get_report() -> Report:
+
     project_root = get_root_path()
 
+    parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    run_analysis = parameters.get('RUN_ANALYSIS')
+
     if run_analysis:
-
-        # Run the analyses
-        hiv_projections = get_set_of_portfolio_projections(
-            get_hiv_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
-
+        # Run the analyses and save to .pkl files
+        hiv_projections = get_set_of_portfolio_projections(get_hiv_analysis())
         save_var(hiv_projections, project_root / "sessions" / "hiv_analysis_ic8.pkl")
 
-        tb_projections = get_set_of_portfolio_projections(
-            get_tb_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
+        tb_projections = get_set_of_portfolio_projections(get_tb_analysis())
         save_var(tb_projections, project_root / "sessions" / "tb_analysis_ic8.pkl")
 
-        malaria_projections = get_set_of_portfolio_projections(
-            get_malaria_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=do_checks
-            )
-        )
+        malaria_projections = get_set_of_portfolio_projections(get_malaria_analysis())
         save_var(malaria_projections, project_root / "sessions" / "malaria_analysis_ic8.pkl")
 
     else:
@@ -162,12 +145,11 @@ def dump_projection_to_file(proj, filename):
         whole_df.to_csv(filename, index=False)
 
 
-def dump_ic_scenario_to_file(
-        load_data_from_raw_files: bool = True,
-        run_analysis: bool = True,
-        filename_stub: Optional[Path] = None,
-) -> None:
+def dump_ic_scenario_to_file(filename_stub: Optional[Path] = None) -> None:
     project_root = get_root_path()
+
+    parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
+    run_analysis = parameters.get('RUN_ANALYSIS')
 
     if filename_stub is None:
         print('We need a filename!!')
@@ -175,28 +157,13 @@ def dump_ic_scenario_to_file(
 
     if run_analysis:
         # Run the analyses
-        hiv_projections = get_set_of_portfolio_projections(
-            get_hiv_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=False,
-            )
-        )
+        hiv_projections = get_set_of_portfolio_projections(get_hiv_analysis())
         save_var(hiv_projections, project_root / "sessions" / "hiv_analysis_ic8.pkl")
 
-        tb_projections = get_set_of_portfolio_projections(
-            get_tb_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=False,
-            )
-        )
+        tb_projections = get_set_of_portfolio_projections(get_tb_analysis())
         save_var(tb_projections, project_root / "sessions" / "tb_analysis_ic8.pkl")
 
-        malaria_projections = get_set_of_portfolio_projections(
-            get_malaria_analysis(
-                load_data_from_raw_files=load_data_from_raw_files,
-                do_checks=False,
-            )
-        )
+        malaria_projections = get_set_of_portfolio_projections(get_malaria_analysis())
         save_var(malaria_projections, project_root / "sessions" / "malaria_analysis_ic8.pkl")
 
     else:
@@ -217,25 +184,10 @@ if __name__ == "__main__":
 
     outputpath = get_root_path() / 'outputs'
 
-    # This is the entry point for running Reports for the HIV, TB and MALARIA combined.
-    LOAD_DATA_FROM_RAW_FILES = False
-    DO_CHECKS = False
-    RUN_ANALYSIS = True
-
-    r = get_report(
-        load_data_from_raw_files=LOAD_DATA_FROM_RAW_FILES,
-        do_checks=DO_CHECKS,
-        run_analysis=RUN_ANALYSIS,
-    )
+    # Generate report
+    r = get_report()
+    r.report(filename := get_root_path() / 'outputs' / 'final_report_ic8.xlsx')
+    open_file(filename)
 
     # This will dump the data to csv for Nick and Stephen
-    dump_ic_scenario_to_file(
-        load_data_from_raw_files=False, # Ensure we don't load the model results again
-        run_analysis=False,  # Ensure we don't run the analysis again
-        filename_stub=Path(str(outputpath) + "/dump_ic")
-    )
-
-    # Generate report
-    filename = get_root_path() / 'outputs' / 'final_report_ic8.xlsx'
-    r.report(filename)
-    open_file(filename)
+    # dump_ic_scenario_to_file(filename_stub=Path(str(outputpath) + "/dump_ic"))
