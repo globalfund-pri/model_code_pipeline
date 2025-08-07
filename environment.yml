@@ -20,6 +20,7 @@ dependencies:
   - pip=23.3.1
   - jupyter
   - pip:
+      - mkdocstrings
       - chardet==5.2.0
       - mkdocstrings-python==1.7.5
       - mkdocs-material==9.4.10
