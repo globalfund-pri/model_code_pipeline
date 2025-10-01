@@ -3,24 +3,24 @@
 # Note that we keep the file seperate to the parameters because we tend to change the file and parameters at different times and for different purposes.
 
 [HIV]
-NON-TGF-FUNDING = "IC8/funding/2025_09_29/hiv/hiv_nonfung_base_c.csv"
-TGF-FUNDING = "IC8/funding/2025_09_29/hiv/hiv_fung_inc_unalc_bs11.csv"
+NON-TGF-FUNDING = "IC8/funding/19-12-2024/hiv/budget_scenarios/hiv_nonfung_base_c.csv"
+TGF-FUNDING = "IC8/funding/19-12-2024/hiv/budget_scenarios/hiv_fung_inc_unalc_bs17.csv"
 MODEL-RESULTS = "IC8/modelling_outputs/hiv/2024_11_24"
 PARTNER-DATA = "IC8/partner/hiv/2024_12_12"
 PF-INPUT-DATA = "IC8/pf/hiv/2024_03_28"
 GP-DATA = "IC8/fixed_gps/hiv_gp.csv"
 
 [TB]
-NON-TGF-FUNDING = "IC8/funding/2025_09_29/tb/tb_nonfung_base_c.csv"
-TGF-FUNDING = "IC8/funding/2025_09_29/tb/tb_fung_inc_unalc_bs11.csv"
+NON-TGF-FUNDING = "IC8/funding/19-12-2024/tb/budget_scenarios/tb_nonfung_base_c.csv"
+TGF-FUNDING = "IC8/funding/19-12-2024/tb/budget_scenarios/tb_fung_inc_unalc_bs17.csv"
 MODEL-RESULTS = "IC8/modelling_outputs/tb/2024_10_15"
 PARTNER-DATA = "IC8/partner/tb/2024_12_12"
 PF-INPUT-DATA = "IC8/pf/tb/2024_03_28"
 GP-DATA = "IC8/fixed_gps/tb_gp.csv"
 
 [MALARIA]
-NON-TGF-FUNDING = "IC8/funding/2025_09_29/malaria/malaria_nonfung_base_c.csv"
-TGF-FUNDING = "IC8/funding/2025_09_29/malaria/malaria_fung_inc_unalc_bs11.csv"
+NON-TGF-FUNDING = "IC8/funding/19-12-2024/malaria/budget_scenarios/malaria_nonfung_base_c.csv"
+TGF-FUNDING = "IC8/funding/19-12-2024/malaria/budget_scenarios/malaria_fung_inc_unalc_bs17.csv"
 MODEL-RESULTS = "IC8/modelling_outputs/malaria/2024_01_09"
 PARTNER-DATA = "IC8/partner/malaria/2024_12_12"
 PF-INPUT-DATA = "IC8/pf/malaria/2024_03_28"
