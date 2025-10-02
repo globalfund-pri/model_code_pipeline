@@ -55,7 +55,7 @@ def get_tb_database() -> Database:
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
     filepaths = FilePaths(project_root / "src" / "scripts" / "ic8" / "shared" / "filepaths.toml")
-    load_data_from_raw_files = parameters.get('GET_FROM_RAW_DATA_FILES')
+    load_data_from_raw_files = parameters.get('LOAD_DATA_FROM_RAW_FILES')
 
     # If load_data_from_raw_files is set to True it will re-load the data else, else use the version saved last loaded
     if load_data_from_raw_files:
