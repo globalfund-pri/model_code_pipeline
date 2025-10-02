@@ -1,6 +1,6 @@
 """
 This script is the one to run if you want to run the full analysis for all three diseases and produce the final
-report containing the graphs and key stats. Please read the below carefully before running this script.
+report containing the graphs and the key stats. Please read the below carefully before running this script.
 """
 from pathlib import Path
 from typing import Optional
