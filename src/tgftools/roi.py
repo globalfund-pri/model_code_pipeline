@@ -58,7 +58,7 @@ class Roi:
                 script_location,
                 dump_file_locations[disease],
                 f"{output_filename_stub}_{disease}.csv",
-                parameters_file_location
+                parameters_file_location, # --- could pass here further resources, like resource files etc.
             )
 
     def create_resource_files(self):
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     # For testing purposes, this uses the class to do the default analysis.
     r = Roi()
     r.create_resource_files()  # <--- as discussed, we don't need this to be fully automatic
-    # filenmaes = r.generate_dump_files_for_ic8()  # <-- generate the files in default locations (filenames are returned)
+    # filenames = r.generate_dump_files_for_ic8()  # <-- generate the files in default locations (filenames are returned)
 
     dump_file_locations = {
         'hiv': get_root_path() / 'outputs' / 'dump_ic_hiv.csv',
