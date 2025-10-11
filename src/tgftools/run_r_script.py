@@ -58,12 +58,13 @@ def get_r_executable():
     raise FileNotFoundError("Could not find Rscript executable. Please ensure R is installed and add it to your PATH")
 
 
-def run_r_script(r_file_path):
+def run_r_script(r_file_path, *args):
     """
     Run an R script file from Python
 
     Args:
         r_file_path (str): Path to the R script file
+        *: Anything else that is passed to R
 
     Returns:
         tuple: (return_code, output, error)
@@ -76,9 +77,14 @@ def run_r_script(r_file_path):
         # Get the R executable path
         r_executable = get_r_executable()
 
+        str_args = [str(arg) for arg in args]
+
+        # Construct the command
+        cmd = [r_executable, str(r_file_path)] + str_args
+
         # Run the R script
         process = subprocess.Popen(
-            [r_executable, str(r_file_path)],
+            cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True

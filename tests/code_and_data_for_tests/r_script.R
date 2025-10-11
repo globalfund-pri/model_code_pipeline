@@ -5,3 +5,11 @@
 # Print the classic "Hello World" message
 print("Hello World")
 
+args <- commandArgs(trailingOnly = TRUE)
+
+# Print the arguments received
+print("Arguments received:")
+print(args)
+
+
+
