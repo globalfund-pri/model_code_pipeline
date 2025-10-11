@@ -8,11 +8,11 @@ from tgftools.utils import get_root_path
 class Roi:
     """This class is used to calculate the ROI.
 
-    It works by running the 'R scripts' developed by Prof Stephen Resch. They are stored in `src/tgftools/roi/`.
+    It works by running the 'R scripts' developed by Prof Stephen Resch, which are stored in `src/tgftools/roi/`.
 
     The scripts use the following as inputs:
-        * a dump-file of the model results for each disease. These can be created by `dump_projection_to_file()`
-        * a parameter file which is stored at `src/tgftools/roi/parameters.yml`
+        * a dump-file of the model results for each disease. These can be created by `generate_dump_files_for_ic8()`
+        * a parameter file (a default for which is stored at `src/tgftools/roi/parameters.yml`)
         * resource files which are stored at `resource/roi/`.
 
     The scripts output a csv file at `self.output_file_location`.
@@ -36,16 +36,16 @@ class Roi:
             output_filename_stub: Optional[Path] = None,
             parameters_file_location: Optional[Path] = None
     ):
-        """This runs the R scripts to calculate the ROI."""
+        """This runs the R scripts to calculate the ROI.
+        N.B. We expect the dump file location is a dict of the form {disease: dumpfile location, ...}."""
 
         # Set default output location if none specified
         if output_filename_stub is None:
-            output_filename_stub = get_root_path() / 'outputs' / 'roi' / 'roi'
+            output_filename_stub = get_root_path() / 'outputs' / 'roi'
 
         # Use default parameters file if not specified
         if parameters_file_location is None:
-            parameters_file_location = get_root_path() / 'src' / 'tgftools' / 'roi' / 'parameters.yml'
-
+            parameters_file_location = get_root_path() / 'resources' / 'parameters.yml'
 
         # Script location of the main ROI analysis
         script_location = get_root_path() / 'src' / 'tgftools' / 'roi' / 'main.R'
@@ -53,12 +53,12 @@ class Roi:
         # @Stephen - not sure if it's one script for all diseases, or one per disease. Have done it here assuming
         # that we call the R script once per each disease
 
-        for disease in self.dump_file_locations.keys():
+        for disease in dump_file_locations.keys():
             run_r_script(
                 script_location,
-                self.dump_file_locations[disease],
-                f"{self.output_filename_stub}_{disease}.csv",
-                self.parameters_file_location
+                dump_file_locations[disease],
+                f"{output_filename_stub}_{disease}.csv",
+                parameters_file_location
             )
 
     def create_resource_files(self):
