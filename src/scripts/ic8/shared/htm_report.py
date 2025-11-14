@@ -522,9 +522,9 @@ class HTMReport(Report):
         df = pd.concat(list_of_dfs, axis=0)
         model_2022 = df[year].sum()
         ratio = partner_2022 / model_2022
-        adj_tb_cf = (self.tb.IC.portfolio_results["deathsnotxhivneg"])*ratio
-        adj_tb_cf = (self.tb.CF_InfAve.portfolio_results["deathsnotxhivneg"]) * ratio
-        adj_tb_cf = (self.tb.CF_LivesSaved.portfolio_results["deathsnotxhivneg"]) * ratio
+        adj_tb_cf = (self.tb.IC.portfolio_results["deathshivneg"])*ratio
+        adj_tb_cf = (self.tb.CF_InfAve.portfolio_results["deathshivneg"]) * ratio
+        adj_tb_cf = (self.tb.CF_LivesSaved.portfolio_results["deathshivneg"]) * ratio
 
 
         tb_deaths_hivneg_2024_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
