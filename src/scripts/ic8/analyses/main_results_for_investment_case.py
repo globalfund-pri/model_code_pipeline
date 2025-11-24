@@ -173,16 +173,12 @@ def dump_ic_scenario_to_file(filename_stub: Optional[Path] = None) -> None:
         malaria_projections = load_var(project_root / "sessions" / "malaria_analysis_ic8.pkl")
 
     # Dump to file
-    filenames = dict()
     for (disease, proj) in zip(
             ('hiv', 'tb', 'malaria'),
             (hiv_projections, tb_projections, malaria_projections)
     ):
-        filename = f"{filename_stub}_{disease}.csv"
-        dump_projection_to_file(proj=proj, filename=filename)
-        filenames[disease] = filename
+        dump_projection_to_file(proj=proj, filename=f"{filename_stub}_{disease}.csv")
 
-    return filenames  # returns a dict of the form {disease: dumpfilename}
 
 if __name__ == "__main__":
 
