@@ -64,10 +64,10 @@ def run_r_script(r_file_path, *args):
 
     Args:
         r_file_path (str): Path to the R script file
-        *: Anything else that is passed to R
+        *args: Arguments to pass to the R script
 
     Returns:
-        tuple: (return_code, output, error)
+        list: The numeric results from the R script
     """
     try:
         # Check if the R script file exists
@@ -83,34 +83,27 @@ def run_r_script(r_file_path, *args):
         cmd = [r_executable, str(r_file_path)] + str_args
 
         # Run the R script
-        process = subprocess.Popen(
+        result = subprocess.run(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+            capture_output=True,
+            text=True,
+            check=True
         )
 
-        # Get the output and error (if any)
-        output, error = process.communicate()
+        # If there's any error output, print it
+        if result.stderr:
+            print("Warning/Info from R:", result.stderr)
 
-        # Get the return code
-        return_code = process.returncode
+        # Parse the output - split by newlines and convert to floatw
+        output = [float(x.strip()) for x in result.stdout.strip().split('\n') if x.strip()]
+        return output
 
-        if return_code == 0:
-            print("R script executed successfully!")
-            print("Output:", output)
-        else:
-            print("Error running R script:")
-            print("Error message:", error)
-
-        return return_code, output, error
-
+    except subprocess.CalledProcessError as e:
+        print(f"R script failed with error:\n{e.stderr}")
+        raise
+    except ValueError as e:
+        print(f"Failed to parse R output as numbers:\n{result.stdout}")
+        raise
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return -1, "", str(e)
-
-
-# Example usage
-if __name__ == "__main__":
-    script_path = "r_script.R"
-    run_r_script(script_path)
+        raise
