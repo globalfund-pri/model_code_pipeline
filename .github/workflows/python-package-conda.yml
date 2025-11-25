@@ -1,6 +1,5 @@
-name: Build Conda Environment and Run Framework Tests
-
 on: [pull_request]
+name: Build Conda Environment and Run Framework Tests
 
 jobs:
   run-framework-tests:
@@ -9,20 +8,21 @@ jobs:
       max-parallel: 5
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.11'
-    - name: Add conda to system path
-      run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        conda env update --file environment.yml --name base
-    - name: Test with pytest
-      run: |
-        conda install pytest
-        cd src
-        python -m pytest ../tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report'
+      - uses: actions/checkout@v4
+
+      - name: Setup Miniconda (Mambaforge)
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          auto-activate-base: false
+
+      - name: Create conda env from environment.yml (using mamba)
+        run: |
+          # create or replace the env named 'tgftools'
+          mamba env create -f environment.yml -n tgftools --force
+          conda info --envs
+
+      - name: Run tests with pytest from conda env
+        run: |
+          # run pytest inside the conda env without requiring activation to persist
+          conda run -n tgftools python -m pytest src/../tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report'
