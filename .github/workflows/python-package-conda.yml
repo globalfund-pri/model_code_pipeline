@@ -20,12 +20,14 @@ jobs:
         run: |
           conda install -n base -c conda-forge mamba -y
 
-      - name: Create conda env from environment.yml (using mamba)
+      - name: Create (or replace) conda env from environment.yml using mamba
         run: |
-          # create or replace the env named 'tgftools'
-          mamba env create -f environment.yml -n tgftools --force
+          # remove existing env if present (ignore errors), then create
+          mamba env remove -n tgftools -y || true
+          mamba env create -f environment.yml -n tgftools -y
           conda info --envs
 
       - name: Run tests with pytest from conda env
         run: |
+          # run pytest inside the conda env without requiring activation to persist
           conda run -n tgftools python -m pytest ../tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report'
