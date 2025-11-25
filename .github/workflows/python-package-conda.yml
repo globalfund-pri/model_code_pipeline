@@ -29,25 +29,9 @@ jobs:
           mamba env create -f environment.yml -n tgftools -y
           conda info --envs
 
-      - name: Show repo layout and environment (debug)
+      - name: Install package into conda env (editable) & run tests
         shell: bash -l {0}
         run: |
-          echo "PWD: $(pwd)"
-          echo "Tree (top level):"
-          ls -la
-          echo "src:"
-          ls -la src || true
-          echo "tests:"
-          ls -la tests || true
-          echo "Python and pip:"
-          conda run -n tgftools --no-capture-output python -c "import sys, platform; print(sys.executable); print(sys.version)"
-          conda run -n tgftools --no-capture-output python -m pip --version
-          echo "Conda env packages (top lines):"
-          conda run -n tgftools --no-capture-output conda list | sed -n '1,40p' || true
-
-      - name: Run tests with pytest from conda env
-        shell: bash -l {0}
-        run: |
-          # Use --no-capture-output so pytest output is shown directly in the action log.
-          # Quote the -k expression as a single argument so the shell won't split it.
-          conda run -n tgftools --no-capture-output python -m pytest tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report' -vv
+          # Install this repo as an editable package in the conda env, then run pytest.
+          # Use conda run with --no-capture-output so pytest output appears in action logs.
+          conda run -n tgftools --no-capture-output bash -lc "python -m pip install -e . && python -m pytest tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report' -vv"
