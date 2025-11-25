@@ -1,3 +1,4 @@
+# (update your existing workflow; only the last step is shown here)
 name: Build Conda Environment and Run Framework Tests
 on: [pull_request]
 
@@ -28,12 +29,17 @@ jobs:
           mamba env create -f environment.yml -n tgftools -y
           conda info --envs
 
-      - name: Install package if possible (editable) then run tests (use env python directly)
+      - name: Install package if possible (editable) then run tests (use env python & ensure env bin on PATH)
         shell: bash -l {0}
         run: |
           # Use the exact python from the created env so we never hit system /usr/bin/python.
           PY="$CONDA/envs/tgftools/bin/python"
+          ENV_BIN="$CONDA/envs/tgftools/bin"
           echo "Using Python: $PY"
+          # Prepend env bin to PATH so Rscript and other env binaries are discoverable
+          export PATH="$ENV_BIN:$PATH"
+          echo "PATH: $PATH"
+          echo "Which Rscript: $(which Rscript || true)"
           # Try to install editable (will fail if no pyproject/setup but we ignore that)
           "$PY" -m pip install -e . || true
           # Run pytest with PYTHONPATH fallback so imports from src/ succeed if package wasn't installed
