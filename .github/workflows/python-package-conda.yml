@@ -28,10 +28,13 @@ jobs:
           mamba env create -f environment.yml -n tgftools -y
           conda info --envs
 
-      - name: Install package if possible (editable) then run tests (PYTHONPATH fallback)
+      - name: Install package if possible (editable) then run tests (use env python directly)
         shell: bash -l {0}
         run: |
-          # Try to install the repo editable; if that fails (no pyproject/setup) continue.
-          conda run -n tgftools --no-capture-output bash -lc "python -m pip install -e . || true"
-          # Run pytest using PYTHONPATH=src so imports from src/ work if package isn't installed.
-          conda run -n tgftools --no-capture-output bash -lc "PYTHONPATH=src python -m pytest tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report' -vv"
+          # Use the exact python from the created env so we never hit system /usr/bin/python.
+          PY="$CONDA/envs/tgftools/bin/python"
+          echo "Using Python: $PY"
+          # Try to install editable (will fail if no pyproject/setup but we ignore that)
+          "$PY" -m pip install -e . || true
+          # Run pytest with PYTHONPATH fallback so imports from src/ succeed if package wasn't installed
+          PYTHONPATH=src "$PY" -m pytest tests -k "not test_get_data_path and not test_ic7report and not test_ic8report" -vv
