@@ -1,5 +1,5 @@
-on: [pull_request]
 name: Build Conda Environment and Run Framework Tests
+on: [pull_request]
 
 jobs:
   run-framework-tests:
@@ -17,17 +17,37 @@ jobs:
           auto-activate-base: false
 
       - name: Install mamba into base (fast solver)
+        shell: bash -l {0}
         run: |
           conda install -n base -c conda-forge mamba -y
 
       - name: Create (or replace) conda env from environment.yml using mamba
+        shell: bash -l {0}
         run: |
           # remove existing env if present (ignore errors), then create
           mamba env remove -n tgftools -y || true
           mamba env create -f environment.yml -n tgftools -y
           conda info --envs
 
-      - name: Run tests with pytest from conda env
+      - name: Show repo layout and environment (debug)
+        shell: bash -l {0}
         run: |
-          # run pytest inside the conda env without requiring activation to persist
-          conda run -n tgftools python -m pytest tests -k "not test_get_data_path and not test_ic7report and not test_ic8report"
+          echo "PWD: $(pwd)"
+          echo "Tree (top level):"
+          ls -la
+          echo "src:"
+          ls -la src || true
+          echo "tests:"
+          ls -la tests || true
+          echo "Python and pip:"
+          conda run -n tgftools --no-capture-output python -c "import sys, platform; print(sys.executable); print(sys.version)"
+          conda run -n tgftools --no-capture-output python -m pip --version
+          echo "Conda env packages (top lines):"
+          conda run -n tgftools --no-capture-output conda list | sed -n '1,40p' || true
+
+      - name: Run tests with pytest from conda env
+        shell: bash -l {0}
+        run: |
+          # Use --no-capture-output so pytest output is shown directly in the action log.
+          # Quote the -k expression as a single argument so the shell won't split it.
+          conda run -n tgftools --no-capture-output python -m pytest tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report' -vv
