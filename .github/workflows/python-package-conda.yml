@@ -10,11 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Miniconda (Mambaforge)
+      - name: Setup Miniconda (Miniforge)
         uses: conda-incubator/setup-miniconda@v2
         with:
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniforge3
           auto-activate-base: false
+
+      - name: Install mamba into base (fast solver)
+        run: |
+          conda install -n base -c conda-forge mamba -y
 
       - name: Create conda env from environment.yml (using mamba)
         run: |
@@ -24,5 +28,4 @@ jobs:
 
       - name: Run tests with pytest from conda env
         run: |
-          # run pytest inside the conda env without requiring activation to persist
-          conda run -n tgftools python -m pytest src/../tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report'
+          conda run -n tgftools python -m pytest ../tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report'
