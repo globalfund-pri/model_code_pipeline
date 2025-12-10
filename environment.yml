@@ -1,6 +1,8 @@
 name: tgftools
 channels:
   - defaults
+  - conda-forge
+  - r
 dependencies:
   - python=3.11
   - numpy=1.25.2
@@ -19,9 +21,11 @@ dependencies:
   - reportlab=3.6.12
   - pip=23.3.1
   - jupyter
+  - r-base>=4.0
+  - r-essentials
+  - rpy2
   - pip:
       - mkdocstrings
-      - shutils
       - chardet==5.2.0
       - mkdocstrings-python==1.7.5
       - mkdocs-material==9.4.10
