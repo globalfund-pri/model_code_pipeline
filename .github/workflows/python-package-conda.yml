@@ -1,5 +1,5 @@
+# (update your existing workflow; only the last step is shown here)
 name: Build Conda Environment and Run Framework Tests
-
 on: [pull_request]
 
 jobs:
@@ -9,20 +9,38 @@ jobs:
       max-parallel: 5
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.11'
-    - name: Add conda to system path
-      run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        conda env update --file environment.yml --name base
-    - name: Test with pytest
-      run: |
-        conda install pytest
-        cd src
-        python -m pytest ../tests -k 'not test_get_data_path and not test_ic7report and not test_ic8report'
+      - uses: actions/checkout@v4
+
+      - name: Setup Miniconda (Miniforge)
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Miniforge3
+          auto-activate-base: false
+
+      - name: Install mamba into base (fast solver)
+        shell: bash -l {0}
+        run: |
+          conda install -n base -c conda-forge mamba -y
+
+      - name: Create (or replace) conda env from environment.yml using mamba
+        shell: bash -l {0}
+        run: |
+          mamba env remove -n tgftools -y || true
+          mamba env create -f environment.yml -n tgftools -y
+          conda info --envs
+
+      - name: Install package if possible (editable) then run tests (use env python & ensure env bin on PATH)
+        shell: bash -l {0}
+        run: |
+          # Use the exact python from the created env so we never hit system /usr/bin/python.
+          PY="$CONDA/envs/tgftools/bin/python"
+          ENV_BIN="$CONDA/envs/tgftools/bin"
+          echo "Using Python: $PY"
+          # Prepend env bin to PATH so Rscript and other env binaries are discoverable
+          export PATH="$ENV_BIN:$PATH"
+          echo "PATH: $PATH"
+          echo "Which Rscript: $(which Rscript || true)"
+          # Try to install editable (will fail if no pyproject/setup but we ignore that)
+          "$PY" -m pip install -e . || true
+          # Run pytest with PYTHONPATH fallback so imports from src/ succeed if package wasn't installed
+          PYTHONPATH=src "$PY" -m pytest tests -k "not test_get_data_path and not test_ic7report and not test_ic8report" -vv
