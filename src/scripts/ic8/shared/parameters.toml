@@ -7,7 +7,7 @@ HISTORIC_FIRST_YEAR = 2000 # First year of historic scenarios
 GRAPH_FIRST_YEAR = 2010 # Year for which we want data in the report
 NULL_START_YEAR = 2022 # First year for NULL scenario, if you adjust to start year + 1 the whole time series goes down
 PARTNER_START_YEAR = 2015 # First year for which we want to compare model output to partner data
-START_YEAR = 2023  # The last year for which data available. This is the year upon which calibrating adjustments are made for the model results.
+START_YEAR = 2024  # The last year for which data available. This is the year upon which calibrating adjustments are made for the model results.
 END_YEAR = 2030  # The final year of the model results
 LAST_YEAR_PF = 2026
 YEARS_FOR_FUNDING = [2027, 2028, 2029]  # These are the years for which the funding data corrrespond
@@ -99,7 +99,7 @@ is_gp=false
 # HIV specific definitions
 
 [HIV]
-PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'CUB', 'DJI', 'DMA', 'DOM', 'DZA', 'ECU', 'EGY', 'ERI', 'ETH', 'FJI', 'FSM', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GRD', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'KIR', 'LAO', 'LBN', 'LBR', 'LCA', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MDV', 'MHL', 'MKD', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MRT', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRK', 'PRY', 'PSE', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'STP', 'SUR', 'SWZ', 'SYR', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TON', 'TUN', 'TUV', 'TZA', 'UGA', 'UKR', 'UZB', 'VCT', 'VEN', 'VNM', 'VUT', 'YEM', 'ZAF', 'ZMB', 'ZWE']
+PORTFOLIO_COUNTRIES = ['AFG', 'AGO', 'ARM', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'CUB', 'DJI', 'DMA', 'DOM', 'DZA', 'ECU', 'EGY', 'ERI', 'ETH', 'FJI', 'GAB', 'GEO', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GRD', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBN', 'LBR', 'LCA', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MDV', 'MKD', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MRT', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRK', 'PRY', 'RWA', 'SDN', 'SEN', 'SLB', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'STP', 'SUR', 'SWZ', 'SYR', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TUV', 'TZA', 'UGA', 'UKR', 'UZB', 'VCT', 'VEN', 'VNM', 'VUT', 'YEM', 'ZAF', 'ZMB', 'ZWE']
 # Add ARM (no GP), DZA, MKD, MRT (no model) ERI, CUB, LBN, SYR (no funding), MDV (frontier)
 MODELLED_COUNTRIES = ['AFG' ,'AGO', 'AZE', 'BDI', 'BEN', 'BFA', 'BGD', 'BLR', 'BLZ', 'BOL', 'BTN', 'BWA', 'CAF', 'CIV', 'CMR', 'COD', 'COG', 'COL', 'COM', 'CPV', 'CRI', 'DJI', 'DOM', 'ECU', 'EGY', 'ETH', 'GEO', 'GAB', 'GHA', 'GIN', 'GMB', 'GNB', 'GNQ', 'GTM', 'GUY', 'HND', 'HTI', 'IDN', 'IND', 'IRN', 'JAM', 'KAZ', 'KEN', 'KGZ', 'KHM', 'LAO', 'LBR', 'LKA', 'LSO', 'MAR', 'MDA', 'MDG', 'MLI', 'MMR', 'MNE', 'MNG', 'MOZ', 'MUS', 'MWI', 'MYS', 'NAM', 'NER', 'NGA', 'NIC', 'NPL', 'PAK', 'PER', 'PHL', 'PNG', 'PRY', 'RWA', 'SDN', 'SEN', 'SLE', 'SLV', 'SOM', 'SRB', 'SSD', 'SUR', 'SWZ', 'TCD', 'TGO', 'THA', 'TJK', 'TLS', 'TUN', 'TZA', 'UGA', 'UKR', 'UZB', 'VNM', 'YEM', 'ZAF', 'ZMB', 'ZWE']
 FUNDING_FRACTIONS = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
@@ -1334,7 +1334,7 @@ use_scaling=false
 name="mdrnotified"
 description="number of people with confirmed RR-TB and/or MDR-TB that began second-line treatment"
 type="count"
-use_scaling=true
+use_scaling=false
 
 [[TB.indicator]]
 name="mdrtxcoverage"
@@ -1364,7 +1364,7 @@ use_scaling=false
 name="notified"
 description="number of patients with all forms of TB notified (i.e. bacteriologically confirmed + clinically diagnosed) includes only those with new and relapse TB"
 type="count"
-use_scaling=true
+use_scaling=false
 
 [[TB.indicator]]
 name="txcoverage"
