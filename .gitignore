@@ -2,3 +2,6 @@
 /tgftools.conf
 /site/
 /.pytest_cache/
+*.pyc
+resources/.DS_Store
+.DS_Store
