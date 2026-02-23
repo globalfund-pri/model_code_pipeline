@@ -41,11 +41,11 @@ You will need to declare the local path of the data folder containing static inp
 Typical path for TGF PC users is:
 DATA_FOLDER_PATH = ``C:\Users\rgrahn\OneDrive - The Global Fund\Documents\rgrahn\TGF_data\``
 
-Follow the instructions in ``docs/getting_started.md``
+For more detailed setup and contribution guidelines, please see the `Getting Started <docs/getting_started.md>`_ documentation.
 
 For developing:
 
-1) You *may* need to manually set-up ``Pytest`` (see `Instructions <https://www.jetbrains.com/help/pycharm/pytest.html>`_).
+1) Configure PyCharm to use ``pytest`` (see the `Getting Started <docs/getting_started.md#pycharm-setup-recommended>`_ guide).
 2) You will need to mark the ``tests\`` directory as the "Test Sources Root" and ``src\`` as the "Sources Root"
 3) It is recommended to  launch the ``Documentation for tgftools`` per below
 
