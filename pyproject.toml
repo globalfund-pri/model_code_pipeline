@@ -1,0 +1,42 @@
+[project]
+name = "tgftools"
+version = "0.1.0"
+description = "TGF Tools for Investment Case Modeling"
+requires-python = ">=3.11"
+
+[tool.ruff]
+# Ruff does formatting AND linting in one tool
+line-length = 120
+target-version = "py311"
+
+# Exclude directories we don't want to check
+exclude = [
+    ".git",
+    ".venv",
+    "site",
+    "sessions",
+    "outputs",
+    "build",
+    "dist",
+]
+
+# Enable basic rules for clean, readable code
+select = [
+    "E",     # pycodestyle errors
+    "F",     # pyflakes (undefined names, unused imports, etc.)
+    "I",     # isort (import sorting)
+]
+
+# Ignore E501 (line too long) since ruff format handles it
+ignore = ["E501"]
+
+# Allow autofix
+fixable = ["ALL"]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Like Black, but built into Ruff
+indent-style = "space"
+line-ending = "auto"
