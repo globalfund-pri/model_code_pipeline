@@ -6,15 +6,21 @@ import sys
 
 
 def get_r_executable() -> str:
-    """
-    Get the path to Rscript executable in a robust way.
+    """Get the path to the Rscript executable in a robust way.
 
-    Search order:
-      1. CONDA_PREFIX/bin/Rscript if CONDA_PREFIX is set (active conda env)
-      2. same directory as sys.executable (handles case where env python is used but PATH not updated)
-      3. common platform-specific locations (/usr/bin/Rscript, /usr/local/bin/Rscript, etc.)
-      4. `which Rscript` on Unix-like systems
-    Raises FileNotFoundError if not found.
+    The function searches for the Rscript executable in the following order:
+        1. CONDA_PREFIX/bin/Rscript if CONDA_PREFIX is set (active conda environment)
+        2. Same directory as sys.executable (handles case where environment python
+           is used but PATH is not updated)
+        3. Common platform-specific locations (/usr/bin/Rscript, /usr/local/bin/Rscript, etc.)
+        4. Using 'which Rscript' on Unix-like systems
+
+    Returns:
+        The absolute path to the Rscript executable.
+
+    Raises:
+        FileNotFoundError: If the Rscript executable cannot be found in any of
+            the searched locations.
     """
     system = platform.system()
 
@@ -85,15 +91,24 @@ def get_r_executable() -> str:
 
 
 def run_r_script(r_file_path, *args):
-    """
-    Run an R script file from Python
+    """Run an R script file from Python.
+
+    The function locates the R executable, runs the specified script with the
+    provided arguments, and returns the numeric output. The R script output
+    is expected to be numeric values separated by newlines.
 
     Args:
-        r_file_path (str): Path to the R script file
-        *args: Arguments to pass to the R script
+        r_file_path: Path to the R script file.
+        *args: Arguments to pass to the R script. All arguments are converted
+            to strings before being passed to the script.
 
     Returns:
-        list: The numeric results from the R script
+        List of numeric (float) results from the R script, parsed from stdout.
+
+    Raises:
+        FileNotFoundError: If the R script file does not exist.
+        subprocess.CalledProcessError: If the R script execution fails.
+        ValueError: If the R script output cannot be parsed as numeric values.
     """
     try:
         # Check if the R script file exists
@@ -120,7 +135,7 @@ def run_r_script(r_file_path, *args):
         if result.stderr:
             print("Warning/Info from R:", result.stderr)
 
-        # Parse the output - split by newlines and convert to floatw
+        # Parse the output - split by newlines and convert to float
         output = [float(x.strip()) for x in result.stdout.strip().split('\n') if x.strip()]
         return output
 

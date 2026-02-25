@@ -10,11 +10,22 @@ def filter_for_frontier(
         years_for_obj_func: Iterable[int],
         years_for_funding: Iterable[int],
 ) -> ModelResults:
-    """Returns instance of ModelResults from which have been filters points that are dominated.
-    This is done only for the `scenario_descriptor` specified.
-    The objective function used to determine domination is the same as used in Approach B, which requires specifying:
-     * 'years_for_obj_func': the years in which cases and deaths should be minimised
-     * 'years_for_funding': the years for which costs are summed as the 'cost' of the strategy
+    """Filters model results to retain only non-dominated points on the cost-effectiveness frontier.
+
+    Removes dominated strategies from the model results for the specified scenario.
+    The objective function used to determine domination is the same as used in Approach B.
+
+    Args:
+        model_results: ModelResults object containing scenario data to filter.
+        scenario_descriptor: Identifier for the scenario to filter (e.g., 'PF').
+        years_for_obj_func: Years in which cases and deaths should be minimized
+            for the objective function calculation.
+        years_for_funding: Years for which costs are summed as the 'cost' of
+            each strategy.
+
+    Returns:
+        ModelResults: A ModelResults object with dominated funding fractions removed,
+            containing only strategies on the cost-effectiveness frontier.
     """
 
     # Summarise cases/death for each funding_fraction: sums within  `years_for_obj_func`

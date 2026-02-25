@@ -8,14 +8,18 @@ from tgftools.filehandler import Parameters
 
 
 class Emulator:
-    """This class uses a database of results in order to produce a full set of model results (all indicators) for any
-    funding fraction, or any dollar amount.
-    :param years_for_funding: the years which are referred to when looking-up a scenario based on it's total cost, using
-     `get()`.
-    :param handle_out_of_bounds_costs: If `False`, an error is raised for a requested cost that is not within
-     the range of costs found in the model results. If `True`, then costs lower the lowest cost in model results and
-     costs greater than the highest cost in the model results, lead to results returned corresponding to the model
-     results for the lowest and highest costs, respectively.
+    """Uses a database of results to produce model results for any funding fraction or dollar amount.
+
+    This class provides interpolation capabilities to generate complete sets of model results
+    (all indicators) for funding scenarios that may not exist explicitly in the database. It
+    supports lookups by either funding fraction or total dollar amount.
+
+    Attributes:
+        database: The database instance containing model results.
+        scenario_descriptor: Identifier for the scenario being emulated.
+        country: The country for which results are being emulated.
+        handle_out_of_bounds_costs: Whether to handle costs outside the available range.
+        indicators: List of indicators available in the model results.
     """
 
     def __init__(
@@ -26,6 +30,18 @@ class Emulator:
         years_for_funding: Iterable[int],
         handle_out_of_bounds_costs: bool = False,
     ):
+        """Initializes the Emulator with database and scenario specifications.
+
+        Args:
+            database: The database instance containing model results.
+            scenario_descriptor: Identifier for the scenario to emulate.
+            country: The country for which to generate results.
+            years_for_funding: The years used when looking up scenarios based on total cost
+                in the `get()` method.
+            handle_out_of_bounds_costs: If False, raises an error for requested costs outside
+                the range of available model results. If True, returns results corresponding to
+                the lowest or highest available costs when requests fall outside the range.
+        """
         self.database = database
         self.scenario_descriptor = scenario_descriptor
         self.country = country
@@ -36,8 +52,21 @@ class Emulator:
         )
 
     def _build_lookup(self, years_for_funding: Iterable[int]) -> Dict:
-        """Returns dictionary of the form {<funding_fraction>: <total cost in replenishment period>} for the specified
-        country and scenario descriptor."""
+        """Builds a lookup dictionary mapping funding fractions to total costs.
+
+        Constructs a dictionary mapping each funding fraction to the total cost during the
+        specified years for the given country and scenario descriptor.
+
+        Args:
+            years_for_funding: The years over which to sum costs.
+
+        Returns:
+            Dictionary mapping funding fractions to total costs in the replenishment period.
+
+        Warnings:
+            Issues a warning if total costs do not increase monotonically with funding fraction,
+            which can cause interpolation errors.
+        """
         lookup = (
             self.database.model_results.df.loc[
                 (
@@ -54,7 +83,8 @@ class Emulator:
             .to_dict()
         )
 
-        # Raise Warning if measured cost does not increase monotonically with funding_fraction (will cause errors with interpolation)
+        # Issue warning if measured cost does not increase monotonically with funding_fraction,
+        # which will cause errors with interpolation.
         if not pd.Series(lookup).sort_index().is_monotonic_increasing:
             warnings.warn(
                 "The total cost of this scenario is not monotonically increasing with the "
@@ -68,11 +98,28 @@ class Emulator:
         funding_fraction: Optional[float] = None,
         dollars: Optional[float] = None
     ) -> Dict[str, pd.DataFrame]:
-        """Return a dict of pd.DataFrames (keyed by indicator) that corresponds to that dollar amount during
-        a given period (`years_for_funding` provided in `__init__`, or a specified funding_fraction scenario, for the
-         country and scenario_descriptor declared at `__init__`, interpolating between the two nearest-neighbour
-         scenarios if needed."""
-        # Establish that that only one of the funding_fraction OR dollars argument can be used.
+        """Retrieves model results for a specified funding fraction or dollar amount.
+
+        Returns a dictionary of DataFrames (keyed by indicator) corresponding to the specified
+        funding fraction or dollar amount during the period defined by `years_for_funding` in
+        `__init__`. Interpolates between the two nearest-neighbor scenarios when necessary for
+        the country and scenario_descriptor declared at initialization.
+
+        Args:
+            funding_fraction: The funding fraction for which to retrieve results. Must be
+                between 0 and 1. Cannot be specified together with dollars.
+            dollars: The total dollar amount for which to retrieve results. Cannot be
+                specified together with funding_fraction.
+
+        Returns:
+            Dictionary mapping indicator names to DataFrames containing the corresponding
+            model results.
+
+        Raises:
+            ValueError: If both funding_fraction and dollars are specified, or if neither
+                is specified.
+        """
+        # Ensure that only one of the funding_fraction or dollars argument is provided.
         if (funding_fraction is not None) and (dollars is not None):
             raise ValueError(
                 "Both funding_fraction and dollars were specified: use only one."
@@ -92,16 +139,32 @@ class Emulator:
     def _interpolation_from_funding_fraction(
         self, funding_fraction: float
     ) -> Dict[str, pd.DataFrame]:
-        """Interpolation from funding fraction. Returns dict of pd.DataFrames for each indicator that is consistent
-         with the funding_fraction specified. If the funding_fraction or dollar amount requested is greater than the
-         greatest value in the actual model results, or less than the least value in the model results, then an error
-         may be thrown because the result cannot be interpolated (if `handle_out_of_bounds_costs` is `False`); or, these
-         cases can be handled by providing the results corresponding to highest and lowest cost in the model results,
-         respectively (if `handle_out_of_bounds_costs` is `True`).
+        """Performs interpolation based on funding fraction.
+
+        Returns a dictionary of DataFrames for each indicator consistent with the specified
+        funding fraction. The method interpolates between the two nearest-neighbor funding
+        fractions available in the model results.
+
+        Out-of-bounds behavior depends on `handle_out_of_bounds_costs`:
+        - If False: Raises an error when the requested funding fraction is outside the
+          available range.
+        - If True: Returns results corresponding to the highest or lowest available funding
+          fraction when requests exceed the available range.
+
+        Args:
+            funding_fraction: The funding fraction for which to compute results.
+
+        Returns:
+            Dictionary mapping indicator names to DataFrames containing interpolated results.
+
+        Raises:
+            ValueError: If the funding fraction is outside the available range and
+                `handle_out_of_bounds_costs` is False, or if the funding fraction is zero
+                or negative.
         """
 
-        # Get the funding_fractions which are known, for this particular scenario_descriptor and country; put in
-        # ascending order in a numpy array
+        # Get the known funding fractions for this scenario_descriptor and country,
+        # sorted in ascending order as a numpy array.
         funding_fractions_known = self.database.model_results.df.loc[
             (self.scenario_descriptor, slice(None), self.country, slice(None), slice(None))
         ].index.get_level_values("funding_fraction").dropna().unique().sort_values().to_numpy()
@@ -111,18 +174,16 @@ class Emulator:
             <= funding_fraction
             <= max(funding_fractions_known)
         ):
-            # The requested funding fraction can be interpolated.
-            i_f_above = (
-                funding_fraction > funding_fractions_known
-            ).argmin()  # Index of funding_fraction below target
-            i_f_below = i_f_above - 1  # Index of funding_fraction above target
+            # The requested funding fraction is within range and can be interpolated.
+            # Index of funding_fraction above target.
+            i_f_above = (funding_fraction > funding_fractions_known).argmin()
+            # Index of funding_fraction below target.
+            i_f_below = i_f_above - 1
 
-            f_below = funding_fractions_known[
-                i_f_below
-            ]  # Value of funding_fraction below target
-            f_above = funding_fractions_known[
-                i_f_above
-            ]  # Value of funding_fraction above target
+            # Value of funding_fraction below target.
+            f_below = funding_fractions_known[i_f_below]
+            # Value of funding_fraction above target.
+            f_above = funding_fractions_known[i_f_above]
             weighting_to_below = 1.0 - (funding_fraction - f_below) / (
                 f_above - f_below
             )
@@ -148,14 +209,14 @@ class Emulator:
                 for indicator in self.indicators
             }
 
-        # In order to handle out of bounds costs (rather than raise an error) we use the result for the
-        # highest/lowest costs
+        # Handle out-of-bounds costs by using results for the highest or lowest available costs
+        # rather than raising an error.
         elif (
                 self.handle_out_of_bounds_costs
                 and (funding_fraction > max(funding_fractions_known))
         ):
-            # If the requested funding_fraction exceeds the greatest value for which we have a result, use the
-            #  result for highest funding_fraction for which we do have a result.
+            # If the requested funding_fraction exceeds the maximum available value,
+            # use the result for the highest available funding_fraction.
             return {
                 indicator: self.database.get_country(
                     country=self.country,
@@ -171,8 +232,8 @@ class Emulator:
                 and (funding_fraction < min(funding_fractions_known))
                 and (funding_fraction > 0)
         ):
-            # If the requested funding_fraction is lower the lowest value for which we have a result (but still > 0),
-            # use the result for lowest funding_fraction for which we do have a result.
+            # If the requested funding_fraction is below the minimum available value (but still positive),
+            # use the result for the lowest available funding_fraction.
             return {
                 indicator: self.database.get_country(
                     country=self.country,
@@ -189,16 +250,28 @@ class Emulator:
                 f"{funding_fraction=} {funding_fractions_known=} {self.country=} {self.scenario_descriptor=}"
             )
 
-    def _interpolation_from_dollars(self, dollars: float):
-        """Interpolation from dollar amount, corresponding to the sum of total costs in the `years_for_funding`
-        specified in `__init__`. Returns dict of pd.DataFrames for each indicator that is consistent
-        with the dollar amount specified.
-        It has to convert dollars to a funding_fraction scenario (within this scenario_descriptor), and then calls
-        `_interpolation_from_funding_fraction`.
-        For logic of the interpolation, see `_interpolation_from_funding_fraction`.
+    def _interpolation_from_dollars(self, dollars: float) -> Dict[str, pd.DataFrame]:
+        """Performs interpolation based on dollar amount.
+
+        Converts the specified dollar amount to an equivalent funding fraction and then
+        performs interpolation. The dollar amount corresponds to the sum of total costs
+        over the `years_for_funding` specified in `__init__`.
+
+        The conversion is based on the ratio of the requested dollars to the maximum dollars
+        in the available results, applied to the maximum funding fraction.
+
+        Args:
+            dollars: The total dollar amount for which to compute results.
+
+        Returns:
+            Dictionary mapping indicator names to DataFrames containing interpolated results.
+
+        Raises:
+            ValueError: If the computed funding fraction is outside the available range and
+                `handle_out_of_bounds_costs` is False.
         """
 
-        # Find the funding fraction that corresponds to the specified dollar amount.
+        # Convert the dollar amount to an equivalent funding fraction.
         max_ff = max(self._lookup_dollars_to_funding_fraction.keys())
         max_dollars = self._lookup_dollars_to_funding_fraction[max_ff]
         ff = max_ff * (dollars / max_dollars)

@@ -9,17 +9,25 @@ from tgftools.database import Database
 from tgftools.filehandler import Parameters, FixedGp
 from tgftools.utils import get_root_path
 
-"""
-This script performs the checks and saves the output as a report.
+"""Performs validation checks on malaria model data and generates a report.
 
-NOTES: Given the format of the model data, the funding fractions had to be coded up differently for the checks compared 
-to the analysis for hiv and tb. This is not the case for malaria.  
+This module runs comprehensive data quality checks on malaria modeling outputs
+and saves the results as a PDF report.
 
-All parameters and files defining this analysis are set out in the following two files: 
-- The parameters.toml file, which outlines all the key parameters outlining the analysis, list of scenarios and how they 
-  are mapped compared to cc, null and gp, the list of modelled and portfolio countries to run as well as the list of the 
-  variables and how these should be handled (scaled to portfolio or not).
-- The filepaths.toml, which outlines which model data and funding data to be used for this analysis.  
+Notes:
+    Given the format of the model data, funding fractions had to be coded
+    differently for the checks compared to the analysis for HIV and TB. This is
+    not the case for malaria.
+
+Configuration:
+    All parameters and files defining this analysis are set out in the
+    following two files:
+    - parameters.toml: Outlines key parameters for the analysis, list of
+      scenarios and how they are mapped compared to CC, NULL, and GP, the list
+      of modeled and portfolio countries to run, and the list of variables and
+      how these should be handled (scaled to portfolio or not).
+    - filepaths.toml: Specifies which model data and funding data to be used
+      for this analysis.
 """
 
 
@@ -28,9 +36,25 @@ class DatabaseChecksMalaria(MALARIAMixin,
                             CommonChecks_allscenarios,
                             CommonChecks_forwardchecks,
                             DatabaseChecks):
-    """This is the class for DatabaseChecks to do with the Malaria data."""
+    """Performs database validation checks specific to malaria data.
+
+    This class combines malaria-specific mixins with common check classes to
+    validate malaria model data. It inherits from multiple check classes to
+    provide comprehensive data quality validation.
+
+    Attributes:
+        Inherited from parent classes including MALARIAMixin,
+        CommonChecks_basicnumericalchecks, CommonChecks_allscenarios,
+        CommonChecks_forwardchecks, and DatabaseChecks.
+    """
 
     def __init__(self, *args, **kwargs):
+        """Initializes the DatabaseChecksMalaria instance.
+
+        Args:
+            *args: Variable length argument list passed to parent classes.
+            **kwargs: Arbitrary keyword arguments passed to parent classes.
+        """
         super().__init__(*args, **kwargs)
 
 

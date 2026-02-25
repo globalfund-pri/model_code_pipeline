@@ -18,36 +18,52 @@ from tgftools.utils import (
     save_var,
 )
 
-"""
-This script performs the analysis of the malaria model data. 
+"""Performs analysis of malaria model data for investment case projections.
 
-This script has the following information and generated the following: 
+This module contains functions for loading, processing, and analyzing malaria
+model data to generate portfolio projections and optimal resource allocations.
 
-It sets the following options: 
-- To load the raw model data (see LOAD_DATA_FROM_RAW_FILES). This option load the raw model data, cleans it in the 
-  disease specific filehandler and put the data in a specific dataframe and performs basic checks. If you running this 
-  script for the first time, this option needs to be set to "True" for the code to run. After that it can be set to 
-  "False" to increase speed. NOTE: if any changes are made to i) the filehandlers (core filehandler or 
-  disease specific filehandler) or ii) to the model data or list of countries, the data needs to be reloaded in order 
-  to be reflected. 
-- To run the checks (see DO_CHECKS). NOTE: Although for hiv and tb the new data structure means it is not recommended 
-  to run the check from this file for malaria it is possible to run checks from this file as funding-fractions match
-  the expected the number of steps and their fractions. 
-- It saves the output of the Approach B to csv. This is done in # Portfolio Projection Approach B: save the optimal 
-  allocation of TGF
-  
-All parameters and files defining this analysis are set out in the following two files: 
-- The parameters.toml file, which outlines all the key parameters outlining the analysis, list of scenarios and how they 
-  are mapped compared to cc, null and gp, the list of modelled and portfolio countries to run as well as the list of the 
-  variables and how these should be handled (scaled to portfolio or not).
-- The filepaths.toml, which outlines which model data and funding data to be used for this analysis.  
+Configuration Options:
+    - LOAD_DATA_FROM_RAW_FILES: Loads raw model data, cleans it in the
+      disease-specific filehandler, and stores it in a dataframe with basic checks.
+      Set to True on first run. After that, set to False for speed.
+      Note: If changes are made to filehandlers or model data/country lists, data
+      must be reloaded.
 
-NOTE: Scenarios for the various counterfactuals are set in the script "Main_results_for_investment_case.py" under src/
-scripts/ic8/analyses. 
+    - DO_CHECKS: Runs validation checks. Note: Although for HIV and TB the new data
+      structure means it is not recommended to run checks from this file, for malaria
+      it is possible to run checks from this file as funding fractions match the
+      expected number of steps and their fractions.
+
+    - Saves Approach B output to CSV: The optimal allocation of TGF funding.
+
+Configuration Files:
+    - parameters.toml: Outlines key analysis parameters, scenarios and their
+      mapping to CC, NULL, and GP, list of modeled and portfolio countries,
+      and variables with their handling (scaled to portfolio or not).
+    - filepaths.toml: Specifies which model data and funding data to use.
+
+Note:
+    Scenarios for counterfactuals are set in the script
+    "Main_results_for_investment_case.py" under src/scripts/ic8/analyses.
 """
 
 
 def get_malaria_database() -> Database:
+    """Loads and returns the malaria database containing model results and supporting data.
+
+    This function loads malaria model results, PF input data, partner data, and GP data,
+    assembling them into a Database object. The function can either load from raw
+    files or from cached pickle files based on the LOAD_DATA_FROM_RAW_FILES parameter.
+
+    Returns:
+        Database: A Database object containing model results, GP projections,
+            PF input data, and partner data for malaria.
+
+    Note:
+        If LOAD_DATA_FROM_RAW_FILES is True, raw data is loaded and cached.
+        If False, previously cached data is loaded for faster processing.
+    """
     # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
@@ -90,6 +106,22 @@ def get_malaria_database() -> Database:
     )
 
 def get_malaria_database_subset(load_data_from_raw_files: bool = True, country_subset_param: str = None) -> Database:
+    """Loads and returns a subset of the malaria database filtered by region.
+
+    This function loads malaria model results for a specific subset of countries
+    based on regional flags. It filters model results, PF input data, and partner
+    data to include only countries in the specified region.
+
+    Args:
+        load_data_from_raw_files: If True, loads from raw files. If False, loads
+            from cached pickle files. Defaults to True.
+        country_subset_param: Regional flag identifier to filter countries. If None,
+            uses all countries. Defaults to None.
+
+    Returns:
+        Database: A Database object containing filtered model results, GP projections,
+            PF input data, and partner data for the specified country subset.
+    """
     # Declare the parameters and filepaths
     project_root = get_root_path()
     parameters = Parameters(project_root / "src" / "scripts" / "ic8" / "shared" / "parameters.toml")
@@ -152,7 +184,16 @@ def get_malaria_database_subset(load_data_from_raw_files: bool = True, country_s
 
 
 def get_malaria_analysis() -> Analysis:
-    """Return the Analysis object for Malaria."""
+    """Creates and returns an Analysis object for malaria with funding assumptions.
+
+    This function loads the malaria database along with TGF and non-TGF funding
+    assumptions to create a complete Analysis object ready for portfolio projections
+    and optimization.
+
+    Returns:
+        Analysis: An Analysis object containing the malaria database, funding assumptions,
+            and parameters for investment case analysis.
+    """
 
     # Declare the parameters and filepaths
     project_root = get_root_path()

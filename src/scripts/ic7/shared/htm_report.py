@@ -12,21 +12,45 @@ from tgftools.utils import get_root_path, matmul
 
 
 class SetOfPortfolioProjections(NamedTuple):
-    IC: PortfolioProjection  # The main forward projection scenario for the investment case
-    CF_InfAve: PortfolioProjection  # The counterfactual projection scenario to compute infections averted
-    # (N.B., we may have multiple different ones for different diseases)
-    CF_LivesSaved: PortfolioProjection  # The counterfactual projection scenario to compute lives saved
-    # (N.B., we may have multiple different ones for different diseases)
-    CF_LivesSaved_Malaria: pd.DataFrame  # The counterfactual for lives saved for malaria
-    CF_InfectionsAverted_Malaria: pd.DataFrame  # The counterfactual for lives saved for malaria
-    PARTNER: pd.DataFrame  # Dataframe containing partner data needed for reporting
-    CF_forgraphs: pd.DataFrame  # Dataframe containing GP needed for reporting (N.B., may differ by disease)
-    Info: Dict # Dictionary containing all the information on the ananlysis including files used and technical information
+    """Collection of portfolio projections for investment case analysis.
+
+    Attributes:
+        IC: Main forward projection scenario for the investment case.
+        CF_InfAve: Counterfactual projection for computing infections averted.
+            May vary by disease.
+        CF_LivesSaved: Counterfactual projection for computing lives saved.
+            May vary by disease.
+        CF_LivesSaved_Malaria: Counterfactual data for malaria lives saved calculations.
+        CF_InfectionsAverted_Malaria: Counterfactual data for malaria infections averted.
+        PARTNER: Partner data needed for reporting.
+        CF_forgraphs: Global Plan data for generating report graphs.
+            May vary by disease.
+        Info: Dictionary containing analysis information including files used
+            and technical details.
+    """
+    IC: PortfolioProjection
+    CF_InfAve: PortfolioProjection
+    CF_LivesSaved: PortfolioProjection
+    CF_LivesSaved_Malaria: pd.DataFrame
+    CF_InfectionsAverted_Malaria: pd.DataFrame
+    PARTNER: pd.DataFrame
+    CF_forgraphs: pd.DataFrame
+    Info: Dict
 
 
 class HTMReport(Report):
-    """This is the Report class. It accepts AnalysisResults for each disease and produces summary statistics.
-    Each member function returns a Dict of the form {<label>: <stat>} which are assembled into an output Excel file."""
+    """Report generator for HIV, TB, and Malaria (HTM) analysis results.
+
+    This class generates comprehensive summary statistics and visualizations
+    from analysis results for all three diseases. Each method returns statistics
+    in dictionary or DataFrame format that are assembled into an output Excel file.
+
+    Attributes:
+        parameters: Configuration parameters for the analysis.
+        hiv: Portfolio projections for HIV.
+        tb: Portfolio projections for TB.
+        malaria: Portfolio projections for malaria.
+    """
 
     def __init__(
             self,
@@ -35,6 +59,14 @@ class HTMReport(Report):
             malaria: SetOfPortfolioProjections,
             parameters: Parameters
     ):
+        """Initialize HTMReport with disease-specific portfolio projections.
+
+        Args:
+            hiv: Portfolio projections for HIV analysis.
+            tb: Portfolio projections for TB analysis.
+            malaria: Portfolio projections for malaria analysis.
+            parameters: Configuration parameters.
+        """
         # Save arguments
         self.parameters = parameters
         self.hiv = hiv
@@ -42,9 +74,13 @@ class HTMReport(Report):
         self.malaria = malaria
 
     def info(self) -> pd.DataFrame:
-        """Collate the information relating to the report, including which folders were being used and the details of
-        the analysis (e.g., which approach was used (a or b), which funding envelope, how did we handle unalllocated
-        amounts, did we adjust for innovation, etc). """
+        """Collate analysis information and configuration details.
+
+        Returns:
+            DataFrame containing analysis metadata including folders used,
+            approach (A or B), funding envelope, unallocated amount handling,
+            innovation adjustments, and other configuration details for each disease.
+        """
         return pd.DataFrame(
             data={
                 'HIV': {**self.hiv.Info},
@@ -53,7 +89,12 @@ class HTMReport(Report):
             })
 
     def get_key_stats_hiv(self) -> Dict[str, float]:
-        """Generate the incidence reduction between 2026 and 2020, per disease"""
+        """Generate key HIV statistics and reductions.
+
+        Returns:
+            Dictionary containing HIV case/incidence/death counts and reductions
+            between 2020 and 2026, plus ART coverage statistics.
+        """
 
         # Generate output relating cases
         hiv_cases_2020 = self.hiv.IC.portfolio_results["cases"].at[2020, "model_central"]
@@ -109,7 +150,13 @@ class HTMReport(Report):
         }
 
     def get_key_stats_tb(self) -> Dict[str, float]:
-        """ Get the key stats for tb.  """
+        """Generate key TB statistics and reductions.
+
+        Returns:
+            Dictionary containing TB case/incidence/death counts and reductions
+            between 2020 and 2026, including HIV-negative specific statistics
+            and treatment coverage metrics.
+        """
 
         # Generate output relating to cases
         tb_cases_2020 = self.tb.IC.portfolio_results["cases"].at[2020, "model_central"]
@@ -193,7 +240,12 @@ class HTMReport(Report):
         }
 
     def get_key_stats_malaria(self) -> Dict[str, float]:
-        """ Get the key stats for malaria.  """
+        """Generate key malaria statistics and reductions.
+
+        Returns:
+            Dictionary containing malaria case/incidence/death counts and reductions
+            between 2020 and 2026, plus service coverage metrics (LLINs, treatment).
+        """
 
         # Generate output relating to cases
         malaria_cases_2020 = self.malaria.IC.portfolio_results["cases"].at[2020, "model_central"]
@@ -252,7 +304,13 @@ class HTMReport(Report):
         }
 
     def get_lives_saved(self) -> Dict[str, float]:
-        """Save a graph to the outputs directory"""
+        """Calculate lives saved across all three diseases.
+
+        Returns:
+            Dictionary containing lives saved estimates for HIV, TB, and malaria
+            for periods 2021-2026 and 2024-2026, calculated as the difference
+            between counterfactual and investment case scenarios.
+        """
 
         # Get lives saved for HIV
         hiv_deaths_2021_2026_ic = self.hiv.IC.portfolio_results["deaths"].loc[slice(2021, 2026), "model_central"].sum()
@@ -299,7 +357,13 @@ class HTMReport(Report):
         }
 
     def get_infections_averted(self) -> dict[str, Any]:
-        """ Generate infections averted """
+        """Calculate infections averted across all three diseases.
+
+        Returns:
+            Dictionary containing infections averted estimates for HIV, TB,
+            and malaria for period 2024-2026, calculated as the difference
+            between counterfactual and investment case scenarios.
+        """
 
         # Get infections averted for HIV
         hiv_cases_2024_2026_ic = self.hiv.IC.portfolio_results["cases"].loc[slice(2024, 2026), "model_central"].sum()
@@ -326,7 +390,12 @@ class HTMReport(Report):
         }
 
     def hiv_cases(self) -> pd.DataFrame:
-        """Produce graph for HIV cases"""
+        """Generate HIV cases data for visualization.
+
+        Returns:
+            DataFrame with years 2015-2026 as index and columns for actual data,
+            GP, counterfactual, IC (with lower and upper bounds).
+        """
         return pd.DataFrame(
             index=pd.Index(list(range(2015, 2027)), name='Year'),
             data={

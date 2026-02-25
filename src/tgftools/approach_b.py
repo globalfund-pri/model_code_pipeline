@@ -14,37 +14,50 @@ from scipy.optimize import LinearConstraint, dual_annealing, minimize
 from tgftools.utils import get_root_path
 from tgftools.write_to_pdf import build_pdf
 
-"""
+"""Approach B allocation optimization for TGF funding across countries.
 
-This file contains all the classes needed to accomplish "Approach B", whereby the TGF Funding is allocated across
- countries so as to be optimal (according to some definition).
+This module contains all the classes needed to accomplish "Approach B", whereby
+TGF funding is allocated across countries to optimize health outcomes according
+to a defined objective function.
 
-IMPORTANT NOTES
-===============
+Important Notes:
+    The optimization works on a full set of model results from 0% to 100% of
+    the possible costs that a program could use. Where results do not span that
+    range, the implementation handles out-of-bounds costs as follows:
 
-We want all the optimisation to work on a full set of model results from 0% to 100% of the possible costs that a program
- could use.
- However, where results do not span that range, the option `handle_out_of_bounds_costs` so that they will not use a cost for a country that it outside of the domain
- of costs for which there are model results:
- * The highest cost in the model results is taken to the highest possible amount that a country could ever receive and
-   generate the greatest possible impact.
- * If the NON_TGF BUDGET is not within the the range of costs covered in the model results, then the optimisers will not
-   run. This is because they _need_ to be able to run a scenario in which the TGF BUDGET to a country is ZERO (not being
-   able to do so, would introduce a *constraint* to the optimisation, which would just an artefact of the model results
-   that happen to have been run.)
-   NB. If necessary and accepted as OK, then this constraint could be removed by updating the `bounds` in the optimisers
-       and editing the greedy algorithms (to start the countries as their respective minima when going forward, or
-       stopping countries as their respective maxima when going backwards).
- 
+    * The highest cost in the model results is taken as the maximum amount a
+      country could receive to generate the greatest possible impact.
+    * If the non-TGF budget is not within the range of costs covered in the
+      model results, the optimizers will not run. This is because they need
+      to evaluate a scenario where TGF budget to a country is zero. Not being
+      able to do so would introduce an artificial constraint to the optimization
+      based on which model results happen to have been run.
+    * If necessary and accepted, this constraint could be removed by updating
+      the bounds in the optimizers and editing the greedy algorithms to start
+      countries at their respective minima when going forward, or stop at their
+      respective maxima when going backwards.
 """
 
 
 def find_max_ignoring_inf(x: Iterable[float]) -> float:
-    """Returns the maximum value in an iterable, ignoring float('inf')."""
+    """Return the maximum value in an iterable, ignoring infinite values.
+
+    Args:
+        x: An iterable of float values.
+
+    Returns:
+        The maximum finite value in the iterable.
+    """
     return x[np.isfinite(x)].max()
 
 class ResultDatum(NamedTuple):
-    """NamedTuple for cases and death for a given program cost."""
+    """Result data for cases and deaths at a given program cost.
+
+    Attributes:
+        cases: Number of disease cases.
+        deaths: Number of deaths.
+        cost: Program cost in dollars.
+    """
 
     cases: float
     deaths: float
@@ -52,7 +65,15 @@ class ResultDatum(NamedTuple):
 
 
 class ApproachBResult(NamedTuple):
-    """NamedTuple for the results of an analysis."""
+    """Results from an Approach B allocation analysis.
+
+    Attributes:
+        tgf_budget_by_country: TGF budget allocation for each country.
+        non_tgf_budget_by_country: Non-TGF budget for each country.
+        total_budget_by_country: Total budget (TGF + non-TGF) for each country.
+        country_results: Health outcome results for each country.
+        total_result: Aggregated health outcomes across all countries.
+    """
 
     tgf_budget_by_country: dict[str, float]
     non_tgf_budget_by_country: dict[str, float]
@@ -62,17 +83,37 @@ class ApproachBResult(NamedTuple):
 
 
 class ApproachB:
-    """This is the class for running a specific analysis using a set of model output files"""
+    """Class for running allocation analysis using model output files.
+
+    This class orchestrates the optimization of TGF funding allocation across
+    countries using various optimization methods including greedy algorithms
+    and global/local optimizers.
+
+    Attributes:
+        dataset: Dataset containing country-level model results.
+        non_tgf_budgets: Dictionary mapping country names to non-TGF budgets.
+        tgf_budgets: Dictionary mapping country names to TGF budgets.
+        tgf_budget: Total TGF budget across all countries.
+        greedy_algorithm: Instance of GreedyAlgorithm for heuristic optimization.
+        optimisers: Instance of Optimisers for numerical optimization methods.
+    """
 
     def __init__(
         self,
         model_results: pd.DataFrame,
-        # <--- This is: country|cases|deaths|cost (multiple row per country, one for each costing value)
         non_tgf_budgets: pd.DataFrame,
-        # <--- This is country|cost (one row per country)
         tgf_budgets: pd.DataFrame,
-        # <--- This is country|cost (one row per country)
     ):
+        """Initialize ApproachB with model results and budget data.
+
+        Args:
+            model_results: DataFrame with columns country, cases, deaths, cost.
+                Multiple rows per country, one for each costing value.
+            non_tgf_budgets: DataFrame with columns country and value.
+                One row per country specifying non-TGF budget.
+            tgf_budgets: DataFrame with columns country and value.
+                One row per country specifying TGF budget allocation.
+        """
         # Create database of country level information
         self.dataset = ApproachBDataSet(model_results=model_results)
 
@@ -83,7 +124,7 @@ class ApproachB:
         )
         self.tgf_budget = sum(self.tgf_budgets.values())
 
-        # Instantiate classes that that will do the optimisations
+        # Instantiate classes that will do the optimizations
         self.greedy_algorithm = GreedyAlgorithm(self)
         self.optimisers = Optimisers(self)
 
@@ -91,10 +132,17 @@ class ApproachB:
         self._checks()
 
     def _checks(self):
-        """Do Some Checks"""
-        # 1) Check if the scenario when NON_TGF Funding is 0.0 can be evaluated (i.e., that model results exists
-        # that allow an interpolation at that point.) and raise error if it cannot. This means that, for instance, a
-        # solution of zero TGF funding to that country could not be examined.
+        """Validate that model results support required funding scenarios.
+
+        Check if scenarios with zero TGF funding can be evaluated for each
+        country. This ensures that model results exist that allow interpolation
+        at the non-TGF funding level, enabling examination of solutions where
+        TGF funding to a country is zero.
+
+        Raises:
+            UserWarning: If non-TGF funding falls outside the range of costs
+                covered in the model results for any country.
+        """
         for _c in self.dataset.countries:
             lowest_cost = self.dataset.data[_c].results.index.min()
             highest_cost = self.dataset.data[_c].results.index.max()
@@ -107,9 +155,17 @@ class ApproachB:
                 )
 
     def run(self, plt_show=False, filename=None, **kwargs) -> dict[str, ApproachBResult]:
-        """Return results from running Approach A and Approach B. Any arguments provided are passed through to
-        `do_approach_b`."""
-        # methods = methods, provide_best_only = True
+        """Run both Approach A and Approach B analyses and generate report.
+
+        Args:
+            plt_show: Whether to display plots. Defaults to False.
+            filename: Path to save report PDF. If None, no PDF is saved.
+            **kwargs: Additional arguments passed to do_approach_b.
+
+        Returns:
+            Dictionary with keys 'a' and 'b' containing ApproachBResult instances
+            for Approach A and Approach B respectively.
+        """
         results = {"a": self.do_approach_a(), "b": self.do_approach_b(**kwargs)}
         self.do_report(results=results, plt_show=plt_show, filename=filename)
         return results
@@ -117,7 +173,16 @@ class ApproachB:
     def gen_analysis_result_from_tgf_budget_by_country(
         self, tgf_budget_by_country: dict[str, float]
     ) -> ApproachBResult:
-        """Generate the AnalysisResults instance given a tgf_budget."""
+        """Generate analysis results given a TGF budget allocation.
+
+        Args:
+            tgf_budget_by_country: Dictionary mapping country names to TGF
+                budget allocations.
+
+        Returns:
+            ApproachBResult containing budget allocations and health outcomes
+            for each country and in aggregate.
+        """
         total_budget_by_country = {
             c: self.non_tgf_budgets[c] + tgf_budget_by_country[c]
             for c in self.dataset.countries
@@ -135,7 +200,15 @@ class ApproachB:
         )
 
     def do_approach_a(self) -> ApproachBResult:
-        """Returns results for each country, given a total amount of funding available to each country."""
+        """Run Approach A analysis using pre-specified TGF budget allocations.
+
+        Approach A uses the TGF budget allocations as provided in the input
+        data without optimization.
+
+        Returns:
+            ApproachBResult containing health outcomes for each country given
+            their pre-specified funding levels.
+        """
         return self.gen_analysis_result_from_tgf_budget_by_country(
             tgf_budget_by_country=self.tgf_budgets
         )
@@ -145,20 +218,28 @@ class ApproachB:
         methods: Optional[Iterable[str]],
         provide_best_only: bool,
     ) -> Union[ApproachBResult, tuple[dict[str, ApproachBResult], str]]:
-        """Returns results for each country and the allocation of TGF budget by country, given a non-tgf-budget by
-        country and a total amount of TGF funding, following an optimisation procedure.
-        The `method` argument is a list of methods that will be used. The can include:
-           * 'ga_forwards': The Greedy Algorithm starting with $0 allocations to each country.
-           * 'ga_backwards': The Greedy Algorithm starting with allocations to each country per Approach A.
-           * 'global_start_at_a': A Global Optimisation starting with allocations to each country per Approach A.
-           * 'global_start_at_random': A Global Optimisation starting with a randomly-chosen allocations.
-           * 'local_start_at_a': A Local Optimisation starting with allocations to each country per Approach A.
-           * 'local_start_at_random': A Local Optimisation starting with a randomly-chosen allocations.
+        """Run Approach B optimization to allocate TGF budget across countries.
 
-        If `methods` is `None`, all method are used (with one repetition of the random starting positions).
+        Optimize the allocation of TGF budget across countries to minimize the
+        objective function (combination of cases and deaths) using specified
+        optimization methods.
 
-           Note that this list of methods can contain repeats of `global_start_at_random` and `local_start_at_random`
-           so that different randomly-chosen starting points are used.
+        Args:
+            methods: List of optimization methods to use. Can include:
+                - 'ga_forwards': Greedy algorithm starting with $0 allocations.
+                - 'ga_backwards': Greedy algorithm starting from Approach A allocations.
+                - 'global_start_at_a': Global optimization from Approach A allocations.
+                - 'global_start_at_random': Global optimization from random start.
+                - 'local_start_at_a': Local optimization from Approach A allocations.
+                - 'local_start_at_random': Local optimization from random start.
+                If None, all methods are used with one random repetition.
+                Can contain repeats of random methods for multiple random starts.
+            provide_best_only: If True, return only the best result. If False,
+                return all results and the key to the best method.
+
+        Returns:
+            If provide_best_only is True: ApproachBResult for the best method.
+            If provide_best_only is False: Tuple of (dict of all results, best method key).
         """
         print("\n")
         all_methods = [
@@ -282,8 +363,19 @@ class ApproachB:
     def inspect_model_results(
         self, country: Union[None, str] = None, plt_show=True, filename=None,
     ) -> List[matplotlib.figure.Figure]:
-        """Generate plots of all inputted model results, GP and the interpolated results for each country. Returns a
-        list of Figures"""
+        """Generate plots of model results, GP, and interpolations for countries.
+
+        Creates visualization of actual model results, Gaussian process fits,
+        and interpolated results for cases and deaths versus cost.
+
+        Args:
+            country: Specific country to plot. If None, plots all countries.
+            plt_show: Whether to display plots. Defaults to True.
+            filename: Path to save plots as PDF. If None, no PDF is saved.
+
+        Returns:
+            List of matplotlib Figure objects, one per country.
+        """
         list_of_figs = []
 
         if country is None:
@@ -355,9 +447,16 @@ class ApproachB:
             plt_show=True,
             filename=None,
     ) -> None:
-        """With results from a run of Approach B, produce summary plots of the results.
-        If a filename is specified, then a pdf of the all the plots is created.
-        If plt_show=False, then plots are not displayed.
+        """Produce summary plots from Approach B results.
+
+        Generate comprehensive visualization of results including allocation
+        comparisons, health impacts, and country-specific outcomes.
+
+        Args:
+            results: Dictionary containing 'a' and 'b' keys with ApproachBResult
+                values or tuples of results.
+            plt_show: Whether to display plots. Defaults to True.
+            filename: Path to save plots as PDF. If None, no PDF is saved.
         """
         if not plt_show and not filename:
             # No need to do anything, as results will not be displayed or saved
@@ -424,7 +523,19 @@ class ApproachB:
             results: dict[str, ApproachBResult],
             plt_show: bool = True,
     ) -> List[matplotlib.figure.Figure]:
-        """Convenience function to generate a standard set of plots for the results of ApproachB."""
+        """Generate standard plots for Approach B results.
+
+        Create comprehensive visualizations comparing Approach A and B including
+        portfolio-level outcomes, funding allocations, and country-specific results.
+
+        Args:
+            results: Dictionary with 'a' and 'b' keys containing ApproachBResult
+                instances for each approach.
+            plt_show: Whether to display plots. Defaults to True.
+
+        Returns:
+            List of matplotlib Figure objects for all generated plots.
+        """
 
         # Create list of Figures that will be returned
         list_of_figs = []
@@ -600,18 +711,41 @@ class ApproachB:
             self,
             results: list[ResultDatum],
     ) -> float:
-        """Return evaluation of objective function for a given list of Results, representing the Results from each
-        country, and the specification of the portfolio-level GP.
-        NB. This method and can be overridden through subclasses, or just redirecting this to another
-        function."""
+        """Evaluate the objective function for a set of country results.
+
+        Calculate the normalized sum of cases and deaths relative to the
+        portfolio-level global plan values. This method can be overridden in
+        subclasses or redirected to another function for custom objective functions.
+
+        Args:
+            results: List of ResultDatum objects, one per country.
+
+        Returns:
+            Objective function value (lower is better). Computed as the sum of
+            normalized cases and normalized deaths.
+        """
         totals = add_list_of_results(results)
         portfolio_gp = self.dataset.portfolio_values_when_maximum_cost_in_all_countries
         return (totals.cases / portfolio_gp.cases) + (totals.deaths / portfolio_gp.deaths)
 
 class ApproachBDataSet:
-    """This class holds all the `Country` objects and some helper functions to make life easier"""
+    """Container for country-level model results and helper functions.
+
+    Manages a collection of Country objects and provides utilities for
+    accessing and analyzing results across multiple countries.
+
+    Attributes:
+        countries: Sorted list of country names.
+        data: Dictionary mapping country names to Country objects.
+    """
 
     def __init__(self, model_results: pd.DataFrame):
+        """Initialize dataset from model results.
+
+        Args:
+            model_results: DataFrame with columns country, cases, deaths, cost.
+                Multiple rows per country for different cost scenarios.
+        """
         self.countries = sorted(set(model_results["country"]))
         self.data = {
             _country: Country(
@@ -624,13 +758,26 @@ class ApproachBDataSet:
 
     @property
     def portfolio_values_when_maximum_cost_in_all_countries(self) -> ResultDatum:
-        """Returns the sum of the "Results" from all the countries for the highest cost scenario in the model results."""
+        """Get portfolio results when all countries are at maximum cost.
+
+        Returns:
+            ResultDatum representing the sum of global plan results across
+            all countries at their highest cost scenarios.
+        """
         return add_list_of_results([self.data[_country].gp for _country in self.countries])
 
     def get_country_results_given_budgets(
         self, budget_by_country: dict = None
     ) -> dict[str, ResultDatum]:
-        """Returns a list of the country-specific results given a budget allocated to each country."""
+        """Get country-specific results for given budget allocations.
+
+        Args:
+            budget_by_country: Dictionary mapping country names to budget amounts.
+
+        Returns:
+            Dictionary mapping country names to ResultDatum objects containing
+            health outcomes at the specified budget levels.
+        """
         return {
             _country: self.data[_country].get_result_for_a_cost(
                 budget_by_country[_country]
@@ -639,8 +786,16 @@ class ApproachBDataSet:
         }
 
     def get_cost_vs_impact_scaled_to_gp(self) -> dict[str, pd.DataFrame]:
-        """Get the cost vs impact (scaled to GP) in each country and assemble into dataframes"""
+        """Get cost versus impact scaled to global plan for all countries.
 
+        Compile cost-impact relationships for each country, normalized relative
+        to their global plan values, and interpolate onto a standard grid.
+
+        Returns:
+            Dictionary with keys 'cases' and 'deaths', each containing a DataFrame
+            where rows represent cost as fraction of GP cost (0 to 1.1) and
+            columns represent countries, with values as fraction of GP impact.
+        """
         costs_per_gp = np.linspace(0, 1.1, 100)
 
         cases_df = pd.DataFrame(columns=self.countries, index=costs_per_gp)
@@ -648,7 +803,7 @@ class ApproachBDataSet:
 
         for _name, _country in self.data.items():
             raw_results = _country.get_cost_vs_impact_scaled_to_gp()
-            # use interpolation to put this onto a standard set of cost_per_gp
+            # Use interpolation to put this onto a standard set of cost_per_gp
             cases_df.loc[:, _name] = np.interp(
                 costs_per_gp, raw_results.index, raw_results.cases
             )
@@ -659,8 +814,14 @@ class ApproachBDataSet:
         return {"cases": cases_df, "deaths": deaths_df}
 
     def do_checks(self) -> None:
-        """Run the checks on each country and print the results to the console and raise a warning if there are any
-        messages."""
+        """Run validation checks on all countries.
+
+        Execute checks on each country's data and report any issues found.
+        Prints results and raises a warning if any abnormalities are detected.
+
+        Raises:
+            UserWarning: If any country data fails validation checks.
+        """
         results = dict()
         for _name, _country in self.data.items():
             results[_name] = _country.check()
@@ -669,17 +830,32 @@ class ApproachBDataSet:
             pprint(results)
             warnings.warn(
                 UserWarning(
-                    "Some abnormalities detecting in the construction of the Country dataclasses."
+                    "Some abnormalities detected in the construction of the Country dataclasses."
                 )
             )
 
 
 class Country:
-    """This class holds all the information for a particular country."""
+    """Container for a single country's model results and analysis methods.
+
+    Stores health outcome data at various cost levels for a country and provides
+    methods for interpolation and analysis.
+
+    Attributes:
+        name: Country name.
+        results: DataFrame indexed by cost with columns for cases and deaths.
+        gp: ResultDatum for the global plan (maximum cost scenario).
+    """
 
     def __init__(
         self, model_results: pd.DataFrame, name: str,
     ):
+        """Initialize Country with model results.
+
+        Args:
+            model_results: DataFrame with columns country, cases, deaths, cost.
+            name: Name of the country.
+        """
         self.name = name
         self.results = self.load_results(
             model_results=model_results,
@@ -694,17 +870,26 @@ class Country:
     @staticmethod
     def load_results(
         model_results: pd.DataFrame, name: str,
-    ) -> (pd.DataFrame, ResultDatum):
-        """This is where the results file(s) for a particular country are loaded.
-        * gp: Results instance specifying the Global Plan (GP).
-        * results: pd.DataFrame of the disease model's results (index=cost of the program; columns=[total cases, total
-        deaths]);
+    ) -> pd.DataFrame:
+        """Load and process model results for a specific country.
+
+        Extract model results for the specified country and organize them
+        by cost level.
+
+        Args:
+            model_results: DataFrame with columns country, cases, deaths, cost.
+                If None and name is "__Dummy__", generates dummy data.
+            name: Name of the country. Use "__Dummy__" to generate test data.
+
+        Returns:
+            DataFrame indexed by cost with columns cases and deaths, sorted
+            by cost in ascending order.
         """
         if (model_results is None) and (name == "__Dummy__"):
-            # create dummy data:
+            # Create dummy data
             return get_dummy_country_result()
 
-        # Get the 'results' (only cases and deaths) for this country
+        # Get the results (only cases and deaths) for this country
         results_data = model_results
         _results = (
             results_data.loc[results_data.country == name]
@@ -714,10 +899,21 @@ class Country:
         return _results
 
     def get_result_for_a_cost(self, cost: Union[int, float]) -> ResultDatum:
-        """Returns the results for a given cost of a programme, interpolating between loaded model results where
-        necessary. It throws an error if a cost is requested that it outside the domain of the costs for which
-        there are modelling results."""
+        """Get health outcomes for a specified program cost.
 
+        Interpolate between model results to estimate health outcomes at
+        the requested cost level. If cost exceeds the maximum modeled cost,
+        returns outcomes at the maximum cost (impact is capped).
+
+        Args:
+            cost: Program cost in dollars.
+
+        Returns:
+            ResultDatum containing interpolated cases, deaths, and the cost.
+
+        Raises:
+            ValueError: If cost is below the minimum cost in model results.
+        """
         if min(self.results.index) <= cost <= max(self.results.index):
             _cases: float = np.interp(
                 cost, np.array(self.results.index), np.array(self.results.cases)
@@ -726,8 +922,7 @@ class Country:
                 cost, np.array(self.results.index), np.array(self.results.deaths)
             )
         elif cost >= max(self.results.index):
-            # If a greater amount of funding is available than the max_cost, the impact is capped at that for the
-            # maximum cost.
+            # If funding exceeds max_cost, impact is capped at the maximum cost level
             _cases: float = np.interp(
                 max(self.results.index), np.array(self.results.index), np.array(self.results.cases)
             )
@@ -740,8 +935,16 @@ class Country:
         return ResultDatum(cases=_cases, deaths=_deaths, cost=float(cost))
 
     def get_cost_vs_impact_scaled_to_gp(self) -> pd.DataFrame:
-        """Return a pd.DataFrame that shows how the fraction of the GP funding is relates to the fraction of the cost
-        and impact achieved, relative to the GP."""
+        """Get cost versus impact normalized to global plan values.
+
+        Scale cost and health impacts as fractions of the global plan (GP)
+        values, showing how impact scales with funding level.
+
+        Returns:
+            DataFrame indexed by cost as fraction of GP cost, with columns
+            for cases and deaths as fractions of GP values. Returns NaN if
+            GP cases or deaths are zero.
+        """
         return pd.DataFrame(
             index=self.results.index / self.gp.cost,
             data={
@@ -755,10 +958,17 @@ class Country:
         )
 
     def check(self) -> list:
-        """Check that the data for this country conforms to expectations."""
+        """Validate that country data meets expected constraints.
+
+        Verify that interpolation works correctly and that health outcomes
+        (cases and deaths) decrease monotonically with increasing cost.
+
+        Returns:
+            List of error messages. Empty list if all checks pass.
+        """
         results = list()
 
-        # Check can do interpolation for values between the lowest and highest cost run for which we have a result:
+        # Check that interpolation works for values between lowest and highest cost
         [
             self.get_result_for_a_cost(_cost)
             for _cost in np.linspace(
@@ -777,19 +987,43 @@ class Country:
 
 
 class GreedyAlgorithm:
-    """This is a "home-made" heuristic algorithm for finding the best allocation of TGF budget among the countries."""
+    """Heuristic algorithm for optimal TGF budget allocation across countries.
+
+    Implements forward and backward greedy algorithms that allocate budget
+    incrementally to maximize health impact at each step.
+
+    Attributes:
+        approach_b: Reference to the parent ApproachB instance.
+        _database: Reference to the ApproachBDataSet containing country data.
+    """
 
     def __init__(self, approach_b: ApproachB):
+        """Initialize GreedyAlgorithm with ApproachB instance.
+
+        Args:
+            approach_b: Parent ApproachB instance containing dataset and budgets.
+        """
         self.approach_b = approach_b
         self._database = approach_b.dataset
 
     def generate_initial_state(
         self, starting_cost: dict[str, float], budget_increment: float
     ) -> dict[str, list[ResultDatum]]:
-        """We arrange the results for each country by increment. This a dict, keyed by countries, giving a list of
-        Results for a sequence of program costs. The *first* element in the list for each country gives the 'starting'
-        program in that country, and subsequent elements describe deviation from that. [If no deviations from the
-        starting position are possible, then the list has a length of one.]
+        """Generate initial state for greedy algorithm with incremental costs.
+
+        Create a dictionary of results for each country at incremental cost
+        levels. The first element is the starting program, with subsequent
+        elements representing cost increments.
+
+        Args:
+            starting_cost: Dictionary mapping country names to starting costs.
+            budget_increment: Size of budget increment (positive for forward,
+                negative for backward algorithm).
+
+        Returns:
+            Dictionary mapping country names to lists of ResultDatum objects
+            at incremental cost levels. List length is one if no deviations
+            from starting position are possible.
         """
         return {
             _c: self.get_results_at_increments(
@@ -804,13 +1038,24 @@ class GreedyAlgorithm:
     def get_results_at_increments(
         country, minimum_cost, increments
     ) -> list[ResultDatum]:
-        """Return a list of Results for a sequence of program costs. This pre-processing step improves the efficiency
-        of the algorithm by avoiding repeated calls to 'get_results_for_a_cost' in the Country.
+        """Get results at incremental cost levels for a country.
 
-        * If increment is positive, the sequence goes from `minimum_cost` to the GP cost for the country;
-        * If increment is negative, the sequence goes from the GP cost for the country to the `minimum_cost`.
+        Pre-compute results at regular cost intervals to improve algorithm
+        efficiency by avoiding repeated interpolation calls.
 
-        A list of len >= 1 is returned (the first position is for the starting_cost).
+        Args:
+            country: Country object containing model results.
+            minimum_cost: Starting cost level.
+            increments: Step size for cost increments. Positive for forward
+                (minimum_cost to GP cost), negative for backward (GP cost
+                to minimum_cost).
+
+        Returns:
+            List of ResultDatum objects at incremental cost levels. List has
+            length >= 1, with first element at the starting cost.
+
+        Raises:
+            AssertionError: If increments is not finite.
         """
         assert np.isfinite(increments), "Increment must be finite!"
 
@@ -830,9 +1075,19 @@ class GreedyAlgorithm:
     def find_country_where_next_pop_leads_to_greatest_reduc_in_objfn(
         self, states
     ) -> Optional[str]:
-        """Returns the country symbol for which the next `pop` operation on its list would lead to the greatest
-        reduction in the objective function; or None, if no more `pop`s are possible."""
+        """Find country where next increment yields greatest objective reduction.
 
+        Evaluate which country would produce the largest reduction in the
+        objective function if it receives the next budget increment.
+
+        Args:
+            states: Dictionary mapping country names to lists of ResultDatum
+                objects at incremental cost levels.
+
+        Returns:
+            Country name that yields the greatest objective function reduction,
+            or None if no more increments are possible for any country.
+        """
         reduction_in_obj_function_by_country = dict()
 
         current_obj_func = self._eval_objective_function(
@@ -845,11 +1100,11 @@ class GreedyAlgorithm:
             return None
 
         for _country_to_try in _countries_that_can_pop:
-            # Compile list of Results for all countries...
-            # ... in which, results for all countries other than `_country_to_try` are at their current level of funding
+            # Compile list of results for all countries where results for all
+            # countries other than _country_to_try are at their current funding level
             __tmp_results = [states[_c][0] for _c in states if _c != _country_to_try]
 
-            # ... and the `_country_to_try` is at increased funding (if there can be increased funding)
+            # Add result for _country_to_try at increased funding (if possible)
             if len(states[_country_to_try]) >= 2:
                 __tmp_results.append(states[_country_to_try][1])
             else:
@@ -865,18 +1120,42 @@ class GreedyAlgorithm:
         )
 
     def _eval_objective_function(self, results):
-        """Helper function, to neaten call from within the class to the `eval_objective_function` on ApproachB."""
+        """Evaluate objective function using parent ApproachB instance.
+
+        Args:
+            results: List of ResultDatum objects for evaluation.
+
+        Returns:
+            Objective function value.
+        """
         return self.approach_b.eval_objective_function(results)
 
     @staticmethod
     def get_current_results(_states):
-        """Return the list of Results for each country at the current funding level (i.e., 0th position in each list)"""
+        """Get current results for all countries at their current funding levels.
+
+        Args:
+            _states: Dictionary mapping country names to lists of ResultDatum.
+
+        Returns:
+            List of ResultDatum objects at current funding level (0th position)
+            for each country.
+        """
         return [_states[_c][0] for _c in _states]
 
     def run_forward(self, n_steps: int) -> dict[str, float]:
-        """Run the algorithm in "forward" mode, wherein we start each country at its non_tgf_budget and allocate each
-        increment of the tgf budget to a country, until the TGF budget is exhausted."""
+        """Run forward greedy algorithm starting from non-TGF budgets.
 
+        Start each country at its non-TGF budget and incrementally allocate
+        TGF budget to the country that yields the greatest reduction in the
+        objective function at each step.
+
+        Args:
+            n_steps: Number of increments to divide the TGF budget into.
+
+        Returns:
+            Dictionary mapping country names to final TGF budget allocations.
+        """
         non_tgf_budget_by_country = self.approach_b.non_tgf_budgets
         tgf_budget = self.approach_b.tgf_budget
 
@@ -913,8 +1192,19 @@ class GreedyAlgorithm:
         return tgf_allocation
 
     def run_backward(self, n_steps: int) -> Union[dict[str, float], None]:
-        """Run the algorithm in "backward" mode, wherein we start each country at its gp and remove increments from
-        each country until the costs that remain in each country can be met by the tgf budget.
+        """Run backward greedy algorithm starting from global plan allocations.
+
+        Start each country at its global plan cost and incrementally remove
+        funding from the country that minimizes the increase in the objective
+        function, until total allocations match the TGF budget.
+
+        Args:
+            n_steps: Number of decrements to divide the budget reduction into.
+
+        Returns:
+            Dictionary mapping country names to final TGF budget allocations,
+            or None if the algorithm cannot run (e.g., TGF budget exceeds
+            total global plan cost).
         """
         non_tgf_budget_by_country = self.approach_b.non_tgf_budgets
         tgf_budget = self.approach_b.tgf_budget
@@ -968,14 +1258,36 @@ class GreedyAlgorithm:
 
 
 class Optimisers:
-    """Class containing the local and global optimisation routines."""
+    """Container for local and global optimization routines.
+
+    Implements numerical optimization methods (local and global) for
+    allocating TGF budget across countries to minimize the objective function.
+
+    Attributes:
+        approach_b: Reference to the parent ApproachB instance.
+    """
 
     def __init__(self, approach_b: ApproachB):
+        """Initialize Optimisers with ApproachB instance.
+
+        Args:
+            approach_b: Parent ApproachB instance containing dataset and budgets.
+        """
         self.approach_b = approach_b
 
     def to_minimise(self, x: np.array) -> float:
-        """Return evaluation of the objective function, given an array of the allocation to each country."""
+        """Evaluate objective function for a given TGF allocation array.
 
+        Convert allocation array to total budgets and compute the objective
+        function value.
+
+        Args:
+            x: Array of TGF budget allocations, one per country in the order
+                of dataset.countries.
+
+        Returns:
+            Objective function value for the given allocation.
+        """
         non_tgf_budget_by_country = self.approach_b.non_tgf_budgets
         database = self.approach_b.dataset
 
@@ -989,20 +1301,24 @@ class Optimisers:
         return self.approach_b.eval_objective_function(results_given_budget)
 
     def use_global_optimiser(self, start_from_random: bool) -> dict[str, float]:
-        """We have a TGF Budget, and we wish to allocate in among countries, such that we minimise some function
-        representing the total of cases and deaths across all the countries. We set this up as a
-        constrained-optimisation problem in which the variables are the allocation of the TGF budget (which are
-        additional to a basal level of funding from non-TGF sources).
-        The constraints are:
-         * the allocation to each country is non-negative
-         * the total allocation of TGF funds for all countries does not exceed the total TGF budget.
+        """Optimize TGF allocation using global optimization (dual annealing).
 
-        For the global optimisation, we use `dual_annealing` to do a global optimisation (but many options possible)
-        (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.dual_annealing.html).
-        In this method - the constraint is represented as a penalty in the objective function.
+        Set up and solve a constrained optimization problem to minimize the
+        objective function representing total cases and deaths across countries.
+        Uses scipy.optimize.dual_annealing for global optimization.
 
-        With `start_from_random`=True, we start from a randomly selected starting position; otherwise we start from the
-        `tgf_budgets` defined for Approach A (in `analysis.tgf_budgets`).
+        Constraints:
+            * Allocation to each country is non-negative
+            * Total TGF allocation does not exceed the total TGF budget
+            * Allocation to each country does not exceed its unmet funding need
+
+        Args:
+            start_from_random: If True, start from a random allocation. If False,
+                start from Approach A allocations.
+
+        Returns:
+            Dictionary mapping country names to optimized TGF budget allocations,
+            or None if optimization fails to satisfy constraints.
         """
         database = self.approach_b.dataset
         non_tgf_budget_by_country = self.approach_b.non_tgf_budgets
@@ -1057,10 +1373,21 @@ class Optimisers:
             return dict(zip(database.countries, sol.x))
 
     def use_local_minimiser(self, start_from_random: bool) -> dict[str, float]:
-        """Using same approach as in `use_global_optimiser`, here we use a local minimiser: `minimize`.
-        With `start_from_random`=True, we start from a randomly selected starting position; otherwise we start from the
-        `tgf_budgets` defined for Approach A (in `analysis.tgf_budgets`).
-        (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html)
+        """Optimize TGF allocation using local optimization (minimize).
+
+        Set up and solve a constrained optimization problem using local
+        minimization (scipy.optimize.minimize). Same constraints as global
+        optimizer, but uses local descent from starting position.
+
+        Args:
+            start_from_random: If True, start from a random allocation. If False,
+                start from Approach A allocations.
+
+        Returns:
+            Dictionary mapping country names to optimized TGF budget allocations.
+
+        Raises:
+            AssertionError: If solution violates constraints.
         """
         database = self.approach_b.dataset
         non_tgf_budget_by_country = self.approach_b.non_tgf_budgets
@@ -1109,14 +1436,25 @@ class Optimisers:
         return dict(zip(database.countries, sol.x))
 
     def starting_point_from_approach_a(self) -> np.array:
-        """Return a starting point `np.array` for the optimization that is the allocation defined in Approach A"""
+        """Get starting point array from Approach A allocations.
+
+        Returns:
+            Array of TGF budget allocations from Approach A, in the order
+            of dataset.countries.
+        """
         return np.array(list(self.approach_b.tgf_budgets.values()))
 
     def randomly_chosen_starting_point(self) -> np.array:
-        """Suggest a randomly selected started point that complies with the constraint that the TGF allocation to a
-        country cannot be such that the total funding to the country exceeds the cost of its GP.
-        """
+        """Generate a random valid starting point for optimization.
 
+        Create a random TGF allocation that satisfies all constraints:
+        total equals TGF budget, all allocations non-negative, and no country
+        receives more than its unmet funding need.
+
+        Returns:
+            Array of valid random TGF budget allocations, in the order of
+            dataset.countries.
+        """
         database = self.approach_b.dataset
         non_tgf_budget_by_country = self.approach_b.non_tgf_budgets
         unmet_funding = {
@@ -1127,21 +1465,26 @@ class Optimisers:
         tgf_budget = self.approach_b.tgf_budget
 
         def is_valid(_x: np.array):
-            """Check if this is a valid solution for the TGF allocation."""
+            """Check if allocation is valid (sums to budget, within bounds).
+
+            Args:
+                _x: Array of TGF allocations.
+
+            Returns:
+                True if allocation is valid, False otherwise.
+            """
             return np.isclose(sum(_x), tgf_budget) and all(
                 [0 <= _v <= _unmet for _v, _unmet in zip(_x, unmet_funding.values())]
             )
 
         final_allox = {_c: 0.0 for _c in countries}
         while not is_valid(np.array(list(final_allox.values()))):
-            # Start by setting the allocation to a country to be some random fraction of its unmet need:
+            # Start by setting allocation to a random fraction of unmet need
             putative_allox = {
                 _c: unmet_funding[_c] * np.random.rand() for _c in countries
             }
 
-            # If the sum of these amounts to each country exceeds the TGF total funds, then remove some from countries
-            # (each country equally); Or, if the sum of these amounts to each country is less the TGF total funds, then
-            # add more to each country (each country equally).
+            # Adjust all countries equally to meet the total TGF budget constraint
             re_allocate_to_each_country = (
                 tgf_budget - sum(putative_allox.values())
             ) / len(countries)
@@ -1149,7 +1492,7 @@ class Optimisers:
                 _c: putative_allox[_c] + re_allocate_to_each_country for _c in countries
             }
 
-            # Repeat this procedure until a valid solution is valid
+            # Repeat until a valid solution is found
 
         assert is_valid(np.array(list(final_allox.values())))
 
@@ -1157,7 +1500,16 @@ class Optimisers:
 
 
 def add_list_of_results(list_of_results: list[ResultDatum]) -> ResultDatum:
-    """Returns Results that is the sum of each element in a list of Results"""
+    """Aggregate a list of results into a single ResultDatum.
+
+    Sum cases, deaths, and costs across all ResultDatum objects in the list.
+
+    Args:
+        list_of_results: List of ResultDatum objects to aggregate.
+
+    Returns:
+        Single ResultDatum with summed cases, deaths, and costs.
+    """
     tot_cases, tot_deaths, tot_costs = 0.0, 0.0, 0.0
     for _res in list_of_results:
         tot_cases += _res.cases
@@ -1169,7 +1521,18 @@ def add_list_of_results(list_of_results: list[ResultDatum]) -> ResultDatum:
 
 
 def get_dummy_country_result(rng=None):
-    """Create a dummy set of results for a country."""
+    """Create dummy model results for testing purposes.
+
+    Generate synthetic country data with realistic diminishing returns curves
+    for cases and deaths versus budget.
+
+    Args:
+        rng: Random number generator. If None, creates a new default generator.
+
+    Returns:
+        Tuple of (results DataFrame, global plan ResultDatum) where results
+        is indexed by cost with columns for cases and deaths.
+    """
 
     def create_dummy_result_curve(
         the_budgets: Iterable[float],
@@ -1179,39 +1542,52 @@ def get_dummy_country_result(rng=None):
         the_beta_value: float,
         the_turn_value: float,
     ) -> np.array:
-        """Construct a curve that conforms to our expectations of diminishing returns between budget and health_gains,
-        that intersects the point (0, 0) and saturates at `value_at_max_cost` when the cost exceeds `max_cost`.
-        We choose to represent this with a scaled logistic curve."""
+        """Construct a curve with diminishing returns using a scaled logistic.
 
+        Create a curve representing diminishing returns between budget and
+        health outcomes that passes through the zero-budget point and saturates
+        at the global plan value.
+
+        Args:
+            the_budgets: Array of budget values.
+            zero_budget_value: Health outcome value at zero budget.
+            the_gp_cost: Global plan cost.
+            the_gp_value: Global plan health outcome value.
+            the_beta_value: Rate parameter for the logistic curve.
+            the_turn_value: Turning point parameter for the logistic curve.
+
+        Returns:
+            Array of health outcome values at the specified budget levels.
+        """
         unscaled_logistic = 1.0 / (
             1.0
             + np.exp(-the_beta_value * ((the_gp_cost / the_turn_value) - the_budgets))
         )
 
-        # Scale to be on vertical to [0, 1]:
+        # Scale to vertical range [0, 1]
         x = unscaled_logistic - min(unscaled_logistic)
         y = x / max(x)
 
         return the_gp_value + (zero_budget_value - the_gp_value) * y
 
     if rng is None:
-        # if random generator not provided use own.
+        # If random generator not provided, use default
         rng = np.random.default_rng(seed=None)
 
-    # Randomly choose some features of the results impact-cost curve
+    # Randomly choose features of the impact-cost curve
     zero_budget_cases = rng.random() * 0.1 * 10_000
     cfr = rng.random() * 0.25
     reduction_in_cases_in_gp = rng.random()
     cost_per_reduction_in_cases = 0.20 * rng.random() * 10_000
-    beta = 0.01 + rng.random() * (0.01 - 0.01)  # rate of change in the logistic curve
+    beta = 0.01 + rng.random() * (0.01 - 0.01)  # Rate of change in logistic curve
     turn = 2.0
 
-    # Derive the specification of the GP
+    # Derive the specification of the global plan
     gp_cases = zero_budget_cases * (1.0 - reduction_in_cases_in_gp)
     gp_deaths = cfr * zero_budget_cases * (1.0 - reduction_in_cases_in_gp)
     gp_cost = reduction_in_cases_in_gp * cost_per_reduction_in_cases
 
-    # Declare the specification of the GP
+    # Create the global plan specification
     gp = ResultDatum(cases=gp_cases, deaths=gp_deaths, cost=gp_cost)
 
     # Define the budget levels for which we have model results

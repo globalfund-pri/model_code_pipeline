@@ -108,10 +108,14 @@ Hard-coding: to be avoided at all costs and if at all limited to these disease f
 
 
 class TBMixin:
-    """Base class used as a `mix-in` that allows any inheriting class to have a property `disease_name` that returns
-    the disease name."""
+    """Base mixin class for TB-specific functionality.
+
+    This mixin provides a disease_name property that returns 'TB' for any
+    inheriting class, enabling disease-specific behavior in the codebase.
+    """
     @property
     def disease_name(self):
+        """str: Returns the disease name 'TB'."""
         return 'TB'
 
 

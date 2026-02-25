@@ -11,20 +11,36 @@ from tgftools.utils import current_date_and_time_as_string, get_commit_revision_
 
 
 class Report:
-    """This is the BaseClass for Report classes. It provides the core functionality to generate reports. It can be
-    inherited from to allow it to accept sets of PortfolioProjections for the diseases. It intended that each member
-    function will either: (i) return a Dict of the form {<label>: <stat>}, or (ii) return a pd.DataFrame. These can be
-    assembled into an output Excel file: contents of dicts are written to the 'Stats' worksheet; contents of
-    pd.DataFrames are written to their own sheet of the same name.
+    """Base class for generating reports.
+
+    This class provides core functionality to generate reports from model outputs. It can be
+    inherited to accept sets of PortfolioProjections for different diseases. Each member
+    function should either return a Dict of the form {<label>: <stat>} or a pd.DataFrame.
+    These results are assembled into an output Excel file where dict contents are written
+    to the 'Stats' worksheet and DataFrames are written to their own sheets.
+
+    Attributes:
+        parameters: Configuration parameters for the report.
     """
 
     def __init__(self, *args, parameters, **kwargs):
-        """Initialise the Report Class"""
+        """Initialize the Report class.
+
+        Args:
+            *args: Variable length argument list.
+            parameters: Configuration parameters for the report.
+            **kwargs: Arbitrary keyword arguments.
+        """
         self.parameters = parameters
 
     def _get_all_funcs_to_generate_stats(self) -> list[str]:
-        """Returns a list of the functions in the class that will generate statistics (i.e., any function with a name
-        that does not start with "_" and is not called "report".
+        """Get all functions in the class that generate statistics.
+
+        Returns a list of function names that will generate statistics. This includes any
+        callable method with a name that does not start with "_" and is not called "report".
+
+        Returns:
+            A sorted list of function names that generate statistics.
         """
         return sorted(
             [
@@ -39,10 +55,29 @@ class Report:
         )
 
     def report(self, filename: Optional[Path] = None) -> Dict:
-        """Run all member functions, print the results to screen, returns the results in the form of dictionary and
-        (if filename provided) assemble them into an Excel file and draw graphs."""
+        """Run all member functions and generate a report.
 
-        all_results_for_stats_pages = dict()  # Storage for all the results
+        Executes all statistics-generating functions in the class, collects their results,
+        and optionally saves them to an Excel file. Results are returned as a dictionary
+        regardless of whether a file is written.
+
+        Args:
+            filename: Optional path where the Excel report should be saved. If None, no file
+                is written.
+
+        Returns:
+            A dictionary containing the report results with the following structure:
+                - 'stats': A DataFrame with columns ['Function', 'Key', 'Value'] containing
+                  all scalar statistics from individual functions.
+                - Additional keys: DataFrames returned by functions, using function names
+                  as keys.
+
+        Raises:
+            ValueError: If a function returns a value that is neither a dict nor a DataFrame.
+        """
+
+        # Storage for all the results
+        all_results_for_stats_pages = dict()
         all_results_for_individual_worksheets = dict()
 
         all_funcs = self._get_all_funcs_to_generate_stats()
@@ -68,41 +103,42 @@ class Report:
             # Write to Excel
             wb = Workbook()
 
-            # Write to 'info' sheet
+            # Write to 'git' sheet with metadata
             work_sheet_info = wb.active
             work_sheet_info.title = 'git'
             work_sheet_info.append(['date-time stamp', current_date_and_time_as_string()])
             work_sheet_info.append(['commit', get_commit_revision_number()])
 
-            # Write to 'stats' worksheet:
+            # Write to 'stats' worksheet
             work_sheet_stats = wb.create_sheet()
             work_sheet_stats.title = 'stats'
             for line in results_for_main:
                 work_sheet_stats.append(line)
 
-            # Write parameters.toml into 'parameters' sheet
+            # Write parameters.toml into 'params' sheet
             work_sheet_params = wb.create_sheet()
             work_sheet_params.title = 'params'
             for i, line in enumerate(self.parameters.raw_store.splitlines()):
                 work_sheet_params.append([f'Line #{i + 1}', line])
 
-            # Write results to 'individual' worksheet
+            # Write results to individual worksheets
             for func_name, func_results in all_results_for_individual_worksheets.items():
                 work_sheet = wb.create_sheet()
-                work_sheet.title = func_name[0:10]  # truncate to first ten characters, as requirement of Excel
+                # Truncate to first ten characters due to Excel requirements
+                work_sheet.title = func_name[0:10]
                 for r in dataframe_to_rows(func_results.reset_index(), index=False, header=True):
                     work_sheet.append(r)
 
             # Do any post-processing that may be required
             self._post_processing_on_workbook(wb)
 
-            # Save
+            # Save workbook to file
             wb.save(filename)
 
+        # Return results in the same format as the Excel file:
+        # - 'stats' key: DataFrame containing all scalar stats from individual functions
+        # - Other keys: DataFrames from functions that returned DataFrames
         return {
-            # Returning in the same format as the Excel file:
-            # * key='main': a pd.DataFrame contains all the scalar stats from individual functions
-            # * all other keys/sheets: pd.DataFrames from all the functions that returned pd.DataFrames
             'stats': (
                 pd.DataFrame(results_for_main)
                 .rename(columns={0: 'Function', 1: 'Key', 2: 'Value'})
@@ -111,5 +147,12 @@ class Report:
         }
 
     def _post_processing_on_workbook(self, workbook: Workbook):
-        """Do anything necessary to post-process the workbook: for instance, create graphs on certain worksheets."""
+        """Perform post-processing on the workbook.
+
+        This method can be overridden in subclasses to perform additional processing on the
+        workbook, such as creating graphs on certain worksheets or applying formatting.
+
+        Args:
+            workbook: The openpyxl Workbook object to post-process.
+        """
         pass

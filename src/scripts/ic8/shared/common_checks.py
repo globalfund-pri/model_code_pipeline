@@ -7,24 +7,46 @@ from tgftools.database import Database
 from tgftools.filehandler import GFYear
 from tgftools.utils import get_root_path
 
-"""
-This script runs the common checks and generates a report, This script can be run either from the disease-specific
-checks (e.g. src/scripts/ic8/hiv/hiv_checks.py)
+"""Common validation checks for HIV, TB, and malaria model data.
 
-NOTE: Given the format of the model data, the funding fractions had to be coded up differently for the checks compared 
-to the analysis. As such it is recommended that checks are run from the disease specific checks, in the location example
-provided above. 
- 
-To perform the checks and to account for the above point on funding fractions go to each disease-specific filehandler
-and ensure that in the class e.g. ModelResultsHiv(HIVMixin, ModelResults) the checks are set to 1. There should be two 
-instances in hiv, one in tb and none in malaria. You can search for "check = ".  
+This module contains shared check classes that perform data quality validation
+across all three diseases. These checks can be run from disease-specific check
+scripts (e.g., src/scripts/ic8/hiv/hiv_checks.py).
+
+Notes:
+    Given the format of the model data, funding fractions had to be coded
+    differently for checks compared to analysis. It is recommended that checks
+    are run from the disease-specific check scripts.
+
+    To perform the checks and account for funding fractions, go to each
+    disease-specific filehandler and ensure that in the class (e.g.,
+    ModelResultsHiv(HIVMixin, ModelResults)) the checks are set to 1. There
+    should be two instances in HIV, one in TB, and none in malaria. You can
+    search for "check = ".
 """
 
 
 class CommonChecks_basicnumericalchecks:
-    """A set of checks that are applicable to all of HIV, Tb and malaria"""
+    """Performs basic numerical validation checks applicable to all diseases.
+
+    This class provides fundamental data quality checks that apply to HIV, TB, and
+    malaria model outputs. It validates basic properties like absence of negative
+    values, missing data, zeros in epidemiological variables, and proper ordering
+    of confidence bounds.
+
+    Attributes:
+        EXPECTED_INDICATORS: DataFrame of expected indicators for the disease.
+        EXPECTED_EPI_INDICATORS: List of epidemiological indicators that should
+            be scaled.
+    """
 
     def __init__(self, *args, **kwargs):
+        """Initializes the basic numerical checks with disease-specific parameters.
+
+        Args:
+            *args: Variable length argument list passed to parent classes.
+            **kwargs: Arbitrary keyword arguments passed to parent classes.
+        """
         super().__init__(*args, **kwargs)
 
         params = self.parameters
@@ -63,7 +85,15 @@ class CommonChecks_basicnumericalchecks:
 
     @critical
     def no_negatives(self, db: Database):
-        """Checks that there are no negative values in the model output."""
+        """Validates that model outputs contain no negative values.
+
+        Args:
+            db: Database object containing model results to validate.
+
+        Returns:
+            CheckResult or None: Returns a CheckResult with passes=False if negative
+                values are found, otherwise returns None (check passed).
+        """
         df = db.model_results.df.loc[
              (slice(None), slice(None), slice(None), slice(None), slice(None)), :
              ]
@@ -73,8 +103,18 @@ class CommonChecks_basicnumericalchecks:
 
     @critical
     def no_missing(self, db: Database):
-        """Checks that there are no missing or nan values in the model output.
-        NOTE: we expect missing service coverage and cost for GP scenario. """
+        """Validates that model outputs contain no missing or NaN values.
+
+        Args:
+            db: Database object containing model results to validate.
+
+        Returns:
+            CheckResult or None: Returns a CheckResult with passes=False if missing
+                values are found, otherwise returns None (check passed).
+
+        Note:
+            Missing service coverage and cost values are expected for GP scenario.
+        """
 
         df = db.model_results.df.loc[
              (slice(None), slice(None), slice(None), slice(None), slice(None)), :
@@ -85,10 +125,22 @@ class CommonChecks_basicnumericalchecks:
 
     @critical
     def no_zeros(self, db: Database):
-        """Check that there are no zeros in the model outputs amongst the epi variables.
-        NOTE: The reason service variables are not evaluated is that CFs (all NULL and CC starting pre-2022)
-        can contain zeros or in case of GF missing values. Service coverage for CC/NULL scenarios are compared to
-        respective baseline and checked to be zero/constant in other checks. """
+        """Validates that epidemiological variables contain no zero values.
+
+        Args:
+            db: Database object containing model results to validate.
+
+        Returns:
+            CheckResult or None: Returns a CheckResult with passes=False if zero
+                values are found in epidemiological variables, otherwise returns None
+                (check passed).
+
+        Note:
+            Service variables are not evaluated because counterfactuals (all NULL and
+            CC starting pre-2022) can contain zeros or missing values. Service coverage
+            for CC/NULL scenarios is compared to respective baselines and checked to be
+            zero/constant in other checks.
+        """
 
         # make a list of variables to be evaluated
         indicators = self.EXPECTED_EPI_INDICATORS
@@ -104,7 +156,15 @@ class CommonChecks_basicnumericalchecks:
 
     @critical
     def proportions_check(self, db: Database):
-        """Checks that any variables expressed as proportions are between 0-1. """
+        """Validates that proportion variables are within the valid range of 0 to 1.
+
+        Args:
+            db: Database object containing model results to validate.
+
+        Returns:
+            CheckResult or None: Returns a CheckResult with passes=False if proportion
+                values fall outside the 0-1 range, otherwise returns None (check passed).
+        """
         indicators = [
             name
             for name, type in self.EXPECTED_INDICATORS['type'].items()
@@ -128,7 +188,18 @@ class CommonChecks_basicnumericalchecks:
 
     @critical
     def correct_bounds_order(self, db: Database):
-        """Checks LB, central and UB are in the right order: LB smaller than central smaller than UB. """
+        """Validates that confidence bounds are in the correct order.
+
+        Ensures that lower bound values are less than central values, and central
+        values are less than upper bound values (LB < central < UB).
+
+        Args:
+            db: Database object containing model results to validate.
+
+        Returns:
+            CheckResult or None: Returns a CheckResult with passes=False if bounds are
+                out of order, otherwise returns None (check passed).
+        """
         df = db.model_results.df.loc[
              (slice(None), slice(None), slice(None), slice(None), slice(None)), :
              ]
@@ -141,9 +212,35 @@ class CommonChecks_basicnumericalchecks:
 
 
 class CommonChecks_forwardchecks:
-    """A set of checks that are applicable to all of HIV, Tb and malaria"""
+    """Performs forward-looking validation checks applicable to all diseases.
+
+    This class provides checks for forward projection scenarios including validation
+    of scenario structure, funding fractions, scenario ordering, and alignment with
+    performance framework and partner data.
+
+    Attributes:
+        EXPECTED_COUNTRIES: List of modeled countries for the disease.
+        EXPECTED_CF_SCENARIOS: List of counterfactual scenario identifiers.
+        EXPECTED_FUNDING_SCENARIOS: List of funding scenario identifiers.
+        CORRECT_SCENARIO_ORDER: Expected ordering of scenarios for validation.
+        EXPECTED_LAST_YEAR: Final year of projections.
+        EXPECTED_FIRST_YEAR: First year of projections.
+        EXPECTED_FUNDING_FRACTIONS: Expected funding fraction values.
+        EXPECTED_INDICATORS: DataFrame of all expected indicators.
+        EXPECTED_EPI_INDICATORS: List of epidemiological indicators.
+        PARTNER_DATA_YEARS: Years with available partner data.
+        PF_DATA_YEARS: Years with performance framework data.
+        TOLERANCE: Tolerance threshold for data comparisons.
+        REPLENISHMENT_YEARS: Years covered by the funding replenishment.
+    """
 
     def __init__(self, *args, **kwargs):
+        """Initializes forward checks with disease-specific parameters.
+
+        Args:
+            *args: Variable length argument list passed to parent classes.
+            **kwargs: Arbitrary keyword arguments passed to parent classes.
+        """
         super().__init__(*args, **kwargs)
 
         params = self.parameters
@@ -157,7 +254,7 @@ class CommonChecks_forwardchecks:
             "PF",
             "CC_2022",
             "NULL_2022",
-        ]  # <-- todo - this should be in parameters really.
+        ]  # TODO: This should be in parameters file.
         self.EXPECTED_LAST_YEAR = params.get("END_YEAR")
         self.EXPECTED_FIRST_YEAR = params.get("START_YEAR")
         self.EXPECTED_FUNDING_FRACTIONS = params.get(self.disease_name).get("FUNDING_FRACTIONS")
@@ -198,10 +295,21 @@ class CommonChecks_forwardchecks:
 
     @critical
     def correct_number_of_scenarios(self, db: Database):
-        """Checks that there is the correct number of unique scenarios for each disease. Specifically, checks that there
-        are the correct number of CFs and the correct number of actual scenarios with corresponding disease-specific
-        expected number of funding fractions.
-        Note: This check will not pick up missing scenarios for a given years or countries. """
+        """Validates that the correct number of scenarios exist for the disease.
+
+        Checks that there are the correct number of counterfactuals and funding
+        scenarios with their corresponding disease-specific expected funding fractions.
+
+        Args:
+            db: Database object containing model results to validate.
+
+        Returns:
+            CheckResult or None: Returns a CheckResult with passes=False if the scenario
+                count is incorrect, otherwise returns None (check passed).
+
+        Note:
+            This check will not detect missing scenarios for specific years or countries.
+        """
         messages = []
 
         # Get the scenarios specified in the results
@@ -227,10 +335,22 @@ class CommonChecks_forwardchecks:
 
     @critical
     def scenario_and_funding_for_each_country(self, db: Database):
-        """Checks that scenarios with varying funding have a scenario for each of the modelled country
-        for each year (based on the variables cases/new infections, deaths and population) based on disease-specific
-        expected number of funding fractions.
-        NOTE: This checks excludes GP, NULL and CC as these do not have funding fractions."""
+        """Validates that all funding scenarios exist for each modeled country and year.
+
+        Checks that scenarios with varying funding have complete results for each modeled
+        country and year, including epidemiological variables (cases/new infections, deaths,
+        and population). Validates against disease-specific expected funding fractions.
+
+        Args:
+            db: Database object containing model results to validate.
+
+        Returns:
+            CheckResult or None: Returns a CheckResult with passes=False if scenarios are
+                missing for any country/year combination, otherwise returns None (check passed).
+
+        Note:
+            This check excludes GP, NULL, and CC scenarios as these do not have funding fractions.
+        """
 
         # Get shortcut to dataframe of model results
         df = db.model_results.df
@@ -298,8 +418,18 @@ class CommonChecks_forwardchecks:
     #     return CheckResult(passes=True, message=figs)
 
     def order_of_scenarios(self, db):
-        """Checks that the scenarios follow the expected a certain pattern.That is in increasing order for cases and
-        deaths: GP, PF, CC, NULL and limited to scenarios with funding fractions 100%. """
+        """Validates that scenarios follow the expected ordering pattern.
+
+        Checks that cases and deaths follow the expected increasing order across scenarios:
+        GP, PF, CC, NULL, when limited to funding fraction of 100%.
+
+        Args:
+            db: Database object containing model results to validate.
+
+        Returns:
+            CheckResult: Returns a CheckResult with visualization figures showing
+                any deviations from expected scenario ordering.
+        """
 
         correct_order = self.CORRECT_SCENARIO_ORDER
 
@@ -336,8 +466,18 @@ class CommonChecks_forwardchecks:
         return CheckResult(passes=True, message=figs)
 
     def graphs_cost_vs_impact(self, db: Database):
-        """This produces graphs of sum of cases/deaths (y-axis) against the total costs over the replenishment period
-        (x-axis) for each country ."""
+        """Generates cost-effectiveness visualizations for each country.
+
+        Creates graphs showing the relationship between total costs over the replenishment
+        period (x-axis) and the sum of cases/deaths (y-axis) for each country.
+
+        Args:
+            db: Database object containing model results to visualize.
+
+        Returns:
+            CheckResult: Returns a CheckResult containing matplotlib figures showing
+                cost vs. impact relationships for each country and indicator.
+        """
 
         figs = []
         years = range(min(self.REPLENISHMENT_YEARS), max(self.REPLENISHMENT_YEARS) + 1)
@@ -421,7 +561,17 @@ class CommonChecks_forwardchecks:
         return CheckResult(passes=True, message=figs)
 
     def pf_data(self, db: Database):
-        """Model output for the period 20XX to end-20XX match the input data containing performance framework targets.
+        """Validates that model outputs match performance framework target data.
+
+        Checks that model output for the performance framework period matches the input
+        data containing performance framework targets.
+
+        Args:
+            db: Database object containing model results and PF input data to compare.
+
+        Returns:
+            CheckResult or None: Returns a CheckResult with passes=False if model outputs
+                do not match PF targets within tolerance, otherwise returns None (check passed).
         """
 
         # Get shortcut to dataframe of model results
@@ -524,9 +674,37 @@ class CommonChecks_forwardchecks:
 
 
 class CommonChecks_allscenarios:
-    """A set of checks that are applicable to all of HIV, Tb and malaria"""
+    """Performs comprehensive validation checks across all scenarios.
+
+    This class provides checks that validate data consistency across all scenarios
+    including historical, counterfactual, and forward projections for HIV, TB, and malaria.
+
+    Attributes:
+        EXPECTED_COUNTRIES: List of modeled countries for the disease.
+        EXPECTED_CF_SCENARIOS: List of counterfactual scenario identifiers.
+        EXPECTED_FUNDING_SCENARIOS: List of funding scenario identifiers.
+        EXPECTED_NULL_SCENARIOS: List of NULL scenario identifiers.
+        EXPECTED_CC_SCENARIOS: List of constant coverage scenario identifiers.
+        EXPECTED_HISTORIC_FIRST_YEAR: First year of historical data.
+        PARTNER_DATA_YEARS: Years with available partner data.
+        EXPECTED_START_YEAR: First year of forward projections.
+        EXPECTED_GP_START_YEAR: Year GP scenario begins.
+        EXPECTED_LAST_YEAR_PF: Last year of performance framework.
+        EXPECTED_LAST_YEAR: Final year of projections.
+        EXPECTED_INDICATORS: DataFrame of all expected indicators.
+        EXPECTED_EPI_INDICATORS: List of epidemiological indicators.
+        INDICATORS_FOR_NULL_CHECK: Indicators to check in NULL scenarios.
+        INDICATORS_FOR_CC_CHECK: Indicators to check in CC scenarios.
+        TOLERANCE: Tolerance threshold for data comparisons.
+    """
 
     def __init__(self, *args, **kwargs):
+        """Initializes comprehensive scenario checks with disease-specific parameters.
+
+        Args:
+            *args: Variable length argument list passed to parent classes.
+            **kwargs: Arbitrary keyword arguments passed to parent classes.
+        """
         super().__init__(*args, **kwargs)
 
         params = self.parameters

@@ -17,9 +17,11 @@ from tgftools.utils import (
     get_files_with_extension,
 )
 
-""" START HERE FOR malaria: This file sets up everything needed to run malaria related code, including reading in the 
-relevant files, cleans up the data in these files (harmonizing naming convention, generate needed variables, filters out 
-variables that are not needed), puts them in the format defined for the database format. 
+"""Malaria file handlers for IC7 model code pipeline.
+
+This module sets up everything needed to run malaria-related code, including reading
+relevant files, cleaning up data (harmonizing naming conventions, generating needed
+variables, filtering out unneeded variables), and formatting them for the database format. 
 
 The database format is: 
 1) scenario_descriptor: contains a XX_XX shorthand for scenario names
@@ -108,10 +110,14 @@ Hard-coding: to be avoided at all costs and if at all limited to these disease f
 
 
 class MALARIAMixin:
-    """Base class used as a `mix-in` that allows any inheriting class to have a property `disease_name` that returns
-    the disease name."""
+    """Base mixin class for malaria-specific functionality.
+
+    This mixin provides a disease_name property that returns 'MALARIA' for any
+    inheriting class, enabling disease-specific behavior in the codebase.
+    """
     @property
     def disease_name(self):
+        """str: Returns the disease name 'MALARIA'."""
         return 'MALARIA'
 
 

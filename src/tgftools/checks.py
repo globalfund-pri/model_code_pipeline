@@ -23,16 +23,31 @@ from tgftools.utils import (
     get_commit_revision_number)
 from tgftools.write_to_pdf import df2table, fig2image
 
-"""This file holds everything needed for the DatabaseChecks class."""
+"""This module contains everything needed for the DatabaseChecks class.
+
+This module provides the DatabaseChecks base class and supporting utilities for
+performing data validation checks on Database objects. It includes decorators,
+result classes, and reporting functionality.
+"""
 
 
 class DataCheckError(Exception):
+    """Exception raised when data checks fail."""
     pass
 
 
 @dataclass
 class CheckResult:
-    """DataClass for result of a single check"""
+    """Result of a single data validation check.
+
+    This dataclass encapsulates the outcome of a single check performed on a
+    database, including whether it passed and an optional message.
+
+    Attributes:
+        passes: Whether the check passed validation.
+        message: Optional message providing details about the check result. Can be
+            a string, matplotlib figure, or list of strings/figures.
+    """
 
     passes: bool = None
     message: [
@@ -45,7 +60,19 @@ class CheckResult:
 
 @dataclass
 class CheckReport:
-    """DataClass for report to be saved from having run a single check"""
+    """Report generated from running a single data validation check.
+
+    This dataclass captures comprehensive information about a check execution,
+    including metadata, results, and any associated messages or visualizations.
+
+    Attributes:
+        name: Name of the check function.
+        description: Description of what the check validates.
+        is_critical: Whether this check is marked as critical.
+        passes: Whether the check passed validation.
+        message: Optional message providing details about the check result. Can be
+            a string, matplotlib figure, or list of strings/figures.
+    """
 
     name: str = None
     description: str = None
@@ -60,7 +87,17 @@ class CheckReport:
 
 
 def critical(func):
-    """Decorator used to signify that a particular check is a 'critical'."""
+    """Decorator to mark a check function as critical.
+
+    Critical checks are treated with higher priority in reporting and may
+    trigger different error handling behavior when they fail.
+
+    Args:
+        func: The check function to be marked as critical.
+
+    Returns:
+        The wrapped function with a 'critical' attribute set to True.
+    """
 
     @wraps(func)
     def wrapped(*args, **kwargs):
@@ -71,21 +108,45 @@ def critical(func):
 
 
 def is_critical(func):
-    """Returns True if the function has been decorated as `@critical`.
-    From: https://stackoverflow.com/a/68583930"""
+    """Check if a function has been decorated with the @critical decorator.
+
+    Args:
+        func: The function to check for the critical attribute.
+
+    Returns:
+        True if the function has been marked as critical, False otherwise.
+
+    Note:
+        Implementation based on https://stackoverflow.com/a/68583930
+    """
     return getattr(func, "critical", False)
 
 
 class DatabaseChecks:
-    """This is the base class for the DatabaseChecks.
-    The functions defined in the base class do the "behind the scenes" things needed to make the inherited class work.
+    """Base class for performing validation checks on Database objects.
 
-    Each function defined in the inheriting class is a check to be performed on the Database. The name of the function
-     should be informative and the docstring should explain exactly what is being tested. In the check, `assert` is
-     used to indicate what must be True for the check to pass; and an error message is provided giving information
-     if it does not. The `@critical` decorator is used to label certain of the checks as being 'critical'. A different
-     overall message is given according to whether there are any failure of 'critical' checks or only failures of
-     'non-critical' checks.
+    This class provides the infrastructure for defining and running validation
+    checks on Database objects. Subclasses should define check methods that
+    validate specific aspects of the data.
+
+    Each check method in a subclass should:
+    - Have an informative name describing what is being tested
+    - Include a docstring explaining exactly what is being validated
+    - Use `assert` statements to indicate conditions that must be True
+    - Return a CheckResult instance with pass/fail status and optional message
+    - Use the @critical decorator for checks that are considered critical
+
+    The class distinguishes between critical and non-critical check failures,
+    providing different reporting and error handling for each type.
+
+    Attributes:
+        db: The Database object to perform checks on.
+        parameters: Optional Parameters object for configuration.
+        ccr: ConsolidatedChecksReport for aggregating check results.
+
+    Args:
+        db: The Database object to perform checks on.
+        parameters: Optional Parameters object for configuration.
     """
 
     def __init__(self, db: Database, parameters: Optional[Parameters] = None):
@@ -102,11 +163,27 @@ class DatabaseChecks:
         )
 
     def _run_check(self, the_func: Callable) -> CheckReport:
-        """Run a particular check and return a Check Result.
-        * A `CheckResult` instance should be returned by each check, giving the result of the check and a message
-        * If nothing is returned, the check is assumed to have passed.
-        * If an AssertionError occurs in the test, then it is assumed the check has failed and the message in the error
-          is used as the message in the check.
+        """Execute a single check function and return a CheckReport.
+
+        This method handles check execution, capturing both successful results
+        and failures. It interprets different return values and exception types
+        to determine the check outcome.
+
+        Behavior:
+        - If check returns None, it is assumed to have passed.
+        - If check returns a CheckResult, that result is used.
+        - If an AssertionError is raised, the check is marked as failed with
+          the error message captured.
+
+        Args:
+            the_func: The check function to execute, which should accept a
+                Database object and return a CheckResult or None.
+
+        Returns:
+            A CheckReport containing the check metadata and execution results.
+
+        Raises:
+            ValueError: If the check returns an unexpected type.
         """
         # Capture the static information about the check.
         header = dict(
@@ -138,9 +215,24 @@ class DatabaseChecks:
         verbose: bool = False,
         filename: Optional[Path] = None,
     ) -> bool:
-        """Run all the checks that are defined in this class and returns True if all checks pass.
-        A summary of the checks is printed to console. By default, any failed checks lead to an Error, but this can be
-         stopped with `suppress_error`. Optionally, the results of the checks can be saved to a logfile.
+        """Execute all defined checks and report results.
+
+        This method discovers and runs all check methods defined in the class,
+        generates a consolidated report, and optionally saves results to a PDF.
+        A summary is printed to the console.
+
+        Args:
+            suppress_error: If True, prevents raising DataCheckError when checks
+                fail. Defaults to False.
+            verbose: If True, includes detailed information about all checks in
+                the console output. Defaults to False.
+            filename: Optional path to save the check results as a PDF report.
+
+        Returns:
+            True if all checks passed, False otherwise.
+
+        Raises:
+            DataCheckError: If any checks fail and suppress_error is False.
         """
 
         # Run all the checks
@@ -164,8 +256,16 @@ class DatabaseChecks:
         return not self.ccr.any_fails
 
     def _get_check_names(self) -> list:
-        """Return the names of the checks found in the class.
-        (A check is any function defined in the class where the name is not `run` or begins with `_`.)
+        """Discover and return the names of all check methods in the class.
+
+        A check method is identified as any callable attribute that:
+        - Does not start with '_' (private methods)
+        - Does not start with 'XX' (disabled methods)
+        - Does not start with 'run_' (runner methods)
+        - Is not named 'run' (the main runner method)
+
+        Returns:
+            A sorted list of check method names found in the class.
         """
         return sorted(
             set(
@@ -183,18 +283,44 @@ class DatabaseChecks:
             - {"run"}
         )
 
+    # Example check method template:
     # def my_check(self, db: Database) -> CheckResult:
-    #     """This is an example of a check. This docstring is the description of what the check does and is captured in
-    #     the outputs.
-    #     Each check should interrogate the database (`db`) and return an instance of `CheckResult`
-    #      indicating whether the check has passed and (optionally) an accompanying message, which can be a
-    #      string, a matplotlib figure or a pandas dataframe, or a list of these."""
+    #     """Example check demonstrating proper check method structure.
+    #
+    #     This docstring describes what the check validates and is captured in
+    #     the output reports. Each check should interrogate the database and
+    #     return a CheckResult instance.
+    #
+    #     Args:
+    #         db: The Database object to validate.
+    #
+    #     Returns:
+    #         CheckResult indicating whether the check passed, with an optional
+    #         message (string, matplotlib figure, pandas dataframe, or list).
+    #     """
     #     return CheckResult(passes=True, message='')
 
 
 class ConsolidatedChecksReport:
-    """This class is used to capture the reports from individual checks and compile them into a consolidated report,
-    which is printed to the console and written to a pdf."""
+    """Aggregates and formats individual check reports into a consolidated report.
+
+    This class collects CheckReport instances from multiple checks and generates
+    a comprehensive report that can be printed to console and saved as a PDF.
+    The report includes metadata, summary statistics, and detailed results for
+    all checks.
+
+    Attributes:
+        flowables: List of ReportLab flowable objects for PDF generation.
+        styles: ReportLab stylesheet for PDF formatting.
+        spacer: Standard vertical spacing element for PDF layout.
+        small_spacer: Small vertical spacing element for PDF layout.
+        horizontal_line: Horizontal rule element for PDF layout.
+
+    Args:
+        title: Title of the report (typically the check class name).
+        doc: Documentation string describing the purpose of the checks.
+        filenames: Dictionary mapping data source names to their file paths.
+    """
 
     def __init__(self, title: str, doc: str, filenames: Dict):
         self._title = title
@@ -212,7 +338,18 @@ class ConsolidatedChecksReport:
         self.horizontal_line = HRFlowable()
 
     def add_check_report(self, ch_rep: CheckReport = None):
-        """Add the result of a check"""
+        """Add a CheckReport to the consolidated report.
+
+        This method validates the message format and stores the check report
+        for later aggregation and reporting.
+
+        Args:
+            ch_rep: The CheckReport to add to the consolidated report.
+
+        Raises:
+            AssertionError: If the message type is not supported (must be
+                pd.DataFrame, plt.Figure, str, tuple, or None).
+        """
 
         # if the message is an empty list, replace it with it None
         if isinstance(ch_rep.message, list) and len(ch_rep.message) == 0:
@@ -236,28 +373,64 @@ class ConsolidatedChecksReport:
 
     @property
     def passing_checks(self) -> List:
+        """Get all check reports that passed.
+
+        Returns:
+            List of CheckReport instances where passes is True.
+        """
         return [rep for rep in self._check_reports if rep.passes]
 
     @property
     def non_critical_failing_checks(self) -> List:
+        """Get all non-critical check reports that failed.
+
+        Returns:
+            List of CheckReport instances that failed and are not marked as critical.
+        """
         return [
             rep for rep in self._check_reports if not rep.passes and not rep.is_critical
         ]
 
     @property
     def critical_failing_checks(self) -> List:
+        """Get all critical check reports that failed.
+
+        Returns:
+            List of CheckReport instances that failed and are marked as critical.
+        """
         return [
             rep for rep in self._check_reports if not rep.passes and rep.is_critical
         ]
 
     @property
     def any_fails(self) -> Bool:
+        """Check if any checks (critical or non-critical) have failed.
+
+        Returns:
+            True if any checks failed, False otherwise.
+        """
         return any(self.critical_failing_checks) or any(
             self.non_critical_failing_checks
         )
 
     def _print(self, item, style=None, echo_to_console=True) -> None:
-        """Print to console and add into a 'flowables' list for pdf generation."""
+        """Print content to console and add to PDF flowables list.
+
+        This internal method handles different types of content (strings,
+        figures, dataframes) and formats them appropriately for both console
+        output and PDF generation.
+
+        Special string commands:
+        - "\\n": Insert blank line/spacer
+        - "---": Insert horizontal line
+        - "ICON=filename": Insert icon image from resources
+
+        Args:
+            item: The content to print. Can be a string, matplotlib figure,
+                pandas dataframe, or list of these types.
+            style: ReportLab style to apply to text. Defaults to "Normal".
+            echo_to_console: If True, also print to console. Defaults to True.
+        """
 
         if style is None:
             style = self.styles["Normal"]
@@ -321,7 +494,17 @@ class ConsolidatedChecksReport:
             handle_item(item)
 
     def _generate_report(self, verbose):
-        """Generate the content of a report (for console and pdf)."""
+        """Generate the formatted report content for console and PDF output.
+
+        This method compiles all check results into a structured report with
+        sections for critical failures, non-critical failures, and passing checks.
+        The report includes metadata such as file paths, timestamps, and git
+        commit information.
+
+        Args:
+            verbose: If True, includes detailed messages for all checks in
+                console output. PDF always includes full details.
+        """
         self.flowables = []
         self.flowables.append(
             Image(get_root_path() / "resources/icons/logo.jpg", 100, 50)
@@ -401,7 +584,17 @@ class ConsolidatedChecksReport:
             self._print("---")
 
     def report(self, filename: Optional[Path], verbose: bool):
-        """Print a consolidated report the console. If `verbose=True` then details of all the failures are provided."""
+        """Generate and output the consolidated checks report.
+
+        This method generates the report content and outputs it to the console.
+        If a filename is provided, it also saves the report as a PDF.
+
+        Args:
+            filename: Optional path where the PDF report should be saved. If None,
+                no PDF is generated.
+            verbose: If True, includes detailed information about all checks in
+                the console output. If False, only summary information is shown.
+        """
         self._generate_report(verbose=verbose)
 
         if filename is not None:

@@ -18,6 +18,15 @@ from tgftools.utils import get_commit_revision_number, current_date_and_time_as_
 
 
 def df2table(df):
+    """Convert a pandas DataFrame to a reportlab Table object.
+
+    Args:
+        df: The pandas DataFrame to convert.
+
+    Returns:
+        A reportlab Table object with formatted styling including bold headers,
+        gridlines, and alternating row colors.
+    """
     df.columns = df.columns.astype(str)  # Ensure that no columns have non-string types
     return Table(
         [[Paragraph(col) for col in df.columns]] + df.values.tolist(),
@@ -33,6 +42,14 @@ def df2table(df):
 
 
 def fig2image(f):
+    """Convert a matplotlib Figure to a reportlab Image object.
+
+    Args:
+        f: The matplotlib Figure to convert.
+
+    Returns:
+        A reportlab Image object suitable for inclusion in a PDF document.
+    """
     buf = io.BytesIO()
     f.savefig(buf, format="png", dpi=300)
     buf.seek(0)
@@ -44,8 +61,18 @@ def build_pdf(
     filename: Path,
     content: dict,
 ):
-    """Build pdf from contents of a dict. The keys are labels and the values are elements (can be text, a figure or
-    a dataframe)."""
+    """Build a PDF file from a dictionary of content elements.
+
+    The PDF includes a header with date-time stamp and git commit information.
+    Each key-value pair in the content dictionary becomes a section in the PDF,
+    with the key as the section heading.
+
+    Args:
+        filename: Path where the PDF file will be saved.
+        content: Dictionary where keys are section labels (strings) and values
+            are elements that can be text (str), matplotlib figures, pandas
+            DataFrames, or lists containing any combination of these types.
+    """
     doc = SimpleDocTemplate(str(filename), pagesize=letter)
     styles = getSampleStyleSheet()
     flowables = []

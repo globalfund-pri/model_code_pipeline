@@ -7,9 +7,16 @@ import pandas as pd
 from tgftools.utils import get_root_path
 
 
-def all_numeric(_df: pd.DataFrame, skipna=False) -> bool:
-    """Returns True if all elements in a pd.DataFrame are numeric.
-    If `skipna` is `True`, then na's do not cause an error."""
+def all_numeric(_df: pd.DataFrame, skipna: bool = False) -> bool:
+    """Check if all elements in a DataFrame are numeric.
+
+    Args:
+        _df: The DataFrame to check for numeric values.
+        skipna: If True, NaN values are ignored during the check. Defaults to False.
+
+    Returns:
+        True if all elements are numeric, False otherwise.
+    """
 
     if skipna is False:
         return _df.apply(
@@ -23,7 +30,13 @@ def all_numeric(_df: pd.DataFrame, skipna=False) -> bool:
 
 
 class Datum(NamedTuple):
-    """Data type for one datum, consisting of a central value, a low and a high value."""
+    """Data type for one datum, consisting of a central value with low and high bounds.
+
+    Attributes:
+        low: The lower bound value.
+        central: The central (point estimate) value.
+        high: The upper bound value.
+    """
 
     low: float
     central: float
@@ -31,8 +44,20 @@ class Datum(NamedTuple):
 
 
 class FileHandler:
-    """This is the base class used to interface with the raw data input files. A bespoke version
-    will be needed for each type of input and these are created by inheriting from this class.
+    """Base class for interfacing with raw data input files.
+
+    This class provides the foundational structure for handling various types of input data.
+    Disease-specific implementations should inherit from this class and override the
+    appropriate methods.
+
+    Attributes:
+        df: The internal DataFrame storage for the data.
+        path: The file path to the data source.
+        parameters: The parameters object containing configuration settings.
+
+    Args:
+        path: Optional path to the data file. If None, an empty DataFrame is created.
+        parameters: Optional Parameters object for configuration settings.
     """
 
     def __init__(self, path: Optional[Path] = None, parameters: Optional['Parameters'] = None):
@@ -44,42 +69,87 @@ class FileHandler:
             self.df = self._build_df(path)
             self._checks(self.df)
         else:
-            self.df = (
-                pd.DataFrame()
-            )  # If no path is provided, do nothing and set the internal storage to an empty
-            #                           pd.DataFrame.
+            # If no path is provided, set the internal storage to an empty DataFrame.
+            self.df = pd.DataFrame()
 
     @property
-    def disease_name(self):
-        """Return the disease name, corresponding to the names used in the Parameters class and parameters.toml file."""
+    def disease_name(self) -> str:
+        """Return the disease name corresponding to the Parameters class and parameters.toml file.
+
+        Returns:
+            An empty string by default. Subclasses should override to return the appropriate disease name.
+        """
         return ""
 
     @classmethod
-    def from_df(cls, _df: pd.DataFrame) -> None:
-        """Create a FileHandler object directly from a dataframe."""
+    def from_df(cls, _df: pd.DataFrame) -> 'FileHandler':
+        """Create a FileHandler object directly from a DataFrame.
+
+        Args:
+            _df: The DataFrame to use as the internal storage.
+
+        Returns:
+            A new FileHandler instance with the provided DataFrame.
+        """
         new_instance = cls()
         new_instance._checks(_df)
         new_instance.df = _df
         return new_instance
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Returns pd.DataFrame that is the internal storage of these data."""
+        """Build a DataFrame from the file at the given path.
+
+        This method must be implemented by subclasses to define how to construct
+        the DataFrame from the specific file format.
+
+        Args:
+            path: The file path to read data from.
+
+        Returns:
+            A DataFrame containing the data from the file.
+
+        Raises:
+            NotImplementedError: This method must be implemented by subclasses.
+        """
         raise NotImplementedError
 
     @staticmethod
-    def _checks(_df: pd.DataFrame):
-        """Check that the data is stored in the expected format."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the data is stored in the expected format.
+
+        Subclasses should override this method to implement specific validation rules.
+
+        Args:
+            _df: The DataFrame to validate.
+        """
         pass
 
     @property
-    def countries(self):
+    def countries(self) -> list:
+        """Return a sorted list of unique countries in the dataset.
+
+        Returns:
+            A sorted list of country codes from the 'country' index level.
+        """
         return sorted(set(self.df.index.get_level_values("country")))
 
     def get(self, **kwargs) -> Datum:
-        """Returns the specified value (where key-word arguments corresponds to the levels of the multi-index of the
-        internal dataframe) in the form of a Datum.
-        N.B. This is a convenience function only - it's expected that most uses will address the member property
-        `.df` directly."""
+        """Return the specified value as a Datum object.
+
+        This is a convenience function where keyword arguments correspond to the levels
+        of the multi-index of the internal DataFrame. For most use cases, accessing the
+        `.df` property directly is preferred.
+
+        Args:
+            **kwargs: Index level names and their values for lookup.
+
+        Returns:
+            A Datum object containing the low, central, and high values.
+
+        Raises:
+            KeyError: If the requested data is not found in the DataFrame.
+            Exception: If the lookup matches more than one entry.
+        """
         try:
             lookup = self.df.loc[
                 tuple(kwargs[k] for k in self.df.index.names)
@@ -100,16 +170,29 @@ class FileHandler:
 
 
 class ModelResults(FileHandler):
-    """The type of FileHandler that is used for holding model results. This class add checks on the internally stored
-    data. Bespoke versions for each disease inherit from this class."""
+    """FileHandler for holding model results.
+
+    This class adds validation checks on the internally stored data to ensure proper
+    structure and format. Disease-specific versions should inherit from this class.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._sort_df()
 
     @staticmethod
-    def _checks(_df: pd.DataFrame):
-        """Check that the df that is built adheres to some size/shape expectations."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the DataFrame adheres to expected structure requirements.
+
+        Validates the DataFrame has the correct index levels, columns, data types,
+        and no duplicate indices.
+
+        Args:
+            _df: The DataFrame to validate.
+
+        Raises:
+            AssertionError: If any validation check fails.
+        """
         assert isinstance(_df, pd.DataFrame)
         assert [
             "scenario_descriptor",
@@ -122,25 +205,38 @@ class ModelResults(FileHandler):
         assert all_numeric(_df, skipna=True)  # na's in some places is OK
         assert not _df.index.has_duplicates
 
-    def _sort_df(self):
-        """Sort the dataframe to allow for slicing by year."""
+    def _sort_df(self) -> None:
+        """Sort the DataFrame by all index levels to enable efficient slicing by year."""
         self.df = self.df.sort_index(axis=0, level=[0, 1, 2, 3, 4])
 
     @property
     def indicators(self) -> list:
-        """Returns list of indicators contained within these model results."""
+        """Return a sorted list of unique indicators in the model results.
+
+        Returns:
+            A sorted list of indicator names from the 'indicator' index level.
+        """
         return sorted(set(self.df.index.get_level_values("indicator")))
 
     @property
     def countries(self) -> list:
-        """Returns list of the countries contained within these model results."""
+        """Return a sorted list of unique countries in the model results.
+
+        Returns:
+            A sorted list of country codes from the 'country' index level.
+        """
         return sorted(set(self.df.index.get_level_values("country")))
 
     @property
     def scenario_descriptors(self) -> list:
-        """Returns list of the scenario_descriptors contained within these model results. These are the intersection
-        of the scenarios defined in the parameters file and the values found for 'scenario_descriptor' in the
-        model results."""
+        """Return a sorted list of scenario descriptors in the model results.
+
+        This returns the intersection of scenarios defined in the parameters file and
+        the 'scenario_descriptor' values found in the model results.
+
+        Returns:
+            A sorted list of scenario descriptor names.
+        """
         return sorted(
             set(self.df.index.get_level_values("scenario_descriptor")).intersection(
                 self.parameters.get_scenarios().index.to_list()
@@ -149,9 +245,14 @@ class ModelResults(FileHandler):
 
     @property
     def counterfactuals(self) -> list:
-        """Returns list of the counterfactuals contained within these model results. These are the intersection
-        of the counterfactual defined in the parameters file and the values found for 'scenario_descriptor' in the
-        model results."""
+        """Return a sorted list of counterfactuals in the model results.
+
+        This returns the intersection of counterfactuals defined in the parameters file
+        and the 'scenario_descriptor' values found in the model results.
+
+        Returns:
+            A sorted list of counterfactual names.
+        """
         return sorted(
             set(self.df.index.get_level_values("scenario_descriptor")).intersection(
                 self.parameters.get_counterfactuals().index.to_list()
@@ -160,19 +261,34 @@ class ModelResults(FileHandler):
 
     @property
     def funding_fractions(self) -> list:
-        """Returns list of the funding_fractions contained within these model results. NaN are dropped."""
+        """Return a sorted list of funding fractions in the model results.
+
+        NaN values are excluded from the returned list.
+
+        Returns:
+            A sorted list of funding fraction values.
+        """
         return sorted(set(self.df.index.get_level_values("funding_fraction").dropna()))
 
 
 class PFInputData(FileHandler):
-    """The type of FileHandler that is used for holding the input data on PF data for a particular disease."""
+    """FileHandler for holding Portfolio Projection (PF) input data for a specific disease."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def _checks(_df: pd.DataFrame):
-        """Check that the df that is built adheres to some size/shape expectations."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the DataFrame adheres to expected structure requirements.
+
+        Validates the DataFrame has the correct index levels, columns, and numeric data.
+
+        Args:
+            _df: The DataFrame to validate.
+
+        Raises:
+            AssertionError: If any validation check fails.
+        """
         assert isinstance(_df, pd.DataFrame)
         assert list(_df.index.names) == [
             "scenario_descriptor",
@@ -185,29 +301,50 @@ class PFInputData(FileHandler):
 
     @property
     def scenario_descriptors(self) -> list:
-        """Returns list of the scenario_descriptors contained within these model results."""
+        """Return a sorted list of unique scenario descriptors in the data.
+
+        Returns:
+            A sorted list of scenario descriptor names.
+        """
         return sorted(set(self.df.index.get_level_values("scenario_descriptor")))
 
     @property
     def indicators(self) -> list:
-        """Returns list of indicators contained within these model results."""
+        """Return a sorted list of unique indicators in the data.
+
+        Returns:
+            A sorted list of indicator names.
+        """
         return sorted(set(self.df.index.get_level_values("indicator")))
 
     @property
     def countries(self) -> list:
-        """Returns list of the countries contained within these model results."""
+        """Return a sorted list of unique countries in the data.
+
+        Returns:
+            A sorted list of country codes.
+        """
         return sorted(set(self.df.index.get_level_values("country")))
 
 
 class PartnerData(FileHandler):
-    """The type of FileHandler that is used for holding partner data for a particular disease."""
+    """FileHandler for holding partner data for a specific disease."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def _checks(_df: pd.DataFrame):
-        """Check that the df that is built adheres to some size/shape expectations."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the DataFrame adheres to expected structure requirements.
+
+        Validates the DataFrame has the correct index levels, columns, and numeric data.
+
+        Args:
+            _df: The DataFrame to validate.
+
+        Raises:
+            AssertionError: If any validation check fails.
+        """
         assert isinstance(_df, pd.DataFrame)
         assert list(_df.index.names) == [
             "scenario_descriptor",
@@ -220,20 +357,33 @@ class PartnerData(FileHandler):
 
     @property
     def indicators(self) -> list:
-        """Returns list of indicators contained within these model results."""
+        """Return a sorted list of unique indicators in the partner data.
+
+        Returns:
+            A sorted list of indicator names.
+        """
         return sorted(set(self.df.index.get_level_values("indicator")))
 
     @property
     def countries(self) -> list:
-        """Returns list of the countries contained within these model results."""
+        """Return a sorted list of unique countries in the partner data.
+
+        Returns:
+            A sorted list of country codes.
+        """
         return sorted(set(self.df.index.get_level_values("country")))
 
 
 class RegionInformation:
-    """The type of FileHandler that is used for holding information on ISO3 codes, country names and region.
-    It does not accept parameters because it only ever uses the data stored under `/shared`.
-    Note that it does not inherit from the FileHandler base class as it uses different forms of internal storage and
-    does not need to perform checks."""
+    """Handler for country and region information including ISO3 codes and names.
+
+    This class does not accept parameters because it always uses the data stored under
+    `/shared`. It does not inherit from FileHandler as it uses different internal storage
+    mechanisms and validation approaches.
+
+    Attributes:
+        region: DataFrame containing country information indexed by ISO3 code.
+    """
 
     def __init__(self):
         rfp = get_root_path() / "resources"
@@ -245,8 +395,18 @@ class RegionInformation:
         self._country_name_lookup = self.region['GeographyName'].to_dict()
         self._iso3_lookup = {v: k for k, v in self._country_name_lookup.items()}
 
-    def get_countries_in_region(self, region: str) -> List:
-        """For a given region, return the list of ISO3 for the countries in that region."""
+    def get_countries_in_region(self, region: str) -> List[str]:
+        """Return the list of ISO3 codes for countries in a given Global Fund region.
+
+        Args:
+            region: The Global Fund region name.
+
+        Returns:
+            A sorted list of ISO3 country codes in the specified region.
+
+        Raises:
+            ValueError: If the region name is not recognized.
+        """
         if region not in (
             "South East Asia",
             "Southern and Eastern Africa",
@@ -265,8 +425,18 @@ class RegionInformation:
                 self.region.loc[self.region.GlobalFundRegion == region].index.to_list()
             )
 
-    def get_countries_in_wbregion(self, region: str) -> List:
-        """For a given region, return the list of ISO3 for the countries in that region."""
+    def get_countries_in_wbregion(self, region: str) -> List[str]:
+        """Return the list of ISO3 codes for countries in a given World Bank region.
+
+        Args:
+            region: The World Bank region name.
+
+        Returns:
+            A sorted list of ISO3 country codes in the specified region.
+
+        Raises:
+            ValueError: If the region name is not recognized.
+        """
         if region not in (
                 'South Asia',
                 'Sub-Saharan Africa',
@@ -282,24 +452,63 @@ class RegionInformation:
             )
 
     def get_country_name_from_iso(self, iso: str) -> str:
-        """returns country name given iso3 code"""
+        """Return the country name for a given ISO3 code.
+
+        Args:
+            iso: The ISO3 country code.
+
+        Returns:
+            The full country name.
+        """
         return self._country_name_lookup[iso]
 
     def get_iso_for_country(self, name: str) -> str:
-        """returns iso3 code for a given country"""
+        """Return the ISO3 code for a given country name.
+
+        Args:
+            name: The full country name.
+
+        Returns:
+            The ISO3 country code.
+        """
         return self._iso3_lookup[name]
 
     def get_region_for_iso(self, iso: str) -> str:
-        """returns region for a given country iso3 code"""
+        """Return the Global Fund region for a given ISO3 code.
+
+        Args:
+            iso: The ISO3 country code.
+
+        Returns:
+            The Global Fund region name.
+        """
         return self.region.at[iso, "GlobalFundRegion"]
 
     def get_wbregion_for_iso(self, iso: str) -> str:
-        """returns World Bank Region for a given country iso3 code"""
+        """Return the World Bank region for a given ISO3 code.
+
+        Args:
+            iso: The ISO3 country code.
+
+        Returns:
+            The World Bank region name.
+        """
         return self.region.at[iso, "WorldBank"]
 
     def get_countries_by_regional_flag(self, regional_flag: str) -> List[str]:
-        """Return ISO3 codes based on a regional flag or all countries if 'ALL'."""
-        recognised_flags = (  # {'ARABLEAGUE', 'COE', 'Johannes', 'OIC', 'PKU', 'SSA'}
+        """Return ISO3 codes based on a regional flag or all countries if 'ALL'.
+
+        Args:
+            regional_flag: The regional flag identifier (e.g., 'OIC', 'SSA') or 'ALL' for all countries.
+
+        Returns:
+            A sorted list of ISO3 country codes matching the regional flag.
+
+        Raises:
+            ValueError: If the regional flag is not recognized.
+        """
+        # Recognized flags: {'ARABLEAGUE', 'COE', 'Johannes', 'OIC', 'PKU', 'SSA'}
+        recognised_flags = (
                 set(self.region.columns) - {'ISO3', 'ISO2', 'GeographyName', 'Differentiation', 'GlobalFundRegion', 'GlobalFundDepartment'})
 
         if regional_flag == "ALL":
@@ -313,29 +522,55 @@ class RegionInformation:
             return sorted(self.region.loc[mask_within_region].index.tolist())
 
 class Indicators:
-    """FileHandler that holds the definitions of each indicator."""
+    """Handler for indicator definitions and metadata.
+
+    Attributes:
+        _dict: Dictionary containing indicator metadata including descriptions, types, and scaling flags.
+
+    Args:
+        path: Path to the CSV file containing indicator definitions.
+    """
 
     def __init__(self, path: Path):
         self._dict = pd.read_csv(path).set_index("name").to_dict()
 
     @property
-    def defn(self) -> Dict:
-        """Returns dict with definitions of all indicators in the form {indicator: description}."""
+    def defn(self) -> Dict[str, str]:
+        """Return a dictionary of indicator definitions.
+
+        Returns:
+            Dictionary mapping indicator names to their descriptions.
+        """
         return self._dict["description"]
 
     @property
-    def types(self) -> Dict:
-        """Returns dict with definitions of all indicators in the form {indicator: type}."""
+    def types(self) -> Dict[str, str]:
+        """Return a dictionary of indicator types.
+
+        Returns:
+            Dictionary mapping indicator names to their types.
+        """
         return self._dict["type"]
 
     @property
-    def use_scaling(self) -> List:
-        """Returns a list of the indicators that are flagged 'yes' for `use_scaling'."""
+    def use_scaling(self) -> List[str]:
+        """Return a list of indicators flagged for scaling.
+
+        Returns:
+            List of indicator names where use_scaling is 'yes'.
+        """
         return [name for name, use_scaling in self._dict["use_scaling"].items() if use_scaling == 'yes']
 
 
 class Scenarios:
-    """FileHandler that holds the definitions of each indicator."""
+    """Handler for scenario definitions.
+
+    Attributes:
+        scenarios: Dictionary mapping scenario names to their descriptions.
+
+    Args:
+        path: Path to the CSV file containing scenario definitions.
+    """
 
     def __init__(self, path: Path):
         self.scenarios = (
@@ -345,48 +580,81 @@ class Scenarios:
         )
 
     @property
-    def names(self) -> List:
-        """Returns list of the scenarios defined in `scenario_descriptors.csv`"""
+    def names(self) -> List[str]:
+        """Return a list of scenario names defined in scenario_descriptors.csv.
+
+        Returns:
+            A sorted list of scenario names.
+        """
         return sorted(self.scenarios.keys())
 
     @property
-    def definitions(self) -> Dict:
-        """Returns dict of the scenarios defined in `scenario_descriptors.csv` in the form {name: description}."""
+    def definitions(self) -> Dict[str, str]:
+        """Return scenario definitions as a dictionary.
+
+        Returns:
+            Dictionary mapping scenario names to their descriptions.
+        """
         return self.scenarios
 
 
 class Parameters:
-    """FileHandler that holds parameters for the analysis."""
+    """Handler for analysis parameters from TOML configuration files.
+
+    Attributes:
+        int_store: Dictionary containing the parsed TOML parameters.
+        raw_store: Raw string content of the TOML file.
+
+    Args:
+        path: Path to the TOML parameters file.
+    """
 
     def __init__(self, path: Path):
-        # Load the parameters file using tomllib library
+        # Load and interpret the parameter file using tomllib library.
         with open(path, 'rb') as f:
-            # Load and interpret the parameter file
             self.int_store: dict = tomllib.load(f)
 
+        # Store contents of .toml file as raw text.
         with open(path, 'rb') as f:
-            # Store contents of .toml file as rawq text
             raw_content = f.read()
             f.seek(0)
             self.raw_store: str = raw_content.decode('utf-8')
 
 
 
-    def get(self, what) -> Any:
-        """Pass through to `get` of the internally stored dict."""
+    def get(self, what: str) -> Any:
+        """Retrieve a parameter value from the internal store.
+
+        Args:
+            what: The parameter key to retrieve.
+
+        Returns:
+            The parameter value, or None if not found.
+        """
         return self.int_store.get(what)
 
     def get_scenarios(self) -> pd.Series:
-        """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario)."""
+        """Return a Series of all defined scenarios.
+
+        Returns:
+            A Series indexed by scenario name with descriptions as values.
+        """
         return pd.DataFrame(self.int_store.get('scenario')).set_index('name')['description']
 
     def get_counterfactuals(self) -> pd.Series:
-        """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario)."""
+        """Return a Series of all defined counterfactuals.
+
+        Returns:
+            A Series indexed by counterfactual name with descriptions as values.
+        """
         return pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')['description']
 
     def get_nullcounterfactuals(self) -> pd.Series:
-        """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario).
-        If there is no flag for null counterfactual, return empty pd.DataFrame(provided for backward compatibility).
+        """Return a Series of null counterfactuals.
+
+        Returns:
+            A Series indexed by counterfactual name where is_null is True, or an empty
+            Series if the flag is not present (for backward compatibility).
         """
         try:
             df = pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')
@@ -395,9 +663,11 @@ class Parameters:
             return pd.Series()
 
     def get_cccounterfactuals(self) -> pd.Series:
-        """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario).
-        If there is no flag for constant coverage  counterfactual, return empty pd.DataFrame(provided for backward
-        compatibility).
+        """Return a Series of constant coverage counterfactuals.
+
+        Returns:
+            A Series indexed by counterfactual name where is_cc is True, or an empty
+            Series if the flag is not present (for backward compatibility).
         """
         try:
             df = pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')
@@ -406,9 +676,11 @@ class Parameters:
             return pd.Series()
 
     def get_gpscenario(self) -> pd.Series:
-        """Helper function to return pd.Series of all the defined scenarios (index is the name of the scenario).
-        If there is no flag for gp, return empty pd.DataFrame(provided for backward
-        compatibility).
+        """Return a Series of Global Plan scenarios.
+
+        Returns:
+            A Series indexed by scenario name where is_gp is True, or an empty Series
+            if the flag is not present (for backward compatibility).
         """
         try:
             df = pd.DataFrame(self.int_store.get('counterfactual')).set_index('name')
@@ -416,77 +688,149 @@ class Parameters:
         except:
             return pd.Series()
 
-    def get_indicators_for(self, disease_name) -> pd.DataFrame:
-        """Helper function to return pd.DataFrame of all the indicators for a particular disease (index is the name of
-        the indicator)."""
+    def get_indicators_for(self, disease_name: str) -> pd.DataFrame:
+        """Return a DataFrame of all indicators for a specific disease.
+
+        Args:
+            disease_name: The name of the disease.
+
+        Returns:
+            A DataFrame indexed by indicator name containing indicator metadata.
+        """
         return pd.DataFrame(self.int_store.get(disease_name).get('indicator')).set_index('name')
 
-    def get_modelled_countries_for(self, disease_name) -> List:
-        """Helper function to return list for all the modelled countries for a particular disease."""
+    def get_modelled_countries_for(self, disease_name: str) -> List[str]:
+        """Return a list of modelled countries for a specific disease.
+
+        Args:
+            disease_name: The name of the disease.
+
+        Returns:
+            A list of country codes that are modelled for the disease.
+        """
         return self.int_store.get(disease_name).get('MODELLED_COUNTRIES')
 
-    def get_portfolio_countries_for(self, disease_name) -> List:
-        """Helper function to return list for all the portfolio countries for a particular disease."""
+    def get_portfolio_countries_for(self, disease_name: str) -> List[str]:
+        """Return a list of portfolio countries for a specific disease.
+
+        Args:
+            disease_name: The name of the disease.
+
+        Returns:
+            A list of country codes in the portfolio for the disease.
+        """
         return self.int_store.get(disease_name).get('PORTFOLIO_COUNTRIES')
 
 
 class Variables:
-    """FileHandler that holds variable names for the analysis."""
+    """Handler for variable names and definitions used in the analysis.
+
+    Attributes:
+        int_store: Dictionary mapping variable names to their descriptions.
+    """
 
     def __init__(self):
-        self.int_store: Dict = (
+        self.int_store: Dict[str, str] = (
             pd.read_csv(get_root_path() / "shared" / "variables.csv")
             .set_index("name")["description"]
             .to_dict()
         )
 
     def get(self, what: str) -> Any:
-        """Returns list of the variables defined in `variables.csv`"""
+        """Return the description for a given variable name.
+
+        Args:
+            what: The variable name to look up.
+
+        Returns:
+            The variable description, or None if not found.
+        """
         return self.int_store.get(what)
 
 
 class GFYear(FileHandler):
-    """The type of FileHandler that is used for holding in a file containing the first years of GF results reporting."""
+    """FileHandler for holding the first years of Global Fund results reporting by country."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Reads in the data and return a pd.DataFrame."""
+        """Read the data from a CSV file and return a DataFrame.
+
+        Args:
+            path: Path to the CSV file.
+
+        Returns:
+            A DataFrame indexed by iso3 country code.
+        """
         return pd.read_csv(path).set_index(["iso3"])
 
     @staticmethod
-    def _checks(_df: pd.DataFrame):
-        """Check that the df that is built adheres to some size/shape expectations."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the DataFrame adheres to expected structure requirements.
+
+        Args:
+            _df: The DataFrame to validate.
+
+        Raises:
+            AssertionError: If any validation check fails.
+        """
         assert isinstance(_df, pd.DataFrame)
-        # TODO: they are not all incidence/mortality; hiv are cases/deaths etc
+        # TODO: they are not all incidence/mortality; HIV uses cases/deaths etc.
         assert {"year"} == set(_df.columns)
         assert all_numeric(_df)
 
 
 class FixedGp(FileHandler):
-    """The type of FileHandler that is used for holding a Fixed GP that is defined by proportion reductions in incidence
-    and deaths."""
+    """FileHandler for holding Fixed Global Plan targets defined by proportional reductions.
+
+    This class holds data for a Fixed GP defined by percentage reductions in incidence
+    and death rates.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Reads in the data and return a pd.DataFrame."""
+        """Read the data from a CSV file and return a DataFrame.
+
+        Args:
+            path: Path to the CSV file.
+
+        Returns:
+            A DataFrame indexed by year.
+        """
         return pd.read_csv(path).set_index(["year"])
 
     @staticmethod
-    def _checks(_df: pd.DataFrame):
-        """Check that the df that is built adheres to some size/shape expectations."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the DataFrame adheres to expected structure requirements.
+
+        Args:
+            _df: The DataFrame to validate.
+
+        Raises:
+            AssertionError: If any validation check fails.
+        """
         assert isinstance(_df, pd.DataFrame)
-        # TODO: they are not all incidence/mortality; hiv are cases/deaths etc
+        # TODO: they are not all incidence/mortality; HIV uses cases/deaths etc.
         assert {"incidence_reduction", "death_rate_reduction"} == set(_df.columns)
         assert all_numeric(_df)
 
 
 class Gp:
-    """The type of FileHandler that is used for holding the Global Plan data for a particular disease for the whole
-    portfolio."""
+    """Handler for Global Plan data for a specific disease across the portfolio.
+
+    Attributes:
+        df: DataFrame containing Global Plan data with multi-index (year, indicator).
+
+    Args:
+        fixed_gp: FixedGp object containing target reductions.
+        model_results: ModelResults object containing model outputs.
+        partner_data: PartnerData object containing partner projections.
+        parameters: Optional Parameters object for configuration settings.
+        **kwargs: Additional keyword arguments passed to _build_df.
+    """
 
     def __init__(
         self,
@@ -506,38 +850,75 @@ class Gp:
         self._checks(self.df)
 
     def _build_df(self, *args, **kwargs) -> pd.DataFrame:
-        """Reads in the data and return a pd.DataFrame with multi-index (country, year, indicator) and columns
-        (low, central, high)."""
+        """Build a DataFrame from Global Plan inputs.
+
+        This method must be implemented by disease-specific subclasses.
+
+        Args:
+            *args: Positional arguments for building the DataFrame.
+            **kwargs: Keyword arguments for building the DataFrame.
+
+        Returns:
+            A DataFrame with multi-index (year, indicator) and 'central' column.
+
+        Raises:
+            NotImplementedError: This method must be implemented by subclasses.
+        """
         raise NotImplementedError
 
     @staticmethod
-    def _checks(_df: pd.DataFrame):
-        """Check that the df that is built adheres to some size/shape expectations."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the DataFrame adheres to expected structure requirements.
+
+        Args:
+            _df: The DataFrame to validate.
+
+        Raises:
+            AssertionError: If any validation check fails.
+        """
         assert isinstance(_df, pd.DataFrame)
         assert ["year", "indicator"] == list(_df.index.names)
         assert {"central"} == set(_df.columns)
         assert all_numeric(_df)
 
-    def save(self, filename: Path):
-        """This saves the GP output into a csv"""
+    def save(self, filename: Path) -> None:
+        """Save the Global Plan output to a CSV file.
+
+        Args:
+            filename: Path where the CSV file should be saved.
+        """
         self.df = self.df.reset_index()
         a = self.df.pivot(index="year", columns="indicator", values="central")
         a.to_csv(filename)
 
 
 class CalibrationData(FileHandler):
-    """The type of FileHandler that is used for holding the external calibration data for a particular disease."""
+    """FileHandler for holding external calibration data for a specific disease."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Reads in the data and return a pd.DataFrame with multi-index (country, year, indicator) and columns (low, central, high)."""
+        """Read calibration data from a CSV file and return a DataFrame.
+
+        Args:
+            path: Path to the CSV file.
+
+        Returns:
+            A DataFrame with multi-index (country, year, indicator) and columns (low, central, high).
+        """
         return pd.read_csv(path).set_index(["country", "year", "indicator"])
 
     @staticmethod
-    def _checks(_df: pd.DataFrame):
-        """Check that the df that is built adheres to some size/shape expectations."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the DataFrame adheres to expected structure requirements.
+
+        Args:
+            _df: The DataFrame to validate.
+
+        Raises:
+            AssertionError: If any validation check fails.
+        """
         assert isinstance(_df, pd.DataFrame)
         assert ["country", "year", "indicator"] == list(_df.index.names)
         assert {"low", "central", "high"} == set(_df.columns)
@@ -545,18 +926,39 @@ class CalibrationData(FileHandler):
 
 
 class FundingData(FileHandler):
-    """The type of FileHandler that is used for data about the amount of shared that are available to a country."""
+    """FileHandler for data about funding amounts available to each country."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Build dataframe with the index as the country ISO code and one column (named `value`) with the amounts."""
+        """Build a DataFrame with country ISO codes as index and funding amounts.
+
+        This method must be implemented by subclasses.
+
+        Args:
+            path: Path to the funding data file.
+
+        Returns:
+            A DataFrame indexed by country ISO code with a 'value' column containing amounts.
+
+        Raises:
+            NotImplementedError: This method must be implemented by subclasses.
+        """
         raise NotImplementedError
 
     @staticmethod
-    def _checks(_df):
-        """Check that the df that is built adheres to some size/shape expectations."""
+    def _checks(_df: pd.DataFrame) -> None:
+        """Check that the DataFrame adheres to expected structure requirements.
+
+        Args:
+            _df: The DataFrame to validate.
+
+        Raises:
+            AssertionError: If any validation check fails. Values must be integers
+                representing dollar amounts (not funding fractions), and countries
+                should not be duplicated.
+        """
         assert isinstance(_df, pd.DataFrame)
         assert list(_df.columns) == ["value"]
         assert not pd.isnull(_df["value"]).any()
@@ -566,24 +968,49 @@ class FundingData(FileHandler):
 
 
 class TgfFunding(FundingData):
-    """This class holds information about the TGF funding that is allocated to each country."""
+    """Handler for The Global Fund (TGF) funding allocations by country.
+
+    This class holds information about TGF funding amounts allocated to each country.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Build dataframe with the index as the country ISO code, and one column (named `value`) with the amounts"""
-        df = pd.read_csv(path).set_index("country").fillna(0).round(0).astype(int)  # fill blanks with 0.0 and make ints
+        """Build a DataFrame from TGF funding data.
+
+        Args:
+            path: Path to the CSV file containing TGF funding data.
+
+        Returns:
+            A DataFrame indexed by country ISO code with a 'value' column containing
+            funding amounts as integers.
+        """
+        # Fill blanks with 0 and convert to integers.
+        df = pd.read_csv(path).set_index("country").fillna(0).round(0).astype(int)
         return df.rename(columns={df.columns[0]: "value"})
 
 
 class NonTgfFunding(FundingData):
-    """This class holds information about the Non-TGF funding that is allocated to each country."""
+    """Handler for Non-TGF funding allocations by country.
+
+    This class holds information about non-TGF funding amounts allocated to each country
+    from other sources.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Build dataframe with the index as the country ISO code, and one column (named `value`) with the amounts"""
-        df = pd.read_csv(path).set_index("country").fillna(0).round(0).astype(int)  # fill blanks with 0.0 and make ints
+        """Build a DataFrame from Non-TGF funding data.
+
+        Args:
+            path: Path to the CSV file containing Non-TGF funding data.
+
+        Returns:
+            A DataFrame indexed by country ISO code with a 'value' column containing
+            funding amounts as integers.
+        """
+        # Fill blanks with 0 and convert to integers.
+        df = pd.read_csv(path).set_index("country").fillna(0).round(0).astype(int)
         return df.rename(columns={df.columns[0]: "value"})

@@ -7,12 +7,27 @@ from pathlib import Path
 
 
 class DumpAnalysisToExcel:
-    """Helper class to manage dumping everything in the Analysis class into Excel.
-    Each function return a pd.DataFrame, which is saved into an Excel worksheet named the same as the function.
-    This function also has to run approach_a, appproach_b and compute the counterfactual <--- todo how to avoid repeatition??
+    """Helper class for exporting Analysis results to Excel.
+
+    This class manages the export of all analysis results to an Excel workbook.
+    Each method that returns a DataFrame is automatically saved into a worksheet
+    named after the method. The class also runs approach_a and computes the
+    counterfactual during initialization.
+
+    Attributes:
+        analysis: The Analysis instance to export data from.
+        filename: Path where the Excel file will be saved.
+        approach_a: Results from portfolio_projection_approach_a().
+        wb: The openpyxl Workbook object being created.
     """
 
     def __init__(self, analysis: 'Analysis', filename: Path):
+        """Initialize the DumpAnalysisToExcel instance.
+
+        Args:
+            analysis: The Analysis instance to export data from.
+            filename: Path where the Excel file will be saved.
+        """
         self.analysis = analysis
         self.filename = filename
 
@@ -40,8 +55,11 @@ class DumpAnalysisToExcel:
         self.wb.save(self.filename)
 
     def _get_all_funcs(self) -> Dict[str, Callable]:
-        """Returns dict of the form {function_name: function}. Every function is returned except those beginning with
-        `_`.
+        """Get all public methods that return DataFrames.
+
+        Returns:
+            Dictionary mapping function names to function objects. Only methods
+            that don't begin with '_' are included.
         """
         return {
             name: self.__getattribute__(name)
@@ -50,7 +68,15 @@ class DumpAnalysisToExcel:
         }
 
     def _write_df_to_sheet(self, sheetname: str, df: pd.DataFrame) -> None:
-        """Write the content of `df` to a worksheet named `sheetname`."""
+        """Write the content of a DataFrame to a worksheet.
+
+        Args:
+            sheetname: Name of the worksheet to create.
+            df: DataFrame to write to the worksheet.
+
+        Raises:
+            TypeError: If df is not a pandas DataFrame.
+        """
         if not isinstance(df, pd.DataFrame):
             raise TypeError(f"Return for {sheetname} is not a pd.DataFrame.")
 
@@ -60,25 +86,51 @@ class DumpAnalysisToExcel:
             ws.append(r)
 
     def non_tgf_funding(self) -> pd.DataFrame:
+        """Get non-TGF funding data.
+
+        Returns:
+            DataFrame containing non-TGF funding information.
+        """
         return self.analysis.non_tgf_funding.df
 
     def tgf_funding(self) -> pd.DataFrame:
+        """Get TGF funding data.
+
+        Returns:
+            DataFrame containing TGF funding information.
+        """
         return self.analysis.tgf_funding.df
 
-    def non_tgf_funding(self) -> pd.DataFrame:
-        return self.analysis.non_tgf_funding.df
-
     def approach_a_portfolio_cases(self) -> pd.DataFrame:
+        """Get approach A portfolio cases.
+
+        Returns:
+            DataFrame containing portfolio-level case projections from approach A.
+        """
         return self.approach_a.portfolio_results['cases']
 
     def approach_a_portfolio_deaths(self) -> pd.DataFrame:
+        """Get approach A portfolio deaths.
+
+        Returns:
+            DataFrame containing portfolio-level death projections from approach A.
+        """
         return self.approach_a.portfolio_results['deaths']
 
     def approach_a_portfolio_cost(self) -> pd.DataFrame:
+        """Get approach A portfolio cost.
+
+        Returns:
+            DataFrame containing portfolio-level cost projections from approach A.
+        """
         return self.approach_a.portfolio_results['cost']
 
     def approach_a_cases_by_country(self) -> pd.DataFrame:
-        """This is the not-adjusted model results for cases by country"""
+        """Get unadjusted model results for cases by country.
+
+        Returns:
+            DataFrame containing case projections by country (not adjusted).
+        """
         cr = self.approach_a.country_results
         return pd.concat(
             {
@@ -87,7 +139,11 @@ class DumpAnalysisToExcel:
         ).reset_index().rename(columns={'level_0': 'country'}).set_index('country')
 
     def approach_a_deaths_by_country(self) -> pd.DataFrame:
-        """This is the not-adjusted model results for cases by country"""
+        """Get unadjusted model results for deaths by country.
+
+        Returns:
+            DataFrame containing death projections by country (not adjusted).
+        """
         cr = self.approach_a.country_results
         return pd.concat(
             {

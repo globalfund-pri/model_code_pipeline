@@ -4,20 +4,40 @@ import numpy as np
 
 def find_cost_effective_frontier(points: np.array, upper_edge: bool = True) -> np.array:
     """Return the points on the cost-effectiveness frontier.
-    Accepts points in `np.array` of the form [(cost, value), ..., ], and returns `np.array` of the same form but only
-    including the non-dominated points on the frontier, and sorted in ascending cost order.
-     * If `upper_edge=True`, then frontier includes the points that give the GREATEST value for the cost.
-     * If `upper_edge=False`, then frontier includes the points that give the SMALLEST value for the cost.
+
+    This function identifies non-dominated points on the cost-effectiveness frontier
+    using convex hull computation. The points are sorted in ascending cost order.
+
+    Args:
+        points: Array of points in the form [(cost, value), ...].
+        upper_edge: If True, the frontier includes points that give the greatest
+            value for the cost. If False, the frontier includes points that give
+            the smallest value for the cost. Defaults to True.
+
+    Returns:
+        Array containing only the non-dominated points on the frontier, sorted
+        in ascending cost order.
     """
 
     # Start by efficiently computing the Convex Hull (polygon of the outside edge of all the points)
     hull = ConvexHull(points)
 
     def get_lower(polygon):
-        """Find the lower edge of the convex hull, between the lowest cost point and the lowest value point.
-        From https://stackoverflow.com/a/76839030
-        This relies on the fact that the vertices are given in anti-clockwise order, so, as we read from the point with
-        the lowest cost to the point with the lowest value, we get the lower part of the hull."""
+        """Find the lower edge of the convex hull.
+
+        Extracts the lower edge between the lowest cost point and the lowest value point.
+        This relies on the fact that the vertices are given in anti-clockwise order,
+        so reading from the point with the lowest cost to the point with the lowest
+        value yields the lower part of the hull.
+
+        Based on: https://stackoverflow.com/a/76839030
+
+        Args:
+            polygon: Array of polygon vertices.
+
+        Returns:
+            Array containing the lower curve of the convex hull.
+        """
         minx = np.argmin(polygon[:, 0])  # index of lowest cost point
         maxx = np.argmin(polygon[:, 1]) + 1  # index of lowest value point
         if minx >= maxx:
@@ -27,9 +47,19 @@ def find_cost_effective_frontier(points: np.array, upper_edge: bool = True) -> n
         return lower_curve
 
     def get_upper(polygon):
-        """Find the upper edge of the convex hull, between the lowest cost point and the highest value point.
-        Based on the solution for `get_lower()`. We reverse the order of points so that they are in clockwise order,
-        and then read from the lowest cost point to the highest value point.."""
+        """Find the upper edge of the convex hull.
+
+        Extracts the upper edge between the lowest cost point and the highest value point.
+        Based on the solution for get_lower(). The order of points is reversed to
+        clockwise order, then we read from the lowest cost point to the highest
+        value point.
+
+        Args:
+            polygon: Array of polygon vertices.
+
+        Returns:
+            Array containing the upper curve of the convex hull.
+        """
 
         # Reverse order of points in polygon so that it's going clockwise
         polygon = np.flip(polygon, axis=0)
@@ -78,7 +108,15 @@ def find_cost_effective_frontier(points: np.array, upper_edge: bool = True) -> n
 
 
 def which_points_on_frontier(points: np.array, **kwargs) -> np.array:
-    """Returns the indices of the points that are the cost-effective frontier"""
+    """Return the indices of points on the cost-effective frontier.
+
+    Args:
+        points: Array of points in the form [(cost, value), ...].
+        **kwargs: Additional keyword arguments passed to find_cost_effective_frontier().
+
+    Returns:
+        Array of indices indicating which points lie on the cost-effective frontier.
+    """
 
     pts_on_frontier = find_cost_effective_frontier(points, **kwargs)
 

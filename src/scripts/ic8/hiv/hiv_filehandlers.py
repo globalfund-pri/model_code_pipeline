@@ -15,10 +15,12 @@ from tgftools.utils import (
     get_files_with_extension, get_data_path,
 )
 
-""" START HERE FOR HIV: This file sets up everything needed to run HIV related code, including reading in the relevant 
-files, cleans up the data in these files (harmonizing naming convention, generate needed extra variables e.g. 
-HIV-negative population estimates, filters out variables that are not needed), puts them in the format defined for
-the database format. 
+"""HIV data loading, cleaning, and formatting for investment case analysis.
+
+This module sets up everything needed to run HIV-related code, including reading
+the relevant files, cleaning the data (harmonizing naming conventions, generating
+needed extra variables like HIV-negative population estimates, filtering out
+unneeded variables), and formatting them according to the database specification. 
 
 The database format is: 
 1) scenario_descriptor: contains shorthands for scenario names. The parameters.toml file maps the short-hand definitions
@@ -100,24 +102,60 @@ Hard-coding: to be avoided at all costs and if at all limited to these disease f
 
 
 class HIVMixin:
-    """Base class used as a `mix-in` that allows any inheriting class to have a property `disease_name` that returns
-    the disease name."""
+    """Mixin class providing HIV-specific disease identification.
+
+    This base class is used as a mixin that allows any inheriting class to have
+    a property `disease_name` that returns the disease name 'HIV'.
+
+    Attributes:
+        disease_name: Property that returns the string 'HIV'.
+    """
 
     @property
     def disease_name(self):
+        """Returns the disease name identifier.
+
+        Returns:
+            str: The string 'HIV'.
+        """
         return 'HIV'
 
 
 # Load the model result file(s)
 class ModelResultsHiv(HIVMixin, ModelResults):
-    """This is the File Handler for the HIV modelling output."""
+    """File handler for HIV modeling outputs.
+
+    This class reads, cleans, and formats HIV model results from CSV files. It
+    inherits from HIVMixin for disease identification and ModelResults for core
+    file handling functionality.
+
+    The handler processes model outputs including epidemiological indicators,
+    service coverage data, and costs across multiple scenarios and funding fractions.
+    """
 
     def __init__(self, *args, **kwargs):
+        """Initializes the HIV model results file handler.
+
+        Args:
+            *args: Variable length argument list passed to parent classes.
+            **kwargs: Arbitrary keyword arguments passed to parent classes.
+        """
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Reads in the data and return a pd.DataFrame with multi-index (scenario, funding_fraction, country, year,
-        indicator) and columns containing model output (low, central, high)."""
+        """Reads and processes HIV model data into standardized format.
+
+        Reads CSV files from the specified path, processes and cleans the data,
+        and returns a DataFrame with the standard multi-index structure.
+
+        Args:
+            path: Path object pointing to the directory containing HIV model CSV files.
+
+        Returns:
+            DataFrame: A DataFrame with multi-index (scenario, funding_fraction,
+                country, year, indicator) and columns (low, central, high) containing
+                model outputs.
+        """
 
         # If running checks set the below to 1
         check = 0
@@ -210,8 +248,19 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
-        """Returns formatted pd.DataFrame from the Excel file provided. The returned dataframe is specific to one
-        country, and has the required multi-index and column specifications."""
+        """Converts a single CSV file into a formatted DataFrame.
+
+        Processes one country's HIV model results from a CSV file and returns a
+        DataFrame with the required multi-index structure and column specifications.
+
+        Args:
+            file: Path object pointing to a single HIV model CSV file.
+
+        Returns:
+            DataFrame: A formatted DataFrame specific to one country with multi-index
+                (scenario, funding_fraction, country, year, indicator) and columns
+                (low, central, high).
+        """
         print(f"Reading: {file}  .....", end="")
 
         # Load 'Sheet1' from the Excel workbook
