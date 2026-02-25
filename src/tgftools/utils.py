@@ -11,16 +11,38 @@ import dill
 import git
 import numpy as np
 
-"""This is a collection of utility functions that are used in multiple parts of the framework."""
+"""Collection of utility functions used across the framework.
+
+This module provides various utility functions for repository management, file operations,
+message handling, and platform-specific operations.
+"""
 
 
 def get_root_path(starter_path: Optional[Path] = None) -> Path:
-    """Returns the absolute path of the root of the repository. `starter_path` optionally gives a reference
-    location from which to begin search; if omitted the location of this file is used.
+    """Return the absolute path of the repository root.
+
+    Args:
+        starter_path: Optional reference location from which to begin search.
+            If omitted, the location of this file is used.
+
+    Returns:
+        The absolute path to the repository root directory.
+
+    Raises:
+        OSError: If the provided starter_path does not exist or is not an absolute path.
     """
 
     def get_git_root(path: Path) -> Path:
-        """Return path of git repo. Based on: https://stackoverflow.com/a/41920796"""
+        """Return the path of the git repository root.
+
+        Based on: https://stackoverflow.com/a/41920796
+
+        Args:
+            path: Path from which to search for the git repository root.
+
+        Returns:
+            The absolute path to the git repository root directory.
+        """
         git_repo = git.Repo(path, search_parent_directories=True)
         git_root = git_repo.working_dir
         return Path(git_root)
@@ -34,38 +56,79 @@ def get_root_path(starter_path: Optional[Path] = None) -> Path:
 
 
 def get_commit_revision_number() -> str:
-    """Returns the commit revison number at the HEAD position in the repository currently."""
+    """Return the commit revision number at the HEAD position in the repository.
+
+    Returns:
+        The hexadecimal SHA of the current HEAD commit.
+    """
     return str(git.Repo(get_root_path()).head.commit.hexsha)
 
 
-def read_txt(file) -> List:
-    """Return the contents of a text file and returns a list wherein each element is a line from the text file."""
+def read_txt(file: Path) -> List[str]:
+    """Read the contents of a text file and return a list of lines.
+
+    Args:
+        file: Path to the text file to read.
+
+    Returns:
+        A list where each element is a line from the text file with newline characters removed.
+    """
     with open(file) as f:
         lines = f.readlines()
     return list(map(lambda s: s.replace("\n", ""), lines))
 
 
 def get_files_with_extension(path: Path, extension: str) -> List[Path]:
-    """Return a list of the path of files that exist in a particular directory with a particular extension."""
+    """Return a list of file paths with a specific extension in a directory.
+
+    Args:
+        path: Directory path to search for files.
+        extension: File extension to match (without the leading dot).
+
+    Returns:
+        A list of Path objects for files matching the specified extension.
+    """
     return list(path.glob(f"*.{extension}"))
 
 
 class Messages:
-    """This class is used to capture a stream of messages (strings), which are printed to the console and can also
-    be written them to a text file."""
+    """Capture a stream of messages that can be printed to console and written to a file.
+
+    This class collects string messages, optionally prints them to the console,
+    and provides functionality to write all collected messages to a text file.
+
+    Attributes:
+        print_to_console: Whether to print messages to the console when added.
+        list_of_messages: Internal storage of all collected messages.
+    """
 
     def __init__(self, print_to_console: bool = True):
+        """Initialize the Messages instance.
+
+        Args:
+            print_to_console: Whether to print messages to the console. Defaults to True.
+        """
         self.print_to_console = print_to_console
         self.list_of_messages = []
 
     @property
     def is_empty(self) -> bool:
-        """Returns True if no messages have been recorded."""
+        """Check if no messages have been recorded.
+
+        Returns:
+            True if no messages have been recorded, False otherwise.
+        """
         return True if len(self.list_of_messages) == 0 else False
 
     def msg(self, message: Union[str, List[str]]) -> None:
-        """Add a message to this class. The message can be a string or a list of strings. If a list of strings is
-        provided it is equivalent to each string haven't been provided in a separate call.
+        """Add a message or list of messages to the collection.
+
+        Args:
+            message: A string or list of strings to add. If a list is provided,
+                each string is added separately.
+
+        Raises:
+            ValueError: If the message is not a string or list.
         """
         if isinstance(message, str):
             self._append_string(message)
@@ -76,15 +139,21 @@ class Messages:
             raise ValueError("Data type is not a string or a list.")
 
     def _append_string(self, the_string: str) -> None:
-        """Private function that adds a string to the internal storge of messages (a list) and prints it to the
-        console."""
+        """Add a string to the internal storage and optionally print to console.
+
+        Args:
+            the_string: The string to add to the internal message list.
+        """
         if self.print_to_console:
             print(the_string + "\n")
         self.list_of_messages.append(the_string)
 
     def write_to_file(self, file: Optional[Path] = None) -> None:
-        """Writes the content of the internal storage of messages to a file.
-        If a target file is not provided then this will (silently) do nothing."""
+        """Write the collected messages to a file.
+
+        Args:
+            file: Path to the target file. If not provided, the method silently does nothing.
+        """
         if file is not None:
             print(f"Writing log to {file}\n")
             with open(file, "w") as f:
@@ -92,13 +161,23 @@ class Messages:
 
 
 def wipe() -> None:
-    """Make some space on the console.
-    From: https://stackoverflow.com/a/517992"""
+    """Clear the console by printing multiple newlines.
+
+    Creates visual space on the console by printing 1000 newline characters.
+    Based on: https://stackoverflow.com/a/517992
+    """
     print("\n" * 1000)
 
 
 def get_data_path() -> Path:
-    """Returns the local path to the data folder, as declared in `tgftools.conf`."""
+    """Return the local path to the data folder as declared in the configuration file.
+
+    Returns:
+        The path to the data folder as specified in tgftools.conf.
+
+    Raises:
+        AssertionError: If the configuration file tgftools.conf does not exist.
+    """
     CONFIG_FILE = get_root_path() / "tgftools.conf"
     assert (
         CONFIG_FILE.exists()
@@ -109,14 +188,21 @@ def get_data_path() -> Path:
 
 
 def get_output_path() -> Path:
-    """Returns the local path to the outputs folder, as declared in `tgftools.conf`."""
+    """Return the local path to the outputs folder.
+
+    Returns:
+        The path to the outputs folder within the repository root.
+    """
     return get_root_path() / "outputs"
 
 
 def save_var(var: Any, target_file: Optional[Path] = None) -> None:
-    """Saves a variable to the specified file. If no file is provided a default is used.
-    The default file is: `root / sessions / tmp.pkl`.
-    If the file already exists, it is over-written.
+    """Save a variable to a file using pickle serialization.
+
+    Args:
+        var: The variable to save.
+        target_file: Path to the target file. If not provided, defaults to
+            root/sessions/tmp.pkl. If the file exists, it will be overwritten.
     """
     filename = (
         target_file
@@ -128,8 +214,14 @@ def save_var(var: Any, target_file: Optional[Path] = None) -> None:
 
 
 def load_var(target_file: Optional[Path] = None) -> Any:
-    """Loads a saved session from the specified file. If no file is provided a default is used.
-    The default file is: `root / sessions / tmp.pkl`.
+    """Load a variable from a pickle file.
+
+    Args:
+        target_file: Path to the file to load. If not provided, defaults to
+            root/sessions/tmp.pkl.
+
+    Returns:
+        The deserialized variable from the file.
     """
     filename = (
         target_file
@@ -141,31 +233,48 @@ def load_var(target_file: Optional[Path] = None) -> Any:
 
 
 def current_date_and_time_as_string() -> str:
+    """Return the current date and time as a formatted string.
+
+    Returns:
+        A string representing the current date and time in the format "YYYY-MM-DD HH:MM:SS".
+    """
     now = datetime.now()
     return now.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def open_file(file: Path) -> None:
-    """Open file in operating-system default application.
-    From: https://stackoverflow.com/questions/434597/open-document-with-default-application-in-python/435669#435669
+    """Open a file using the operating system's default application.
+
+    Args:
+        file: Path to the file to open.
+
+    Note:
+        Based on: https://stackoverflow.com/questions/434597/open-document-with-default-application-in-python/435669#435669
     """
     if platform.system() == "Darwin":  # macOS
         subprocess.call(("open", file))
     elif platform.system() == "Windows":  # Windows
         os.startfile(file)
-    else:  # linux variants
+    else:  # Linux variants
         subprocess.call(("xdg-open", file))
 
 
-def deEmojify(text: str):
-    """Remove emoji from the text"""
+def deEmojify(text: str) -> str:
+    """Remove emoji characters from text.
+
+    Args:
+        text: The text string from which to remove emojis.
+
+    Returns:
+        The input text with all emoji characters removed.
+    """
     emoji = re.compile(
         "["
-        "\U0001F600-\U0001F64F"  # emoticons
-        "\U0001F300-\U0001F5FF"  # symbols & pictographs
-        "\U0001F680-\U0001F6FF"  # transport & map symbols
-        "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-        "\U00002500-\U00002BEF"  # chinese char
+        "\U0001F600-\U0001F64F"  # Emoticons
+        "\U0001F300-\U0001F5FF"  # Symbols & pictographs
+        "\U0001F680-\U0001F6FF"  # Transport & map symbols
+        "\U0001F1E0-\U0001F1FF"  # Flags (iOS)
+        "\U00002500-\U00002BEF"  # Chinese characters
         "\U00002702-\U000027B0"
         "\U000024C2-\U0001F251"
         "\U0001f926-\U0001f937"
@@ -176,7 +285,7 @@ def deEmojify(text: str):
         "\u23cf"
         "\u23e9"
         "\u231a"
-        "\ufe0f"  # dingbats
+        "\ufe0f"  # Dingbats
         "\u3030"
         "]+",
         re.UNICODE,
@@ -184,7 +293,21 @@ def deEmojify(text: str):
     return re.sub(emoji, "", text)
 
 
-def matmul(a: np.array) -> np.array:
-    """Returns matrix multiplication of an array and its transpose, in a manner that reproduces the behaviour of the command of the same name in google sheets. """
+def matmul(a: np.ndarray) -> np.ndarray:
+    """Compute the matrix multiplication of an array and its transpose.
+
+    This function reproduces the behavior of the MMULT command in Google Sheets
+    when applied to a 1-dimensional array.
+
+    Args:
+        a: A 1-dimensional numpy array.
+
+    Returns:
+        A 2-dimensional square matrix resulting from multiplying the column vector
+        form of the array by its row vector form (a @ a.T).
+
+    Raises:
+        AssertionError: If the input array is not 1-dimensional.
+    """
     assert a.shape == (len(a),)
     return a.reshape(len(a), 1).dot(a.reshape(1, len(a)))

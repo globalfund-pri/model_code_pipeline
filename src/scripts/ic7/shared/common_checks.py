@@ -9,7 +9,12 @@ from tgftools.database import Database
 
 
 class CommonChecks:
-    """A set of checks that are applicable to all of HIV, Tb and malaria"""
+    """Common validation checks applicable to HIV, TB, and malaria data.
+
+    This class provides a comprehensive set of data quality and consistency
+    checks that apply across all three diseases, including structural validation,
+    data quality checks, and consistency with partner data and PF targets.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,9 +43,17 @@ class CommonChecks:
 
     @staticmethod
     def _summarise(idx: pd.Index) -> pd.DataFrame:
-        """Returns a summary pd.DataFrame of a pd.Index, whereby there is a row for each
-        `scenario_descriptor` and `country` in the index, and entries for indicator and funding_fraction are compressed
-        into a dict-like-string (`year` is ignored)."""
+        """Create a summary DataFrame from a pandas Index.
+
+        Args:
+            idx: Multi-index containing scenario_descriptor, country, year,
+                indicator, and funding_fraction levels.
+
+        Returns:
+            DataFrame with rows for each scenario_descriptor and country, where
+            indicator and funding_fraction values are compressed into dict-like
+            strings (year is ignored).
+        """
 
         def agg_fn(_df):
             return (
@@ -65,7 +78,15 @@ class CommonChecks:
 
     @critical
     def no_negatives(self, db: Database):
-        """Checks that there are no negative values in the model output."""
+        """Check that there are no negative values in the model output.
+
+        Args:
+            db: Database object containing model results to check.
+
+        Returns:
+            CheckResult indicating whether check passed. If failed, includes
+            summary of problematic entries.
+        """
         years = range(self.EXPECTED_FIRST_YEAR, self.EXPECTED_LAST_YEAR + 1)
         df = db.model_results.df.loc[
              (slice(None), slice(None), slice(None), years, slice(None)), :

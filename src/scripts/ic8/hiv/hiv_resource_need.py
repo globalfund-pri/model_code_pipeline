@@ -8,20 +8,37 @@ from tgftools.filehandler import Parameters
 from tgftools.utils import get_root_path
 
 
-""" 
-This is a simple piece of code that utilizes the Database check class to extract data relating to the PF 100 scenario 
-and the GP scenario and partner data . This code is not part of the modular framework. 
+"""Extracts resource need data for HIV from PF 100 and GP scenarios.
 
-When running the resource need make sure to select the desired list of countries in the parameter.toml file. In this 
-file, for some diseases, there is a second list which contains all modelled countries. This gives the option to extract
-data for all modelled countries or those used in the IC. 
+This utility script uses the Database class to extract data from the PF 100
+scenario, GP scenario, and partner data. This code is not part of the modular
+framework and is intended for standalone resource need analysis.
+
+Configuration:
+    When running resource need extraction, ensure the desired list of countries
+    is selected in the parameters.toml file. For some diseases, there is a
+    second list containing all modeled countries, providing the option to extract
+    data for all modeled countries or only those used in the investment case.
 """
 
 
-class DatabaseChecksHiv(HIVMixin,):
-    """This is the class for DatabaseChecks to do with the HIV data."""
+class DatabaseChecksHiv(HIVMixin):
+    """Provides database functionality for HIV resource need extraction.
+
+    This class combines HIV-specific functionality from HIVMixin to enable
+    extraction of resource need data from the database.
+
+    Attributes:
+        Inherited from HIVMixin, including disease_name property.
+    """
 
     def __init__(self, *args, **kwargs):
+        """Initializes the DatabaseChecksHiv instance.
+
+        Args:
+            *args: Variable length argument list passed to parent classes.
+            **kwargs: Arbitrary keyword arguments passed to parent classes.
+        """
         super().__init__(*args, **kwargs)
 
 

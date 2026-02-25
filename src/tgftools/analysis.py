@@ -14,112 +14,158 @@ from tgftools.emulator import Emulator
 from tgftools.filehandler import Gp, NonTgfFunding, Parameters, TgfFunding, RegionInformation
 from tgftools.utils import matmul
 
-"""This file holds everything needed for the Analysis class. The analysis class extracts the necessary output from the 
-raw model OUTPUT, performs the necessary adjustments and holds the necessary data to generate the key stats and 
-graphs in the report class. 
+"""Analysis module for investment case modeling.
 
+This module provides the Analysis class, which extracts and processes model outputs,
+performs necessary adjustments, and generates key statistics and graphs for reports.
 
-This file needs the following input: 
-1. The db (database containing all the various data including model, partner, pf data and non-modelled Global Plan) 
-   coming from the disease specific filehandler scripts
-2. The scenario that should be analysed (set in the disease-specific analysis scripts when defining the analysis)
-3. The tgf and non-tgf funding amounts. This includes an option to include or exclude unallocated amounts. This 
-   information has to be computed outside the MCP (set in the disease-specific analysis scripts when loading the budget 
-   assumptions)
-4. Information on the years of replenishment period (set in the parameters.toml file)
-5. How to handle out of bounds costs (set in the disease-specific scripts when defining the analysis)
-6. Parameters to compute confidence intervals (CIs), including the z-value (whether we are computing e.g. 80%, 90%, 
-   95% CIs), the rho-value (variation between countries within disease) (these are set in the parameters.toml file)
+Required Inputs
+---------------
+1. Database containing model data, partner data, partner framework data, and non-modeled
+   Global Plan data (from disease-specific filehandler scripts)
+2. Scenario to be analyzed (defined in disease-specific analysis scripts)
+3. TGF and non-TGF funding amounts, with options to include or exclude unallocated amounts
+   (computed outside the MCP in disease-specific analysis scripts)
+4. Years of replenishment period (defined in parameters.toml)
+5. How to handle out-of-bounds costs (defined in disease-specific scripts)
+6. Parameters for computing confidence intervals, including z-value and rho-value
+   (variation between countries within disease, defined in parameters.toml)
 
+Funding Allocation Approaches
+------------------------------
+The class computes country and portfolio-level results using three approaches:
 
-This class computes country and portfolio level results for the investment case scenario using two different approaches: 
-1. It performs approach A. This approach is based on country-specific funding envelopes including domestic, non-TGF and 
-   TGF funding and uses these amount to interpolate based on the cost impact curves the exact amount corresponding to 
-   this funding envelope and the number of cases and deaths corresponding to this amount, 
-2. It performs approach B, which optimizes i) GF or ii) GF and unallocated amounts (the option to include or exclude 
-   unallocated amounts in the optimization can be set when defining the input) across countries within diseases. 
-The option (A or B) to be performed are set in the disease specific analysis script AND in the HTM script. 
-   
-   
-This class does the following processing, in the following order:   
-1. Country-level projections given dollar amount/funding fraction: It emulates the country-specific projections for all 
-   variables (epi and service) given the funding and scenario selected as an input to the analysis. This is only done 
-   for the investment case scenario, not the counterfactuals. 
-2. Baseline adjustment: Adjusts all the resulting country-level projections to baseline partner data, where 
-   partner data is available. For example, if the partner data does not contain data on number of people on ART it will 
-   keep the model projections, without doing any adjustments. It is therefore crucial to have partner data on all 
-   variables generated in the model output. CAUTION: if population estimates are adjusted but e.g. number of people on
-   treatment are not adjusted to baseline partner data, this will skew the coverage estimates.  CAUTION: HIV was not 
-   adjusted for baseline partner data, only TB and malaria. 
-3. Generate portfolio level results. It sums all variables across countries to generate portfolio level projections. 
-   CAUTION: as it is not possible to sum fractions, the numerator and denominators are summed instead and the fractions 
-   can be recalculated in the report class later. 
-4. Generated CIs: as part of generating the portfolio level results, it takes the uncertainty at the country level to 
-   generate portfolio level un certainty. The parameter for these are set in the parameter file. 
-5. Adjusts for innovation: it computes a curve (e.g. sigmoidal) to adjust the final investment case scenario projections 
-   to adjust for the missing impact within the partner GP that will be accounted for by innovation. CAUTION: the 
-   original curve did not start at zero in 2020 and end at 1 in 2030. So the parameters for these two years have been 
-   overwritten in the parameter file. NOTE: HIV was not adjusted for innovation, only TB and malaria. 
+**Approach A**: Uses country-specific funding envelopes (domestic + non-TGF + TGF funding)
+to interpolate exact amounts from cost-impact curves, along with corresponding cases and deaths.
 
+**Approach B**: Optimizes allocation of (i) Global Fund or (ii) Global Fund and unallocated
+amounts across countries within diseases. The option to include or exclude unallocated amounts
+is configurable.
 
-This class generated the following "SetOfPortfolioProjections" which contains the following data: 
-1. The investment case related data. This undergoes all the aforementioned processing, unless specified
-2. Various counterfactuals, including counterfactuals for lives saved, infections averted, each of them being disease
-   specific. 
-3. Data for the key graphs, including partner data and the disease-specific global plans
+**Approach C**: Applies uniform funding fraction across all countries.
 
+Processing Steps
+----------------
+The Analysis class performs the following operations in sequence:
 
-CAUTION: when running this script please note the following. 
-1. Option to re-load and process the model output (load_data_from_raw_file at the bottom of the disease specific 
-   analysis scripts and HTM script. Any updated to the filehandler relating to model output will not be reflected if 
-   this option is set to "False"
-2. Option to set approach A or B (set in "get_set_of_portfolio_projections" in HTM script AND in main switchboard of 
-   disease specific analysis scripts (very bottom) will affect the resulting output
-3. Option to set the scenario, funding amount and domestic scenario (in disease specific analysis scripts) will affect 
-   resulting output.  
+1. **Country-level projections**: Emulates country-specific projections for all variables
+   (epidemiological and service-related) given the funding and scenario inputs. Only applies
+   to investment case scenarios, not counterfactuals.
+
+2. **Baseline adjustment**: Adjusts country-level projections to baseline partner data where
+   available. If partner data is missing for specific variables (e.g., number of people on ART),
+   model projections are retained without adjustment.
+
+   .. note::
+      It is crucial to have partner data for all variables in the model output. If population
+      estimates are adjusted but treatment numbers are not, coverage estimates will be skewed.
+      HIV was not adjusted for baseline partner data, only TB and malaria.
+
+3. **Portfolio-level aggregation**: Sums variables across countries to generate portfolio-level
+   projections.
+
+   .. note::
+      Fractions cannot be summed directly; numerators and denominators are summed instead and
+      fractions are recalculated in the report class.
+
+4. **Confidence intervals**: Generates portfolio-level uncertainty from country-level uncertainty
+   using parameters defined in the parameter file.
+
+5. **Innovation adjustment**: Applies a curve (e.g., sigmoidal) to adjust investment case
+   projections for missing impact within the partner Global Plan that will be accounted for
+   by innovation.
+
+   .. note::
+      The original curve parameters were overwritten in the parameter file to ensure it starts
+      at zero in 2020 and reaches one in 2030. HIV was not adjusted for innovation, only TB
+      and malaria.
+
+Output Structure
+----------------
+The class generates a SetOfPortfolioProjections containing:
+
+1. Investment case data with all aforementioned processing applied
+2. Various counterfactuals (disease-specific), including counterfactuals for lives saved
+   and infections averted
+3. Data for key graphs, including partner data and disease-specific global plans
+
+Important Configuration Notes
+------------------------------
+* The `load_data_from_raw_file` option (in disease-specific and HTM scripts) controls whether
+  model output is reloaded. If set to False, filehandler updates will not be reflected.
+* The approach selection (A, B, or C) is set in both the HTM script and disease-specific
+  analysis scripts and affects the resulting output.
+* Scenario, funding amount, and domestic scenario settings (in disease-specific scripts)
+  will affect the resulting output.
 """
 
 
 class CountryProjection(NamedTuple):
-    """NamedTuple for cases and death for a given program cost in a given country."""
+    """Container for country-level projection results.
 
-    model_projection: Dict[
-        str, pd.DataFrame
-    ]  # dict of the form {<indicator>: <pd.DataFrame>}
+    Attributes:
+        model_projection: Dictionary mapping indicator names to DataFrames containing
+            model projections. Each DataFrame has years as the index and columns for
+            central, low, and high estimates.
+        funding: Total funding amount (in dollars) for the country.
+    """
+
+    model_projection: Dict[str, pd.DataFrame]
     funding: float
-    # model_projection_fully_funded: Dict[
-    #     str, pd.DataFrame
-    # ]  # dict of the form {<indicator>: <pd.DataFrame>} # TODO: remove if not needed
 
 
 class PortfolioProjection(NamedTuple):
-    """NamedTuple for the results of an Analysis."""
+    """Container for portfolio-level analysis results.
+
+    Attributes:
+        tgf_funding_by_country: Dictionary mapping ISO3 country codes to TGF funding amounts.
+        non_tgf_funding_by_country: Dictionary mapping ISO3 country codes to non-TGF
+            funding amounts.
+        country_results: Dictionary mapping ISO3 country codes to CountryProjection objects
+            containing country-level results.
+        portfolio_results: Dictionary mapping indicator names to DataFrames with portfolio-level
+            results. Each DataFrame has years as rows and columns for central/low/high estimates
+            across the entire portfolio, including all adjustments.
+    """
 
     tgf_funding_by_country: dict[str, float]
-
     non_tgf_funding_by_country: dict[str, float]
-
-    country_results: dict[
-        str, CountryProjection
-    ]  # dict of the form {<country>: <CountryProjection>}
-
-    portfolio_results: dict[
-        str, pd.DataFrame
-    ]  # dict of the form {<indicator>: <pd.DataFrame>}, where the pd.DataFrame has years in the row, and columns
-    #                                                    (central/low/high for the value) across all the portfolio,
-    #                                                    with adjustments.
+    country_results: dict[str, CountryProjection]
+    portfolio_results: dict[str, pd.DataFrame]
 
 
 class Analysis:
-    """This is the Analysis class. It holds a Database object and requires an argument for the scenario_descriptor.
-    It can then output ensemble results (or country-level results) that reflect decisions for the use of the funding -
-    in particular, when the TGF funding is non-fungible (Approach A) and when it is fungible and its allocation
-    between countries can be optimised (Approach B).
-    :param years_for_funding: Defines the calendar years (integers) for which the budgets correspond, (i.e, the years
-     to which the replenishment funding scenarios correspond).
-    :param handle_out_of_bounds_costs: Determines whether an error is thrown when a result for country is needed
-     for a cost that is not in the range of the model_results, or whether results are used for highest/lowest cost
-     model_results instead. This is passed through to the `Emulator` class.
+    """Performs investment case analysis for disease modeling.
+
+    This class holds a Database object and produces ensemble or country-level results
+    that reflect funding allocation decisions. It supports multiple approaches for
+    allocating TGF funding: when funding is non-fungible (Approach A), when it is
+    fungible and can be optimized across countries (Approach B), or when a uniform
+    funding fraction is applied (Approach C).
+
+    Attributes:
+        database: Database object containing all model and partner data.
+        parameters: Parameters object with configuration settings.
+        tgf_funding: TGF funding allocations by country.
+        non_tgf_funding: Non-TGF funding allocations by country.
+        gp: Global Plan data.
+        countries: List of modeled countries.
+        disease_name: Name of the disease being analyzed.
+        indicators: DataFrame of indicators for this disease.
+        scenario_descriptor: Scenario being analyzed for the investment case.
+        handle_out_of_bounds_costs: Whether to handle costs outside model range by using
+            boundary values (True) or raising an error (False).
+        innovation_on: Whether to apply innovation adjustments.
+        years_for_funding: Calendar years corresponding to the replenishment period.
+        emulators: Dictionary mapping country codes to Emulator objects.
+        region_info: RegionInformation object for country groupings.
+        country_subset: List of country codes for the current analysis subset.
+
+    Args:
+        database: Database object containing model results, partner data, and Global Plan data.
+        tgf_funding: TGF funding object with country-level allocations.
+        non_tgf_funding: Non-TGF funding object with country-level allocations.
+        parameters: Parameters object containing configuration settings from parameters.toml.
     """
 
     def __init__(
@@ -183,7 +229,12 @@ class Analysis:
         self.country_subset = self.get_country_subset()
 
     def get_country_subset(self) -> List[str]:
-        """Returns the list of ISO3 country codes corresponding to the subset of countries we are interested in for outputs"""
+        """Get the subset of countries for analysis outputs.
+
+        Returns:
+            List of ISO3 country codes corresponding to the subset of countries
+            specified for outputs.
+        """
         country_subset_param = self.parameters.get('REGIONAL_SUBSET_OF_COUNTRIES_FOR_OUTPUTS_OF_ANALYSIS_CLASS')
         whole_portfolio_countries = self.parameters.get_portfolio_countries_for(self.disease_name)
 
@@ -199,15 +250,35 @@ class Analysis:
     def filter_funding_data_for_non_modelled_countries(
             self, funding_data_object: TgfFunding | NonTgfFunding
     ) -> TgfFunding | NonTgfFunding:
-        """Returns a funding data object that has been filtered for countries that are not declared as the modelled
-        countries for that disease."""
+        """Filter funding data to include only modeled countries.
+
+        Args:
+            funding_data_object: TGF or non-TGF funding object to be filtered.
+
+        Returns:
+            Filtered funding data object containing only countries that are declared
+            as modeled countries for this disease.
+        """
         list_of_modelled_countries = self.parameters.get_modelled_countries_for(self.disease_name)
         funding_data_object = copy(funding_data_object)
         funding_data_object.df = funding_data_object.df[funding_data_object.df.index.isin(list_of_modelled_countries)]
         return funding_data_object
 
     def portfolio_projection(self) -> PortfolioProjection:
-        """Do a portfolio projection using the method that is specified in the parameters file."""
+        """Generate portfolio projection using the configured allocation method.
+
+        The method is determined by the METHOD_FOR_ALLOCATION_IN_IC parameter,
+        which can be 'A' (non-fungible funding), 'B' (optimized allocation),
+        or 'C' (uniform funding fraction, requires explicit call).
+
+        Returns:
+            PortfolioProjection object containing funding allocations, country results,
+            and portfolio-level aggregated results.
+
+        Raises:
+            ValueError: If Approach C is specified (requires explicit funding_fraction)
+                or if an unrecognized method is specified.
+        """
         approach = self.parameters.get('METHOD_FOR_ALLOCATION_IN_IC').upper()
         if approach == 'A':
             return self.portfolio_projection_approach_a()
@@ -220,8 +291,15 @@ class Analysis:
             raise ValueError(f'Do not recognise the method for allocation in IC: {approach=}')
 
     def portfolio_projection_approach_a(self) -> PortfolioProjection:
-        """Returns the PortfolioProjection For Approach A: i.e., the projection for each country, given the funding
-        to each country when the TGF funding allocated to a country CANNOT be changed.
+        """Generate portfolio projection using Approach A (non-fungible TGF funding).
+
+        In Approach A, TGF funding allocated to each country is fixed and cannot be
+        reallocated. Each country receives its predetermined funding envelope consisting
+        of domestic, non-TGF, and TGF funding.
+
+        Returns:
+            PortfolioProjection object with results for each country based on their
+            fixed funding allocations, filtered to the specified country subset.
         """
 
         country_results = self._get_country_projections_given_funding_dollar_amounts(
@@ -246,12 +324,17 @@ class Analysis:
     def portfolio_projection_approach_b(
         self,
     ) -> PortfolioProjection:
-        """Returns the PortfolioProjection For Approach B: i.e., the projection for each country, given the funding
-        to each country when the TGF funding allocated to a country _CAN_ be changed. Multiple methods for optimisation
-        may be tried, but only a single result is provided (that of the best solution found.)
-        :param methods: List of methods to use in approach_b (For method see `do_approach_b`)
-        :param optimisation_params: Dict of parameters specifying how to construct the optimisation.
-        See `_get_data_frames_for_approach_b`
+        """Generate portfolio projection using Approach B (optimized TGF allocation).
+
+        In Approach B, TGF funding can be reallocated across countries to optimize
+        health impact. The optimization uses methods specified in the APPROACH_B_METHODS
+        parameter. Multiple optimization methods may be tried, but only the best
+        solution is returned.
+
+        Returns:
+            PortfolioProjection object with optimized TGF funding allocations and
+            corresponding results for each country, filtered to the specified
+            country subset.
         """
         # Use the `ApproachB` class to get the TGF funding allocations from the optimisation, getting only the best
         # result.
@@ -284,7 +367,19 @@ class Analysis:
 
 
     def portfolio_projection_approach_c(self, funding_fraction: float) -> PortfolioProjection:
-        """Returns the PortfolioProjection For Approach C: i.e., the funding fraction is the same in all countries
+        """Generate portfolio projection using Approach C (uniform funding fraction).
+
+        In Approach C, all countries receive the same funding fraction of their
+        resource needs, without distinguishing between TGF and non-TGF sources.
+
+        Args:
+            funding_fraction: Funding fraction to apply uniformly across all countries
+                (e.g., 0.8 for 80% funding).
+
+        Returns:
+            PortfolioProjection object with results for each country based on the
+            uniform funding fraction. TGF and non-TGF funding breakdowns are not
+            available (set to None).
         """
         country_results = self._get_country_projection_given_funding_fraction(funding_fraction=funding_fraction)
 
@@ -304,7 +399,18 @@ class Analysis:
             self,
             name: str,
     ) -> PortfolioProjection:
-        """Returns a PortfolioProjection for a chosen counterfactual scenario."""
+        """Generate portfolio projection for a counterfactual scenario.
+
+        Args:
+            name: Scenario descriptor for the counterfactual (must exist in model results).
+
+        Returns:
+            PortfolioProjection object for the counterfactual scenario. Funding values
+            are set to NaN as they are not applicable to counterfactuals.
+
+        Raises:
+            AssertionError: If the specified counterfactual name is not found in model results.
+        """
 
         assert name in self.database.model_results.df.index.get_level_values('scenario_descriptor'),\
             f"Counterfactual {name} not found in model results."
@@ -337,19 +443,38 @@ class Analysis:
             self,
             filename: Path,
     ) -> None:
-        """Dump everything into an Excel file."""
+        """Export all analysis results to an Excel file.
+
+        Args:
+            filename: Path where the Excel file should be saved.
+        """
         DumpAnalysisToExcel(self, filename)
 
     def _approach_b(self) -> ApproachB:
-        """Returns the object `ApproachB` so that other features of it can be accessed conveniently."""
+        """Create an ApproachB object for optimization.
+
+        Returns:
+            ApproachB object configured with data frames needed for optimization.
+        """
         return ApproachB(**self.get_data_frames_for_approach_b())
 
     def get_data_frames_for_approach_b(
         self,
     ) -> Dict[str, pd.DataFrame]:
-        """Returns dict of dataframes needed for using the `ApproachB` class. This is where the quantities are
-        computed that summarises the performance of each country under each funding_fraction and the GP, which forms
-        the basis of the optimisation."""
+        """Prepare data frames for Approach B optimization.
+
+        Computes summary quantities that characterize each country's performance
+        under different funding fractions and the Global Plan. These form the basis
+        for the optimization algorithm.
+
+        Returns:
+            Dictionary containing:
+                - 'tgf_budgets': TGF budget allocations by country
+                - 'non_tgf_budgets': Non-TGF budget allocations by country
+                - 'model_results': Country-level cases, deaths, and costs for each
+                  funding level, potentially with monotonic decreasing enforcement
+                  and out-of-bounds handling applied
+        """
 
         # ---------------
         # Get parameters:
@@ -440,7 +565,16 @@ class Analysis:
     def _get_country_projections_given_funding_dollar_amounts(
         self, total_funding_by_country: Dict[str, float]
     ) -> Dict[str, CountryProjection]:
-        """Returns a dict of CountryProjections given specified total funding dollar amounts to each country."""
+        """Generate country projections for specified funding amounts.
+
+        Args:
+            total_funding_by_country: Dictionary mapping ISO3 country codes to total
+                funding amounts in dollars.
+
+        Returns:
+            Dictionary mapping ISO3 country codes to CountryProjection objects containing
+            model projections and funding amounts for each country.
+        """
 
         # Collect results for each country
         country_results = dict()
@@ -463,7 +597,14 @@ class Analysis:
         return country_results
 
     def _get_country_projection_given_funding_fraction(self, funding_fraction: float) -> Dict[str, CountryProjection]:
-        """Returns a dict of CountryProjections given a specified funding_fraction, which is the same in all countries"""
+        """Generate country projections for a uniform funding fraction.
+
+        Args:
+            funding_fraction: Funding fraction to apply uniformly across all countries.
+
+        Returns:
+            Dictionary mapping ISO3 country codes to CountryProjection objects.
+        """
         country_results = dict()
         for country in self.countries:
             model_projection = self.emulators[country].get(
@@ -482,8 +623,22 @@ class Analysis:
             adjust_for_unmodelled_innovation: bool,
             name: str,
     ) -> Dict[str, pd.DataFrame]:
-        """ This function generates portfolio level results. This included summing up variables across countries,
-        scaling up for non-modelled countries, and doing the adjustment for GP-related innovation. """
+        """Generate portfolio-level results from country-level projections.
+
+        Aggregates country results to portfolio level, including summing variables across
+        countries, scaling up for non-modeled countries, and applying Global Plan-related
+        innovation adjustments if specified.
+
+        Args:
+            country_results: Dictionary mapping country codes to CountryProjection objects.
+            adjust_for_unmodelled_innovation: Whether to apply innovation adjustments for
+                impact not captured in the model but expected in the Global Plan.
+            name: Name identifier for the scenario.
+
+        Returns:
+            Dictionary mapping indicator names to DataFrames with portfolio-level results
+            including central, low, and high estimates.
+        """
 
         actual_without_innovation = (
             self._scale_up_for_non_modelled_countries(
@@ -508,7 +663,18 @@ class Analysis:
             )
 
     def _scale_up_for_non_modelled_countries(self, portfolio_results: Dict[str, pd.DataFrame], name: str) -> Dict[str, pd.DataFrame]:
-        """ This scales the modelled results to non-modelled countries for the epi indicators. """
+        """Scale modeled results to account for non-modeled countries.
+
+        Applies scaling factors to epidemiological indicators to extrapolate from modeled
+        countries to the full portfolio including non-modeled countries.
+
+        Args:
+            portfolio_results: Dictionary of portfolio-level results by indicator.
+            name: Name identifier for the scenario (affects which start year is used).
+
+        Returns:
+            Dictionary of scaled portfolio results by indicator.
+        """
 
         # Define years and parameters we need
         p = self.parameters
@@ -561,7 +727,20 @@ class Analysis:
             full_funding_without_innovation: Dict[str, CountryProjection],
             gp: Gp,
     ) -> Dict[str, pd.DataFrame]:
-        """ This will make the necessary adjustments for innovations assumed to come in within the partner GP. """
+        """Apply innovation adjustments to project results.
+
+        Adjusts projections to account for innovations expected to be introduced
+        within the partner Global Plan using a sigmoidal scaling curve.
+
+        Args:
+            actual_without_innovation: Portfolio results before innovation adjustment.
+            full_funding_without_innovation: Results under full funding without innovation,
+                used as a reference point.
+            gp: Global Plan data.
+
+        Returns:
+            Dictionary mapping indicator names to DataFrames with innovation-adjusted results.
+        """
 
         sigmoid_scaling = pd.Series(
             dict(zip(
@@ -610,12 +789,30 @@ class Analysis:
         return adj_country_results
 
     def _summing_up_countries(self, country_results: Dict[str, CountryProjection], name: str) -> Dict[str, pd.DataFrame]:
-        """ This will sum up all the country results to get the portolfio-level results. This will use the adjusted
-        country results and be used to generate uncertainty. """
+        """Aggregate country results to portfolio level with uncertainty.
+
+        Sums adjusted country results to generate portfolio-level projections,
+        including propagation of uncertainty from country to portfolio level.
+
+        Args:
+            country_results: Dictionary mapping country codes to CountryProjection objects.
+            name: Name identifier for the scenario (affects which start year is used).
+
+        Returns:
+            Dictionary mapping indicator names to DataFrames with aggregated portfolio
+            results including central, low, and high estimates.
+        """
 
         def _compute_mean_and_ci(_df_for_year: pd.DataFrame):
-            """This helper function accepts a dataframe for one year of model results for each country, and returns a
-            dict summarising the statistic across the countries, as a mean low/high range.
+            """Compute portfolio-level statistics with confidence intervals.
+
+            Args:
+                _df_for_year: DataFrame containing model results for one year across
+                    all countries, with columns for model_central, model_low, and model_high.
+
+            Returns:
+                Dictionary with keys 'model_central', 'model_low', and 'model_high'
+                containing aggregated estimates.
             """
             model_central = _df_for_year["model_central"].sum()
 
@@ -725,7 +922,15 @@ class Analysis:
         return portfolio_results
 
     def get_partner(self) -> pd.DataFrame:
-        """Returns data-frame of the partner data that are needed for reporting."""
+        """Get partner data for reporting.
+
+        Retrieves and aggregates partner data for the indicators and time period
+        needed for report generation.
+
+        Returns:
+            DataFrame with partner data aggregated across countries in the specified
+            subset, with years as rows and indicators as columns.
+        """
 
         if self.disease_name == 'HIV':
             indicator_partner = ['cases', 'deaths', 'hivneg', 'population']
@@ -756,7 +961,14 @@ class Analysis:
         return partner_data
 
     def get_gp(self) -> pd.DataFrame:
-        """Returns data-frame of the GP elements that are needed for reporting."""
+        """Get Global Plan data for reporting.
+
+        Retrieves Global Plan data aggregated appropriately for the disease and
+        country subset being analyzed.
+
+        Returns:
+            DataFrame with Global Plan data, with years as rows and indicators as columns.
+        """
 
         if self.disease_name != 'HIV':
             # Define which countries to sum up.
@@ -782,7 +994,12 @@ class Analysis:
         return gp_data
 
     def get_counterfactual_lives_saved_malaria(self) -> pd.DataFrame:
-        """ Return the CF time series to compute lives saved for malaria"""
+        """Get counterfactual time series for computing lives saved in malaria.
+
+        Returns:
+            DataFrame with counterfactual mortality time series adjusted to baseline
+            partner data. Returns empty DataFrame if disease is not malaria.
+        """
 
         if self.disease_name != "MALARIA":
             return pd.DataFrame()
@@ -838,7 +1055,12 @@ class Analysis:
         return adjusted_mortality_total
 
     def get_counterfactual_infections_averted_malaria(self) -> pd.DataFrame:
-        """ Return the CF time series to compute infections averted for malaria"""
+        """Get counterfactual time series for computing infections averted in malaria.
+
+        Returns:
+            DataFrame with counterfactual incidence time series adjusted to baseline
+            partner data. Returns empty DataFrame if disease is not malaria.
+        """
 
         if self.disease_name != "MALARIA":
 
@@ -897,11 +1119,14 @@ class Analysis:
             plt_show: Optional[bool] = False,
             filename: Optional[Path] = None,
     ):
-        """
-        Create a report that compares the results from Approach A and B (and alternative optimisation methods for
-        Approach B if these are specified).
-        :param plt_show: determines whether to show the plot
-        :param filename: filename to save the report to
+        """Create a diagnostic report comparing Approach A and B results.
+
+        Generates a report that compares results from Approach A and B, including
+        alternative optimization methods for Approach B if specified in parameters.
+
+        Args:
+            plt_show: Whether to display plots interactively.
+            filename: Path where the report should be saved. If None, no file is saved.
         """
         # Create the approach_b object
         approach_b_object = self._approach_b()

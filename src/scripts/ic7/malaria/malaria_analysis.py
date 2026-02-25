@@ -41,7 +41,13 @@ analysis class directly.
 """
 
 
-def get_malaria_database() -> Analysis:
+def get_malaria_database() -> Database:
+    """Create and return the malaria database with all required data sources.
+
+    Returns:
+        Database object containing malaria model results, GP, PF input data,
+        and partner data.
+    """
 
     path_to_data_folder = get_data_path()
     project_root = get_root_path()
@@ -94,7 +100,12 @@ def get_malaria_database() -> Analysis:
 
 
 def get_malaria_analysis() -> Analysis:
-    """Return the Analysis object for Malaria."""
+    """Create and return the malaria analysis with funding assumptions.
+
+    Returns:
+        Analysis object configured with malaria database, TGF funding,
+        non-TGF funding, and parameters.
+    """
 
     path_to_data_folder = get_data_path()
     project_root = get_root_path()

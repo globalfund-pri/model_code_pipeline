@@ -19,122 +19,93 @@ from tgftools.utils import (
     get_files_with_extension,
 )
 
-""" START HERE FOR HIV: This file sets up everything needed to run HIV related code, including reading in the 
-relevant files, cleans up the data in these files (harmonizing naming convention, generate needed extra variables 
-e.g. HIV-negative population estimates, filters out variables that are not needed), puts them in the format defined for
-the database format. 
+"""HIV file handlers for IC7 model code pipeline.
 
-The database format is: 
-1) scenario_descriptor: contains a XX_XX shorthand for scenario names
-2) funding fraction: contains the funding fraction as expressed by the % of GP funding need. These need to be given as
-   a proportion (0-1) NOT as a percentage (0-100)
-3) country: holds iso3 code for a country
-4) year: contains year information
-5) indicator: contains the variable names (short-hand)
-6) low, central and high: contains the value for the lower bound, central and upper bound of a given variable. Where 
-   LB and UB are not available these should be set to be the same as the "central" value.  
+This module sets up everything needed to run HIV-related code, including reading
+relevant files, cleaning up data (harmonizing naming conventions, generating needed
+extra variables like HIV-negative population estimates, filtering out unneeded variables),
+and formatting them for the database format.
 
- This following files are read in in this script: 
- 1) The HIV model results shared by John
- 2) The PF input data. These were prepared by TGF and shared with modellers as input data to the model
- 3) The UNAIDS partner data as prepared by the TGF. These contain the following variables: year, iso3, deaths 
- (number of AIDS-related deaths for given year), plhiv (number of PLHIV for a given year), cases (number of new HIV 
- infections for a given year), life_years (total population for a given year). The partner data should contain data
- for each of these variable for each country eligible for GF funding for 2000 to latest year. 
+Database Format:
+    The database uses the following multi-index structure:
 
- The above files are saved in the file structure described below. 
- CAUTION: failing to follow the file structure may throw up errors. 
- File structure: 
- 1) Main project folder: "IC7/TimEmulationTool"
- 2) model results should be located in "/modelling_outputs"
- 3) PF input daa should be saved under "/pf"
- 4) UNAIDS partner data should be saved under "/partner"
- 
- The following additional information needs to be set and prepared in order to run the code: 
- 1) List of modelled countries: In the parameter file  provide the full list of iso3 codes
-    of modelled countries for this disease that should be analysed. The list is used:
-     a) in the checks, for example, to ensure that we have results for each country, for each year, for each variable 
-     defined in this set of lists
-     b) for filtering when generating the output (i.e. if we have to remove model results for Russia from the analysis, 
-     we can remove Russia from this list and model results for this country will be filtered out)
- 2) List of GF eligible countries: In file parameters.toml provide the full list of 
-    iso3 codes of GF eligible countries for this disease that should be accounted for in this analysis. Adding or 
-    removing iso3 codes from this list will automatically be reflected in the rest of the code (i.e. if Russia is not 
-    eligible for GF funding, removing Russia from this list, means that the model results will not be extrapolated to 
-    Russia when extrapolating to non-modelled counties). The list is used:
-    a) to generate GP by using the population estimates for all eligible countries
-    b) to filter out the partner data to only countries listed here
-    b) to extrapolate to non-modelled countries
- 3) List of indicators: The file parameter file provides a full list of variables needed for HIV, 
-    including epidemiological variables and service-related variables. The list should include the short-hand variable
-    name, full variable definition, and the data type (e.g. count (integer), fraction (proportion), rate. 
-    The list is used:
-     a) to map the variable names to their full definitions
-     b) in the checks to ensure, for example, that we have results for each country, for each year, for each variable 
-     defined in this set of lists
-     c) which ones should be scaled to non-modelled countries (CAUTION: this will need to updated in 8th Replenishment)
-     d) which indicators should be scaled for innovation
- 4) List of scenarios: The parameter file provides the mapping of the scenario descriptions to their short-hand. 
-    This list is used to:
-    a) to map the variable (short-hand) name to the full definition
-    b) in the checks to ensure, for example, that we have results for each country, for each year, for each variable 
-    defined in this set of lists 
-    c) for filtering when generating the output (i.e., select the final investment case and necessary counterfactual 
-    scenario)
- 5) Parameters defining the GP: In file "shared/fixed_gps/hiv_gp.csv" provide for each year the fixes reduction in 
-    cases/incidence and deaths/mortality. 
-    CAUTION: For each disease he indicator will vary (reduction for number of deaths OR mortality rate) but the column 
-     headers should not be changed as this will result in errors. The correct indicators are set in the class GpHiv(Gp). 
-     These parameter are used to generate the time-series for new infections, incidence, deaths and mortality rate for
-     each year. NOTE: the parameters for HIV are wrong and unchecked and these will not be used in 8th Replenishment. 
- 6) Central parameters: In file "parameters.toml" update the years. Those are the first year of the model results, the 
-    last year of model (models may run up to 2050, but we need results up to 2030 only), years of the replenishment, 
-    years that should be used in the objector funding for the optimizer (first year of replenishment to 2030), the 
-    first year of the GP for HIV and the funding fractions fo reach disease. These parameters are used e.g., to generate 
-    the GP time series and in the checks.  
-    
-Running the script for the first time and options to improve speed: 
-At the end of the script is a line of code stating "LOAD_DATA_FROM_RAW_FILES". The first time you run this code, this 
-needs to be set to True to load the model output and save it locally. In subsequent runs, this can be set to False to 
-speed up the runs. 
-CAUTION: If any changes are made to the way the model output is handled (i.e. add or remove a ISO3 code in the 
-parameter file, the above switch needs to be turned to True and model results re-loaded to reflect these changes! 
-    
-CAUTION: 
-Adding or removing items from these list will automatically be reflected in the rest of the code.
-Scenarios without funding fractions (GP_GP, NULL_NULL, CC_CC) should be given a funding fraction of 100% in order to be 
-included in key checks. 
- 
-ADDITIONAL INFORMATION:
-For HIV, there is an extra script (rename_hiv_scenario_descriptor.py) which deconstructs the HIV scenario names. This 
-code will not be needed in the IC for the 8th Replenishment as the recipe will outline how information on scenarios 
-should be structured in the model output. 
- 
-GOOD CODE PRACTICE:
-Variable names: should be use small letter and be short but easy to understand
-Hard-coding: to be avoided at all costs and if at all limited to these disease files and report class. 
- """
+    1. scenario_descriptor: XX_XX shorthand for scenario names
+    2. funding_fraction: Funding fraction as proportion (0-1) of GP funding need
+    3. country: ISO3 country code
+    4. year: Year information
+    5. indicator: Variable names (short-hand)
+    6. low, central, high: Lower bound, central, and upper bound values for variables
+
+Input Files:
+    1. HIV model results shared by modelers
+    2. PF input data prepared by TGF and shared with modelers
+    3. UNAIDS partner data containing: year, iso3, deaths (AIDS-related deaths),
+       plhiv (number of PLHIV), cases (new HIV infections), life_years (total population)
+
+File Structure:
+    Main project folder: IC7/TimEmulationTool
+    - Model results: /modelling_outputs
+    - PF input data: /pf
+    - UNAIDS partner data: /partner
+
+Required Configuration:
+    1. Modelled countries list in parameters file (ISO3 codes)
+    2. GF-eligible countries list in parameters.toml
+    3. Indicators list with variable names, definitions, and data types
+    4. Scenarios list with mappings to short-hand names
+    5. GP parameters in shared/fixed_gps/hiv_gp.csv
+    6. Central parameters in parameters.toml (years, funding fractions)
+
+Performance Notes:
+    Set LOAD_DATA_FROM_RAW_FILES to True on first run to load and save model output
+    locally. Set to False in subsequent runs for faster execution.
+
+Warnings:
+    - Failing to follow the file structure may throw errors
+    - Scenarios without funding fractions (GP_GP, NULL_NULL, CC_CC) should be given
+      a funding fraction of 100% to be included in key checks
+    - Changes to model output handling require setting LOAD_DATA_FROM_RAW_FILES to True
+
+Note:
+    For HIV, there is an extra script (rename_hiv_scenario_descriptor.py) which
+    deconstructs HIV scenario names. This will not be needed for the 8th Replenishment.
+"""
 
 
 class HIVMixin:
-    """Base class used as a `mix-in` that allows any inheriting class to have a property `disease_name` that returns
-    the disease name."""
+    """Base mixin class for HIV-specific functionality.
+
+    This mixin provides a disease_name property that returns 'HIV' for any
+    inheriting class, enabling disease-specific behavior in the codebase.
+    """
 
     @property
     def disease_name(self):
+        """str: Returns the disease name 'HIV'."""
         return 'HIV'
 
 
 # Load the model result file(s)
 class ModelResultsHiv(HIVMixin, ModelResults):
-    """This is the File Handler for the HIV modelling output."""
+    """File handler for HIV modeling output.
+
+    This class reads and processes HIV model results from Excel files, converting
+    them into the standardized database format with multi-index structure.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Reads in the data and return a pd.DataFrame with multi-index (scenario, funding_fraction, country, year,
-        indicator) and columns containing model output (low, central, high)."""
+        """Read and process HIV model data into a standardized DataFrame.
+
+        Args:
+            path: Path to directory containing HIV model output Excel files.
+
+        Returns:
+            DataFrame with multi-index (scenario, funding_fraction, country, year,
+            indicator) and columns (low, central, high) containing model output.
+        """
 
         # Read in each file and concatenate the results
         all_xlsx_file_at_the_path = get_files_with_extension(path, "xlsx")
@@ -258,8 +229,14 @@ class ModelResultsHiv(HIVMixin, ModelResults):
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
-        """Returns formatted pd.DataFrame from the Excel file provided. The returned dataframe is specific to one
-        country, and has the required multi-index and column specifications."""
+        """Convert an HIV Excel workbook into a formatted DataFrame.
+
+        Args:
+            file: Path to the Excel file containing HIV model results for one country.
+
+        Returns:
+            DataFrame with required multi-index and column specifications for HIV data.
+        """
         print(f"Reading: {file}  .....", end="")
 
         # Load 'Sheet1' from the Excel workbook
@@ -359,8 +336,14 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
         # Deconstruct the 'Scenario' column to give "scenario" and "funding_fraction" separately.
         def _deconstruct_scenario(s: str) -> Tuple[str, float]:
-            """For a given string, from the `Scenario` column of the HIV workbook, return a tuple that
-            gives (scenario_descriptor, funding_fraction)."""
+            """Deconstruct HIV scenario string into descriptor and funding fraction.
+
+            Args:
+                s: Scenario string from the HIV workbook.
+
+            Returns:
+                Tuple of (scenario_descriptor, funding_fraction).
+            """
             return rename_hiv_scenario_descriptor(s)
 
         scenario_deconstructed = pd.DataFrame(
@@ -392,8 +375,17 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
     @staticmethod
     def _load_sheet(file: Path):
-        """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
-        with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
+        """Load Sheet1 from Excel file with openpyxl warnings suppressed.
+
+        Args:
+            file: Path to the Excel file to load.
+
+        Returns:
+            DataFrame containing data from Sheet1.
+
+        Note:
+            Suppresses openpyxl stylesheet warnings.
+            See: https://stackoverflow.com/questions/66214951
         """
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
@@ -402,14 +394,25 @@ class ModelResultsHiv(HIVMixin, ModelResults):
 
 # Load the pf input data file(s)
 class PFInputDataHIV(HIVMixin, PFInputData):
-    """This is the File Handler for the HIV input data containing pf targets."""
+    """File handler for HIV PF (Performance Framework) input data.
+
+    This class reads and processes HIV performance framework target data
+    prepared by TGF and shared with modelers.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Reads in the data and returns a pd.DataFrame with multi-index (scenario_descriptor, country, year,
-        indicator)."""
+        """Read and process HIV PF input data into a standardized DataFrame.
+
+        Args:
+            path: Path to directory containing HIV PF input Excel files.
+
+        Returns:
+            DataFrame with multi-index (scenario_descriptor, country, year, indicator)
+            and column 'central' containing target values.
+        """
 
         # Read in each file and concatenate the results
         all_xlsx_file_at_the_path = get_files_with_extension(path, "xls")
@@ -482,8 +485,14 @@ class PFInputDataHIV(HIVMixin, PFInputData):
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
-        """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
-        and has the required multi-index and column specifications."""
+        """Convert an HIV PF Excel file into a formatted DataFrame.
+
+        Args:
+            file: Path to the Excel file containing HIV PF data for one country.
+
+        Returns:
+            DataFrame with required multi-index and column specifications.
+        """
         print(f"Reading: {file}  .....", end="")
 
         # Load 'Sheet1' from the Excel workbook
@@ -503,9 +512,14 @@ class PFInputDataHIV(HIVMixin, PFInputData):
 
         # Deconstruct the 'Scenario' column to give "variable" and "scenario description" separately.
         def _deconstruct_scenario(s: str) -> Tuple[str, str]:
-            """For a given string, from the `Scenario` column of the HIV workbook, return a tuple that gives
-            (scenario_descriptor, variable name). This routine extracts the scenario that is labelled in the form:
-             "<Variable> <Scenario_Descriptor>"."""
+            """Extract scenario descriptor and variable name from scenario string.
+
+            Args:
+                s: Scenario string in format "<Variable> <Scenario_Descriptor>".
+
+            Returns:
+                Tuple of (indicator, scenario_descriptor).
+            """
 
             split_char = ""
             k = 2
@@ -551,21 +565,37 @@ class PFInputDataHIV(HIVMixin, PFInputData):
 
     @staticmethod
     def _load_sheet(file: Path):
-        """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
-        with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
+        """Load data from Excel file.
+
+        Args:
+            file: Path to the Excel file to load.
+
+        Returns:
+            DataFrame containing data from the file.
         """
         return pd.read_excel(file)
 
 
 # Load the partner data file(s)
 class PartnerDataHIV(HIVMixin, PartnerData):
-    """This is the File Handler for the HIV partner data."""
+    """File handler for HIV partner data from UNAIDS.
+
+    This class reads and processes UNAIDS partner data containing historical
+    epidemiological indicators for HIV.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _build_df(self, path: Path) -> pd.DataFrame:
-        """Reads in the data and returns a pd.DataFrame with multi-index (country, year, indicator)."""
+        """Read and process HIV partner data into a standardized DataFrame.
+
+        Args:
+            path: Path to directory containing HIV partner data CSV files.
+
+        Returns:
+            DataFrame with multi-index (country, year, indicator) and column 'central'.
+        """
 
         # Read in each file and concatenate the results
         all_xlsx_file_at_the_path = get_files_with_extension(path, "csv")
@@ -640,8 +670,14 @@ class PartnerDataHIV(HIVMixin, PartnerData):
         return concatenated_dfs
 
     def _turn_workbook_into_df(self, file: Path) -> pd.DataFrame:
-        """Return formatted pd.DataFrame from the Excel file provided. The return dataframe is specific to one country,
-        and has the required multi-index and column specifications."""
+        """Convert an HIV partner data CSV file into a formatted DataFrame.
+
+        Args:
+            file: Path to the CSV file containing HIV partner data.
+
+        Returns:
+            DataFrame with required multi-index and column specifications.
+        """
         print(f"Reading: {file}  .....", end="")
 
         # Load 'Sheet1' from the Excel workbook
@@ -691,16 +727,24 @@ class PartnerDataHIV(HIVMixin, PartnerData):
 
     @staticmethod
     def _load_sheet(file: Path):
-        """Load sheet1 from the specified file, while suppressing warnings which sometimes come from `openpyxl` to do
-        with the stylesheet (see https://stackoverflow.com/questions/66214951/how-to-deal-with-warning-workbook-contains-no-default-style-apply-openpyxls).
+        """Load data from CSV file.
+
+        Args:
+            file: Path to the CSV file to load.
+
+        Returns:
+            DataFrame containing data from the file.
         """
         return pd.read_csv(file, encoding="ISO-8859-1")
 
 
-# Construct theGP
+# Construct the GP
 class GpHiv(HIVMixin, Gp):
-    """Hold the GP for HIV. It has to construct it from a file (fixed_gp) that shows the trend over time and
-    the partner data and some model results."""
+    """Handler for HIV Global Plan (GP) data.
+
+    This class constructs the GP for HIV from fixed reduction targets, partner data,
+    and model results to generate time-series projections.
+    """
 
     def _build_df(
             self,
@@ -709,6 +753,18 @@ class GpHiv(HIVMixin, Gp):
             partner_data: PartnerDataHIV,
             parameters: Parameters,
     ) -> pd.DataFrame:
+        """Build HIV Global Plan DataFrame from multiple data sources.
+
+        Args:
+            fixed_gp: Fixed GP parameters showing reduction trends over time.
+            model_results: HIV model results data.
+            partner_data: HIV partner data from UNAIDS.
+            parameters: Configuration parameters.
+
+        Returns:
+            DataFrame with multi-index (year, indicator) and column 'central'
+            containing GP projections.
+        """
         # Gather the parameters for this function
         gp_start_year = parameters.get(self.disease_name).get("GP_START_YEAR")
         first_year = parameters.get("START_YEAR")

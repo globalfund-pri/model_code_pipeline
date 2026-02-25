@@ -4,7 +4,12 @@ from tgftools.checks import DatabaseChecks
 
 
 class DatabaseChecksTb(TBMixin, CommonChecks, DatabaseChecks):
-    """This is the class for DatabaseChecks to do with the Tb data."""
+    """Database validation checks for TB data.
+
+    This class performs comprehensive validation checks on TB data including
+    structural checks, data quality checks, and consistency checks against
+    partner data and PF targets.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
