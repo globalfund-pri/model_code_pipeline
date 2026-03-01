@@ -11,8 +11,7 @@ dependencies:
   - pathlib=1.0.1
   - scipy=1.11.1
   - pytest=7.4.0
-  - isort=5.9.3
-  - black=23.3.0
+  - ruff=0.1.6
   - openpyxl=3.0.10
   - gitpython=3.1.37
   - seaborn=0.12.2
