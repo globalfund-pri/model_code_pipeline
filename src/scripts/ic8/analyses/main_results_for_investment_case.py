@@ -190,4 +190,4 @@ if __name__ == "__main__":
     open_file(filename)
 
     # This will dump the data to csv for Nick and Stephen
-    # dump_ic_scenario_to_file(filename_stub=Path(str(outputpath) + "/dump_ic"))
+    dump_ic_scenario_to_file(filename_stub=Path(str(outputpath) + "/dump_ic"))
