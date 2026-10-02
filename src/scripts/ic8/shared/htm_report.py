@@ -522,9 +522,10 @@ class HTMReport(Report):
         df = pd.concat(list_of_dfs, axis=0)
         model_2022 = df[year].sum()
         ratio = partner_2022 / model_2022
-        adj_tb_cf = (self.tb.IC.portfolio_results["deathshivneg"])*ratio
-        adj_tb_cf = (self.tb.CF_InfAve.portfolio_results["deathshivneg"]) * ratio
-        adj_tb_cf = (self.tb.CF_LivesSaved.portfolio_results["deathshivneg"]) * ratio
+        # IMPORTANT: CHOOSE WHICH TB COUNTERFACTURAL YOU WANT
+        # adj_tb_cf = (self.tb.IC.portfolio_results["deathsnotxhivneg"])*ratio
+        # adj_tb_cf = (self.tb.CF_InfAve.portfolio_results["deathsnotxhivneg"]) * ratio
+        adj_tb_cf = (self.tb.CF_LivesSaved.portfolio_results["deathsnotxhivneg"]) * ratio
 
 
         tb_deaths_hivneg_2024_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
@@ -536,6 +537,7 @@ class HTMReport(Report):
             slice(2027, 2029), "model_central"].sum()
         tb_deaths_hivneg_2027_2029_cf = adj_tb_cf.loc[slice(2027, 2029), "model_central"].sum()
         lives_saved_tb_hivneg_2027_2029 = tb_deaths_hivneg_2027_2029_cf - tb_deaths_hivneg_2027_2029_ic
+
 
         # Get lives saved for malaria
         malaria_deaths_2024_2029_ic = self.malaria.IC.portfolio_results["deaths"].loc[
