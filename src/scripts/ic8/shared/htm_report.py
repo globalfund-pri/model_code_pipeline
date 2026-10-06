@@ -525,8 +525,9 @@ class HTMReport(Report):
         # IMPORTANT: CHOOSE WHICH TB COUNTERFACTURAL YOU WANT
         # adj_tb_cf = (self.tb.IC.portfolio_results["deathsnotxhivneg"])*ratio
         # adj_tb_cf = (self.tb.CF_InfAve.portfolio_results["deathsnotxhivneg"]) * ratio
-        adj_tb_cf = (self.tb.CF_LivesSaved.portfolio_results["deathsnotxhivneg"]) * ratio
-
+        # adj_tb_cf = (self.tb.CF_LivesSaved.portfolio_results["deathsnotxhivneg"]) * ratio
+        # adj_tb_cf = (self.tb.CF_InfAve.portfolio_results["deathsnotxhivneg"])
+        adj_tb_cf = (self.tb.CF_LivesSaved.portfolio_results["deathsnotxhivneg"])
 
         tb_deaths_hivneg_2024_2029_ic = self.tb.IC.portfolio_results["deathshivneg"].loc[
             slice(2024, 2029), "model_central"].sum()
